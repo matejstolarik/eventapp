@@ -1,0 +1,500 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-30T15:54:22.902441+01:00",
+  "venues": [
+    {
+      "id": "cross-club",
+      "name": "Cross Club",
+      "city": "Praha",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "web": "https://www.crossclub.cz",
+      "instagram": null,
+      "facebook": null,
+      "type": null,
+      "character": null,
+      "music": null,
+      "size": null,
+      "capacity": null,
+      "features": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/rss/program/"
+        }
+      ],
+      "active": true,
+      "notes": null
+    }
+  ],
+  "events": [
+    {
+      "id": "cross-club-2026-10-30-neurocells-hard-rave",
+      "venue_id": "cross-club",
+      "title": "NEUROCELLS & HARD RAVE",
+      "date": "2026-10-30",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/",
+          "external_id": "8697"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-10-31-the-micronaut-de-noisy-pots-at-cross-club-prague",
+      "venue_id": "cross-club",
+      "title": "THE MICRONAUT (DE) + NOISY POTS AT CROSS CLUB PRAGUE",
+      "date": "2026-10-31",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8678-the-micronaut-de-noisy-pots-at-cross-club-prague/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8678-the-micronaut-de-noisy-pots-at-cross-club-prague/",
+          "external_id": "8678"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-01-sundej-se-sunday",
+      "venue_id": "cross-club",
+      "title": "SUNDEJ SE SUNDAY",
+      "date": "2026-11-01",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8688-sundej-se-sunday/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8688-sundej-se-sunday/",
+          "external_id": "8688"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-02-los-tekkenos",
+      "venue_id": "cross-club",
+      "title": "LOS TEKKENOS",
+      "date": "2026-11-02",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8704-los-tekkenos/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8704-los-tekkenos/",
+          "external_id": "8704"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-03-dnb-night",
+      "venue_id": "cross-club",
+      "title": "DNB NIGHT",
+      "date": "2026-11-03",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8705-dnb-night/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8705-dnb-night/",
+          "external_id": "8705"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-04-biocross",
+      "venue_id": "cross-club",
+      "title": "BIOCROSS",
+      "date": "2026-11-04",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8706-biocross/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8706-biocross/",
+          "external_id": "8706"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-05-up-tone-19-00-w-sturle-dagsland-techno-afterparty",
+      "venue_id": "cross-club",
+      "title": "UP TONE 19:00 w/ STURLE DAGSLAND & TECHNO AFTERPARTY",
+      "date": "2026-11-05",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8707-up-tone-19-00-w-sturle-dagsland-techno-afterparty/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8707-up-tone-19-00-w-sturle-dagsland-techno-afterparty/",
+          "external_id": "8707"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-06-double-trouble-w-magnetude-uk",
+      "venue_id": "cross-club",
+      "title": "DOUBLE TROUBLE w/ MAGNETUDE (UK)",
+      "date": "2026-11-06",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8699-double-trouble-w-magnetude-uk/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8699-double-trouble-w-magnetude-uk/",
+          "external_id": "8699"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-07-t-i-hlasy",
+      "venue_id": "cross-club",
+      "title": "TŘI HLASY",
+      "date": "2026-11-07",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8700-tri-hlasy/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8700-tri-hlasy/",
+          "external_id": "8700"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-08-sundej-se-sunday",
+      "venue_id": "cross-club",
+      "title": "SUNDEJ SE SUNDAY",
+      "date": "2026-11-08",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8708-sundej-se-sunday/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8708-sundej-se-sunday/",
+          "external_id": "8708"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-09-los-tekkenos",
+      "venue_id": "cross-club",
+      "title": "LOS TEKKENOS",
+      "date": "2026-11-09",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8701-los-tekkenos/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8701-los-tekkenos/",
+          "external_id": "8701"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-12-poh-ebn-kapela",
+      "venue_id": "cross-club",
+      "title": "POHŘEBNÍ KAPELA",
+      "date": "2026-11-12",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8703-pohrebni-kapela/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8703-pohrebni-kapela/",
+          "external_id": "8703"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-19-up-tone-w-marathon",
+      "venue_id": "cross-club",
+      "title": "UP TONE w/ MARATHON",
+      "date": "2026-11-19",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8698-up-tone-w-marathon/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8698-up-tone-w-marathon/",
+          "external_id": "8698"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-24-cross-slam-2026-nov-generace-no-4",
+      "venue_id": "cross-club",
+      "title": "CROSS SLAM 2026 - NOVÁ GENERACE - No.4",
+      "date": "2026-11-24",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8702-cross-slam-2026-nova-generace-no-4/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8702-cross-slam-2026-nova-generace-no-4/",
+          "external_id": "8702"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2027-05-14-cross-square-w-kv-ty",
+      "venue_id": "cross-club",
+      "title": "CROSS SQUARE w/ KVĚTY",
+      "date": "2027-05-14",
+      "start_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": "https://www.crossclub.cz/cs/program/8534-cross-square-w-kvety/",
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8534-cross-square-w-kvety/",
+          "external_id": "8534"
+        }
+      ],
+      "classification": {
+        "method": "source",
+        "confidence": null
+      },
+      "first_seen": "2026-10-30",
+      "last_seen": "2026-10-30",
+      "status": "scheduled",
+      "flags": [
+        "date_suspicious"
+      ]
+    }
+  ]
+}

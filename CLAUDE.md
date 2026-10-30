@@ -43,4 +43,14 @@ web/                  PWA (later)
 ```
 
 ## Commands
-To be filled in once the project is scaffolded (install, run pipeline, run tests).
+
+```bash
+# Install dependencies (first time)
+pip install -r requirements.txt
+
+# Run the pipeline (fetches live RSS, writes site/events.json)
+python -m pipeline.main
+
+# Run tests
+pytest
+```

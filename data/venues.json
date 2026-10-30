@@ -1,0 +1,24 @@
+[
+  {
+    "id": "cross-club",
+    "name": "Cross Club",
+    "city": "Praha",
+    "address": null,
+    "lat": null,
+    "lng": null,
+    "web": "https://www.crossclub.cz",
+    "instagram": null,
+    "facebook": null,
+    "type": null,
+    "character": null,
+    "music": null,
+    "size": null,
+    "capacity": null,
+    "features": null,
+    "sources": [
+      { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
+    ],
+    "active": true,
+    "notes": null
+  }
+]
