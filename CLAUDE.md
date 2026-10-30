@@ -12,7 +12,7 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Pipeline: Python, run daily by GitHub Actions.
 - Storage: static JSON (`events.json`) published to GitHub Pages. No database.
 - Frontend: PWA in React (later, after the data pipeline works).
-- No Instagram in v1. Sources: Resident Advisor, RSS, schema.org Event (JSON-LD), HTML program pages.
+- No Instagram in v1. Sources: RSS, schema.org Event (JSON-LD), HTML program pages.
 
 ## Rules
 - Never invent data. If a source does not provide a value, leave it empty (`null`). Do not guess dates, times, prices or URLs.
@@ -20,7 +20,7 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Each source is a separate adapter: `fetch(venue, source_config) -> list[RawEvent]`. Adapters do not deduplicate and do not touch other adapters.
 - Data from sources is not trusted blindly: inconsistencies are flagged (see Quality checks in `docs/data-model.md`), not silently fixed.
 - Be polite to websites: one request at a time per site, identify with a clear User-Agent, cache during development.
-- Resident Advisor has no public API. Do not build the RA adapter until Matej confirms how to access RA (terms of use are being checked).
+- Never fetch data from Resident Advisor (ra.co). Only link to it via venue `ra_url`.
 - Secrets (API keys) only via environment variables / GitHub Secrets, never in the repo.
 - Code, comments, commit messages and docs inside code: English. Talk to Matej in Slovak.
 - Keep it simple. This is a small personal project; prefer plain functions and standard libraries over frameworks.

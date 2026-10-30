@@ -10,6 +10,7 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-10-29 | Vo v2 IG len cez oficiálne Graph API (Business Discovery), stories nescrapujeme | Zadarmo, stabilné; scraping je proti ToS a krehký |
 | 2026-10-29 | Každý zdroj je samostatný adaptér s jednotným výstupom | Nové zdroje (vrátane IG) bez zásahu do zvyšku systému |
 | 2026-10-29 | Štruktúrované zdroje majú prednosť pred HTML; priorita polí `ra` > `jsonld` > `rss` > `html` | Spoľahlivosť |
+| 2026-10-30 | Resident Advisor sa nepoužíva ako zdroj dát; v1 zdroje sú len RSS, schema.org Event (JSON-LD), HTML. Priorita polí: `jsonld` > `rss` > `html`. Podnik môže mať `ra_url` ako odkaz na jeho RA profil. | Podmienky RA zakazujú boty a scrapery bez písomného povolenia. |
 | 2026-10-29 | Údaje zo zdrojov neberieme naslepo, nesúlad sa označí príznakom, nie potichu opraví | Napr. Kasárna majú vo výpise prehodený deň a mesiac |
 | 2026-10-29 | Dátumy a časy ako text v pražskom čase, nikdy cez UTC | Cross RSS dáva polnoc ako 23:00 GMT predošlého dňa |
 | 2026-10-29 | Pri neistote akcie nezlučujeme | Duplicita je menšia chyba než zlúčenie dvoch rôznych akcií |

@@ -34,8 +34,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
   "size": "small",
   "capacity": 250,
   "features": ["open-air"],
+  "ra_url": "https://ra.co/clubs/13354",
   "sources": [
-    { "type": "ra", "club_id": 13354 },
     { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
   ],
   "active": true,
@@ -47,7 +47,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `sources`: môže byť prázdne. Podnik bez zdroja akcií (napr. Magneto, Popocafepetl) ostáva v databáze, appka ukáže jeho profil a odkazy, len bez akcií.
 - `capacity`: nepovinné, len overené číslo.
 - `lat`, `lng`: súradnice pre budúcu mapu akcií. Doplniť už teraz pri zakladaní podniku, neskôr by sa dopĺňali spätne.
-- Typy zdrojov v1: `ra`, `rss`, `jsonld`, `html`. V2 pribudne `instagram`.
+- `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
+- Typy zdrojov v1: `rss`, `jsonld`, `html`. V2 pribudne `instagram`. (RA sa nepoužíva — pozri `docs/decisions.md`.)
 
 ### Štítky podniku (nastavuje Matej ručne)
 
@@ -148,7 +149,7 @@ Pri porovnaní s predchádzajúcim `events.json` sa akcia páruje rovnako, aby s
 
 Keď viac zdrojov dáva to isté pole, vyhráva zdroj s vyššou prioritou:
 
-`ra` > `jsonld` > `rss` > `html`
+`jsonld` > `rss` > `html`
 
 Výnimka: prázdna hodnota nikdy neprepíše vyplnenú.
 
