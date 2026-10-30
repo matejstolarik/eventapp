@@ -52,7 +52,7 @@ def main():
 
     events = [normalize_event(r, previous) for r in all_raw]
     events = dedup_events(events)
-    events = run_checks(events)
+    events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
     output = {

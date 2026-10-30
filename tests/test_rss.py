@@ -2,6 +2,7 @@ import pathlib
 import pytest
 
 from pipeline.adapters.rss import parse
+from pipeline.normalize import _slugify
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 
@@ -80,3 +81,14 @@ def test_venue_id():
     events = parse(VENUE, SOURCE, _fixture("cross_club_rss.xml"))
     for e in events:
         assert e.venue_id == "cross-club"
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("TŘI HLASY", "tri-hlasy"),
+    ("POHŘEBNÍ KAPELA", "pohrebni-kapela"),
+    ("NEUROCELLS & HARD RAVE", "neurocells-hard-rave"),
+    ("CROSS SLAM 2026 - NOVÁ GENERACE - No.4", "cross-slam-2026-nova-generace-no-4"),
+    ("UP TONE 19:00 w/ STURLE DAGSLAND & TECHNO AFTERPARTY", "up-tone-19-00-w-sturle-dagsland-techno-afterparty"),
+])
+def test_slugify_diacritics(title, expected):
+    assert _slugify(title) == expected

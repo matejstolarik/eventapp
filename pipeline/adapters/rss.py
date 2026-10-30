@@ -36,7 +36,7 @@ def parse(venue: dict, source_config: dict, xml_text: str) -> list:
             artists=[],
             price_text=None,
             free=None,
-            ticket_url=entry.get("link") or None,
+            ticket_url=None,  # RSS gives the event page URL, not a ticket sales link
             image_url=None,
             source={
                 "type": "rss",
