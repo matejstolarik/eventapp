@@ -11,7 +11,7 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-10-29 | Každý zdroj je samostatný adaptér s jednotným výstupom | Nové zdroje (vrátane IG) bez zásahu do zvyšku systému |
 | 2026-10-29 | Štruktúrované zdroje majú prednosť pred HTML; priorita polí `ra` > `jsonld` > `rss` > `html` | Spoľahlivosť |
 | 2026-10-30 | Resident Advisor sa nepoužíva ako zdroj dát; v1 zdroje sú len RSS, schema.org Event (JSON-LD), HTML. Priorita polí: `jsonld` > `rss` > `html`. Podnik môže mať `ra_url` ako odkaz na jeho RA profil. | Podmienky RA zakazujú boty a scrapery bez písomného povolenia. |
-| 2026-10-31 | Čitárna Unijazz: HTML adaptér cez WP REST API (mec-events) + scraping `.event-time` elementu; JSON-LD pre akcie neexistuje, výpis je JS-renderovaný. | Pôvodne plánovaný JSON-LD zdroj; po vzorkovaní sa ukázalo, že Čitárna nemá event JSON-LD. |
+| 2026-10-31 | Čitárna Unijazz: `jsonld` adaptér, strategy `mec_ajax` — POST na `admin-ajax.php` pre aktuálny + 2 nasledujúce mesiace; `start_time = null`. Skin ID (47) v source config. | Stránka je JS-renderovaná; JSON-LD je v AJAX odpovediach MEC pluginu. WP REST API (`mec-events`) nevhodné — `date` je dátum publikácie, nie konania eventu. |
 | 2026-10-31 | Kasárna Karlín: listing fetchujeme z `/en/program` (nie `/program`); `/program` dáva CS linky s `/index.php/` prefixom v statickom HTML. | Statické HTML `/program` vracia Drupal server-side render s CS slugmi; EN listing má správne EN linky. |
 | 2026-10-29 | Údaje zo zdrojov neberieme naslepo, nesúlad sa označí príznakom, nie potichu opraví | Napr. Kasárna majú vo výpise prehodený deň a mesiac |
 | 2026-10-29 | Dátumy a časy ako text v pražskom čase, nikdy cez UTC | Cross RSS dáva polnoc ako 23:00 GMT predošlého dňa |

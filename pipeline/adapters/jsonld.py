@@ -13,6 +13,10 @@ log = logging.getLogger(__name__)
 
 
 def fetch(venue: dict, source_config: dict) -> list:
+    strategy = source_config.get("strategy")
+    if strategy == "mec_ajax":
+        return _fetch_mec_ajax(venue, source_config)
+
     fetcher = make_fetcher(source_config)
     try:
         html = fetcher.get(source_config["url"])
@@ -42,6 +46,88 @@ def parse_kasarna(venue: dict, source_config: dict, listing_html: str,
             return details_map[url]
 
     return _fetch_kasarna_details(venue, source_config, listing_html, _DictFetcher())
+
+
+# ── MEC admin-ajax strategy (Čitárna Unijazz and any other MEC tile calendar) ──
+
+def _fetch_mec_ajax(venue: dict, source_config: dict) -> list:
+    """Fetch events from a WordPress site using the Modern Events Calendar (MEC)
+    plugin tile view.  MEC renders months on demand via admin-ajax.php; we POST
+    for the current month and the next `months_ahead` months and parse JSON-LD
+    from each HTML response.
+
+    Required source_config keys:
+      ajax_url    – full URL to wp-admin/admin-ajax.php
+      skin_id     – integer id of the MEC skin shortcode on the page
+      url         – canonical listing URL (used as base for image resolution)
+    Optional:
+      months_ahead – how many months beyond the current one to fetch (default 1)
+
+    Risk: if the site rebuilds and the skin_id changes, the adapter returns 0
+    events.  This is caught by the existing "0 events" warning in main.py.
+    """
+    import requests as _requests
+    from pipeline.fetch import _rate_limit, LimitExceeded, USER_AGENT
+
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    cutoff = today + datetime.timedelta(days=180)
+
+    ajax_url = source_config["ajax_url"]
+    skin_id = int(source_config["skin_id"])
+    months_ahead = int(source_config.get("months_ahead", 1))
+    fetcher = make_fetcher(source_config)
+
+    # Build list of (year, month) starting from the current month
+    months_to_fetch: list[tuple[int, int]] = []
+    d = today.replace(day=1)
+    for _ in range(months_ahead + 1):
+        months_to_fetch.append((d.year, d.month))
+        d = (d.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
+
+    import time as _time
+
+    all_events: list = []
+    for year, month in months_to_fetch:
+        fetcher._count += 1  # count the POST against the per-source request limit
+        if fetcher._count > fetcher.max_requests:
+            log.warning("%s [jsonld/mec_ajax]: max_requests reached", venue["id"])
+            break
+        if _time.monotonic() - fetcher._start > fetcher.timeout_secs:
+            log.warning("%s [jsonld/mec_ajax]: timeout exceeded", venue["id"])
+            break
+
+        try:
+            _rate_limit(ajax_url)
+            resp = _requests.post(
+                ajax_url,
+                data={
+                    "action": "mec_tile_load_month",
+                    "mec_year": str(year),
+                    "mec_month": f"{month:02d}",
+                    "atts[id]": str(skin_id),
+                    "navigator_click": "true",
+                    "apply_sf_date": "0",
+                },
+                headers={"User-Agent": USER_AGENT},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            month_html = resp.json().get("month", "")
+        except Exception as exc:
+            log.warning("%s [jsonld/mec_ajax]: %04d-%02d failed: %s",
+                        venue["id"], year, month, exc)
+            continue
+
+        for ev in _parse_listing(venue, source_config, month_html):
+            try:
+                ev_date = datetime.date.fromisoformat(ev.date)
+            except (ValueError, AttributeError):
+                continue
+            if yesterday <= ev_date <= cutoff:
+                all_events.append(ev)
+
+    return all_events
 
 
 # ── listing strategy (MeetFactory, Čitárna) ───────────────────────────────────

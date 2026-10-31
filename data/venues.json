@@ -86,7 +86,16 @@
     "size": null,
     "capacity": null,
     "features": null,
-    "sources": [],
+    "sources": [
+      {
+        "type": "jsonld",
+        "strategy": "mec_ajax",
+        "url": "https://citarna.unijazz.cz/program/",
+        "ajax_url": "https://citarna.unijazz.cz/wp-admin/admin-ajax.php",
+        "skin_id": 47,
+        "months_ahead": 2
+      }
+    ],
     "active": true,
     "notes": null
   }

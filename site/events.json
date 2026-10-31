@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-31T12:54:16.690490+01:00",
+  "generated_at": "2026-10-31T13:04:48.216480+01:00",
   "venues": [
     {
       "id": "cross-club",
@@ -118,7 +118,16 @@
       "size": null,
       "capacity": null,
       "features": null,
-      "sources": [],
+      "sources": [
+        {
+          "type": "jsonld",
+          "strategy": "mec_ajax",
+          "url": "https://citarna.unijazz.cz/program/",
+          "ajax_url": "https://citarna.unijazz.cz/wp-admin/admin-ajax.php",
+          "skin_id": 47,
+          "months_ahead": 2
+        }
+      ],
       "active": true,
       "notes": null
     }
@@ -1190,6 +1199,576 @@
         {
           "type": "jsonld",
           "url": "https://kasarnakarlin.cz/en/program/2027/04/12/keo-uk",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-03-jazzmanie-vladimira-kourila-273",
+      "venue_id": "citarna-unijazz",
+      "title": "Jazzmánie Vladimíra Kouřila #273",
+      "date": "2026-11-03",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/jazzmanie-vladimira-kourila-273/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-04-unijazz-open",
+      "venue_id": "citarna-unijazz",
+      "title": "Unijazz Open",
+      "date": "2026-11-04",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/unijazz-open-39/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-05-bbp-podzemni-orchestr-polansky-amp-langman",
+      "venue_id": "citarna-unijazz",
+      "title": "BBP – podzemní orchestr + Polanský &amp; Langman",
+      "date": "2026-11-05",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/bbp-podzemni-orchestr-polanskylangman/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-06-drazdanska-cena-za-poezii-2026-prazsky-vecer",
+      "venue_id": "citarna-unijazz",
+      "title": "Drážďanská cena za poezii 2026 – Pražský večer",
+      "date": "2026-11-06",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/drazdanska-cena-za-poezii-2026-prazsky-vecer/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-07-pro-verejnost-zavreno",
+      "venue_id": "citarna-unijazz",
+      "title": "pro veřejnost ZAVŘENO",
+      "date": "2026-11-07",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/pro-verejnost-zavreno-4/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-09-svitit-cestou-motivacni-stand-up-svetlany-nalepkove",
+      "venue_id": "citarna-unijazz",
+      "title": "Svítit cestou – Motivační stand-up Světlany Nálepkové",
+      "date": "2026-11-09",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/svitit-cestou-motivacni-stand-up-svetlany-nalepkove/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-10-argo-michal-vrba-hlusicky-ctverec",
+      "venue_id": "citarna-unijazz",
+      "title": "Argo: Michal Vrba – Hlušický čtverec",
+      "date": "2026-11-10",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/argo-michal-vrba-hlusicky-ctverec/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-11-videt-hutnou-hudbu",
+      "venue_id": "citarna-unijazz",
+      "title": "Vidět hutnou hudbu",
+      "date": "2026-11-11",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/videt-hutnou-hudbu-2/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-12-hlavec-nohaband-puvodni-bures",
+      "venue_id": "citarna-unijazz",
+      "title": "HLAVEC: Nohaband + Původní Bureš",
+      "date": "2026-11-12",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/hlavec-nohaband-puvodni-bures-2/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-13-unijazz-cup-2026-11",
+      "venue_id": "citarna-unijazz",
+      "title": "Unijazz Cup 2026 #11",
+      "date": "2026-11-13",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/unijazz-cup-2026-11/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-16-more-dni-krest-vinylove-desky-predkapela-dvorak",
+      "venue_id": "citarna-unijazz",
+      "title": "Moře dní: křest vinylové desky, předkapela: Dvořák",
+      "date": "2026-11-16",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/more-dni-krest-vinylu-support-dvorak/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-18-text-appeal-svazek-28",
+      "venue_id": "citarna-unijazz",
+      "title": "Text-appeal, svazek 28",
+      "date": "2026-11-18",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/text-appeal-vol-28/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-19-jakub-eden-krest-debutoveho-alba",
+      "venue_id": "citarna-unijazz",
+      "title": "JAKUB EDEN – KŘEST DEBUTOVÉHO ALBA",
+      "date": "2026-11-19",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/david-pillow-krest-jakub-eden/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-20-psytrance-united",
+      "venue_id": "citarna-unijazz",
+      "title": "PSYTRANCE UNITED",
+      "date": "2026-11-20",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/psytrance-united/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-24-freshwater-dogs-table-mountain-string-band",
+      "venue_id": "citarna-unijazz",
+      "title": "Freshwater Dogs + Table Mountain String Band",
+      "date": "2026-11-24",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/freshwater-dogs-table-mountain-string-band/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-25-otevreno-pro-verejnost-do-18-00",
+      "venue_id": "citarna-unijazz",
+      "title": "otevřeno pro veřejnost do 18:00",
+      "date": "2026-11-25",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/pro-verejnost-otevreno-do-1800-6/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-26-syrovy-tony-katka-sarkozi",
+      "venue_id": "citarna-unijazz",
+      "title": "Syrový tóny + Katka Šarközi",
+      "date": "2026-11-26",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/syrovy-tony-katka-sarkozi/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-27-pro-verejnost-zavreno",
+      "venue_id": "citarna-unijazz",
+      "title": "pro veřejnost ZAVŘENO",
+      "date": "2026-11-27",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/pro-verejnost-zavreno-5/",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "citarna-unijazz-2026-11-30-frantisek-drabek-je-tohle-divadlo",
+      "venue_id": "citarna-unijazz",
+      "title": "František Drábek – Je tohle divadlo?",
+      "date": "2026-11-30",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://citarna.unijazz.cz/events/frantisek-drabek-je-tohle-divadlo/",
           "external_id": null,
           "section": null
         }
