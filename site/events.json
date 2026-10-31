@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-31T13:04:48.216480+01:00",
+  "generated_at": "2026-10-31T13:17:50.018343+01:00",
   "venues": [
     {
       "id": "cross-club",
@@ -850,6 +850,636 @@
       "flags": []
     },
     {
+      "id": "meetfactory-2026-11-25-cancer-house-kailas",
+      "venue_id": "meetfactory",
+      "title": "Cancer House + Kailas",
+      "date": "2026-11-25",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/IMG_2601-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/cancer-house-kailas",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-27-live-nation-tiffany-day",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Tiffany Day",
+      "date": "2026-11-27",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/TiffanyDay-GratitudeProject-PressShot1-1080x1332-1-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-tiffany-day",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-28-gutafest-2026",
+      "venue_id": "meetfactory",
+      "title": "Gutafest 2026",
+      "date": "2026-11-28",
+      "start_time": null,
+      "doors_time": "16:30",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/4pep0esmtl-gutalax-18-1-930x930-6669a65ac0977-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/gutafest-2026",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-30-live-nation-strangelove",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Strangelove",
+      "date": "2026-11-30",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Strangelove-2026-square-250x.png",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-strangelove",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-01-shaking-hand-wreckberries",
+      "venue_id": "meetfactory",
+      "title": "Shaking Hand + Wreckberries",
+      "date": "2026-12-01",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/SHAKING_HAND_CABLE_TIES_CRED_SAM_LINDLEY-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/shaking-hand",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-04-rfp-concerts-voila",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: VOILÀ",
+      "date": "2026-12-04",
+      "start_time": null,
+      "doors_time": "19:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/VA_Profile_Picture_2026-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-voila",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-06-satoshi-viva-moldova-europe-tour",
+      "venue_id": "meetfactory",
+      "title": "Satoshi: Viva Moldova Europe Tour",
+      "date": "2026-12-06",
+      "start_time": null,
+      "doors_time": "19:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Satoshi1_vert-width1600-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/satoshi-viva-moldova-europe-tour",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-11-selection-mighty-oaks-june-carousel",
+      "venue_id": "meetfactory",
+      "title": "Selection: Mighty Oaks + June Carousel",
+      "date": "2026-12-11",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Mighty_Oaks_-_Main_Press_Shot-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/selection-mighty-oaks",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-01-27-rfp-concerts-comeback-kid",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: Comeback Kid",
+      "date": "2027-01-27",
+      "start_time": null,
+      "doors_time": "17:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Comeback_Kid_19-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-comeback-kid",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-07-live-nation-iceage",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Iceage",
+      "date": "2027-02-07",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Iceage_-_Star_-_Credit_Alva_Le_Febvre_Large-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-iceage",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-16-live-nation-look-mum-no-computer",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Look Mum No Computer",
+      "date": "2027-02-16",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/LOOK_MUM_NO_COMPUTER_by_Melanie_King-compressed-scale_x2_Large-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-look-mum-no-computer",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-17-live-nation-amble",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Amble",
+      "date": "2027-02-17",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/AmbleArenaPoster-scaled-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-amble",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-21-rfp-concerts-dead-poet-society",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: Dead Poet Society",
+      "date": "2027-02-21",
+      "start_time": null,
+      "doors_time": "19:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/DPS-STUDIO-03-705-Edit_PINK_1-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-dead-poet-society",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-24-live-nation-jacob-banks",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Jacob Banks",
+      "date": "2027-02-24",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/JACOB_BANKS-21_x_Large-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-jacob-banks",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-27-winter-prague-gothic-treffen",
+      "venue_id": "meetfactory",
+      "title": "Winter Prague Gothic Treffen",
+      "date": "2027-02-27",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/WPGT_2027_-_flyer_v.1-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/winter-prague-gothic-treffen",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-28-protomartyr",
+      "venue_id": "meetfactory",
+      "title": "Protomartyr",
+      "date": "2027-02-28",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Protomartyr_Hyatt_Hill_1_Credit_Trevor_Naud_72dpi-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/protomartyr",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-03-06-rfp-concerts-h-blockx",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: H-Blockx",
+      "date": "2027-03-06",
+      "start_time": null,
+      "doors_time": "19:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/H-Blockx_FTB_DSC1354_by_Danny_Kötter_thezitterman-2-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-h-blockx",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-03-10-rfp-concerts-south-arcade",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: South Arcade",
+      "date": "2027-03-10",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/LEAD-scaled-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-south-arcade",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-03-11-live-nation-haiden-henderson",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Haiden Henderson",
+      "date": "2027-03-11",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Haiden_Hendersen_photo-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-haiden-henderson",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-04-02-fource-nieve-ella",
+      "venue_id": "meetfactory",
+      "title": "Fource: Nieve Ella",
+      "date": "2027-04-02",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/vertical_Lo6tbPS-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/fource-nieve-ella",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-04-17-16-horsepower",
+      "venue_id": "meetfactory",
+      "title": "16 Horsepower",
+      "date": "2027-04-17",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/759127318_122143368201087701_3504007450677141418_n-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/16-horsepower",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
       "id": "meetfactory-2026-11-09-samanta-schweblin-mimo-dosah",
       "venue_id": "meetfactory",
       "title": "Samanta Schweblin: Mimo dosah",
@@ -1150,11 +1780,41 @@
       "flags": []
     },
     {
+      "id": "meetfactory-2027-01-13-oliver-lovrenski-kdyz-nam-bylo-min",
+      "venue_id": "meetfactory",
+      "title": "Oliver Lovrenski: Když nám bylo míň",
+      "date": "2027-01-13",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/oliver-lovrenski-kdyz-nam-bylo-min",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
       "id": "kasarna-karlin-2026-12-02-bad-karma-boy-album-launch-island-mint",
       "venue_id": "kasarna-karlin",
       "title": "Bad Karma Boy (album launch) + Island Mint",
       "date": "2026-12-02",
-      "start_time": null,
+      "start_time": "19:00",
       "doors_time": null,
       "end_time": null,
       "formats": [],
@@ -1184,7 +1844,7 @@
       "venue_id": "kasarna-karlin",
       "title": "Keo (UK)",
       "date": "2027-04-12",
-      "start_time": null,
+      "start_time": "19:00",
       "doors_time": null,
       "end_time": null,
       "formats": [],

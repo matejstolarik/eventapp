@@ -25,7 +25,7 @@ def fetch(venue: dict, source_config: dict) -> list:
         return []
     if source_config.get("follow_links"):
         return _fetch_kasarna_details(venue, source_config, html, fetcher)
-    return _parse_listing(venue, source_config, html)
+    return _fetch_listing_pages(venue, source_config, html, fetcher)
 
 
 def parse(venue: dict, source_config: dict, html: str) -> list:
@@ -131,6 +131,63 @@ def _fetch_mec_ajax(venue: dict, source_config: dict) -> list:
 
 
 # ── listing strategy (MeetFactory, Čitárna) ───────────────────────────────────
+
+def _fetch_listing_pages(venue: dict, source_config: dict, first_html: str,
+                         fetcher) -> list:
+    """Fetch all paginated listing pages (endless_more pattern) and return events.
+
+    Stops when there is no more 'endless_more' link, the request limit is hit,
+    or every event on the last page is beyond the +180-day window.
+    """
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    cutoff = today + datetime.timedelta(days=180)
+    base_url = source_config["url"]
+
+    all_events: list = []
+    html = first_html
+    page = 1
+
+    while True:
+        events = _parse_listing(venue, source_config, html)
+        for ev in events:
+            try:
+                ev_date = datetime.date.fromisoformat(ev.date)
+            except (ValueError, AttributeError):
+                all_events.append(ev)
+                continue
+            if yesterday <= ev_date <= cutoff:
+                all_events.append(ev)
+
+        soup = BeautifulSoup(html, "html.parser")
+        more = soup.find("a", class_="endless_more")
+        if not more:
+            break
+
+        # Stop early if all events on this page are beyond the cutoff
+        page_dates = []
+        for ev in events:
+            try:
+                page_dates.append(datetime.date.fromisoformat(ev.date))
+            except (ValueError, AttributeError):
+                pass
+        if page_dates and min(page_dates) > cutoff:
+            break
+
+        page += 1
+        next_url = f"{base_url}?page={page}"
+        try:
+            html = fetcher.get(next_url)
+        except LimitExceeded as exc:
+            log.warning("%s [jsonld]: %s — stopping pagination at page %d",
+                        venue["id"], exc, page)
+            break
+        except Exception as exc:
+            log.warning("%s [jsonld]: page %d failed: %s", venue["id"], page, exc)
+            break
+
+    return all_events
+
 
 def _parse_listing(venue: dict, source_config: dict, html: str) -> list:
     soup = BeautifulSoup(html, "html.parser")
@@ -265,7 +322,7 @@ def _parse_time_line(text: str) -> "str | None":
     """
     TIME_24H = re.compile(r"^(\d{1,2}):(\d{2})$")
     TIME_AMPM = re.compile(r"^(\d{1,2}):(\d{2})\s*(AM|PM)$", re.IGNORECASE)
-    for line in text.split("\n")[:50]:
+    for line in text.split("\n"):
         line = line.strip()
         m = TIME_24H.match(line)
         if m:

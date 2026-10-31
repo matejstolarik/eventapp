@@ -4,6 +4,7 @@ import pathlib
 import pytest
 
 from pipeline.adapters.jsonld import (
+    _fetch_listing_pages,
     _parse_kasarna_detail,
     _parse_time_line,
     parse,
@@ -75,6 +76,28 @@ def test_meetfactory_no_ticket_url():
         assert e.ticket_url is None
 
 
+def test_meetfactory_pagination_fetches_all_pages():
+    """_fetch_listing_pages follows endless_more links across multiple pages."""
+    from pipeline.fetch import Fetcher
+
+    pages = {
+        "https://meetfactory.cz/cs/program/hudba": fixture("meetfactory_hudba_p1.html"),
+        "https://meetfactory.cz/cs/program/hudba?page=2": fixture("meetfactory_hudba_p2.html"),
+    }
+
+    class _DictFetcher(Fetcher):
+        def get(self, url, http_timeout=30):
+            return pages[url]
+
+    events = _fetch_listing_pages(VENUE_MF, SOURCE_MF,
+                                  fixture("meetfactory_hudba_p1.html"),
+                                  _DictFetcher())
+    titles = [e.title for e in events]
+    assert "Page1 Event" in titles
+    assert "Page2 Event" in titles
+    assert len(events) == 2
+
+
 # ── Kasárna time parsing ──────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("text,expected", [
@@ -87,6 +110,13 @@ def test_meetfactory_no_ticket_url():
 ])
 def test_parse_time_line(text, expected):
     assert _parse_time_line(text) == expected
+
+
+def test_parse_time_line_deep_in_page():
+    """Real Kasárna pages have the time at raw line ~374 (not within first 50)."""
+    padding = "\n" * 200
+    text = padding + "7:00 PM\n\nDescription"
+    assert _parse_time_line(text) == "19:00"
 
 
 def test_kasarna_ampm_time_from_fixture():
