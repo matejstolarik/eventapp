@@ -21,5 +21,73 @@
     ],
     "active": true,
     "notes": null
+  },
+  {
+    "id": "meetfactory",
+    "name": "MeetFactory",
+    "city": "Praha",
+    "address": "Ke Sklárně 3213/15, Praha 5",
+    "lat": 50.053653,
+    "lng": 14.408441,
+    "web": "https://www.meetfactory.cz",
+    "ra_url": null,
+    "instagram": null,
+    "facebook": null,
+    "type": null,
+    "character": null,
+    "music": null,
+    "size": null,
+    "capacity": null,
+    "features": null,
+    "sources": [
+      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba" },
+      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo" }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "kasarna-karlin",
+    "name": "Kasárna Karlín",
+    "city": "Praha",
+    "address": null,
+    "lat": null,
+    "lng": null,
+    "web": "https://kasarnakarlin.cz",
+    "ra_url": null,
+    "instagram": null,
+    "facebook": null,
+    "type": null,
+    "character": null,
+    "music": null,
+    "size": null,
+    "capacity": null,
+    "features": null,
+    "sources": [
+      { "type": "jsonld", "url": "https://kasarnakarlin.cz/en/program", "follow_links": true, "detail_lang": "en" }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "citarna-unijazz",
+    "name": "Čítárna Unijazz",
+    "city": "Praha",
+    "address": null,
+    "lat": null,
+    "lng": null,
+    "web": "https://citarna.unijazz.cz",
+    "ra_url": null,
+    "instagram": null,
+    "facebook": null,
+    "type": null,
+    "character": null,
+    "music": null,
+    "size": null,
+    "capacity": null,
+    "features": null,
+    "sources": [],
+    "active": true,
+    "notes": null
   }
 ]

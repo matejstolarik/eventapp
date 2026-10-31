@@ -19,7 +19,9 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Dates and times are stored as Prague local time strings (`YYYY-MM-DD`, `HH:MM`), never converted through UTC.
 - Each source is a separate adapter: `fetch(venue, source_config) -> list[RawEvent]`. Adapters do not deduplicate and do not touch other adapters.
 - Data from sources is not trusted blindly: inconsistencies are flagged (see Quality checks in `docs/data-model.md`), not silently fixed.
+- If sampling reveals that a venue's actual source type or fetch method differs from the plan (e.g. planned JSON-LD but the site has no Event JSON-LD, or requires JS rendering), **stop and report** before implementing. Do not silently switch to a different source type or add new adapters without agreement.
 - Be polite to websites: one request at a time per site, identify with a clear User-Agent, cache during development.
+- Each source has a hard limit: max requests per run and a per-source wall-clock timeout. A slow or broken source must log a warning and let the pipeline continue — it must never block other sources.
 - Never fetch data from Resident Advisor (ra.co). Only link to it via venue `ra_url`.
 - Secrets (API keys) only via environment variables / GitHub Secrets, never in the repo.
 - Code, comments, commit messages and docs inside code: English. Talk to Matej in Slovak.

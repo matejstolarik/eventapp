@@ -5,6 +5,8 @@ import pathlib
 from zoneinfo import ZoneInfo
 
 from pipeline.adapters import rss as rss_adapter
+from pipeline.adapters import jsonld as jsonld_adapter
+from pipeline.adapters import html as html_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
@@ -12,7 +14,7 @@ from pipeline.checks import run_checks
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-ADAPTERS = {"rss": rss_adapter}
+ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter}
 VENUES_PATH = pathlib.Path("data/venues.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
 PRAGUE_TZ = ZoneInfo("Europe/Prague")

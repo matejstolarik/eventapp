@@ -49,6 +49,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `lat`, `lng`: súradnice pre budúcu mapu akcií. Doplniť už teraz pri zakladaní podniku, neskôr by sa dopĺňali spätne.
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. V2 pribudne `instagram`. (RA sa nepoužíva — pozri `docs/decisions.md`.)
+- `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.
+- `html`: venue-specific HTML scraping. Konfigurácia obsahuje `strategy` (napr. `citarna_mec` pre Čitárnu Unijazz, ktorá nemá JSON-LD a používa WP REST API + stránky akcií s elementom `.event-time`).
 
 ### Štítky podniku (nastavuje Matej ručne)
 
@@ -75,6 +77,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
   "title": "NEUROCELLS & HARD RAVE",
   "date": "2026-10-30",
   "start_time": "22:00",
+  "doors_time": null,
   "end_time": null,
   "formats": ["dj"],
   "genres": ["drum-and-bass", "techno"],
@@ -85,8 +88,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
   "ticket_url": "https://ra.co/events/...",
   "image_url": null,
   "sources": [
-    { "type": "ra", "url": "https://ra.co/events/...", "external_id": "..." },
-    { "type": "rss", "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/", "external_id": "8697" }
+    { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/detail/event", "external_id": null, "section": "hudba" },
+    { "type": "rss", "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/", "external_id": "8697", "section": null }
   ],
   "classification": { "method": "llm", "confidence": 0.9 },
   "first_seen": "2026-10-20",
@@ -100,6 +103,7 @@ Polia:
 - `id`: vzniká pri prvom zachytení akcie a potom sa nemení, ani keď sa zmení názov. Slug v id sa tvorí z názvu: malé písmená, diakritika sa odstraňuje cez NFKD (nie nahrádza pomlčkou), zostanú len `[a-z0-9]` + pomlčky. „TŘI HLASY" → `tri-hlasy`, „POHŘEBNÍ KAPELA" → `pohrebni-kapela`.
 - `date`, `start_time`, `end_time`: **miestny čas Prahy**, uložený ako text (`YYYY-MM-DD`, `HH:MM`). Nie UTC. Dôvod: Cross RSS dáva polnoc ako `23:00 GMT` predchádzajúceho dňa, pri prepočte cez UTC by akcia skočila o deň.
 - `start_time`: nepovinné, niektoré zdroje čas nedávajú (Cross RSS). Appka vtedy ukáže len dátum.
+- `doors_time`: nepovinné, čas otvorenia dverí (napr. z `doorTime` v JSON-LD MeetFactory). Nikdy sa nepoužíva ako `start_time`.
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
 - `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
@@ -157,7 +161,8 @@ Výnimka: prázdna hodnota nikdy neprepíše vyplnenú.
 
 - Dva zdroje sa nezhodnú v dátume alebo čase: hodnota podľa priority, akcia dostane príznak `date_conflict` / `time_conflict`.
 - Dátum v minulosti pri **novej** akcii (taká sa predtým nevidela): príznak `date_suspicious`. Akcie za hranicou +180 dní sa do výstupu vôbec nedostanú (nie sú to chyby, len mimo okno).
-- Podozrenie na prehodený deň a mesiac (prípad Kasárna: výpis „12. 2.“ vs. detail 2. 12.): ak sa dátum z výpisu a z detailu líšia práve prehodením, platí detail a akcia dostane príznak.
+- Podozrenie na prehodený deň a mesiac: ak sa dátum z URL a z JSON-LD líšia práve prehodením dňa a mesiaca → `date_conflict` + `date_suspicious`. Kasárna Karlín zobrazuje dátumy v HTML systematicky ako MM. DD. (nie DD. MM.) — toto sa **neflaguje**, keďže dátum z HTML textu sa na Kasárne vôbec nepoužíva; berieme ho len z URL a z JSON-LD.
+- Čas z JSON-LD sa neberie naslepo: Kasárna má chybu v timezone na serveri (čas je posunutý o 5–6 h). Správny čas sa parsuje z textu stránky.
 - Adaptér, ktorý vráti nula akcií pri podniku, ktorý zvyčajne nejaké má: varovanie v logu (pravdepodobne sa zmenil web).
 
 ## Formát výstupu

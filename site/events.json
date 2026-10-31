@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-30T16:05:48.005964+01:00",
+  "generated_at": "2026-10-31T12:54:16.690490+01:00",
   "venues": [
     {
       "id": "cross-club",
@@ -10,6 +10,7 @@
       "lat": 50.1082,
       "lng": 14.4432,
       "web": "https://www.crossclub.cz",
+      "ra_url": "https://ra.co/clubs/13354",
       "instagram": "crossclubofficial",
       "facebook": "crossclubprague",
       "type": [
@@ -39,46 +40,97 @@
       ],
       "active": true,
       "notes": null
+    },
+    {
+      "id": "meetfactory",
+      "name": "MeetFactory",
+      "city": "Praha",
+      "address": "Ke Sklárně 3213/15, Praha 5",
+      "lat": 50.053653,
+      "lng": 14.408441,
+      "web": "https://www.meetfactory.cz",
+      "ra_url": null,
+      "instagram": null,
+      "facebook": null,
+      "type": null,
+      "character": null,
+      "music": null,
+      "size": null,
+      "capacity": null,
+      "features": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://meetfactory.cz/cs/program/hudba",
+          "section": "hudba"
+        },
+        {
+          "type": "jsonld",
+          "url": "https://meetfactory.cz/cs/program/divadlo",
+          "section": "divadlo"
+        }
+      ],
+      "active": true,
+      "notes": null
+    },
+    {
+      "id": "kasarna-karlin",
+      "name": "Kasárna Karlín",
+      "city": "Praha",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "web": "https://kasarnakarlin.cz",
+      "ra_url": null,
+      "instagram": null,
+      "facebook": null,
+      "type": null,
+      "character": null,
+      "music": null,
+      "size": null,
+      "capacity": null,
+      "features": null,
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://kasarnakarlin.cz/en/program",
+          "follow_links": true,
+          "detail_lang": "en"
+        }
+      ],
+      "active": true,
+      "notes": null
+    },
+    {
+      "id": "citarna-unijazz",
+      "name": "Čítárna Unijazz",
+      "city": "Praha",
+      "address": null,
+      "lat": null,
+      "lng": null,
+      "web": "https://citarna.unijazz.cz",
+      "ra_url": null,
+      "instagram": null,
+      "facebook": null,
+      "type": null,
+      "character": null,
+      "music": null,
+      "size": null,
+      "capacity": null,
+      "features": null,
+      "sources": [],
+      "active": true,
+      "notes": null
     }
   ],
   "events": [
-    {
-      "id": "cross-club-2026-10-30-neurocells-hard-rave",
-      "venue_id": "cross-club",
-      "title": "NEUROCELLS & HARD RAVE",
-      "date": "2026-10-30",
-      "start_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [
-        "alternative",
-        "underground"
-      ],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "ticket_url": null,
-      "image_url": null,
-      "sources": [
-        {
-          "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/",
-          "external_id": "8697"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
-      "status": "scheduled",
-      "flags": []
-    },
     {
       "id": "cross-club-2026-10-31-the-micronaut-de-noisy-pots-at-cross-club-prague",
       "venue_id": "cross-club",
       "title": "THE MICRONAUT (DE) + NOISY POTS AT CROSS CLUB PRAGUE",
       "date": "2026-10-31",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -100,7 +152,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -110,6 +162,7 @@
       "title": "SUNDEJ SE SUNDAY",
       "date": "2026-11-01",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -131,7 +184,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -141,6 +194,7 @@
       "title": "LOS TEKKENOS",
       "date": "2026-11-02",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -162,7 +216,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -172,6 +226,7 @@
       "title": "DNB NIGHT",
       "date": "2026-11-03",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -193,7 +248,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -203,6 +258,7 @@
       "title": "BIOCROSS",
       "date": "2026-11-04",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -224,7 +280,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -234,6 +290,7 @@
       "title": "UP TONE 19:00 w/ STURLE DAGSLAND & TECHNO AFTERPARTY",
       "date": "2026-11-05",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -255,7 +312,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -265,6 +322,7 @@
       "title": "DOUBLE TROUBLE w/ MAGNETUDE (UK)",
       "date": "2026-11-06",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -286,7 +344,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -296,6 +354,7 @@
       "title": "TŘI HLASY",
       "date": "2026-11-07",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -317,7 +376,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -327,6 +386,7 @@
       "title": "SUNDEJ SE SUNDAY",
       "date": "2026-11-08",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -348,7 +408,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -358,6 +418,7 @@
       "title": "LOS TEKKENOS",
       "date": "2026-11-09",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -379,7 +440,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -389,6 +450,7 @@
       "title": "POHŘEBNÍ KAPELA",
       "date": "2026-11-12",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -410,7 +472,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -420,6 +482,7 @@
       "title": "UP TONE w/ MARATHON",
       "date": "2026-11-19",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -441,7 +504,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     },
@@ -451,6 +514,7 @@
       "title": "CROSS SLAM 2026 - NOVÁ GENERACE - No.4",
       "date": "2026-11-24",
       "start_time": null,
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
@@ -472,7 +536,667 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-30",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-10-31-rfp-concerts-ezhel",
+      "venue_id": "meetfactory",
+      "title": "RFP Concerts: Ezhel",
+      "date": "2026-10-31",
+      "start_time": null,
+      "doors_time": "18:30",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Ezhel-800x-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-ezhel",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-05-live-nation-altn-gun-anatolian-grooves",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: Altın Gün + Anatolian Grooves",
+      "date": "2026-11-05",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/0041893579_10-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-altn-gun",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-07-anna-vaverkova-elias-o-graversen",
+      "venue_id": "meetfactory",
+      "title": "Anna Vaverková + Elias O. Graversen",
+      "date": "2026-11-07",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/26_7OhVgDW-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/anna-vaverkova-elias-o-graversen",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-08-sacred-chants-laboratorium-piesni",
+      "venue_id": "meetfactory",
+      "title": "Sacred Chants: Laboratorium Pieśni",
+      "date": "2026-11-08",
+      "start_time": null,
+      "doors_time": "19:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Laboratorium-Piesni_Press-Photo-scaled.jpg-250x.webp",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/sacred-chants-laboratorium-piesni",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-12-obscure-archspire-crown-magnetar-the-zenith-passage-analepsy",
+      "venue_id": "meetfactory",
+      "title": "Obscure: Archspire + Crown Magnetar + The Zenith Passage + Analepsy",
+      "date": "2026-11-12",
+      "start_time": null,
+      "doors_time": "17:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/stažený_soubor_2_SzNptyj-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/obscure-archspire-crown-magnetar-the-zenith-passage-analepsy",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-13-selection-skeler-lxst-cxntury-stral-mrjay",
+      "venue_id": "meetfactory",
+      "title": "Selection: Skeler + LXST CXNTURY + Æstral + MRJay",
+      "date": "2026-11-13",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/DSC_0185-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/selection-skeler",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-15-obscure-suffocation-despised-icon-carnifex-gutrectomy",
+      "venue_id": "meetfactory",
+      "title": "Obscure: Suffocation + Despised Icon + Carnifex + Gutrectomy",
+      "date": "2026-11-15",
+      "start_time": null,
+      "doors_time": "18:30",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/images-8-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/obscure-despised-icon-carnifex-suffocation-gates-to-hell",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-19-pragokoncert-allt-avralize-bite-down",
+      "venue_id": "meetfactory",
+      "title": "Pragokoncert: Allt + Avralize + Bite Down",
+      "date": "2026-11-19",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/641594356_1522702829865041_178508757578396715_n-800x-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/pragokoncert-allt-avralize-bite-down",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-21-good-times-only-krest-desky-blue-uandi",
+      "venue_id": "meetfactory",
+      "title": "Good Times Only: křest desky + Blue Uandi",
+      "date": "2026-11-21",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/GTO_PROMO_4_Kuba_Zeman-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/good-times-only-krest-desky",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-22-music-press-production-arab-strap",
+      "venue_id": "meetfactory",
+      "title": "Music Press Production: Arab Strap",
+      "date": "2026-11-22",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/ab6761610000e5eb547b0b30ac01160630da14eb-250x.jpeg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/music-press-production-arab-strap",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-09-samanta-schweblin-mimo-dosah",
+      "venue_id": "meetfactory",
+      "title": "Samanta Schweblin: Mimo dosah",
+      "date": "2026-11-09",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/meetfactory_JH_plataky13713__4-250x.png",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/samanta-schweblin-mimo-dosah",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-16-oliver-lovrenski-kdyz-nam-bylo-min",
+      "venue_id": "meetfactory",
+      "title": "Oliver Lovrenski: Když nám bylo míň",
+      "date": "2026-11-16",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/oliver-lovrenski-kdyz-nam-bylo-min",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-17-masakr-elsinor-your-silence-will-not-protect-you",
+      "venue_id": "meetfactory",
+      "title": "Masakr Elsinor: Your Silence Will Not Protect You",
+      "date": "2026-11-17",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/DSC_0652-250x.JPG",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/masakr-elsinor-your-silence-will-not-protect-you-1",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-24-elfriede-jelinek-popel",
+      "venue_id": "meetfactory",
+      "title": "Elfriede Jelinek: Popel",
+      "date": "2026-11-24",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/popel_foto_final-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/elfriede-jelinek-popel",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-11-29-esther-bol-infracervene",
+      "venue_id": "meetfactory",
+      "title": "Esther Bol: Infračervené",
+      "date": "2026-11-29",
+      "start_time": null,
+      "doors_time": "18:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/MeetFactory_infrared4309_1-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/esther-bol-infracervene",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-09-esther-bol-infracervene",
+      "venue_id": "meetfactory",
+      "title": "Esther Bol: Infračervené",
+      "date": "2026-12-09",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/MeetFactory_infrared4309_1-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/esther-bol-infracervene",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-12-michel-houellebecq-serotonin",
+      "venue_id": "meetfactory",
+      "title": "Michel Houellebecq: Serotonin",
+      "date": "2026-12-12",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/SERO-1-2-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/michel-houellebecq-serotonin-1",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-14-annie-ernaux-obycejna-zena",
+      "venue_id": "meetfactory",
+      "title": "Annie Ernaux: Obyčejná žena",
+      "date": "2026-12-14",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/OZ24-72-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/annie-ernaux-obycejna-zena",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-17-samanta-schweblin-mimo-dosah",
+      "venue_id": "meetfactory",
+      "title": "Samanta Schweblin: Mimo dosah",
+      "date": "2026-12-17",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/meetfactory_JH_plataky13713__4-250x.png",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/samanta-schweblin-mimo-dosah",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2026-12-19-oliver-lovrenski-kdyz-nam-bylo-min",
+      "venue_id": "meetfactory",
+      "title": "Oliver Lovrenski: Když nám bylo míň",
+      "date": "2026-12-19",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/oliver-lovrenski-kdyz-nam-bylo-min",
+          "external_id": null,
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "kasarna-karlin-2026-12-02-bad-karma-boy-album-launch-island-mint",
+      "venue_id": "kasarna-karlin",
+      "title": "Bad Karma Boy (album launch) + Island Mint",
+      "date": "2026-12-02",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2026/10/06/13/49/45/bad_karma-island_mint_provizor.png",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://kasarnakarlin.cz/en/program/2026/12/02/bad-karma-boy-album-launch-island-mint",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "kasarna-karlin-2027-04-12-keo-uk",
+      "venue_id": "kasarna-karlin",
+      "title": "Keo (UK)",
+      "date": "2027-04-12",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "ticket_url": null,
+      "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2026/10/06/13/56/15/keo.png",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "https://kasarnakarlin.cz/en/program/2027/04/12/keo-uk",
+          "external_id": null,
+          "section": null
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-10-31",
+      "last_seen": "2026-10-31",
       "status": "scheduled",
       "flags": []
     }

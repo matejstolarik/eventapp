@@ -15,12 +15,21 @@ def normalize_event(raw_event, previous_events: dict = None) -> dict:
     has_classification = bool(raw_event.formats or raw_event.genres)
     classification = {"method": "source", "confidence": None} if has_classification else None
 
+    # Adapter-detected "cancelled" takes precedence; otherwise keep previous or default.
+    if raw_event.status == "cancelled":
+        status = "cancelled"
+    elif prev:
+        status = prev.get("status", "scheduled")
+    else:
+        status = "scheduled"
+
     return {
         "id": event_id,
         "venue_id": raw_event.venue_id,
         "title": raw_event.title,
         "date": raw_event.date,
         "start_time": raw_event.start_time,
+        "doors_time": raw_event.doors_time,
         "end_time": raw_event.end_time,
         "formats": raw_event.formats,
         "genres": raw_event.genres,
@@ -34,8 +43,8 @@ def normalize_event(raw_event, previous_events: dict = None) -> dict:
         "classification": classification,
         "first_seen": prev["first_seen"] if prev else today,
         "last_seen": today,
-        "status": prev.get("status", "scheduled") if prev else "scheduled",
-        "flags": [],
+        "status": status,
+        "flags": list(raw_event.flags),
     }
 
 
