@@ -127,7 +127,78 @@ def _fetch_mec_ajax(venue: dict, source_config: dict) -> list:
             if yesterday <= ev_date <= cutoff:
                 all_events.append(ev)
 
+    if source_config.get("follow_details"):
+        all_events = _fetch_mec_detail_times(venue, source_config, all_events, fetcher)
+
     return all_events
+
+
+def _fetch_mec_detail_times(venue: dict, source_config: dict,
+                             events: list, fetcher) -> list:
+    """For each event in *events* fetch its detail page and fill start_time
+    from the `.event-time` element (format: 'DD. MM. YYYY HH:MM').
+
+    If the date on the detail page differs from the listing date a
+    'date_conflict' flag is added.  Events whose detail URL is the listing
+    URL itself (i.e. the JSON-LD had no individual URL) are left unchanged.
+    On LimitExceeded the remaining events keep start_time=None and a warning
+    is logged.
+    """
+    import dataclasses
+    listing_url = source_config["url"]
+    updated: list = []
+    limit_hit = False
+    for ev in events:
+        if limit_hit:
+            updated.append(ev)
+            continue
+        detail_url = ev.source.get("url")
+        if not detail_url or detail_url == listing_url:
+            updated.append(ev)
+            continue
+        try:
+            html = fetcher.get(detail_url)
+        except LimitExceeded as exc:
+            log.warning("%s [jsonld/mec_ajax]: %s — remaining events will have no start_time",
+                        venue["id"], exc)
+            limit_hit = True
+            updated.append(ev)
+            continue
+        except Exception as exc:
+            log.warning("%s [jsonld/mec_ajax]: detail %s failed: %s", venue["id"], detail_url, exc)
+            updated.append(ev)
+            continue
+
+        soup = BeautifulSoup(html, "html.parser")
+        et_el = soup.select_one(".event-time")
+        if not et_el:
+            updated.append(ev)
+            continue
+        det_date, det_time = _parse_event_time_div(et_el.get_text(strip=True))
+        if not det_time:
+            updated.append(ev)
+            continue
+        flags = list(ev.flags)
+        if det_date and det_date != ev.date:
+            flags.append("date_conflict")
+        updated.append(dataclasses.replace(ev, start_time=det_time, flags=flags))
+    return updated
+
+
+def _parse_event_time_div(text: str) -> "tuple[str | None, str | None]":
+    """Parse '.event-time' text like '03. 11. 2026 19:00'.
+    Returns (date_iso, time_str) or (None, None) if unparseable."""
+    m = re.match(r"(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\s+(\d{1,2}):(\d{2})", text.strip())
+    if not m:
+        return None, None
+    day, month, year, hour, minute = (int(x) for x in m.groups())
+    try:
+        d = datetime.date(year, month, day)
+    except ValueError:
+        return None, None
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        return None, None
+    return d.isoformat(), f"{hour:02d}:{minute:02d}"
 
 
 # ── listing strategy (MeetFactory, Čitárna) ───────────────────────────────────

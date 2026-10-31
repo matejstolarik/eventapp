@@ -93,7 +93,9 @@
         "url": "https://citarna.unijazz.cz/program/",
         "ajax_url": "https://citarna.unijazz.cz/wp-admin/admin-ajax.php",
         "skin_id": 47,
-        "months_ahead": 2
+        "months_ahead": 2,
+        "follow_details": true,
+        "max_requests": 30
       }
     ],
     "active": true,

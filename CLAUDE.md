@@ -14,6 +14,12 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Frontend: PWA in React (later, after the data pipeline works).
 - No Instagram in v1. Sources: RSS, schema.org Event (JSON-LD), HTML program pages.
 
+## Collaboration rules
+- **Decide independently.** Ask Matej only for: data model changes, contradictions with `docs/decisions.md`, new source types or changes to how data is fetched, git history rewriting or force push, paid services or new secrets (API keys).
+- Other decisions: record them in `decisions.md` or `status.md` and summarise in the closing report.
+- Keep the **"Otvorené úlohy"** section in `status.md` current so tasks survive context compression.
+- **Do not report intermediate results as final.** Numbers and results in the closing report must come from `events.json` from the latest pipeline run.
+
 ## Rules
 - Never invent data. If a source does not provide a value, leave it empty (`null`). Do not guess dates, times, prices or URLs.
 - Dates and times are stored as Prague local time strings (`YYYY-MM-DD`, `HH:MM`), never converted through UTC.

@@ -5,6 +5,8 @@ import pytest
 
 from pipeline.adapters.jsonld import (
     _fetch_listing_pages,
+    _fetch_mec_detail_times,
+    _parse_event_time_div,
     _parse_kasarna_detail,
     _parse_time_line,
     parse,
@@ -224,3 +226,103 @@ def test_citarna_skips_webpage_type():
     events = parse(VENUE_CU, SOURCE_CU, fixture("citarna_program.html"))
     titles = [e.title for e in events]
     assert "Program - Čítárna Unijazz" not in titles
+
+
+# ── _parse_event_time_div ─────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("text,exp_date,exp_time", [
+    ("03. 11. 2026 19:00", "2026-11-03", "19:00"),
+    ("04. 11. 2026 18:00", "2026-11-04", "18:00"),
+    ("1. 1. 2027 09:30",   "2027-01-01", "09:30"),
+    ("not a time at all",  None,         None),
+    ("",                   None,         None),
+])
+def test_parse_event_time_div(text, exp_date, exp_time):
+    assert _parse_event_time_div(text) == (exp_date, exp_time)
+
+
+# ── Čitárna detail fetching ───────────────────────────────────────────────────
+
+SOURCE_CU_DETAIL = {
+    "type": "jsonld",
+    "strategy": "mec_ajax",
+    "url": "https://citarna.unijazz.cz/program/",
+    "ajax_url": "https://citarna.unijazz.cz/wp-admin/admin-ajax.php",
+    "skin_id": 47,
+    "months_ahead": 2,
+    "follow_details": True,
+    "max_requests": 30,
+}
+
+CITARNA_DETAIL_URL = "https://citarna.unijazz.cz/events/jazzmanie-vladimira-kourila-273/"
+
+
+def test_citarna_detail_time_from_fixture():
+    """start_time is extracted from .event-time on the detail page fixture."""
+    from pipeline.fetch import Fetcher
+    from pipeline.models import RawEvent
+
+    ev = RawEvent(
+        venue_id="citarna-unijazz",
+        title="Jazzmánie",
+        date="2026-11-03",
+        start_time=None,
+        end_time=None,
+        source={"type": "jsonld", "url": CITARNA_DETAIL_URL, "external_id": None, "section": None},
+        flags=[],
+    )
+
+    class _DictFetcher(Fetcher):
+        def get(self, url, http_timeout=30):
+            return fixture("citarna_detail.html")
+
+    result = _fetch_mec_detail_times(VENUE_CU, SOURCE_CU_DETAIL, [ev], _DictFetcher())
+    assert result[0].start_time == "19:00"
+
+
+def test_citarna_detail_date_conflict_flag():
+    """If the detail page date differs from listing date → date_conflict flag."""
+    from pipeline.fetch import Fetcher
+    from pipeline.models import RawEvent
+
+    ev = RawEvent(
+        venue_id="citarna-unijazz",
+        title="Jazzmánie",
+        date="2026-11-99",  # wrong date to force mismatch
+        start_time=None,
+        end_time=None,
+        source={"type": "jsonld", "url": CITARNA_DETAIL_URL, "external_id": None, "section": None},
+        flags=[],
+    )
+
+    class _DictFetcher(Fetcher):
+        def get(self, url, http_timeout=30):
+            return fixture("citarna_detail.html")
+
+    result = _fetch_mec_detail_times(VENUE_CU, SOURCE_CU_DETAIL, [ev], _DictFetcher())
+    assert result[0].start_time == "19:00"
+    assert "date_conflict" in result[0].flags
+
+
+def test_citarna_detail_no_event_time_element():
+    """If .event-time is absent the event is returned with start_time=None."""
+    from pipeline.fetch import Fetcher
+    from pipeline.models import RawEvent
+
+    ev = RawEvent(
+        venue_id="citarna-unijazz",
+        title="No Time",
+        date="2026-11-03",
+        start_time=None,
+        end_time=None,
+        source={"type": "jsonld", "url": CITARNA_DETAIL_URL, "external_id": None, "section": None},
+        flags=[],
+    )
+    plain_html = "<html><body><p>No time here</p></body></html>"
+
+    class _DictFetcher(Fetcher):
+        def get(self, url, http_timeout=30):
+            return plain_html
+
+    result = _fetch_mec_detail_times(VENUE_CU, SOURCE_CU_DETAIL, [ev], _DictFetcher())
+    assert result[0].start_time is None
