@@ -13,4 +13,8 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
 
 6. Rozhodnutie Mateja 2026-11-02: podnik bez zdroja akcií nie je v `venues.json` ani v appke (appka je postavená na akciách, profil bez akcií nemá hodnotu). Zoznam takých podnikov vedie hlavný chat mimo repa a podnik sa pridá, keď sa nájde zdroj. Zapíš do `docs/decisions.md` (nahrádza riadok 2026-10-29 o Magneto a Popocafepetl, pri ňom dopíš „(nahradené 2026-11-02)“) a uprav `docs/data-model.md` (`sources` nesmie byť prázdne; veta o podniku bez zdroja). Ak je v `venues.json` podnik bez zdroja, napíš to do reportu, nemaž ho.
 
+7. Doplnky z kontroly úlohy 003 (pridané pred odovzdaním):
+   - Testy pre novú logiku Akropolisu: filter `own_rooms` (akcia v cudzej sále sa vyradí, akcia bez sály ostane) a kódy `vstupne_6` (1, 2, 3, 4, 5, 11 a neznámy kód). Dnes ich pokrýva len ručný beh.
+   - Skript na čísla do reportov pridaj do repa (napr. `scripts/stats.py`, počty podľa podniku, sekcie, `room`, `sold_out`, `status`, príznakov). Report 003 uvádza príkaz so skriptom mimo repa (`C:\...\check4.py`), ktorý sa nedá zopakovať. Do `docs/tasks/README.md` dopíš, že príkaz v reporte musí byť spustiteľný z repa.
+
 ## Report
