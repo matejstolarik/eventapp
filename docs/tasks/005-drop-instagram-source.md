@@ -17,4 +17,6 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
    - Testy pre novú logiku Akropolisu: filter `own_rooms` (akcia v cudzej sále sa vyradí, akcia bez sály ostane) a kódy `vstupne_6` (1, 2, 3, 4, 5, 11 a neznámy kód). Dnes ich pokrýva len ručný beh.
    - Skript na čísla do reportov pridaj do repa (napr. `scripts/stats.py`, počty podľa podniku, sekcie, `room`, `sold_out`, `status`, príznakov). Report 003 uvádza príkaz so skriptom mimo repa (`C:\...\check4.py`), ktorý sa nedá zopakovať. Do `docs/tasks/README.md` dopíš, že príkaz v reporte musí byť spustiteľný z repa.
 
+8. `robots.txt` (pridané pred odovzdaním): `pipeline/fetch.py` ho dnes nekontroluje. Pred sťahovaním z webu skontroluj `robots.txt` daného hostu (`urllib.robotparser`, výsledok cachuj na beh). Ak je URL zakázaná pre náš User-Agent alebo `*`, nesťahuj ju a zaloguj varovanie. Rešpektuj aj `Crawl-delay`, ak je väčší než náš `REQUEST_DELAY`. Do `docs/status.md` zapíš pre každý podnik, čo jeho `robots.txt` hovorí o našich URL. Ak niektorý súčasný zdroj zakazuje, zastav sa a napíš to do reportu ako otázku, zdroj nevypínaj sám.
+
 ## Report
