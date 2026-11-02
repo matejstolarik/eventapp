@@ -3,3 +3,4 @@ requests>=2.31
 tzdata
 beautifulsoup4>=4.12
 pytest>=8
+anthropic>=2.4
