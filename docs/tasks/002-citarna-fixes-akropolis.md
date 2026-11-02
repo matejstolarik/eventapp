@@ -28,7 +28,7 @@ Do reportu navyše: počet akcií podľa sekcie a podľa `room`, počet `sold_ou
 
 ## Report
 
-Dátum: 2026-11-02. Commit: pozri záverečný commit tejto session (správa „Task 001+002: ...").
+Dátum: 2026-11-02. Commit: `966b4da` Task 001+002: task workflow docs, Citarna fixes, sold_out/room, Palac Akropolis adapter
 
 ### Čo je hotové
 
