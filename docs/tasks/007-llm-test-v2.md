@@ -1,7 +1,7 @@
 # 007: Test LLM extrakcie, druhé kolo (opravený návrh testu)
 
 ## Zadanie
-Zadal: hlavný chat (Matej), 2026-11-02. Jednorazový test lokálne u Mateja. Denný beh sa nemení. Rozpočet max 1 USD (kľúč `ANTHROPIC_API_KEY`, hodnotu nikdy nevypisuj ani neukladaj).
+Zadal: hlavný chat (Matej), 2026-11-02 (upravené pred odovzdaním: Twist nedostupný). Jednorazový test lokálne u Mateja. Denný beh sa nemení. Rozpočet max 1 USD (kľúč `ANTHROPIC_API_KEY`, hodnotu nikdy nevypisuj ani neukladaj).
 
 Prvé kolo (úloha 006) nič nerozhodlo, lebo test bol zle postavený:
 - parser a LLM porovnávali rôzny rozsah (parser 21 položiek výpisu na stranu, LLM celý text stránky s ďalšími blokmi, 93 „akcií“ na p1); vysvetlenie „120 navyše mimo okna“ je chybné, jan.–apr. 2027 je v okne +180 dní,
@@ -10,7 +10,7 @@ Prvé kolo (úloha 006) nič nerozhodlo, lebo test bol zle postavený:
 - Twist sa netestoval.
 
 ### Postup
-1. **Twist fixture:** Matej uloží stránku z prehliadača do `tests/fixtures/llm/twist_music.html` (prípadne s priečinkom súborov, ktorý prehliadač vytvorí). Ak súbor nie je v repe ani v pracovnom priečinku, zastav sa a napíš Matejovi postup. Over, že v súbore je program (nie prázdna JS kostra).
+1. **Twist fixture:** Matej uloží stránku z prehliadača do `tests/fixtures/llm/twist_music.html` (prípadne s priečinkom súborov, ktorý prehliadač vytvorí). Ak súbor nie je k dispozícii, Twist preskoč (body 4 a 10 urob len zisťovanie dostupnosti) a sprav Akropolis; Twist uveď v reporte ako otvorený. Pozor: 2026-11-02 sa twistbar.co neotváral ani Matejovi v prehliadači („This site can't be reached“), takže príčina môže byť výpadok webu alebo DNS, nie blokovanie skriptov; zisti, čo platí (DNS záznam, odpoveď servera). Ak súbor je, over, že v ňom je program (nie prázdna JS kostra).
 2. **Akropolis, variant A (rovnaký rozsah):** LLM dostane len HTML/text položiek výpisu (`.basic_cont3`), presne tie, ktoré číta parser. Porovnanie akcia po akcii s parserom.
 3. **Akropolis, variant B (realistický):** LLM dostane celú stránku po čistení, ako by to robil všeobecný adaptér. Výsledok porovnaj s parserom a zvlášť vypíš, čo LLM vrátilo navyše a odkiaľ zo stránky to je (ktorý blok).
 4. **Twist:** celá stránka po čistení. Kontrola: každá akcia musí mať dátum doslova na stránke; vypíš celú tabuľku (dátum zo stránky, deň v týždni, názov) a porovnaj počet s počtom riadkov programu na stránke, ktoré spočítaš v kóde jednoduchým regexom (napr. `\d{1,2}/\d{1,2}`).
