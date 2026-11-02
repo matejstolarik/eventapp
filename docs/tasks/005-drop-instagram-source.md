@@ -19,4 +19,9 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
 
 8. `robots.txt` (pridané pred odovzdaním): `pipeline/fetch.py` ho dnes nekontroluje. Pred sťahovaním z webu skontroluj `robots.txt` daného hostu (`urllib.robotparser`, výsledok cachuj na beh). Ak je URL zakázaná pre náš User-Agent alebo `*`, nesťahuj ju a zaloguj varovanie. Rešpektuj aj `Crawl-delay`, ak je väčší než náš `REQUEST_DELAY`. Do `docs/status.md` zapíš pre každý podnik, čo jeho `robots.txt` hovorí o našich URL. Ak niektorý súčasný zdroj zakazuje, zastav sa a napíš to do reportu ako otázku, zdroj nevypínaj sám.
 
+9. Z prvého behu v GitHub Actions (beh 41518793358, pridané pred odovzdaním):
+   - Čitárna: `source timeout 120s exceeded at 126s — remaining events will have no start_time`. Z GitHubu sú detaily Čitárne pomalšie než z Matejovho počítača. Zisti, koľko akcií Čitárny vo zverejnenom `events.json` nemá čas, a uprav limit (napr. vyšší `timeout_secs` pre tento zdroj), aby čas mali všetky. Over ďalším ručným behom.
+   - Varovania z adaptérov (timeout, minutý `max_requests`, vyradené položky, `robots.txt`) musia byť v GitHub job summary, nie len v logu. Timeout Čitárny v súhrne nebol, hoci je to presne ten typ chyby, ktorý má súhrn ukázať.
+   - Do reportu 004 doplň odkaz na beh a počty zo zverejneného súboru (report hovorí, že workflow ešte nebežal; Matej ho medzitým spustil).
+
 ## Report
