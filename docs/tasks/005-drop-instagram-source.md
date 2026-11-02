@@ -26,7 +26,7 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
 
 ## Report
 
-Dátum: 2026-11-02.
+Dátum: 2026-11-02. Commit: `a6237f8`.
 
 ### Čo je hotové
 
