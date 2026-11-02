@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-31T13:34:19.501150+01:00",
+  "generated_at": "2026-11-02T20:36:48.075245+01:00",
   "venues": [
     {
       "id": "cross-club",
@@ -127,7 +127,58 @@
           "skin_id": 47,
           "months_ahead": 2,
           "follow_details": true,
-          "max_requests": 30
+          "max_requests": 60
+        }
+      ],
+      "active": true,
+      "notes": null
+    },
+    {
+      "id": "palac-akropolis",
+      "name": "Palác Akropolis",
+      "city": "Praha",
+      "address": "Kubelíkova 1548/27, Praha 3",
+      "lat": 50.0806,
+      "lng": 14.4513,
+      "web": "https://palacakropolis.cz",
+      "ra_url": "https://ra.co/clubs/306167",
+      "instagram": "palacakropolis",
+      "facebook": "Palac.Akropolis.klub",
+      "type": null,
+      "character": null,
+      "music": null,
+      "size": null,
+      "capacity": null,
+      "features": null,
+      "sources": [
+        {
+          "type": "html",
+          "strategy": "akropolis",
+          "base_url": "https://palacakropolis.cz/work/33298",
+          "no": "62",
+          "genres": [
+            {
+              "genre": "1",
+              "page_id": "38637",
+              "section": "hudba"
+            },
+            {
+              "genre": "2",
+              "page_id": "38638",
+              "section": "divadlo"
+            },
+            {
+              "genre": "17",
+              "page_id": "49735",
+              "section": "off-program",
+              "other": true
+            }
+          ],
+          "detail_page_id": "33824",
+          "ticket_page_id": "42027",
+          "vstupne_url": "https://palacakropolis.cz/pub/vstupne_6",
+          "pagination_param": "plg_33527_page",
+          "max_requests": 20
         }
       ],
       "active": true,
@@ -135,70 +186,6 @@
     }
   ],
   "events": [
-    {
-      "id": "cross-club-2026-10-31-the-micronaut-de-noisy-pots-at-cross-club-prague",
-      "venue_id": "cross-club",
-      "title": "THE MICRONAUT (DE) + NOISY POTS AT CROSS CLUB PRAGUE",
-      "date": "2026-10-31",
-      "start_time": null,
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [
-        "alternative",
-        "underground"
-      ],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "ticket_url": null,
-      "image_url": null,
-      "sources": [
-        {
-          "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8678-the-micronaut-de-noisy-pots-at-cross-club-prague/",
-          "external_id": "8678"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "cross-club-2026-11-01-sundej-se-sunday",
-      "venue_id": "cross-club",
-      "title": "SUNDEJ SE SUNDAY",
-      "date": "2026-11-01",
-      "start_time": null,
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [
-        "alternative",
-        "underground"
-      ],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "ticket_url": null,
-      "image_url": null,
-      "sources": [
-        {
-          "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8688-sundej-se-sunday/",
-          "external_id": "8688"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
-      "status": "scheduled",
-      "flags": []
-    },
     {
       "id": "cross-club-2026-11-02-los-tekkenos",
       "venue_id": "cross-club",
@@ -216,6 +203,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -227,7 +216,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -248,6 +237,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -259,7 +250,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -280,6 +271,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -291,7 +284,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -312,6 +305,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -323,7 +318,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -344,6 +339,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -355,7 +352,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -376,6 +373,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -387,7 +386,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -408,6 +407,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -419,7 +420,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -440,6 +441,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -451,14 +454,82 @@
       ],
       "classification": null,
       "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
     {
-      "id": "cross-club-2026-11-12-pohrebni-kapela",
+      "id": "cross-club-2026-11-10-techno-night",
       "venue_id": "cross-club",
-      "title": "POHŘEBNÍ KAPELA",
+      "title": "TECHNO NIGHT",
+      "date": "2026-11-10",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [
+        "alternative",
+        "underground"
+      ],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8709-techno-night/",
+          "external_id": "8709"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-11-techno-house",
+      "venue_id": "cross-club",
+      "title": "TECHNO  HOUSE",
+      "date": "2026-11-11",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [
+        "alternative",
+        "underground"
+      ],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8710-techno-house/",
+          "external_id": "8710"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-12-pohrebni-kapela-metal-night",
+      "venue_id": "cross-club",
+      "title": "POHŘEBNÍ KAPELA & METAL NIGHT",
       "date": "2026-11-12",
       "start_time": null,
       "doors_time": null,
@@ -472,26 +543,28 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
         {
           "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8703-pohrebni-kapela/",
+          "url": "https://www.crossclub.cz/cs/program/8703-pohrebni-kapela-metal-night/",
           "external_id": "8703"
         }
       ],
       "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
     {
-      "id": "cross-club-2026-11-19-up-tone-w-marathon",
+      "id": "cross-club-2026-11-13-arrakis-festival",
       "venue_id": "cross-club",
-      "title": "UP TONE w/ MARATHON",
-      "date": "2026-11-19",
+      "title": "ARRAKIS FESTIVAL",
+      "date": "2026-11-13",
       "start_time": null,
       "doors_time": null,
       "end_time": null,
@@ -504,26 +577,28 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
         {
           "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8698-up-tone-w-marathon/",
-          "external_id": "8698"
+          "url": "https://www.crossclub.cz/cs/program/8711-arrakis-festival/",
+          "external_id": "8711"
         }
       ],
       "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
     {
-      "id": "cross-club-2026-11-24-cross-slam-2026-nova-generace-no-4",
+      "id": "cross-club-2026-11-14-arrakis-festival",
       "venue_id": "cross-club",
-      "title": "CROSS SLAM 2026 - NOVÁ GENERACE - No.4",
-      "date": "2026-11-24",
+      "title": "ARRAKIS FESTIVAL",
+      "date": "2026-11-14",
       "start_time": null,
       "doors_time": null,
       "end_time": null,
@@ -536,48 +611,88 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
         {
           "type": "rss",
-          "url": "https://www.crossclub.cz/cs/program/8702-cross-slam-2026-nova-generace-no-4/",
-          "external_id": "8702"
+          "url": "https://www.crossclub.cz/cs/program/8712-arrakis-festival/",
+          "external_id": "8712"
         }
       ],
       "classification": null,
-      "first_seen": "2026-10-30",
-      "last_seen": "2026-10-31",
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
     {
-      "id": "meetfactory-2026-10-31-rfp-concerts-ezhel",
-      "venue_id": "meetfactory",
-      "title": "RFP Concerts: Ezhel",
-      "date": "2026-10-31",
+      "id": "cross-club-2026-11-15-sundej-se-sunday",
+      "venue_id": "cross-club",
+      "title": "SUNDEJ SE SUNDAY",
+      "date": "2026-11-15",
       "start_time": null,
-      "doors_time": "18:30",
+      "doors_time": null,
       "end_time": null,
       "formats": [],
       "genres": [],
-      "character": [],
+      "character": [
+        "alternative",
+        "underground"
+      ],
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
-      "image_url": "http://www.meetfactory.cz/media/images/thumbs/Ezhel-800x-250x.jpg",
+      "image_url": null,
       "sources": [
         {
-          "type": "jsonld",
-          "url": "http://www.meetfactory.cz/cs/program/detail/rfp-concerts-ezhel",
-          "external_id": null,
-          "section": "hudba"
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8713-sundej-se-sunday/",
+          "external_id": "8713"
         }
       ],
       "classification": null,
-      "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "cross-club-2026-11-16-festival-nadprahou-pulmesic-techno-stage-pseudo-4",
+      "venue_id": "cross-club",
+      "title": "FESTIVAL NADPRAHOU PULMESIC & TECHNO STAGE & PSEUDO 4",
+      "date": "2026-11-16",
+      "start_time": null,
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [
+        "alternative",
+        "underground"
+      ],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": null,
+      "ticket_url": null,
+      "image_url": null,
+      "sources": [
+        {
+          "type": "rss",
+          "url": "https://www.crossclub.cz/cs/program/8716-festival-nadprahou-pulmesic-techno-stage-pseudo-4/",
+          "external_id": "8716"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -595,6 +710,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/0041893579_10-250x.jpg",
       "sources": [
@@ -607,7 +724,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -625,6 +742,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/26_7OhVgDW-250x.jpg",
       "sources": [
@@ -637,7 +756,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -655,6 +774,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Laboratorium-Piesni_Press-Photo-scaled.jpg-250x.webp",
       "sources": [
@@ -667,7 +788,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -685,6 +806,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/stažený_soubor_2_SzNptyj-250x.jpg",
       "sources": [
@@ -697,7 +820,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -715,6 +838,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/DSC_0185-250x.jpg",
       "sources": [
@@ -727,7 +852,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -745,6 +870,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/images-8-250x.jpeg",
       "sources": [
@@ -757,7 +884,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -775,6 +902,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/641594356_1522702829865041_178508757578396715_n-800x-250x.jpg",
       "sources": [
@@ -787,7 +916,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -805,6 +934,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/GTO_PROMO_4_Kuba_Zeman-250x.jpg",
       "sources": [
@@ -817,7 +948,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -835,6 +966,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/ab6761610000e5eb547b0b30ac01160630da14eb-250x.jpeg",
       "sources": [
@@ -847,7 +980,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -865,6 +998,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/IMG_2601-250x.jpeg",
       "sources": [
@@ -877,7 +1012,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -895,6 +1030,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/TiffanyDay-GratitudeProject-PressShot1-1080x1332-1-250x.jpg",
       "sources": [
@@ -907,7 +1044,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -925,6 +1062,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/4pep0esmtl-gutalax-18-1-930x930-6669a65ac0977-250x.jpeg",
       "sources": [
@@ -937,7 +1076,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -955,6 +1094,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Strangelove-2026-square-250x.png",
       "sources": [
@@ -967,7 +1108,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -985,8 +1126,10 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
-      "image_url": "http://www.meetfactory.cz/media/images/thumbs/SHAKING_HAND_CABLE_TIES_CRED_SAM_LINDLEY-250x.jpg",
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/626243812_17974140966004176_1639500535946570523_n-250x.jpg",
       "sources": [
         {
           "type": "jsonld",
@@ -997,7 +1140,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1015,6 +1158,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/VA_Profile_Picture_2026-250x.jpg",
       "sources": [
@@ -1027,7 +1172,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1045,6 +1190,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Satoshi1_vert-width1600-250x.jpg",
       "sources": [
@@ -1057,7 +1204,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1075,6 +1222,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Mighty_Oaks_-_Main_Press_Shot-250x.jpg",
       "sources": [
@@ -1087,7 +1236,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1105,6 +1254,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Comeback_Kid_19-250x.jpg",
       "sources": [
@@ -1117,7 +1268,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1135,6 +1286,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Iceage_-_Star_-_Credit_Alva_Le_Febvre_Large-250x.jpeg",
       "sources": [
@@ -1147,7 +1300,39 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "meetfactory-2027-02-12-live-nation-almost-monday",
+      "venue_id": "meetfactory",
+      "title": "Live Nation: almost monday",
+      "date": "2027-02-12",
+      "start_time": null,
+      "doors_time": "20:00",
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": null,
+      "ticket_url": null,
+      "image_url": "http://www.meetfactory.cz/media/images/thumbs/ac965485-c5fe-4dd7-8234-9e11c6627527.jpg-250x.webp",
+      "sources": [
+        {
+          "type": "jsonld",
+          "url": "http://www.meetfactory.cz/cs/program/detail/live-nation-almost-monday",
+          "external_id": null,
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1165,6 +1350,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/LOOK_MUM_NO_COMPUTER_by_Melanie_King-compressed-scale_x2_Large-250x.jpeg",
       "sources": [
@@ -1177,7 +1364,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1195,6 +1382,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/AmbleArenaPoster-scaled-250x.jpg",
       "sources": [
@@ -1207,7 +1396,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1225,6 +1414,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/DPS-STUDIO-03-705-Edit_PINK_1-250x.jpg",
       "sources": [
@@ -1237,7 +1428,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1255,6 +1446,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/JACOB_BANKS-21_x_Large-250x.jpeg",
       "sources": [
@@ -1267,7 +1460,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1285,6 +1478,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/WPGT_2027_-_flyer_v.1-250x.jpg",
       "sources": [
@@ -1297,7 +1492,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1315,6 +1510,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Protomartyr_Hyatt_Hill_1_Credit_Trevor_Naud_72dpi-250x.jpg",
       "sources": [
@@ -1327,7 +1524,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1345,6 +1542,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/H-Blockx_FTB_DSC1354_by_Danny_Kötter_thezitterman-2-250x.jpg",
       "sources": [
@@ -1357,7 +1556,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1375,6 +1574,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/LEAD-scaled-250x.jpg",
       "sources": [
@@ -1387,7 +1588,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1405,6 +1606,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Haiden_Hendersen_photo-250x.jpg",
       "sources": [
@@ -1417,7 +1620,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1435,6 +1638,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/vertical_Lo6tbPS-250x.jpg",
       "sources": [
@@ -1447,7 +1652,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1465,6 +1670,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/759127318_122143368201087701_3504007450677141418_n-250x.jpg",
       "sources": [
@@ -1477,7 +1684,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1495,6 +1702,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/meetfactory_JH_plataky13713__4-250x.png",
       "sources": [
@@ -1507,7 +1716,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1525,6 +1734,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
       "sources": [
@@ -1537,7 +1748,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1555,6 +1766,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/DSC_0652-250x.JPG",
       "sources": [
@@ -1567,7 +1780,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1585,6 +1798,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/popel_foto_final-250x.jpg",
       "sources": [
@@ -1597,7 +1812,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1615,6 +1830,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/MeetFactory_infrared4309_1-250x.jpg",
       "sources": [
@@ -1627,7 +1844,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1645,6 +1862,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/MeetFactory_infrared4309_1-250x.jpg",
       "sources": [
@@ -1657,7 +1876,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1675,6 +1894,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/SERO-1-2-250x.jpg",
       "sources": [
@@ -1687,7 +1908,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1705,6 +1926,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/OZ24-72-250x.jpg",
       "sources": [
@@ -1717,7 +1940,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1735,6 +1958,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/meetfactory_JH_plataky13713__4-250x.png",
       "sources": [
@@ -1747,7 +1972,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1765,6 +1990,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
       "sources": [
@@ -1777,7 +2004,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1795,6 +2022,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "http://www.meetfactory.cz/media/images/thumbs/Lowr_12-250x.jpg",
       "sources": [
@@ -1807,7 +2036,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1825,6 +2054,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2026/10/06/13/49/45/bad_karma-island_mint_provizor.png",
       "sources": [
@@ -1837,7 +2068,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1855,6 +2086,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2026/10/06/13/56/15/keo.png",
       "sources": [
@@ -1867,7 +2100,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1885,6 +2118,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -1897,7 +2132,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1915,6 +2150,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -1927,14 +2164,14 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
     {
       "id": "citarna-unijazz-2026-11-05-bbp-podzemni-orchestr-polansky-amp-langman",
       "venue_id": "citarna-unijazz",
-      "title": "BBP – podzemní orchestr + Polanský &amp; Langman",
+      "title": "BBP – podzemní orchestr + Polanský & Langman",
       "date": "2026-11-05",
       "start_time": "20:00",
       "doors_time": null,
@@ -1945,6 +2182,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -1957,7 +2196,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -1975,6 +2214,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -1987,37 +2228,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "citarna-unijazz-2026-11-07-pro-verejnost-zavreno",
-      "venue_id": "citarna-unijazz",
-      "title": "pro veřejnost ZAVŘENO",
-      "date": "2026-11-07",
-      "start_time": "08:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "ticket_url": null,
-      "image_url": null,
-      "sources": [
-        {
-          "type": "jsonld",
-          "url": "https://citarna.unijazz.cz/events/pro-verejnost-zavreno-4/",
-          "external_id": null,
-          "section": null
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2035,6 +2246,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2047,7 +2260,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2065,6 +2278,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2077,7 +2292,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2095,6 +2310,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2107,7 +2324,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2125,6 +2342,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2137,7 +2356,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2155,6 +2374,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2167,7 +2388,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2185,6 +2406,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2197,7 +2420,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2215,6 +2438,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2227,7 +2452,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2245,6 +2470,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2257,7 +2484,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2275,6 +2502,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2287,7 +2516,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2305,6 +2534,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2317,7 +2548,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2335,6 +2566,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2347,7 +2580,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2365,6 +2598,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2377,37 +2612,7 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "citarna-unijazz-2026-11-27-pro-verejnost-zavreno",
-      "venue_id": "citarna-unijazz",
-      "title": "pro veřejnost ZAVŘENO",
-      "date": "2026-11-27",
-      "start_time": "08:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "ticket_url": null,
-      "image_url": null,
-      "sources": [
-        {
-          "type": "jsonld",
-          "url": "https://citarna.unijazz.cz/events/pro-verejnost-zavreno-5/",
-          "external_id": null,
-          "section": null
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     },
@@ -2425,6 +2630,8 @@
       "artists": [],
       "price_text": null,
       "free": null,
+      "sold_out": null,
+      "room": null,
       "ticket_url": null,
       "image_url": null,
       "sources": [
@@ -2437,7 +2644,2919 @@
       ],
       "classification": null,
       "first_seen": "2026-10-31",
-      "last_seen": "2026-10-31",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-04-kafka-band-hraje-kafku",
+      "venue_id": "palac-akropolis",
+      "title": "KAFKA BAND HRAJE KAFKU",
+      "date": "2026-11-04",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40205&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/2511/KafkaBand1ByIvoDudek_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40205&genre=1&no=62&page_id=33824",
+          "external_id": "40205",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-05-black-sea-dahu-ch-support-solong-ch",
+      "venue_id": "palac-akropolis",
+      "title": "BLACK SEA DAHU/CH+SUPPORT ►SOLONG/CH",
+      "date": "2026-11-05",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40209&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/3340/4096-2731-max_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40209&genre=1&no=62&page_id=33824",
+          "external_id": "40209",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-06-flamengo-reunion-session-60-let",
+      "venue_id": "palac-akropolis",
+      "title": "FLAMENGO REUNION SESSION - 60 LET",
+      "date": "2026-11-06",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40639&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/2475/promofoto_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40639&genre=1&no=62&page_id=33824",
+          "external_id": "40639",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-07-fource-presents-zimmer90-de-support-ceci-de",
+      "venue_id": "palac-akropolis",
+      "title": "FOURCE PRESENTS ► ZIMMER90/DE+SUPPORT ►CECI/DE",
+      "date": "2026-11-07",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40533&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/3208/horizontal_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40533&genre=1&no=62&page_id=33824",
+          "external_id": "40533",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-08-floex-ensemble-krest-juha-maki-patola-fi",
+      "venue_id": "palac-akropolis",
+      "title": "FLOEX ENSEMBLE (KŘEST)+JUHA MÄKI-PATOLA/FI",
+      "date": "2026-11-08",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "ARCHA+",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41376&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5117/FloexEnsemble-Directros3Portrety_VojtechVeskrna_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41376&genre=1&no=62&page_id=33824",
+          "external_id": "41376",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-09-maalem-houssam-guinia-ma",
+      "venue_id": "palac-akropolis",
+      "title": "MAALEM HOUSSAM GUINIA/MA",
+      "date": "2026-11-09",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40546&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5165/Retrato_Maalem_Houssam_Guinia5_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40546&genre=1&no=62&page_id=33824",
+          "external_id": "40546",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-10-zrni-krest",
+      "venue_id": "palac-akropolis",
+      "title": "ZRNÍ (KŘEST)",
+      "date": "2026-11-10",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41115&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5718/zrni__promo_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41115&genre=1&no=62&page_id=33824",
+          "external_id": "41115",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-11-deloraine-uttern-it",
+      "venue_id": "palac-akropolis",
+      "title": "DELORAINE+UTTERN/IT",
+      "date": "2026-11-11",
+      "start_time": "18:15",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41071&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6186/3__2__CROP_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41071&genre=1&no=62&page_id=33824",
+          "external_id": "41071",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-12-marc-ribot-ches-smith-farida-amadou-us-be",
+      "venue_id": "palac-akropolis",
+      "title": "MARC RIBOT, CHES SMITH & FARIDA AMADOU/US/BE",
+      "date": "2026-11-12",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40553&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5345/Amadou_Ribot_Smith_c_CasperVandevelde_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40553&genre=1&no=62&page_id=33824",
+          "external_id": "40553",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-13-rest-august-ocean-idea-special-guests",
+      "venue_id": "palac-akropolis",
+      "title": "REST+AUGUST OCEAN & IDEA+SPECIAL GUESTS",
+      "date": "2026-11-13",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40694&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5273/8Z0A0439-2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40694&genre=1&no=62&page_id=33824",
+          "external_id": "40694",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-14-rest-special-guests",
+      "venue_id": "palac-akropolis",
+      "title": "REST+SPECIAL GUESTS",
+      "date": "2026-11-14",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40695&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5273/8Z0A0439-2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40695&genre=1&no=62&page_id=33824",
+          "external_id": "40695",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-15-smag-pa-dig-selve-dk",
+      "venue_id": "palac-akropolis",
+      "title": "SMAG PA DIG SELVE/DK",
+      "date": "2026-11-15",
+      "start_time": "21:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Malá scéna",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41520&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6606/_B3A2147_web_hp.JPG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41520&genre=1&no=62&page_id=33824",
+          "external_id": "41520",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-19-vivere-krest-ep-metropole-jay-austin",
+      "venue_id": "palac-akropolis",
+      "title": "VIVERE (KŘEST EP METROPOLE)+JAY AUSTIN",
+      "date": "2026-11-19",
+      "start_time": "21:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Malá scéna",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41134&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6246/Vivere_foto_2_web_hp.JPG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41134&genre=1&no=62&page_id=33824",
+          "external_id": "41134",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-20-vltava-sto-let-s-vami",
+      "venue_id": "palac-akropolis",
+      "title": "VLTAVA - STO LET S VÁMI",
+      "date": "2026-11-20",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/1944/Vltava_40_let_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40665&genre=1&no=62&page_id=33824",
+          "external_id": "40665",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-21-vltava-sto-let-s-vami",
+      "venue_id": "palac-akropolis",
+      "title": "VLTAVA - STO LET S VÁMI",
+      "date": "2026-11-21",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40481&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/1944/Vltava_40_let_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40481&genre=1&no=62&page_id=33824",
+          "external_id": "40481",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-21-claptrap-fr",
+      "venue_id": "palac-akropolis",
+      "title": "CLAPTRAP/FR",
+      "date": "2026-11-21",
+      "start_time": "22:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Malá scéna",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41290&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5550/Claptrap___Tristan_d_Hervez_2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41290&genre=1&no=62&page_id=33824",
+          "external_id": "41290",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-25-terror-us-bane-us-start-today-peace-of-mind-de",
+      "venue_id": "palac-akropolis",
+      "title": "TERROR/US+BANE/US+START TODAY+PEACE OF MIND/DE",
+      "date": "2026-11-25",
+      "start_time": "18:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40806&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5393/sta_en__soubor__20__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40806&genre=1&no=62&page_id=33824",
+          "external_id": "40806",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-26-divo-institute-the-wilderness-sk-dalsi",
+      "venue_id": "palac-akropolis",
+      "title": "DIVO INSTITUTE+THE WILDERNESS/SK+DALŠÍ",
+      "date": "2026-11-26",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40781&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5946/divo_institute_13_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40781&genre=1&no=62&page_id=33824",
+          "external_id": "40781",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-27-fvck-kvlt-sk-small-town-life-sk-dalsi",
+      "venue_id": "palac-akropolis",
+      "title": "FVCK_KVLT/SK+SMALL TOWN LIFE/SK+DALŠÍ",
+      "date": "2026-11-27",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40782&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5970/Romana_Kovacs_1_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40782&genre=1&no=62&page_id=33824",
+          "external_id": "40782",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-28-tros-sketos",
+      "venue_id": "palac-akropolis",
+      "title": "TROS SKETOS",
+      "date": "2026-11-28",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/0582/Sn_mek_obrazovky_2025-11-06_160323_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40554&genre=1&no=62&page_id=33824",
+          "external_id": "40554",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-30-christian-marien-quartet-de",
+      "venue_id": "palac-akropolis",
+      "title": "CHRISTIAN MARIEN QUARTET/DE",
+      "date": "2026-11-30",
+      "start_time": "20:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Jazz bar",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40776&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0025/8762/CM4_1_Chris_Heenan_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40776&genre=1&no=62&page_id=33824",
+          "external_id": "40776",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-03-hrdza-sk-vanocni-turne",
+      "venue_id": "palac-akropolis",
+      "title": "HRDZA/SK– VÁNOČNÍ TURNÉ",
+      "date": "2026-12-03",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40117&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4457/Hrdza_08B1912-Edit-2_3000x3000_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40117&genre=1&no=62&page_id=33824",
+          "external_id": "40117",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-04-frantisek-skala-traskava-smes-krest-noveho-alba-zklamal",
+      "venue_id": "palac-akropolis",
+      "title": "FRANTIŠEK SKÁLA & TŘASKAVÁ SMĚS ►KŘEST NOVÉHO ALBA ZKLAMAL",
+      "date": "2026-12-04",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5417/TS_IMG_1138-2_web_hp.JPG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41254&genre=1&no=62&page_id=33824",
+          "external_id": "41254",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-05-palladian-es-carmichael-uk",
+      "venue_id": "palac-akropolis",
+      "title": "PALLADIAN/ES+CARMICHAEL/UK",
+      "date": "2026-12-05",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41258&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4625/PALLADIAN_Profile_Berlin_Horizontal_03_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41258&genre=1&no=62&page_id=33824",
+          "external_id": "41258",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-06-olin-45-let-v-tom",
+      "venue_id": "palac-akropolis",
+      "title": "OLIN \"45 LET V TOM\"",
+      "date": "2026-12-06",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/3866/OLIN_45_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40321&genre=1&no=62&page_id=33824",
+          "external_id": "40321",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-09-mario-bihari-diky-zuzce-navarove",
+      "venue_id": "palac-akropolis",
+      "title": "MÁRIO BIHÁRI ►DÍKY ZUZCE NAVAROVÉ",
+      "date": "2026-12-09",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40211&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4335/img_685057dbaffce0.30927875_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40211&genre=1&no=62&page_id=33824",
+          "external_id": "40211",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-10-dunaj-40-let-na-scene-19862026",
+      "venue_id": "palac-akropolis",
+      "title": "DUNAJ - 40 LET NA SCÉNĚ (1986–2026)",
+      "date": "2026-12-10",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40212&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4409/Dunaj_plakatA2_praha_beztextu_page-0001_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40212&genre=1&no=62&page_id=33824",
+          "external_id": "40212",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-11-cocotte-minute-post-it-anteater",
+      "venue_id": "palac-akropolis",
+      "title": "COCOTTE MINUTE+POST-IT+ANTEATER",
+      "date": "2026-12-11",
+      "start_time": "18:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40215&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4949/1IMG_0667_small_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40215&genre=1&no=62&page_id=33824",
+          "external_id": "40215",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-12-letni-kapela",
+      "venue_id": "palac-akropolis",
+      "title": "LETNÍ KAPELA",
+      "date": "2026-12-12",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40638&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6222/LK26_zima_FB_Praha_web_hp.png",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40638&genre=1&no=62&page_id=33824",
+          "external_id": "40638",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-14-smuk-zvuk",
+      "venue_id": "palac-akropolis",
+      "title": "SMUK ZVUK",
+      "date": "2026-12-14",
+      "start_time": "20:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Jazz bar",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40777&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5069/Smuk_Zvuk1_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40777&genre=1&no=62&page_id=33824",
+          "external_id": "40777",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-16-mirek-kemel-s-kapelou",
+      "venue_id": "palac-akropolis",
+      "title": "MIREK KEMEL S KAPELOU",
+      "date": "2026-12-16",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40213&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0023/9419/MKemelFotoKapela5_2021aZuzkaB_nisch_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40213&genre=1&no=62&page_id=33824",
+          "external_id": "40213",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-17-hm-koncert-pro-deti",
+      "venue_id": "palac-akropolis",
+      "title": "HM.. ►KONCERT PRO DĚTI",
+      "date": "2026-12-17",
+      "start_time": "16:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40701&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6798/Akropolis_detsky_1_web_hp.JPEG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40701&genre=1&no=62&page_id=33824",
+          "external_id": "40701",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-17-hm-vanocni-koncert",
+      "venue_id": "palac-akropolis",
+      "title": "HM ►VÁNOČNÍ KONCERT",
+      "date": "2026-12-17",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40214&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6858/Akropolis_dospely_2_web_hp.JPEG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40214&genre=1&no=62&page_id=33824",
+          "external_id": "40214",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-18-hentai-corporation-shirimming-tour-krest-desky",
+      "venue_id": "palac-akropolis",
+      "title": "HENTAI CORPORATION - SHIRIMMING TOUR (KŘEST DESKY)",
+      "date": "2026-12-18",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40412&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5285/HENTAI2026_SHIRIMMING_tour-FB-udalost10_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40412&genre=1&no=62&page_id=33824",
+          "external_id": "40412",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-19-pastavbacku-special-guests",
+      "venue_id": "palac-akropolis",
+      "title": "PASTAVBACKU+SPECIAL GUESTS",
+      "date": "2026-12-19",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Malá scéna",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41021&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6558/pastavbacku1__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41021&genre=1&no=62&page_id=33824",
+          "external_id": "41021",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-22-uz-jsme-doma-krest-reedice-alba-nemilovany-svet",
+      "venue_id": "palac-akropolis",
+      "title": "UŽ JSME DOMA – KŘEST REEDICE ALBA NEMILOVANÝ SVĚT",
+      "date": "2026-12-22",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40700&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4985/UJD_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40700&genre=1&no=62&page_id=33824",
+          "external_id": "40700",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-15-adonxs-death-of-a-pop-star-tour",
+      "venue_id": "palac-akropolis",
+      "title": "ADONXS - DEATH OF A POP STAR TOUR",
+      "date": "2027-01-15",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41150&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6402/01_IMAGE_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41150&genre=1&no=62&page_id=33824",
+          "external_id": "41150",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-04-insania-krest-alba-neonoe-host-zputnik",
+      "venue_id": "palac-akropolis",
+      "title": "INSANIA ► KŘEST ALBA NEO–NOE+HOST ►ZPUTNIK",
+      "date": "2027-02-04",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40835&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6318/neonoe_insania_01_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40835&genre=1&no=62&page_id=33824",
+          "external_id": "40835",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-23-soyuz-by-pl",
+      "venue_id": "palac-akropolis",
+      "title": "СОЮЗ (SOYUZ)/BY/PL",
+      "date": "2027-02-23",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41530&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4022/4_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41530&genre=1&no=62&page_id=33824",
+          "external_id": "41530",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-03-modeselektor-live-de-philipp-johann-thimm-de",
+      "venue_id": "palac-akropolis",
+      "title": "MODESELEKTOR LIVE/DE+PHILIPP JOHANN THIMM/DE",
+      "date": "2027-03-03",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Roxy",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41596&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6762/MDSLKTR_MP-11_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41596&genre=1&no=62&page_id=33824",
+          "external_id": "41596",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-04-emika-uk-av-live-show",
+      "venue_id": "palac-akropolis",
+      "title": "EMIKA/UK(AV LIVE SHOW)",
+      "date": "2027-03-04",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Planetárium Praha",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41404&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6966/Emika_Immersive_Fountain_Album_Artwork_MarieBartosova_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41404&genre=1&no=62&page_id=33824",
+          "external_id": "41404",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-12-kiioto-uk-monika-naceva",
+      "venue_id": "palac-akropolis",
+      "title": "KIIŌTŌ/UK+MONIKA NAČEVA",
+      "date": "2027-03-12",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": "Jazz Dock",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7074/Photo-Credit-Yagub-Allahverdiyev-2-scaled_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41514&genre=1&no=62&page_id=33824",
+          "external_id": "41514",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-16-bigyuki-jp",
+      "venue_id": "palac-akropolis",
+      "title": "BIGYUKI/JP",
+      "date": "2027-03-16",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41076&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6414/BIGYUKI_BOAT_20241212_6II9838_1_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41076&genre=1&no=62&page_id=33824",
+          "external_id": "41076",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-19-the-dead-daisies-feat-kelly-hansen-the-quireboys-the-gems",
+      "venue_id": "palac-akropolis",
+      "title": "THE DEAD DAISIES (FEAT. KELLY HANSEN), THE QUIREBOYS, THE GEMS",
+      "date": "2027-03-19",
+      "start_time": "18:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40528&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6750/1200X628_TDD_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40528&genre=1&no=62&page_id=33824",
+          "external_id": "40528",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-27-emma-ruth-rundle-us-support-cinder-well-us",
+      "venue_id": "palac-akropolis",
+      "title": "EMMA RUTH RUNDLE/US+SUPPORT ►CINDER WELL/US",
+      "date": "2027-03-27",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41237&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6234/EMMA_RUTH_2026_v3_3_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41237&genre=1&no=62&page_id=33824",
+          "external_id": "41237",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-31-piano-day-yehezkel-raz-poppy-ackroyd",
+      "venue_id": "palac-akropolis",
+      "title": "PIANO DAY ►YEHEZKEL RAZ+POPPY ACKROYD",
+      "date": "2027-03-31",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Kostel sv. Šimona a Judy",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41770&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6930/Yehezkel_Raz_by_Katya_Kalyska_2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41770&genre=1&no=62&page_id=33824",
+          "external_id": "41770",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-01-art-school-girlfriend-uk-blone-de",
+      "venue_id": "palac-akropolis",
+      "title": "ART SCHOOL GIRLFRIEND/UK+BLONE (DE)",
+      "date": "2027-04-01",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41309&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7050/Blone_cred-MariaLouceiro_61_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41309&genre=1&no=62&page_id=33824",
+          "external_id": "41309",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-03-eddie-9v-us",
+      "venue_id": "palac-akropolis",
+      "title": "EDDIE 9V/US",
+      "date": "2027-04-03",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41382&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6738/260105_Eddie9V_AG_099_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41382&genre=1&no=62&page_id=33824",
+          "external_id": "41382",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-07-igor-orozovic-co-v-zenskem-oblezeni",
+      "venue_id": "palac-akropolis",
+      "title": "IGOR OROZOVIČ & CO/V ŽENSKÉM OBLEŽENÍ",
+      "date": "2027-04-07",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41326&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6894/Orozovic_autor_Alzbeta_Jungrova__6__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41326&genre=1&no=62&page_id=33824",
+          "external_id": "41326",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-08-fire-mats-gustafsson-johan-berthling-maria-portugal-br-se",
+      "venue_id": "palac-akropolis",
+      "title": "FIRE! – MATS GUSTAFSSON, JOHAN BERTHLING, MARIÁ PORTUGAL/BR/SE",
+      "date": "2027-04-08",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41312&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6786/Fire__Trio_Portrait_Color_byZigaKoritnik2026_3_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41312&genre=1&no=62&page_id=33824",
+          "external_id": "41312",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-08-janus-rasmussen-live-fo",
+      "venue_id": "palac-akropolis",
+      "title": "JANUS RASMUSSEN (LIVE)/FO",
+      "date": "2027-04-08",
+      "start_time": "21:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Bike Jesus",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41489&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6882/Janus_Rasmussen_4__copyright_Vikram_Pradhan__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41489&genre=1&no=62&page_id=33824",
+          "external_id": "41489",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-12-olafur-arnalds-isfalling-apart-together",
+      "venue_id": "palac-akropolis",
+      "title": "ÓLAFUR ARNALDS/IS►FALLING APART TOGETHER",
+      "date": "2027-04-12",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "DIVADLO HYBERNIA",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41380&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5153/OA_FallingApartTogetherDigital_CreditAnnaMaggy_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41380&genre=1&no=62&page_id=33824",
+          "external_id": "41380",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-13-olafur-arnalds-isfalling-apart-together",
+      "venue_id": "palac-akropolis",
+      "title": "ÓLAFUR ARNALDS/IS►FALLING APART TOGETHER",
+      "date": "2027-04-13",
+      "start_time": "20:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "DIVADLO HYBERNIA",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41381&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5153/OA_FallingApartTogetherDigital_CreditAnnaMaggy_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41381&genre=1&no=62&page_id=33824",
+          "external_id": "41381",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-15-sophie-hunger-ch",
+      "venue_id": "palac-akropolis",
+      "title": "SOPHIE HUNGER/CH",
+      "date": "2027-04-15",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41077&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6054/ban_SH_1920x1080_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41077&genre=1&no=62&page_id=33824",
+          "external_id": "41077",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-18-matt-darriau-s-paradox-trio-us",
+      "venue_id": "palac-akropolis",
+      "title": "MATT DARRIAU´S PARADOX TRIO/US",
+      "date": "2027-04-18",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41078&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6078/ParadoxTrio.webnew_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41078&genre=1&no=62&page_id=33824",
+          "external_id": "41078",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-23-boundaries-us",
+      "venue_id": "palac-akropolis",
+      "title": "BOUNDARIES/US",
+      "date": "2027-04-23",
+      "start_time": "18:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41176&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6726/Boundaries_1_bySarahHolick_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41176&genre=1&no=62&page_id=33824",
+          "external_id": "41176",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-24-fource-presents-rodrigo-y-gabriela-mx-ourhome-tour",
+      "venue_id": "palac-akropolis",
+      "title": "FOURCE PRESENTS ►RODRIGO Y GABRIELA/MX- OURHOME TOUR",
+      "date": "2027-04-24",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40768&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4613/fource_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40768&genre=1&no=62&page_id=33824",
+          "external_id": "40768",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-04-29-bombino-ng",
+      "venue_id": "palac-akropolis",
+      "title": "BOMBINO/NG",
+      "date": "2027-04-29",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40545&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/5586/Bombino_2_Credit_to_Maarten_Mooijman_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40545&genre=1&no=62&page_id=33824",
+          "external_id": "40545",
+          "section": "hudba"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-02-spitfire-company-dvacetjedna",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY ►DVACETJEDNA",
+      "date": "2026-11-02",
+      "start_time": "21:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0026/2124/20251202_3580-scaled_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40591&genre=2&no=62&page_id=33824",
+          "external_id": "40591",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-06-spitfire-company-antiwords",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY ►ANTIWORDS",
+      "date": "2026-11-06",
+      "start_time": "10:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41510&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0015/8208/20200205_2840_small_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41510&genre=2&no=62&page_id=33824",
+          "external_id": "41510",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-08-nebojsy-kuchynske-porno",
+      "venue_id": "palac-akropolis",
+      "title": "NEBOJSY ►KUCHYŇSKÉ PORNO",
+      "date": "2026-11-08",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0025/8414/porno1_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40592&genre=2&no=62&page_id=33824",
+          "external_id": "40592",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-18-spitfire-company-past-cancel",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY & PAST ►CANCEL",
+      "date": "2026-11-18",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40335&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7287/cancel_sirka2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40335&genre=2&no=62&page_id=33824",
+          "external_id": "40335",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-19-spitfire-company-past-cancel",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY & PAST ►CANCEL",
+      "date": "2026-11-19",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40336&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7287/cancel_sirka2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40336&genre=2&no=62&page_id=33824",
+          "external_id": "40336",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-24-divadlo-nie-we-will-still-be-here",
+      "venue_id": "palac-akropolis",
+      "title": "DIVADLO NIE ►WE WILL STILL BE HERE",
+      "date": "2026-11-24",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40507&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6714/We_will_still_be_here_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40507&genre=2&no=62&page_id=33824",
+          "external_id": "40507",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-29-lauvypraveni-u-jidla",
+      "venue_id": "palac-akropolis",
+      "title": "LẨU–VYPRÁVĚNÍ U JÍDLA",
+      "date": "2026-11-29",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40485&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6438/26_9_20_LAU_Vypraveni_u_jidla_Palac_Akropolis_Libor_Galia_94_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40485&genre=2&no=62&page_id=33824",
+          "external_id": "40485",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-30-lauvypraveni-u-jidla",
+      "venue_id": "palac-akropolis",
+      "title": "LẨU–VYPRÁVĚNÍ U JÍDLA",
+      "date": "2026-11-30",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40486&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6486/26_9_20_LAU_Vypraveni_u_jidla_Palac_Akropolis_Libor_Galia_21_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40486&genre=2&no=62&page_id=33824",
+          "external_id": "40486",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-01-tantehorse-iris",
+      "venue_id": "palac-akropolis",
+      "title": "TANTEHORSE ►IRIS",
+      "date": "2026-12-01",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40487&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0024/2944/Iris_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40487&genre=2&no=62&page_id=33824",
+          "external_id": "40487",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-07-spitfire-company-past-cancel",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY & PAST ►CANCEL",
+      "date": "2026-12-07",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40488&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7287/cancel_sirka2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40488&genre=2&no=62&page_id=33824",
+          "external_id": "40488",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-08-ahmedova-geislerova-dittrichova-a-bez-povidani",
+      "venue_id": "palac-akropolis",
+      "title": "AHMEDOVÁ, GEISLEROVÁ, DITTRICHOVÁ ►A BEZ POVÍDÁNÍ",
+      "date": "2026-12-08",
+      "start_time": "18:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40489&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7267/Ridina__1__web_hp.png",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40489&genre=2&no=62&page_id=33824",
+          "external_id": "40489",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-13-divadlo-nie-we-will-still-be-here",
+      "venue_id": "palac-akropolis",
+      "title": "DIVADLO NIE ►WE WILL STILL BE HERE",
+      "date": "2026-12-13",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40490&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6714/We_will_still_be_here_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40490&genre=2&no=62&page_id=33824",
+          "external_id": "40490",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-14-divadlo-nie-we-will-still-be-here",
+      "venue_id": "palac-akropolis",
+      "title": "DIVADLO NIE ►WE WILL STILL BE HERE",
+      "date": "2026-12-14",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40491&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6714/We_will_still_be_here_web_hp.jpeg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40491&genre=2&no=62&page_id=33824",
+          "external_id": "40491",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-15-tantehorse-light-in-the-darkness-cechova-vizvary",
+      "venue_id": "palac-akropolis",
+      "title": "TANTEHORSE ►LIGHT IN THE DARKNESS (ČECHOVÁ+VIZVÁRY)",
+      "date": "2026-12-15",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40492&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0024/8124/20240124_1744-min_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40492&genre=2&no=62&page_id=33824",
+          "external_id": "40492",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-20-laterna-magika-perpetuum-havel",
+      "venue_id": "palac-akropolis",
+      "title": "LATERNA MAGIKA ►PERPETUUM HAVEL",
+      "date": "2026-12-20",
+      "start_time": "17:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40702&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6126/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__1__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40702&genre=2&no=62&page_id=33824",
+          "external_id": "40702",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-21-laterna-magika-perpetuum-havel",
+      "venue_id": "palac-akropolis",
+      "title": "LATERNA MAGIKA ►PERPETUUM HAVEL",
+      "date": "2026-12-21",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40703&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6102/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__3__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40703&genre=2&no=62&page_id=33824",
+          "external_id": "40703",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-21-divadlo-nie-mura-trochu-svetla-jeste-zbyva",
+      "venue_id": "palac-akropolis",
+      "title": "DIVADLO NIE ► MŮRA ►TROCHU SVĚTLA JEŠTĚ ZBÝVÁ",
+      "date": "2027-01-21",
+      "start_time": "11:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41282&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4685/707030552_1456228316534818_3280838405039447238_n_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41282&genre=2&no=62&page_id=33824",
+          "external_id": "41282",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-22-divadlo-nie-mura-trochu-svetla-jeste-zbyva",
+      "venue_id": "palac-akropolis",
+      "title": "DIVADLO NIE ► MŮRA ►TROCHU SVĚTLA JEŠTĚ ZBÝVÁ",
+      "date": "2027-01-22",
+      "start_time": "09:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41284&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4661/RED09605_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41284&genre=2&no=62&page_id=33824",
+          "external_id": "41284",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-23-spitfire-company-past-cancel",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY & PAST ►CANCEL",
+      "date": "2027-01-23",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41458&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/7287/cancel_sirka2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41458&genre=2&no=62&page_id=33824",
+          "external_id": "41458",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-25-spitfire-company-antiwords",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY ►ANTIWORDS",
+      "date": "2027-01-25",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41236&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0015/8220/20200205_2870_small_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41236&genre=2&no=62&page_id=33824",
+          "external_id": "41236",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-26-tantehorse-s-t-igma",
+      "venue_id": "palac-akropolis",
+      "title": "TANTEHORSE ►S(t)IGMA",
+      "date": "2027-01-26",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41184&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4891/Romana_Kovacs2_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41184&genre=2&no=62&page_id=33824",
+          "external_id": "41184",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-30-mirenka-cechova-spitfire-company-baletky",
+      "venue_id": "palac-akropolis",
+      "title": "MIŘENKA ČECHOVÁ & SPITFIRE COMPANY ►BALETKY",
+      "date": "2027-01-30",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41616&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0023/3423/spitfire_baletky_2048px_janhromadko-1041_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41616&genre=2&no=62&page_id=33824",
+          "external_id": "41616",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-01-31-spitfire-company-dvacetjedna",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY ►DVACETJEDNA",
+      "date": "2027-01-31",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41186&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/2148/20251202_3577-scaled_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41186&genre=2&no=62&page_id=33824",
+          "external_id": "41186",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-01-nebojsy-kuchynske-porno",
+      "venue_id": "palac-akropolis",
+      "title": "NEBOJSY ►KUCHYŇSKÉ PORNO",
+      "date": "2027-02-01",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": true,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0025/8438/porno3_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41187&genre=2&no=62&page_id=33824",
+          "external_id": "41187",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-20-lauvypraveni-u-jidla",
+      "venue_id": "palac-akropolis",
+      "title": "LẨU–VYPRÁVĚNÍ U JÍDLA",
+      "date": "2027-02-20",
+      "start_time": "13:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41660&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6462/26_9_20_LAU_Vypraveni_u_jidla_Palac_Akropolis_Libor_Galia_48_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41660&genre=2&no=62&page_id=33824",
+          "external_id": "41660",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-22-spitfire-company-konec-cloveka",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY ►KONEC ČLOVĚKA?!",
+      "date": "2027-02-22",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": null,
+      "room": "Velký sál",
+      "ticket_url": null,
+      "image_url": "https://palacakropolis.cz/images/photos/0024/2716/Credit__Vojte_ch_Brtnicky__02_web_hp.JPG",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41323&genre=2&no=62&page_id=33824",
+          "external_id": "41323",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-27-spitfire-company-past-cancel",
+      "venue_id": "palac-akropolis",
+      "title": "SPITFIRE COMPANY & PAST ►CANCEL",
+      "date": "2027-02-27",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41161&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6366/sta_en__soubor_web_hp.jfif",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41161&genre=2&no=62&page_id=33824",
+          "external_id": "41161",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-02-28-laterna-magika-perpetuum-havel",
+      "venue_id": "palac-akropolis",
+      "title": "LATERNA MAGIKA ►PERPETUUM HAVEL",
+      "date": "2027-02-28",
+      "start_time": "17:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40744&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6114/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__2__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40744&genre=2&no=62&page_id=33824",
+          "external_id": "40744",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-01-laterna-magika-perpetuum-havel",
+      "venue_id": "palac-akropolis",
+      "title": "LATERNA MAGIKA ►PERPETUUM HAVEL",
+      "date": "2027-03-01",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41117&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/6102/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__3__web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41117&genre=2&no=62&page_id=33824",
+          "external_id": "41117",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-02-nebojsy-kuchynske-porno",
+      "venue_id": "palac-akropolis",
+      "title": "NEBOJSY ►KUCHYŇSKÉ PORNO",
+      "date": "2027-03-02",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40746&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0025/8438/porno3_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40746&genre=2&no=62&page_id=33824",
+          "external_id": "40746",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2027-03-09-tantehorse-rukojmi-invisible-iv",
+      "venue_id": "palac-akropolis",
+      "title": "TANTEHORSE ►RUKOJMÍ (INVISIBLE IV.)",
+      "date": "2027-03-09",
+      "start_time": "19:30",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Velký sál",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41192&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0026/4010/69uy028b46b3_2000_hx_85_mo_web_hp.jpg",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=41192&genre=2&no=62&page_id=33824",
+          "external_id": "41192",
+          "section": "divadlo"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-11-23-the-music-digest-38-the-devil-s-trade-skotacni-kulomet",
+      "venue_id": "palac-akropolis",
+      "title": "THE MUSIC DIGEST (38) ►THE DEVIL'S TRADE+SKOTAČNÍ KULOMET",
+      "date": "2026-11-23",
+      "start_time": "19:00",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Jazz bar",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40909&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0023/4023/The_Music_Digest_web_hp.png",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40909&genre=17&no=62&page_id=33824",
+          "external_id": "40909",
+          "section": "off-program"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
+      "status": "scheduled",
+      "flags": []
+    },
+    {
+      "id": "palac-akropolis-2026-12-15-the-music-digest-39",
+      "venue_id": "palac-akropolis",
+      "title": "THE MUSIC DIGEST (39)",
+      "date": "2026-12-15",
+      "start_time": "20:45",
+      "doors_time": null,
+      "end_time": null,
+      "formats": [],
+      "genres": [],
+      "character": [],
+      "artists": [],
+      "price_text": null,
+      "free": null,
+      "sold_out": false,
+      "room": "Jazz bar",
+      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40824&no=62&page_id=42027",
+      "image_url": "https://palacakropolis.cz/images/photos/0023/4023/The_Music_Digest_web_hp.png",
+      "sources": [
+        {
+          "type": "html",
+          "url": "https://palacakropolis.cz/work/33298?event_id=40824&genre=17&no=62&page_id=33824",
+          "external_id": "40824",
+          "section": "off-program"
+        }
+      ],
+      "classification": null,
+      "first_seen": "2026-11-02",
+      "last_seen": "2026-11-02",
       "status": "scheduled",
       "flags": []
     }

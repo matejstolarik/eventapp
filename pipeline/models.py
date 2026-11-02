@@ -15,6 +15,8 @@ class RawEvent:
     artists: list = field(default_factory=list)
     price_text: str | None = None
     free: bool | None = None
+    sold_out: bool | None = None  # True only if source explicitly says sold out; False if selling; else None
+    room: str | None = None       # room/hall as reported by source (e.g. "Velký sál"); None if not provided
     ticket_url: str | None = None
     image_url: str | None = None
     source: dict = field(default_factory=dict)  # {type, url, external_id, section?}

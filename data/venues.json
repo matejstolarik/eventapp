@@ -95,7 +95,45 @@
         "skin_id": 47,
         "months_ahead": 2,
         "follow_details": true,
-        "max_requests": 30
+        "max_requests": 60
+      }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "palac-akropolis",
+    "name": "Palác Akropolis",
+    "city": "Praha",
+    "address": "Kubelíkova 1548/27, Praha 3",
+    "lat": 50.0806,
+    "lng": 14.4513,
+    "web": "https://palacakropolis.cz",
+    "ra_url": "https://ra.co/clubs/306167",
+    "instagram": "palacakropolis",
+    "facebook": "Palac.Akropolis.klub",
+    "type": null,
+    "character": null,
+    "music": null,
+    "size": null,
+    "capacity": null,
+    "features": null,
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "akropolis",
+        "base_url": "https://palacakropolis.cz/work/33298",
+        "no": "62",
+        "genres": [
+          {"genre": "1", "page_id": "38637", "section": "hudba"},
+          {"genre": "2", "page_id": "38638", "section": "divadlo"},
+          {"genre": "17", "page_id": "49735", "section": "off-program", "other": true}
+        ],
+        "detail_page_id": "33824",
+        "ticket_page_id": "42027",
+        "vstupne_url": "https://palacakropolis.cz/pub/vstupne_6",
+        "pagination_param": "plg_33527_page",
+        "max_requests": 20
       }
     ],
     "active": true,

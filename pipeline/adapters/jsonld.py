@@ -120,6 +120,11 @@ def _fetch_mec_ajax(venue: dict, source_config: dict) -> list:
             continue
 
         for ev in _parse_listing(venue, source_config, month_html):
+            # Filter non-event announcements (e.g. "ZAVŘENO" / closed notices).
+            # These appear as JSON-LD Event entries but are not actual events.
+            if _is_closed_notice(ev.title):
+                log.info("%s [jsonld/mec_ajax]: skipped non-event: %s", venue["id"], ev.title)
+                continue
             try:
                 ev_date = datetime.date.fromisoformat(ev.date)
             except (ValueError, AttributeError):
@@ -413,6 +418,18 @@ def _parse_time_line(text: str) -> "str | None":
 
 
 # ── shared helpers ─────────────────────────────────────────────────────────────
+
+def _is_closed_notice(title: str) -> bool:
+    """Return True for non-event announcements like 'pro veřejnost ZAVŘENO'.
+
+    Čitárna Unijazz occasionally publishes JSON-LD Event entries for days when
+    the venue is closed to the public.  These are operational notices, not events.
+    """
+    if not title:
+        return False
+    t = title.upper()
+    return "ZAVŘENO" in t or "CLOSED" in t
+
 
 def _ld_to_raw(item: dict, venue: dict, base_url: str,
                section: "str | None") -> "RawEvent | None":

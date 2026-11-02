@@ -1,4 +1,5 @@
 import datetime
+import html
 import re
 import unicodedata
 
@@ -26,7 +27,7 @@ def normalize_event(raw_event, previous_events: dict = None) -> dict:
     return {
         "id": event_id,
         "venue_id": raw_event.venue_id,
-        "title": raw_event.title,
+        "title": html.unescape(raw_event.title),
         "date": raw_event.date,
         "start_time": raw_event.start_time,
         "doors_time": raw_event.doors_time,
@@ -37,6 +38,8 @@ def normalize_event(raw_event, previous_events: dict = None) -> dict:
         "artists": raw_event.artists,
         "price_text": raw_event.price_text,
         "free": raw_event.free,
+        "sold_out": raw_event.sold_out,
+        "room": raw_event.room,
         "ticket_url": raw_event.ticket_url,
         "image_url": raw_event.image_url,
         "sources": [raw_event.source],

@@ -6,6 +6,7 @@ import pytest
 from pipeline.adapters.jsonld import (
     _fetch_listing_pages,
     _fetch_mec_detail_times,
+    _is_closed_notice,
     _parse_event_time_div,
     _parse_kasarna_detail,
     _parse_time_line,
@@ -281,14 +282,19 @@ def test_citarna_detail_time_from_fixture():
 
 
 def test_citarna_detail_date_conflict_flag():
-    """If the detail page date differs from listing date → date_conflict flag."""
+    """If the detail page date differs from listing date → date_conflict flag.
+
+    The detail fixture has date 2026-11-03.  We pass 2026-11-05 as the listing
+    date so that it is a valid ISO date but differs from the detail, triggering
+    date_conflict without relying on an invalid date string.
+    """
     from pipeline.fetch import Fetcher
     from pipeline.models import RawEvent
 
     ev = RawEvent(
         venue_id="citarna-unijazz",
         title="Jazzmánie",
-        date="2026-11-99",  # wrong date to force mismatch
+        date="2026-11-05",  # valid date that differs from detail page (2026-11-03)
         start_time=None,
         end_time=None,
         source={"type": "jsonld", "url": CITARNA_DETAIL_URL, "external_id": None, "section": None},
@@ -302,6 +308,19 @@ def test_citarna_detail_date_conflict_flag():
     result = _fetch_mec_detail_times(VENUE_CU, SOURCE_CU_DETAIL, [ev], _DictFetcher())
     assert result[0].start_time == "19:00"
     assert "date_conflict" in result[0].flags
+
+
+# ── _is_closed_notice ────────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("title,expected", [
+    ("pro veřejnost ZAVŘENO", True),
+    ("zavřeno", True),
+    ("CLOSED for private event", True),
+    ("Jazzová noc", False),
+    ("", False),
+])
+def test_is_closed_notice(title, expected):
+    assert _is_closed_notice(title) == expected
 
 
 def test_citarna_detail_no_event_time_element():

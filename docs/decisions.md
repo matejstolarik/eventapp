@@ -9,7 +9,7 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-10-29 | Instagram odložený na v2; v1 len RA, RSS, schema.org Event, HTML programy | Žiadny z 12 auditovaných podnikov nemá IG ako jediný zdroj; IG je najdrahšia a najkrehkejšia časť |
 | 2026-10-29 | Vo v2 IG len cez oficiálne Graph API (Business Discovery), stories nescrapujeme | Zadarmo, stabilné; scraping je proti ToS a krehký |
 | 2026-10-29 | Každý zdroj je samostatný adaptér s jednotným výstupom | Nové zdroje (vrátane IG) bez zásahu do zvyšku systému |
-| 2026-10-29 | Štruktúrované zdroje majú prednosť pred HTML; priorita polí `ra` > `jsonld` > `rss` > `html` | Spoľahlivosť |
+| 2026-10-29 | Štruktúrované zdroje majú prednosť pred HTML; priorita polí `ra` > `jsonld` > `rss` > `html` | Spoľahlivosť — **nahradené riadkom 2026-10-30** |
 | 2026-10-30 | Resident Advisor sa nepoužíva ako zdroj dát; v1 zdroje sú len RSS, schema.org Event (JSON-LD), HTML. Priorita polí: `jsonld` > `rss` > `html`. Podnik môže mať `ra_url` ako odkaz na jeho RA profil. | Podmienky RA zakazujú boty a scrapery bez písomného povolenia. |
 | 2026-10-31 | Čitárna Unijazz: `jsonld` adaptér, strategy `mec_ajax` — POST na `admin-ajax.php` pre aktuálny + 2 nasledujúce mesiace; `start_time = null`. Skin ID (47) v source config. | Stránka je JS-renderovaná; JSON-LD je v AJAX odpovediach MEC pluginu. WP REST API (`mec-events`) nevhodné — `date` je dátum publikácie, nie konania eventu. |
 | 2026-10-31 | Kasárna Karlín: listing fetchujeme z `/en/program` (nie `/program`); `/program` dáva CS linky s `/index.php/` prefixom v statickom HTML. | Statické HTML `/program` vracia Drupal server-side render s CS slugmi; EN listing má správne EN linky. |
@@ -35,3 +35,12 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-10-29 | Podnik má súradnice (`lat`, `lng`) od začiatku | Budúca mapa akcií |
 | 2026-10-29 | UI v CZ (primárne), SK, EN | Cieľové publikum v Prahe |
 | 2026-10-29 | Náklady na nule alebo jednotkách eur mesačne | Osobný projekt, free tiery |
+| 2026-10-31 | v1 rozsah zahŕňa: obľúbené podniky („moje podniky"), onboarding pri prvom spustení (výber podnikov a formátov, každý krok preskočiteľný, uložený lokálne), osobné „going" (lokálne), tlačidlo „pridať do kalendára" (.ics). Bez účtu a backendu. | Minimálna ale použiteľná appka bez potreby registrácie. |
+| 2026-10-31 | Profil a obľúbené cez jednu vrstvu (napr. `profileStore`), aby sa neskôr vymenila za sync s účtom bez prepisovania UI. | Neskôr budú účty (fáza 2), UI sa nesmie prepísať od základu. |
+| 2026-10-31 | Mimo v1: sociálne „going", push notifikácie, mapa, Spotify, IG, natívna appka. Onboarding, personal going a obľúbené sú vo v1. | Viď aktualizovaný backlog v project.md. |
+| 2026-10-31 | Fázy vydania: 1) v1 PWA bez účtu; 2) verejná PWA + Play Store (TWA) s účtami; 3) App Store + natívna appka. | Postupné vydávanie podľa dôvery v projekt. |
+| 2026-10-31 | Poradie práce: 1–2 hotové; 3 adaptéry pre Cross, MeetFactory, Kasárna, Čitárna, Akropolis; 4 denný beh + GitHub Pages; 5 test LLM extrakcie (Twist, Akropolis ako kontrola); 6 minimálna PWA; 7 ďalšie podniky. | Viď project.md. |
+| 2026-10-31 | `sold_out`: `true` len ak zdroj výslovne uvádza vypredané; `false` len ak výslovne ponúka lístky; inak `null`. | Aby sme neklasifikovali predčasne, keď lístky ešte nie sú v predaji. |
+| 2026-10-31 | `room`: nepovinné pole, sála alebo priestor tak, ako ho uvádza zdroj. Akropolis: Velký sál, Malá scéna, Jazz Bar. | Relevantné pre podniky s viacerými sálami. |
+| 2026-10-31 | Dátum bez roka (napr. Akropolis „4. 11."): dátum pred včerajškom → budúci rok. Ak by padol za +180 dní, akcia sa nezaradí. Pravidlo len pre adaptéry bez roka, s komentárom. | Konzistentné okno +180 dní pre všetky zdroje. |
+| 2026-10-31 | Oznamy, ktoré nie sú akciami (napr. Čitárna „ZAVŘENO"), sa vyraďujú v adaptéri a logujú. Pravidlo dokumentované komentárom v adaptéri. | Udržať čistotu výstupu bez mlčanlivého ignorovania. |

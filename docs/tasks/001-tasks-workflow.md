@@ -20,3 +20,31 @@ Zadal: hlavný chat (Matej), 2026-11-02.
 5. V `status.md` nahraď sekciu „Otvorené úlohy“ odkazom na `docs/tasks/` (hotové úlohy 1 až 5 z tabuľky presuň do `docs/tasks/000-history.md`, nič nemaž).
 
 ## Report
+
+Dátum: 2026-11-02. Commit: pozri záverečný commit tejto session (správa „Task 001+002: ...").
+
+### Čo je hotové
+
+1. `docs/tasks/README.md` vytvorený – formát NNN-nazov.md, sekcie Zadanie + Report, append-only.
+2. `CLAUDE.md` doplnený: pravidlo `## Report` (dátum, commity, čo je hotové, rozhodnutia, čísla z events.json + príkaz, overenie webu, otvorené) a pravidlo o append-only `docs/`.
+3. `docs/project.md` opravený: zdroje v1 (RSS, JSON-LD, HTML; bez RA), rozsah v1 rozšírený (moje podniky, onboarding, going, .ics, profileStore), odstránený follow/going/onboarding z backlogu, pridaná sekcia „Fázy vydania" a opravené „Poradie práce" (7 krokov, 1–2 hotové, 3 prebieha).
+4. `docs/data-model.md` opravený: zastaraný odkaz na WP REST API / `citarna_mec` nahradený popisom `html` strategy.
+5. `docs/decisions.md` doplnený: poznámka „(nahradené ...)" pri riadku 2026-10-29, 10 nových riadkov z 2026-10-31.
+6. `docs/status.md`: sekcia „Otvorené úlohy" nahradená odkazom na `docs/tasks/`.
+7. `docs/tasks/000-history.md` vytvorený s históriou úloh 1–5.
+
+### Rozhodnutia
+
+Žiadne – zadanie bolo jednoznačné.
+
+### Čísla
+
+Úloha 001 nemení pipeline ani events.json; čísla sú v reporte úlohy 002.
+
+### Overenie
+
+Zmeny sú čisto v docs/; overenie nie je potrebné.
+
+### Otvorené
+
+Nič.

@@ -12,22 +12,37 @@ Aplikácia, kde si používateľ pridá obľúbené podniky a na pár klikov vid
 
 ## Rozsah v1
 - Podniky pridáva autor ručne do `data/venues.json`.
-- Zdroje: Resident Advisor, RSS, schema.org Event, HTML programy webov. Instagram až vo v2.
+- Zdroje: RSS, schema.org Event (JSON-LD), HTML programy webov. Instagram až vo v2. Resident Advisor nie je zdroj dát, len odkaz `ra_url` na profil podniku.
 - Pipeline denne vygeneruje `events.json`, PWA ho číta.
 - Predvolený pohľad: hudobné akcie (`live`, `dj`). Divadlo, vernisáže, film, kvízy a iné cez filter.
 - Jazyky UI: čeština (primárne), slovenčina, angličtina. Štítky v dátach len anglicky.
+- **Obľúbené podniky** („moje podniky”): každý používateľ si vyberá, ktoré podniky sleduje.
+- **Onboarding** pri prvom spustení: výber podnikov a formátov, žánre až po vzniku zoznamu; každý krok preskočiteľný; uložený lokálne.
+- **Osobné „going”**: lokálne uložený zoznam „moje akcie”.
+- **Pridať do kalendára**: tlačidlo na stiahnutie `.ics` súboru akcie.
+- Bez účtu a bez backendu v1. Profil a obľúbené cez jednu vrstvu (napr. `profileStore`), aby sa neskôr dala vymeniť za sync s účtom bez prepisovania UI.
+- Odkazy na akcie a podniky musia fungovať bez prihlásenia a stáť na nemennom `id`.
 
 ## Mimo v1 (backlog)
 - Instagram ako zdroj (Graph API, Business Discovery, extrakcia z postov LLM).
 - Mapa akcií dnes v Prahe (obľúbené alebo všetky podniky, s filtrami).
-- Follow podnikov a „going“ pri akciách; onboarding s výberom podnikov a záujmov.
+- Sociálne „going” (kto ešte ide) a push notifikácie.
 - Účty a registrácia.
 - Odkaz na interpreta na Spotify.
 - Natívna appka pre Play Store a App Store (pravdepodobne React Native / Expo), ak sa projekt osvedčí.
 
+## Fázy vydania
+1. **v1 PWA** pre Mateja a kamarátov, bez účtu; onboarding, personal going, .ics.
+2. **Verejná PWA + Play Store** (Trusted Web Activity) s účtami: registrácia na začiatku s možnosťou preskočiť, sync profilu, mazanie účtu v appke, sociálne „going”, push notifikácie.
+3. **App Store a natívna appka** (pravdepodobne React Native / Expo) až pri dôvere v projekt.
+
+Dôsledok pre v1: odkazy na akcie a podniky musia fungovať bez prihlásenia a stáť na nemennom `id`.
+
 ## Poradie práce
 1. Audit zdrojov (hotové pre vzorku 12 podnikov)
 2. Dátový model (hotové okrem zoznamu žánrov)
-3. Adaptéry zdrojov
-4. Pipeline end-to-end, týždeň prevádzky
-5. PWA
+3. Adaptéry pre súčasné podniky (Cross Club, MeetFactory, Kasárna, Čitárna, Akropolis) — **prebieha**
+4. Pipeline end-to-end, denný beh + GitHub Pages
+5. Test LLM extrakcie nad HTML (Twist, Akropolis ako kontrola) → rozhodnutie: vlastné parsery vs. LLM
+6. Minimálna PWA
+7. Ďalšie podniky

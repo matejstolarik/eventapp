@@ -34,12 +34,6 @@ Posledná aktualizácia: 2026-10-31
 
 - **Skin ID**: ak site rebuild zmení skin ID (aktuálne 47), adaptér vráti 0 eventov — zachytí to varovanie v logu.
 
-## Otvorené úlohy
+## Úlohy
 
-| # | Úloha | Stav |
-|---|-------|------|
-| 1 | Kasárna čas: `_parse_time_line` limitovaná na 50 riadkov → odstrániť limit | ✅ hotovo |
-| 2 | MeetFactory stránkovanie: `?page=N` + `a.endless_more` → `_fetch_listing_pages` | ✅ hotovo |
-| 3 | Odstrániť `eventapp-repo.zip` z git histórie | ✅ hotovo |
-| 4 | Aktualizovať počty v status.md | ✅ hotovo |
-| 5 | Čitárna `start_time` z detailu akcie (`.event-time`); Cross Club — čas nie je k dispozícii | ✅ hotovo |
+Otvorené a dokončené úlohy sú v `docs/tasks/`. Historické úlohy (pred systémom súborov): `docs/tasks/000-history.md`.

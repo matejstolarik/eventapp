@@ -16,9 +16,11 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 
 ## Collaboration rules
 - **Decide independently.** Ask Matej only for: data model changes, contradictions with `docs/decisions.md`, new source types or changes to how data is fetched, git history rewriting or force push, paid services or new secrets (API keys).
-- Other decisions: record them in `decisions.md` or `status.md` and summarise in the closing report.
-- Keep the **"Otvorené úlohy"** section in `status.md` current so tasks survive context compression.
+- Other decisions: record them in `decisions.md` or `docs/status.md` and summarise in the closing report.
+- Tasks are tracked in `docs/tasks/` — each task is a file `NNN-name.md`. Run `git pull` before starting a task.
+- **At the end of every task**, write `## Report` in the task file with: date + commit hashes, what is done, decisions made independently and why, numbers (computed from `site/events.json` of the latest pipeline run — always include the command used), verification against the web (specific URLs and values), what remains open or was not finished. Commit and push the report together with the work. Write only: task number, done/not done, commit hash.
 - **Do not report intermediate results as final.** Numbers and results in the closing report must come from `events.json` from the latest pipeline run.
+- **`docs/` is the single source of truth** for all technical matters. `decisions.md` and `docs/tasks/` are append-only — old entries are never deleted or rewritten. A change to a decision = a new row that supersedes the old one.
 
 ## Rules
 - Never invent data. If a source does not provide a value, leave it empty (`null`). Do not guess dates, times, prices or URLs.

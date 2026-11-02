@@ -50,7 +50,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. V2 pribudne `instagram`. (RA sa nepoužíva — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.
-- `html`: venue-specific HTML scraping. Konfigurácia obsahuje `strategy` (napr. `citarna_mec` pre Čitárnu Unijazz, ktorá nemá JSON-LD a používa WP REST API + stránky akcií s elementom `.event-time`).
+- `html`: venue-specific HTML scraping. Konfigurácia obsahuje `strategy` (napr. `akropolis` pre Palác Akropolis).
 
 ### Štítky podniku (nastavuje Matej ručne)
 
@@ -109,10 +109,20 @@ Polia:
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
+- `sold_out`: `true` len ak zdroj výslovne uvádza vypredané; `false` len ak zdroj výslovne ponúka lístky; inak `null`. Nie je to `status`.
+- `room`: nepovinné, sála alebo priestor v rámci podniku tak, ako ho uvádza zdroj (napr. Akropolis: Velký sál, Malá scéna, Jazz Bar); `null` ak zdroj ho neuvádza.
 - `ticket_url`: odkaz priamo na predaj lístkov (napr. GoOut, RA, Ticketmaster). Stránka akcie na webe podniku patrí len do `sources[].url`, nie sem. Ak zdroj neposkytuje predajný odkaz, pole je `null`.
 - `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
 - `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.
+
+### Dátum bez roka
+
+Niektoré zdroje (napr. Akropolis) uvádzajú dátum bez roka (napr. „4. 11."). Pravidlo: dátum pred včerajškom patrí do budúceho roka. Pravidlo sa uplatňuje len v adaptéroch, ktoré dostávajú dátum bez roka, a je zdokumentované komentárom v adaptéri. Ak by vypočítaný dátum padol za +180 dní od dnes, akcia sa nezaradí (je mimo okno).
+
+### Oznamy, ktoré nie sú akcie
+
+Niektoré zdroje uverejňujú oznamy, ktoré nie sú akciami (napr. „ZAVŘENO" v Čitárni). Tieto záznamy sa vyraďujú priamo v adaptéri daného podniku a logujú na úrovni INFO (`log.info("skipped: %s", title)`). Dôvod filtrovania je zdokumentovaný komentárom v adaptéri.
 
 ### Výstavy
 Ako akcia sa berie len vernisáž (`opening`), jeden večer. Prebiehajúce výstavy sa nezobrazujú v zozname akcií, len v detaile podniku (neskôr).
