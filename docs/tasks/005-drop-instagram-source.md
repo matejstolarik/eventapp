@@ -11,4 +11,6 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
 4. `CLAUDE.md`: „No Instagram in v1“ → Instagram nie je zdroj dát, len odkaz v profile podniku.
 5. `data/venues.json`: doplň chýbajúce IG handle podľa auditu: MeetFactory `meetfactory`, Kasárna Karlín `kasarna_karlin`, Čitárna Unijazz `citarna_unijazz`. Nič iné nedomýšľaj.
 
+6. Rozhodnutie Mateja 2026-11-02: podnik bez zdroja akcií nie je v `venues.json` ani v appke (appka je postavená na akciách, profil bez akcií nemá hodnotu). Zoznam takých podnikov vedie hlavný chat mimo repa a podnik sa pridá, keď sa nájde zdroj. Zapíš do `docs/decisions.md` (nahrádza riadok 2026-10-29 o Magneto a Popocafepetl, pri ňom dopíš „(nahradené 2026-11-02)“) a uprav `docs/data-model.md` (`sources` nesmie byť prázdne; veta o podniku bez zdroja). Ak je v `venues.json` podnik bez zdroja, napíš to do reportu, nemaž ho.
+
 ## Report
