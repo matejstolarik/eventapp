@@ -16,6 +16,16 @@ from pipeline.checks import run_checks
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
+
+class _WarningCapture(logging.Handler):
+    """Captures WARNING/ERROR records from pipeline.* loggers for the job summary."""
+    def __init__(self):
+        super().__init__(logging.WARNING)
+        self.messages: list[str] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.messages.append(self.format(record))
+
 ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter}
 VENUES_PATH = pathlib.Path("data/venues.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
@@ -52,6 +62,10 @@ def load_previous_events() -> dict:
 
 
 def main():
+    capture = _WarningCapture()
+    capture.setFormatter(logging.Formatter("%(name)s: %(message)s"))
+    logging.getLogger("pipeline").addHandler(capture)
+
     with VENUES_PATH.open(encoding="utf-8") as f:
         venues = json.load(f)
 
@@ -104,10 +118,10 @@ def main():
 
     log.info("Wrote %d events to %s", len(events), EVENTS_OUT)
 
-    _write_job_summary(source_results, events, generated_at)
+    _write_job_summary(source_results, events, generated_at, capture.messages)
 
 
-def _write_job_summary(source_results, events, generated_at):
+def _write_job_summary(source_results, events, generated_at, adapter_warnings=None):
     """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
     summary_path = os.getenv("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -120,10 +134,10 @@ def _write_job_summary(source_results, events, generated_at):
 
     # Collect warnings from source results
     warnings = [
-        (vid, lbl, f"0 events fetched")
+        (vid, lbl, "0 events fetched")
         for vid, lbl, cnt, w in source_results if w == "zero_events"
     ] + [
-        (vid, lbl, f"source error / fetch failed")
+        (vid, lbl, "source error / fetch failed")
         for vid, lbl, cnt, w in source_results if w == "error"
     ]
 
@@ -146,10 +160,13 @@ def _write_job_summary(source_results, events, generated_at):
 
     lines += ["", f"**Total:** {len(events)} events", ""]
 
-    if warnings:
+    all_warn_lines = [f"- `{vid}` [{lbl}]: {msg}" for vid, lbl, msg in warnings]
+    if adapter_warnings:
+        all_warn_lines += [f"- {w}" for w in adapter_warnings]
+
+    if all_warn_lines:
         lines += ["### ⚠ Warnings", ""]
-        for vid, lbl, msg in warnings:
-            lines.append(f"- `{vid}` [{lbl}]: {msg}")
+        lines += all_warn_lines
         lines.append("")
     else:
         lines += ["### Warnings", "", "None", ""]

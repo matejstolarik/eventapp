@@ -7,12 +7,11 @@ Aplikácia, kde si používateľ pridá obľúbené podniky a na pár klikov vid
 - **Praktickosť:** v telefóne na dva kliky vidíš, čo sa v meste deje v zvolenom období.
 - **Dva hlavné momenty použitia:** nudíš sa doma a pozeráš, čo je dnes či tento týždeň; alebo už si v meste a hľadáš akcie okolo seba.
 - **Aktuálnosť** akcií je kľúčová, ale vzdialenejšie akcie (do pol roka) sú tiež k dispozícii.
-- UX postavené na „moje podniky“.
-- Pokrytie malých podnikov, ktoré zverejňujú program len na Instagrame, príde vo v2.
+- UX postavené na „moje podniky”.
 
 ## Rozsah v1
 - Podniky pridáva autor ručne do `data/venues.json`.
-- Zdroje: RSS, schema.org Event (JSON-LD), HTML programy webov. Instagram až vo v2. Resident Advisor nie je zdroj dát, len odkaz `ra_url` na profil podniku.
+- Zdroje: RSS, schema.org Event (JSON-LD), HTML programy webov. Resident Advisor nie je zdroj dát, len odkaz `ra_url` na profil podniku. Instagram nie je zdroj dát, len odkaz `instagram` v profile podniku.
 - Pipeline denne vygeneruje `events.json`, PWA ho číta.
 - Predvolený pohľad: hudobné akcie (`live`, `dj`). Divadlo, vernisáže, film, kvízy a iné cez filter.
 - Jazyky UI: čeština (primárne), slovenčina, angličtina. Štítky v dátach len anglicky.
@@ -24,12 +23,14 @@ Aplikácia, kde si používateľ pridá obľúbené podniky a na pár klikov vid
 - Odkazy na akcie a podniky musia fungovať bez prihlásenia a stáť na nemennom `id`.
 
 ## Mimo v1 (backlog)
-- Instagram ako zdroj (Graph API, Business Discovery, extrakcia z postov LLM).
 - Mapa akcií dnes v Prahe (obľúbené alebo všetky podniky, s filtrami).
 - Sociálne „going” (kto ešte ide) a push notifikácie.
 - Účty a registrácia.
 - Odkaz na interpreta na Spotify.
 - Natívna appka pre Play Store a App Store (pravdepodobne React Native / Expo), ak sa projekt osvedčí.
+
+### Odložené nápady (bez plánu)
+- **Instagram ako zdroj** (odložené 2026-11-02): Graph API (Business Discovery), extrakcia z postov LLM. Dôvod odloženia: zložité na nastavenie (Meta developer účet, business účty podnikov); takmer každý podnik má web s programom. Podmienka návratu: ak sa ukáže, že dôležité podniky majú program len na Instagrame. Podniky, ktoré program zverejňujú len na Instagrame, majú v appke profil bez akcií.
 
 ## Fázy vydania
 1. **v1 PWA** pre Mateja a kamarátov, bez účtu; onboarding, personal going, .ics.

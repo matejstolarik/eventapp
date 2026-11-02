@@ -31,7 +31,7 @@
     "lng": 14.408441,
     "web": "https://www.meetfactory.cz",
     "ra_url": null,
-    "instagram": null,
+    "instagram": "meetfactory",
     "facebook": null,
     "type": null,
     "character": null,
@@ -55,7 +55,7 @@
     "lng": null,
     "web": "https://kasarnakarlin.cz",
     "ra_url": null,
-    "instagram": null,
+    "instagram": "kasarna_karlin",
     "facebook": null,
     "type": null,
     "character": null,
@@ -78,7 +78,7 @@
     "lng": null,
     "web": "https://citarna.unijazz.cz",
     "ra_url": null,
-    "instagram": null,
+    "instagram": "citarna_unijazz",
     "facebook": null,
     "type": null,
     "character": null,
@@ -95,7 +95,8 @@
         "skin_id": 47,
         "months_ahead": 2,
         "follow_details": true,
-        "max_requests": 60
+        "max_requests": 60,
+        "timeout_secs": 180
       }
     ],
     "active": true,

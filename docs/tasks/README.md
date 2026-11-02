@@ -35,3 +35,4 @@ At the end of every task, write `## Report` with:
 
 - **Commit hash**: write the final hash on `origin/main` **after push**. If a rebase changes it, correct it in the next commit. Never write a local pre-push hash.
 - **Otvorené** (open issues): must not say "nothing" if there are known limitations, edge cases, or unverified items. List them explicitly.
+- **Commands in the report** must be runnable from the repository root (e.g. `python scripts/stats.py`). Never reference files outside the repository (e.g. `C:\...\check4.py`).

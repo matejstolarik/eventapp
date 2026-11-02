@@ -12,7 +12,7 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Pipeline: Python, run daily by GitHub Actions.
 - Storage: static JSON (`events.json`) published to GitHub Pages. No database.
 - Frontend: PWA in React (later, after the data pipeline works).
-- No Instagram in v1. Sources: RSS, schema.org Event (JSON-LD), HTML program pages.
+- Instagram is not a data source, only a link in the venue profile (`instagram` field = handle). Sources: RSS, schema.org Event (JSON-LD), HTML program pages.
 
 ## Collaboration rules
 - **Decide independently.** Ask Matej only for: data model changes, contradictions with `docs/decisions.md`, new source types or changes to how data is fetched, git history rewriting or force push, paid services or new secrets (API keys).

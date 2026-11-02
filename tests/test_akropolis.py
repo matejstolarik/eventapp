@@ -172,6 +172,97 @@ def test_akropolis_event_id_in_source():
     assert kafka.source["external_id"] == "40205"
 
 
+# ── own_rooms filter ─────────────────────────────────────────────────────────
+
+def test_own_rooms_filters_external_venue():
+    # Velký sál only → DECEMBER CONCERT (Malá scéna) is skipped
+    source_strict = {**SOURCE, "own_rooms": ["Velký sál"]}
+    events = parse(VENUE, source_strict, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    assert all("DECEMBER" not in e.title for e in events), "external-venue event should be filtered"
+    assert any("KAFKA" in e.title for e in events), "own-venue event should be kept"
+
+
+def test_own_rooms_no_room_event_kept():
+    # An event with no room is always kept, even with strict own_rooms
+    html_no_room = """<!DOCTYPE html><html><body>
+<a href='/work/33298?event_id=99001&page_id=33824'>
+<div class='basic_cont3'>
+<span class='color_title_date'>1. 12.</span>
+<div class='banner_m_title'>NO ROOM EVENT</div>
+<div class='kas_box6' id='99001'></div>
+</div></a></body></html>"""
+    source_strict = {**SOURCE, "own_rooms": ["Velký sál", "Malá scéna", "Jazz bar"]}
+    events = parse(VENUE, source_strict, html_no_room, {}, GENRE_HUDBA)
+    assert any("NO ROOM" in e.title for e in events)
+
+
+def test_own_rooms_external_room_skipped():
+    # An event at an unlisted room ("Roxy") is skipped
+    html_external = """<!DOCTYPE html><html><body>
+<a href='/work/33298?event_id=99002&page_id=33824'>
+<div class='basic_cont3'>
+<span class='color_title_date'>1. 12.</span>
+<div class='banner_m_title'>EXTERNAL VENUE EVENT</div>
+<span class='fct40'>20:00, &nbsp;Roxy</span>
+<div class='kas_box6' id='99002'></div>
+</div></a></body></html>"""
+    source_with_rooms = {**SOURCE, "own_rooms": ["Velký sál", "Malá scéna", "Jazz bar"]}
+    events = parse(VENUE, source_with_rooms, html_external, {}, GENRE_HUDBA)
+    assert len(events) == 0, "event at external venue should be filtered"
+
+
+# ── vstupne_6 codes ──────────────────────────────────────────────────────────
+
+def test_vstupne_code_3_free():
+    v = {**vstupne(), "40205": {"no": 3}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    assert kafka.free is True
+    assert kafka.sold_out is False
+    assert kafka.ticket_url is None
+
+
+def test_vstupne_code_4_coming_soon():
+    v = {**vstupne(), "40205": {"no": 4}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    # Not yet on sale: sold_out stays None, no ticket_url, status scheduled
+    assert kafka.sold_out is None
+    assert kafka.ticket_url is None
+    assert kafka.status == "scheduled"
+
+
+def test_vstupne_code_5_cancelled():
+    v = {**vstupne(), "40205": {"no": 5}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    assert kafka.status == "cancelled"
+
+
+def test_vstupne_code_6_postponed_stays_scheduled():
+    v = {**vstupne(), "40205": {"no": 6}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    assert kafka.status == "scheduled"
+
+
+def test_vstupne_code_11_external_url():
+    ext_url = "https://goout.net/tickets/12345"
+    v = {**vstupne(), "40205": {"no": 11, "url": ext_url}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    assert kafka.sold_out is False
+    assert kafka.ticket_url == ext_url
+
+
+def test_vstupne_unknown_code_no_crash():
+    v = {**vstupne(), "40205": {"no": 99}}
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    kafka = next(e for e in events if "KAFKA" in e.title)
+    assert kafka.status == "scheduled"
+    assert kafka.sold_out is None
+
+
 # ── pagination ────────────────────────────────────────────────────────────────
 
 def test_akropolis_pagination_fetches_all_pages():

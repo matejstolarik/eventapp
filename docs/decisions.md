@@ -6,8 +6,8 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 |---|---|---|
 | 2026-10-29 | Najprv spoľahlivé dáta, potom appka | UI nad zlými dátami nemá zmysel |
 | 2026-10-29 | Podniky pridáva Matej ručne do `data/venues.json` | Počet podnikov je konečný, ručne = presné |
-| 2026-10-29 | Instagram odložený na v2; v1 len RA, RSS, schema.org Event, HTML programy | Žiadny z 12 auditovaných podnikov nemá IG ako jediný zdroj; IG je najdrahšia a najkrehkejšia časť |
-| 2026-10-29 | Vo v2 IG len cez oficiálne Graph API (Business Discovery), stories nescrapujeme | Zadarmo, stabilné; scraping je proti ToS a krehký |
+| 2026-10-29 | Instagram odložený na v2; v1 len RA, RSS, schema.org Event, HTML programy | Žiadny z 12 auditovaných podnikov nemá IG ako jediný zdroj; IG je najdrahšia a najkrehkejšia časť **(nahradené 2026-11-02)** |
+| 2026-10-29 | Vo v2 IG len cez oficiálne Graph API (Business Discovery), stories nescrapujeme | Zadarmo, stabilné; scraping je proti ToS a krehký **(nahradené 2026-11-02)** |
 | 2026-10-29 | Každý zdroj je samostatný adaptér s jednotným výstupom | Nové zdroje (vrátane IG) bez zásahu do zvyšku systému |
 | 2026-10-29 | Štruktúrované zdroje majú prednosť pred HTML; priorita polí `ra` > `jsonld` > `rss` > `html` | Spoľahlivosť — **nahradené riadkom 2026-10-30** |
 | 2026-10-30 | Resident Advisor sa nepoužíva ako zdroj dát; v1 zdroje sú len RSS, schema.org Event (JSON-LD), HTML. Priorita polí: `jsonld` > `rss` > `html`. Podnik môže mať `ra_url` ako odkaz na jeho RA profil. | Podmienky RA zakazujú boty a scrapery bez písomného povolenia. |
@@ -31,7 +31,7 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-10-29 | Predvolený pohľad `live` + `dj`, ostatné cez filter; výstavy len ako vernisáž | Hlavný účel je hudba, kultúra bez zaplavenia |
 | 2026-10-29 | Kategorizácia v troch vrstvách: zdroj, LLM bez internetu, LLM s webom len pri nízkej istote (cache podľa interpreta) | Presnosť bez platenia za vyhľadávanie pri každej akcii |
 | 2026-10-29 | Časové okno: akcie od včera do +180 dní | Aktuálnosť je hlavná hodnota, ale aj vzdialenejšie akcie majú byť dostupné |
-| 2026-10-29 | Podniky bez zdroja akcií (Magneto, Popocafepetl) ostávajú v dátach | Profil a odkazy v appke, akcie môžu pribudnúť neskôr |
+| 2026-10-29 | Podniky bez zdroja akcií (Magneto, Popocafepetl) ostávajú v dátach | Profil a odkazy v appke, akcie môžu pribudnúť neskôr **(nahradené 2026-11-02)** |
 | 2026-10-29 | Podnik má súradnice (`lat`, `lng`) od začiatku | Budúca mapa akcií |
 | 2026-10-29 | UI v CZ (primárne), SK, EN | Cieľové publikum v Prahe |
 | 2026-10-29 | Náklady na nule alebo jednotkách eur mesačne | Osobný projekt, free tiery |
@@ -51,3 +51,5 @@ Platia, kým ich výslovne nezmeníme. Nové rozhodnutie = nový riadok (dátum,
 | 2026-11-02 | Denný beh pipeline (GitHub Actions) a GitHub Pages sa zaraďujú pred test LLM (krok 4, nahrádza poradie z predošlého riadku). Dôvod: história prevádzky sa zbiera od začiatku a PWA potrebuje verejnú adresu dát. | História `first_seen`/`last_seen` je cenná od prvého behu. |
 | 2026-11-02 | Denný beh nič necommituje do repa. `events.json` sa zverejní len na GitHub Pages (`actions/upload-pages-artifact` + `actions/deploy-pages`). `site/events.json` je v `.gitignore`. | Commity „denná aktualizácia" by sa zrážali s lokálnou prácou a zahltili históriu. |
 | 2026-11-02 | Predošlý `events.json` si CI beh stiahne zo zverejnenej Pages adresy (`PREVIOUS_EVENTS_URL` env var). Na prvom behu (404) začne bez stavu a zaloguje to. Adresa nie je natvrdo v kóde. | Umožňuje sledovanie `first_seen`/`last_seen` aj `gone` bez commitovania stavu do repa. |
+| 2026-11-02 | Instagram nie je zdroj dát ani vo v2; len odkaz v profile podniku (`instagram` pole = handle). Program berieme len z webov podnikov. Odložený nápad (bez plánu): vrátime sa ak sa ukáže, že dôležité podniky majú program len na Instagrame. (nahrádza riadky 2026-10-29 o IG vo v2) | Graph API je zložité na nastavenie (Meta developer účet, business účty podnikov, extrakcia z postov cez LLM); takmer každý podnik má web s programom. |
+| 2026-11-02 | Podnik bez zdroja akcií nie je v `venues.json` ani v appke. Appka je postavená na akciách; profil bez akcií nemá hodnotu. Podnik sa pridá, keď sa nájde zdroj. Zoznam podnikov bez zdroja vedie Matej mimo repa. `sources` v `venues.json` nesmie byť prázdne. (nahrádza riadok 2026-10-29 o Magneto a Popocafepetl) | Konzistentnosť — ak podnik nemá zdroj, appka nemá čo zobraziť. |

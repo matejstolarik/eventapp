@@ -1,10 +1,11 @@
-"""Central HTTP fetch module: rate limiting, dev cache, per-source limits."""
+"""Central HTTP fetch module: rate limiting, robots.txt, dev cache, per-source limits."""
 
 import hashlib
 import logging
 import os
 import pathlib
 import time
+import urllib.robotparser
 
 import requests
 
@@ -17,6 +18,7 @@ DEFAULT_TIMEOUT_SECS = 120
 log = logging.getLogger(__name__)
 
 _last_request: dict[str, float] = {}
+_robots_cache: dict[str, "urllib.robotparser.RobotFileParser | None"] = {}
 
 
 class LimitExceeded(Exception):
@@ -66,7 +68,12 @@ class Fetcher:
                 log.debug("cache hit: %s", url)
                 return cached
 
+        if not _robots_allowed(url):
+            log.warning("robots.txt disallows %s — skipping", url)
+            raise LimitExceeded(f"robots.txt disallows {url}")
+
         _rate_limit(url)
+        _robots_apply_crawl_delay(url)
 
         resp = requests.get(
             url, headers={"User-Agent": USER_AGENT}, timeout=http_timeout
@@ -91,6 +98,49 @@ def make_fetcher(source_config: dict) -> Fetcher:
         timeout_secs=source_config.get("timeout_secs", DEFAULT_TIMEOUT_SECS),
         use_cache=use_cache,
     )
+
+
+# ── robots.txt ────────────────────────────────────────────────────────────────
+
+def _get_robots(url: str) -> "urllib.robotparser.RobotFileParser | None":
+    """Return (cached) RobotFileParser for the host of *url*, or None on error."""
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    origin = f"{parsed.scheme}://{parsed.netloc}"
+    if origin not in _robots_cache:
+        robots_url = f"{origin}/robots.txt"
+        rp = urllib.robotparser.RobotFileParser()
+        rp.set_url(robots_url)
+        try:
+            rp.read()
+            _robots_cache[origin] = rp
+        except Exception as exc:
+            log.debug("robots.txt fetch failed for %s: %s — assuming allowed", origin, exc)
+            _robots_cache[origin] = None
+    return _robots_cache[origin]
+
+
+def _robots_allowed(url: str) -> bool:
+    """Return True if robots.txt allows fetching *url* with our User-Agent."""
+    rp = _get_robots(url)
+    if rp is None:
+        return True
+    return rp.can_fetch(USER_AGENT, url)
+
+
+def _robots_apply_crawl_delay(url: str) -> None:
+    """Sleep extra time if robots.txt specifies a Crawl-delay > REQUEST_DELAY."""
+    rp = _get_robots(url)
+    if rp is None:
+        return
+    from urllib.parse import urlparse
+    delay = rp.crawl_delay(USER_AGENT) or rp.crawl_delay("*")
+    if delay and delay > REQUEST_DELAY:
+        host = urlparse(url).netloc
+        now = time.time()
+        extra_wait = delay - REQUEST_DELAY - (now - _last_request.get(host, 0.0))
+        if extra_wait > 0:
+            time.sleep(extra_wait)
 
 
 # ── rate limiting ─────────────────────────────────────────────────────────────

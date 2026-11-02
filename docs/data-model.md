@@ -44,11 +44,11 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 ```
 
 - `id`: slug, stabilný, nikdy sa nemení (odkazujú naň obľúbené v PWA).
-- `sources`: môže byť prázdne. Podnik bez zdroja akcií (napr. Magneto, Popocafepetl) ostáva v databáze, appka ukáže jeho profil a odkazy, len bez akcií.
+- `sources`: nesmie byť prázdne. Podnik bez zdroja akcií sa do `venues.json` nepridá.
 - `capacity`: nepovinné, len overené číslo.
 - `lat`, `lng`: súradnice pre budúcu mapu akcií. Doplniť už teraz pri zakladaní podniku, neskôr by sa dopĺňali spätne.
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
-- Typy zdrojov v1: `rss`, `jsonld`, `html`. V2 pribudne `instagram`. (RA sa nepoužíva — pozri `docs/decisions.md`.)
+- Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.
 - `html`: venue-specific HTML scraping. Konfigurácia obsahuje `strategy` (napr. `akropolis` pre Palác Akropolis).
 
@@ -147,7 +147,7 @@ fetch(venue, source_config) -> list[RawEvent]
 
 `RawEvent` má rovnaké polia ako Akcia, okrem `id`, `first_seen`, `last_seen`, `status`, `flags`, `classification`, a namiesto zoznamu `sources` má jeden zdroj. Adaptér zodpovedá za prevod dátumov na miestny čas Prahy.
 
-Nový zdroj (vrátane Instagramu vo v2) = nový adaptér. Zvyšok pipeline sa nemení.
+Nový typ zdroja = nový adaptér. Zvyšok pipeline sa nemení.
 
 ## Deduplikácia
 

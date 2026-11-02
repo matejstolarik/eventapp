@@ -52,7 +52,20 @@ Bez tohto kroku prvý beh workflow zlyhá pri `deploy-pages`.
 
 ### Výsledok ručne spusteného behu
 
-Workflow ešte nebežal (Pages nie sú prepnuté na GitHub Actions source). Matej musí najprv prepnúť Pages zdroj (postup vyššie), potom spustiť workflow ručne cez Actions → Daily pipeline → Run workflow. Odkaz na výsledok behu doplniť po prvom behu.
+Matej spustil workflow ručne. Prvý úspešný beh: [beh 41518793358](https://github.com/matejstolarik/eventapp/actions/runs/41518793358). Pages prepnuté na GitHub Actions source.
+
+Zverejnený `events.json`: `https://matejstolarik.github.io/eventapp/events.json`
+
+Čísla zo zverejneného súboru (generated_at: 2026-11-02T21:26:28+01:00):
+
+| Podnik | Počet eventov |
+|---|---|
+| citarna-unijazz | 17 |
+| cross-club | 15 |
+| kasarna-karlin | 2 |
+| meetfactory | 42 |
+| palac-akropolis | 83 |
+| **Celkom** | **159** |
 
 ### Ako sa rieši stav medzi behmi
 
@@ -73,7 +86,7 @@ Príkaz: `python -m pipeline.main` (lokálny beh bez PREVIOUS_EVENTS_URL, site/e
 
 ### Otvorené
 
-- GitHub Pages treba manuálne prepnúť na „GitHub Actions" source (Matej, postup vyššie). Bez toho `deploy-pages` step zlyhá.
-- Prvý CI beh začne bez histórie (404 na Pages URL) — `first_seen` všetkých eventov bude dátum prvého behu.
-- Job summary zachytáva len varovania viditeľné z `main.py` (0 eventov, chyba zdroja). Varovania z adaptérov (minutý `max_requests`, timeout) sú v CI logu, nie v summary — doladenie v budúcej úlohe.
+- ~~GitHub Pages treba manuálne prepnúť~~ — hotové, Matej prepol pri prvom behu.
+- Prvý CI beh začal bez histórie (404 na Pages URL) — `first_seen` všetkých eventov je dátum prvého behu (2026-11-02).
+- Z prvého behu: Čitárna timeout (`source timeout 120s exceeded at 126s`) bol len v logu, nie v job summary — opravené v úlohe 005.
 - Workflow sa automaticky vypne po 60 dňoch bez aktivity v repe. Ak Matej dlho nič nepushne, treba ho ručne znovu zapnúť (Actions → Daily pipeline → Enable).

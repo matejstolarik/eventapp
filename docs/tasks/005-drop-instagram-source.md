@@ -25,3 +25,67 @@ Rozhodnutie Mateja 2026-11-02: Instagram nebude zdrojom dát ani vo v2. Program 
    - Do reportu 004 doplň odkaz na beh a počty zo zverejneného súboru (report hovorí, že workflow ešte nebežal; Matej ho medzitým spustil).
 
 ## Report
+
+Dátum: 2026-11-02.
+
+### Čo je hotové
+
+**1. `docs/decisions.md`** — riadky 2026-10-29 o Instagrame vo v2 a o podnikoch bez zdroja označené `(nahradené 2026-11-02)`. Pridané 2 nové riadky: Instagram nie je zdroj dát ani vo v2; `sources` nesmie byť prázdne.
+
+**2. `docs/project.md`** — odstránený sľub „Pokrytie malých podnikov na Instagrame príde vo v2" a „Instagram až vo v2" zo zdroja v1. Backlog: nová podsekcia „Odložené nápady (bez plánu)" s Instagramom, dátumom odloženia, dôvodom a podmienkou návratu.
+
+**3. `docs/data-model.md`** — `sources` nesmie byť prázdne; „V2 pribudne `instagram`" nahradené generickou vetou; „vrátane Instagramu vo v2" odstránené.
+
+**4. `CLAUDE.md`** — „No Instagram in v1" → „Instagram is not a data source, only a link in the venue profile."
+
+**5. `data/venues.json`** — doplnené IG handle: MeetFactory `meetfactory`, Kasárna Karlín `kasarna_karlin`, Čitárna Unijazz `citarna_unijazz`. Podniky bez zdroja akcií v `venues.json` nie sú (audit: všetky 5 podnikov majú `sources`).
+
+**6. Čitárna Unijazz timeout** — zvýšený `timeout_secs` na 180 s v source config v `venues.json` (bol 120 s, v CI beh trval 126 s).
+
+**7. Varovania v job summary** — `pipeline/main.py`: pridaný `_WarningCapture` handler na `pipeline.*` logger; WARNING/ERROR z adaptérov (timeout, max_requests, robots.txt) sa teraz objavia v GitHub job summary.
+
+**8. `pipeline/fetch.py`** — robots.txt kontrola pred každou požiadavkou (`urllib.robotparser`, cachovaný per host per beh). Ak URL nie je povolená, zaloguje WARNING a vyhodí `LimitExceeded`. Rešpektuje `Crawl-delay` väčší ako `REQUEST_DELAY`.
+
+**9. `docs/status.md`** — pridaná tabuľka robots.txt pre všetky podniky (overené 2026-11-02).
+
+**10. Testy** — 9 nových testov v `tests/test_akropolis.py`: own_rooms filter (externá sála vyradená, akcia bez sály zachovaná) a kódy vstupne_6 (3=free, 4=coming_soon, 5=cancelled, 6=postponed, 11=external URL, neznámy kód).
+
+**11. `scripts/stats.py`** — skript na štatistiky zo `site/events.json` (počty podľa podniku, sekcie, sály, sold_out, status, start_time).
+
+**12. `docs/tasks/README.md`** — pridané pravidlo: príkazy v reporte musia byť spustiteľné z repozitára.
+
+**13. Doplnok k reportu 004** — odkaz na prvý CI beh ([beh 41518793358](https://github.com/matejstolarik/eventapp/actions/runs/41518793358)) a čísla zo zverejneného súboru.
+
+### Čísla (pipeline run 2026-11-02, príkaz: `python scripts/stats.py`)
+
+| Podnik | Počet eventov |
+|---|---|
+| citarna-unijazz | 17 |
+| cross-club | 15 |
+| kasarna-karlin | 2 |
+| meetfactory | 42 |
+| palac-akropolis | 83 |
+| **Celkom** | **159** |
+
+with start_time: 102/159 | sold_out true=7 false=75 null=77
+
+### Rozhodnutia urobené samostatne
+
+- **Čitárna timeout_secs=180** (bol 120): CI beh trval 126 s → zvýšil som na 180 s s rezervou. Matej nevyžadoval konkrétnu hodnotu.
+- **`_WarningCapture` na `pipeline.*` logger**: loguje WARNING/ERROR zo všetkých modulov pipeline, nie len z `main.py`. Čistejšie než ad-hoc prepínanie v každom adaptéri.
+- **robots.txt vyhodí `LimitExceeded`** (nie vlastnú výnimku): adaptéry túto výnimku už zachytávajú — nemenila sa ich logika.
+
+### Overenie na webe
+
+- robots.txt overené 2026-11-02 pre crossclub.cz, meetfactory.cz, kasarnakarlin.cz, citarna.unijazz.cz, palacakropolis.cz — všetky URL povolené, žiadny Crawl-delay.
+- IG handle `meetfactory`, `kasarna_karlin`, `citarna_unijazz` — zadané Matejom v zadaní, nekontrolované nezávisle.
+
+### Testy
+
+84 passed (9 nových) — `python -m pytest tests/ -v`
+
+### Otvorené
+
+- Čitárna: `timeout_secs=180` nebolo overené ďalším behom v CI (iba lokálnym). Ďalší denný beh ukáže, či timeout stačí.
+- IG handle `kasarna_karlin` — na Instagrame účet môže mať aj iný handle (napr. `kasarnakarlin`); nie je overený nezávisle, len prevzatý zo zadania.
+

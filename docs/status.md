@@ -61,6 +61,20 @@ Po nasadení workflow je potrebné v nastaveniach repa prepnúť zdroj Pages na 
 2. Pod „Build and deployment" → Source → vybrať **GitHub Actions**
 3. Uložiť
 
+## robots.txt (overené 2026-11-02)
+
+Pipeline kontroluje `robots.txt` pri každom behu (`urllib.robotparser`, výsledok cachovaný na beh). Aktuálny stav pre naše URL:
+
+| Podnik | Host | URL (pipeline) | Povolené? | Crawl-delay |
+|--------|------|----------------|-----------|-------------|
+| Cross Club | crossclub.cz | `/cs/rss/program/` | ✅ áno | — |
+| MeetFactory | meetfactory.cz | `/cs/program/hudba`, `/cs/program/divadlo` | ✅ áno | — |
+| Kasárna Karlín | kasarnakarlin.cz | `/en/program` | ✅ áno | — |
+| Čítárna Unijazz | citarna.unijazz.cz | `/wp-admin/admin-ajax.php`, `/program/` | ✅ áno | — |
+| Palác Akropolis | palacakropolis.cz | `/work/33298`, `/pub/vstupne_6` | ✅ áno | — |
+
+Žiadny zdroj nie je v `robots.txt` zakázaný. Ak sa to zmení, pipeline zaloguje varovanie a vyhodí `LimitExceeded` pre danú URL (adaptér túto akciu zachytí a pokračuje bez nej).
+
 ## Úlohy
 
 Otvorené a dokončené úlohy sú v `docs/tasks/`. Historické úlohy (pred systémom súborov): `docs/tasks/000-history.md`.
