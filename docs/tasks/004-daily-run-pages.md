@@ -21,7 +21,7 @@ Do reportu: URL zverejneného `events.json`, výsledok ručne spusteného behu (
 
 ## Report
 
-Dátum: 2026-11-02. Commit: po pushi (doplniť).
+Dátum: 2026-11-02. Commit: `d838f0d` (Task 004: daily GitHub Actions pipeline + GitHub Pages deployment).
 
 ### Čo je hotové
 
