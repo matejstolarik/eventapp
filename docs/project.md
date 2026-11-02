@@ -41,8 +41,9 @@ Dôsledok pre v1: odkazy na akcie a podniky musia fungovať bez prihlásenia a s
 ## Poradie práce
 1. Audit zdrojov (hotové pre vzorku 12 podnikov)
 2. Dátový model (hotové okrem zoznamu žánrov)
-3. Adaptéry pre súčasné podniky (Cross Club, MeetFactory, Kasárna, Čitárna, Akropolis) — **prebieha**
+3. Adaptéry pre súčasné podniky (Cross Club, MeetFactory, Kasárna, Čitárna, Akropolis) — **hotové**
 4. Pipeline end-to-end, denný beh + GitHub Pages
 5. Test LLM extrakcie nad HTML (Twist, Akropolis ako kontrola) → rozhodnutie: vlastné parsery vs. LLM
-6. Minimálna PWA
-7. Ďalšie podniky
+6. Ďalšie podniky (pred PWA; len tie, ktoré pôjdu rýchlo — zložité parsery na mieru až po PWA)
+7. Zatriedenie akcií aspoň podľa sekcie zdroja (bez neho je predvolený pohľad `live` + `dj` prázdny)
+8. Minimálna PWA

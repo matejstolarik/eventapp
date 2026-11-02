@@ -129,6 +129,7 @@
           {"genre": "2", "page_id": "38638", "section": "divadlo"},
           {"genre": "17", "page_id": "49735", "section": "off-program", "other": true}
         ],
+        "own_rooms": ["Velký sál", "Malá scéna", "Jazz bar"],
         "detail_page_id": "33824",
         "ticket_page_id": "42027",
         "vstupne_url": "https://palacakropolis.cz/pub/vstupne_6",

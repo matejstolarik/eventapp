@@ -8,8 +8,23 @@ format without a year ("4. 11."); the year is inferred:
   date > +180 days  →  skip (outside window)
 
 Ticket availability comes from a lightweight JSON endpoint (/pub/vstupne_6)
-that maps event_id to a status code.  One request per pipeline run (not per
-event).
+that maps event_id to a {no, rs, url?} dict.  One request per pipeline run.
+
+Code meanings from the `data` attribute of `.kas_box6` HTML elements
+(comma-separated strings, index = code number, e.g. index 5 → "ZRUŠENO!"):
+  1  → "KUP TEĎ!" — on sale via Akropolis; ticket URL page_id=42027
+  2  → "VYPRODÁNO!" — sold out; verified on SPITFIRE DVACETJEDNA 2026-11-02
+  3  → "VSTUP VOLNÝ!" — free entry
+  4  → "JIŽ BRZY…!" — not yet on sale
+  5  → "ZRUŠENO!" — cancelled; verified via kas_box6 data attribute
+  6  → "PŘELOŽENO! ►" — postponed (no specific date yet)
+  9  → "prodej ukončen" — sales ended
+  10 → "prodej na místě" — sold at the door
+  11 → "KUP TEĎ!" via external URL (vstupne_6 entry has a `url` field)
+
+Akropolis also lists events at external venues.  Events whose parsed `room`
+is not in source_config["own_rooms"] are skipped and logged.  Events with no
+room are kept (they are assumed to be at Akropolis).
 
 Pagination: ?plg_33527_page=N  (N=1 is the default; add the param for N>1).
 """
@@ -27,12 +42,14 @@ from pipeline.models import RawEvent
 
 log = logging.getLogger(__name__)
 
-# vstupne_6 "no" codes that indicate the event is on sale
-_SELLING = {1, 11}
-# code that indicates sold out
+# vstupne_6 "no" codes — see module docstring for full list
+_SELLING = 1           # on sale, Akropolis ticket page
+_SELLING_EXTERNAL = 11  # on sale, external URL in vstupne_6 entry
 _SOLD_OUT = 2
-# code that indicates cancelled
-_CANCELLED = 5
+_CANCELLED = 5         # "ZRUŠENO!" — verified via kas_box6 data attribute
+_FREE = 3
+_COMING_SOON = 4       # "JIŽ BRZY…!" — tickets not yet on sale
+_POSTPONED = 6         # "PŘELOŽENO! ►"
 
 
 def fetch(venue: dict, source_config: dict) -> list:
@@ -124,17 +141,18 @@ def _parse_page(venue, source_config, genre_cfg, html, vstupne, yesterday, cutof
     no = source_config.get("no", "62")
     ticket_page_id = source_config.get("ticket_page_id", "42027")
 
+    own_rooms_lower = {r.lower() for r in source_config.get("own_rooms", [])}
     events = []
     for item in soup.select(".basic_cont3"):
         ev = _parse_item(item, venue, base_url, no, section, ticket_page_id,
-                         vstupne, yesterday, cutoff)
+                         vstupne, yesterday, cutoff, own_rooms_lower)
         if ev:
             events.append(ev)
     return events
 
 
 def _parse_item(item, venue, base_url, no, section, ticket_page_id,
-                vstupne, yesterday, cutoff):
+                vstupne, yesterday, cutoff, own_rooms_lower=frozenset()):
     # Title
     title_el = item.select_one(".banner_m_title")
     if not title_el:
@@ -158,6 +176,13 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
     room = None
     if time_room_el:
         start_time, room = _parse_time_room(time_room_el.get_text())
+
+    # Skip events at external venues (Akropolis lists events it organises elsewhere).
+    # Events without a room are kept — they are assumed to be at Akropolis.
+    if room is not None and own_rooms_lower and room.lower() not in own_rooms_lower:
+        log.info("%s [html/akropolis] skipping '%s' — external venue '%s'",
+                 venue["id"], title, room)
+        return None
 
     # Event ID from kas_box6
     kas_el = item.select_one(".kas_box6")
@@ -183,21 +208,39 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
         else:
             image_url = src
 
-    # Ticket status from vstupne
+    # Ticket status from vstupne_6 (see module docstring for code meanings)
     sold_out = None
+    free = None
     ticket_url = None
     status = "scheduled"
     if event_id and vstupne:
         state = vstupne.get(event_id, {})
         state_no = state.get("no")
-        if state_no in _SELLING:
+        if state_no == _SELLING:
             sold_out = False
             ticket_url = (f"https://palacakropolis.cz/work/33298"
                           f"?event_id={event_id}&no={no}&page_id={ticket_page_id}")
+        elif state_no == _SELLING_EXTERNAL:
+            sold_out = False
+            ticket_url = (state.get("url") or
+                          f"https://palacakropolis.cz/work/33298"
+                          f"?event_id={event_id}&no={no}&page_id={ticket_page_id}")
+        elif state_no == _FREE:
+            sold_out = False
+            free = True
         elif state_no == _SOLD_OUT:
             sold_out = True
         elif state_no == _CANCELLED:
             status = "cancelled"
+        elif state_no == _COMING_SOON:
+            log.debug("%s [html/akropolis] '%s' not yet on sale (vstupne code 4)",
+                      venue["id"], title)
+        elif state_no == _POSTPONED:
+            log.warning("%s [html/akropolis] '%s' postponed (vstupne code 6) — keeping as scheduled",
+                        venue["id"], title)
+        elif state_no is not None:
+            log.warning("%s [html/akropolis] '%s' unknown vstupne code %s",
+                        venue["id"], title, state_no)
 
     return RawEvent(
         venue_id=venue["id"],
@@ -211,7 +254,7 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
         character=list(venue.get("character") or []),
         artists=[],
         price_text=None,
-        free=None,
+        free=free,
         sold_out=sold_out,
         room=room,
         ticket_url=ticket_url,

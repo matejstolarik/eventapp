@@ -30,3 +30,8 @@ At the end of every task, write `## Report` with:
 - Numbers: computed from `site/events.json` of the latest pipeline run; always include the command used
 - Verification against the web (specific URLs and values)
 - What remains open or was not finished
+
+## Rules for the report
+
+- **Commit hash**: write the final hash on `origin/main` **after push**. If a rebase changes it, correct it in the next commit. Never write a local pre-push hash.
+- **Otvorené** (open issues): must not say "nothing" if there are known limitations, edge cases, or unverified items. List them explicitly.

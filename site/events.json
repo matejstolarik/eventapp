@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-02T20:36:48.075245+01:00",
+  "generated_at": "2026-11-02T21:05:38.597675+01:00",
   "venues": [
     {
       "id": "cross-club",
@@ -173,6 +173,11 @@
               "section": "off-program",
               "other": true
             }
+          ],
+          "own_rooms": [
+            "Velký sál",
+            "Malá scéna",
+            "Jazz bar"
           ],
           "detail_page_id": "33824",
           "ticket_page_id": "42027",
@@ -2589,7 +2594,7 @@
       "venue_id": "citarna-unijazz",
       "title": "Syrový tóny + Katka Šarközi",
       "date": "2026-11-26",
-      "start_time": "20:00",
+      "start_time": null,
       "doors_time": null,
       "end_time": null,
       "formats": [],
@@ -2621,7 +2626,7 @@
       "venue_id": "citarna-unijazz",
       "title": "František Drábek – Je tohle divadlo?",
       "date": "2026-11-30",
-      "start_time": "19:00",
+      "start_time": null,
       "doors_time": null,
       "end_time": null,
       "formats": [],
@@ -2728,7 +2733,7 @@
       "free": null,
       "sold_out": false,
       "room": "Velký sál",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40639&no=62&page_id=42027",
+      "ticket_url": "https://goout.net/cs/listky/flamengo-reunion-session-60-let/jqojb",
       "image_url": "https://palacakropolis.cz/images/photos/0026/2475/promofoto_web_hp.jpg",
       "sources": [
         {
@@ -2767,38 +2772,6 @@
           "type": "html",
           "url": "https://palacakropolis.cz/work/33298?event_id=40533&genre=1&no=62&page_id=33824",
           "external_id": "40533",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2026-11-08-floex-ensemble-krest-juha-maki-patola-fi",
-      "venue_id": "palac-akropolis",
-      "title": "FLOEX ENSEMBLE (KŘEST)+JUHA MÄKI-PATOLA/FI",
-      "date": "2026-11-08",
-      "start_time": "20:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "ARCHA+",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41376&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/5117/FloexEnsemble-Directros3Portrety_VojtechVeskrna_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41376&genre=1&no=62&page_id=33824",
-          "external_id": "41376",
           "section": "hudba"
         }
       ],
@@ -3897,102 +3870,6 @@
       "flags": []
     },
     {
-      "id": "palac-akropolis-2027-03-03-modeselektor-live-de-philipp-johann-thimm-de",
-      "venue_id": "palac-akropolis",
-      "title": "MODESELEKTOR LIVE/DE+PHILIPP JOHANN THIMM/DE",
-      "date": "2027-03-03",
-      "start_time": "19:30",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "Roxy",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41596&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/6762/MDSLKTR_MP-11_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41596&genre=1&no=62&page_id=33824",
-          "external_id": "41596",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-03-04-emika-uk-av-live-show",
-      "venue_id": "palac-akropolis",
-      "title": "EMIKA/UK(AV LIVE SHOW)",
-      "date": "2027-03-04",
-      "start_time": "19:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "Planetárium Praha",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41404&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/6966/Emika_Immersive_Fountain_Album_Artwork_MarieBartosova_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41404&genre=1&no=62&page_id=33824",
-          "external_id": "41404",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-03-12-kiioto-uk-monika-naceva",
-      "venue_id": "palac-akropolis",
-      "title": "KIIŌTŌ/UK+MONIKA NAČEVA",
-      "date": "2027-03-12",
-      "start_time": "20:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": null,
-      "room": "Jazz Dock",
-      "ticket_url": null,
-      "image_url": "https://palacakropolis.cz/images/photos/0026/7074/Photo-Credit-Yagub-Allahverdiyev-2-scaled_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41514&genre=1&no=62&page_id=33824",
-          "external_id": "41514",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
       "id": "palac-akropolis-2027-03-16-bigyuki-jp",
       "venue_id": "palac-akropolis",
       "title": "BIGYUKI/JP",
@@ -4079,38 +3956,6 @@
           "type": "html",
           "url": "https://palacakropolis.cz/work/33298?event_id=41237&genre=1&no=62&page_id=33824",
           "external_id": "41237",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-03-31-piano-day-yehezkel-raz-poppy-ackroyd",
-      "venue_id": "palac-akropolis",
-      "title": "PIANO DAY ►YEHEZKEL RAZ+POPPY ACKROYD",
-      "date": "2027-03-31",
-      "start_time": "19:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "Kostel sv. Šimona a Judy",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41770&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/6930/Yehezkel_Raz_by_Katya_Kalyska_2_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41770&genre=1&no=62&page_id=33824",
-          "external_id": "41770",
           "section": "hudba"
         }
       ],
@@ -4239,102 +4084,6 @@
           "type": "html",
           "url": "https://palacakropolis.cz/work/33298?event_id=41312&genre=1&no=62&page_id=33824",
           "external_id": "41312",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-04-08-janus-rasmussen-live-fo",
-      "venue_id": "palac-akropolis",
-      "title": "JANUS RASMUSSEN (LIVE)/FO",
-      "date": "2027-04-08",
-      "start_time": "21:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "Bike Jesus",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41489&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/6882/Janus_Rasmussen_4__copyright_Vikram_Pradhan__web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41489&genre=1&no=62&page_id=33824",
-          "external_id": "41489",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-04-12-olafur-arnalds-isfalling-apart-together",
-      "venue_id": "palac-akropolis",
-      "title": "ÓLAFUR ARNALDS/IS►FALLING APART TOGETHER",
-      "date": "2027-04-12",
-      "start_time": "20:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "DIVADLO HYBERNIA",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41380&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/5153/OA_FallingApartTogetherDigital_CreditAnnaMaggy_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41380&genre=1&no=62&page_id=33824",
-          "external_id": "41380",
-          "section": "hudba"
-        }
-      ],
-      "classification": null,
-      "first_seen": "2026-11-02",
-      "last_seen": "2026-11-02",
-      "status": "scheduled",
-      "flags": []
-    },
-    {
-      "id": "palac-akropolis-2027-04-13-olafur-arnalds-isfalling-apart-together",
-      "venue_id": "palac-akropolis",
-      "title": "ÓLAFUR ARNALDS/IS►FALLING APART TOGETHER",
-      "date": "2027-04-13",
-      "start_time": "20:00",
-      "doors_time": null,
-      "end_time": null,
-      "formats": [],
-      "genres": [],
-      "character": [],
-      "artists": [],
-      "price_text": null,
-      "free": null,
-      "sold_out": false,
-      "room": "DIVADLO HYBERNIA",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41381&no=62&page_id=42027",
-      "image_url": "https://palacakropolis.cz/images/photos/0026/5153/OA_FallingApartTogetherDigital_CreditAnnaMaggy_web_hp.jpg",
-      "sources": [
-        {
-          "type": "html",
-          "url": "https://palacakropolis.cz/work/33298?event_id=41381&genre=1&no=62&page_id=33824",
-          "external_id": "41381",
           "section": "hudba"
         }
       ],
@@ -4968,7 +4717,7 @@
       "free": null,
       "sold_out": false,
       "room": "Velký sál",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40702&no=62&page_id=42027",
+      "ticket_url": "https://vstupenky.narodni-divadlo.cz/narodni-divadlo/standard/Hall/Index/4428575/JatCFOuTGQyyAeAhsO8VPQ_rov__rov__xcodex_AGA1gFbU4witVQ0qfZfrmE1sXap7DyMYVJaLbQ__?",
       "image_url": "https://palacakropolis.cz/images/photos/0026/6126/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__1__web_hp.jpg",
       "sources": [
         {
@@ -5000,7 +4749,7 @@
       "free": null,
       "sold_out": false,
       "room": "Velký sál",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40703&no=62&page_id=42027",
+      "ticket_url": "https://vstupenky.narodni-divadlo.cz/narodni-divadlo/standard/Hall/Index/4428576/1IIIt83RquxsUUyNmxqUFA_rov__rov__xcodex_AGA1gFbU4wiMZ1OF-5VdSqjY_com_sQzNYC207AH8Q__?",
       "image_url": "https://palacakropolis.cz/images/photos/0026/6102/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__3__web_hp.jpg",
       "sources": [
         {
@@ -5384,7 +5133,7 @@
       "free": null,
       "sold_out": false,
       "room": "Velký sál",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=40744&no=62&page_id=42027",
+      "ticket_url": "https://vstupenky.narodni-divadlo.cz/narodni-divadlo/standard/Hall/Index/4524392/f4w4uI1r_plu_ypGmR3t0BoI5g_rov__rov__xcodex_AGA1gFbU4wibSHPqeD5OjHirnkJbWAHNMgl_com_Vg__?",
       "image_url": "https://palacakropolis.cz/images/photos/0026/6114/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__2__web_hp.jpg",
       "sources": [
         {
@@ -5416,7 +5165,7 @@
       "free": null,
       "sold_out": false,
       "room": "Velký sál",
-      "ticket_url": "https://palacakropolis.cz/work/33298?event_id=41117&no=62&page_id=42027",
+      "ticket_url": "https://vstupenky.narodni-divadlo.cz/narodni-divadlo/standard/Hall/Index/4673980/7mNPXK9cu5gI2cwr84n9sQ_rov__rov__xcodex_AGA1gFbU4wjPDZfKh1GI7xh7UQQ58xDX0lMmjA__?",
       "image_url": "https://palacakropolis.cz/images/photos/0026/6102/laterna-magika-or-perpetuum-havel-roman-zotov-mikshin-foto-vojtech-brtnicky__3__web_hp.jpg",
       "sources": [
         {
