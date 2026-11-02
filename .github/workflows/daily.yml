@@ -1,0 +1,52 @@
+name: Daily pipeline
+
+on:
+  schedule:
+    # 05:00 UTC = 06:00 Prague winter time (CET) / 07:00 summer (CEST)
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # pip cache intentionally omitted; EVENTAPP_DEV_CACHE is not set,
+          # so the HTTP dev cache is disabled in CI.
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest
+        # If tests fail, the job stops here and nothing is published.
+
+      - name: Run pipeline
+        env:
+          PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
+        run: python -m pipeline.main
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

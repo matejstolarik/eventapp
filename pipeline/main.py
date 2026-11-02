@@ -1,7 +1,9 @@
 import datetime
 import json
 import logging
+import os
 import pathlib
+import urllib.request
 from zoneinfo import ZoneInfo
 
 from pipeline.adapters import rss as rss_adapter
@@ -21,6 +23,27 @@ PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 
 def load_previous_events() -> dict:
+    """Load previous events for first_seen/last_seen tracking.
+
+    In CI, fetches from the URL in PREVIOUS_EVENTS_URL env var (the published
+    GitHub Pages address).  On first run the URL returns 404 — that is handled
+    gracefully and the pipeline starts without state.
+
+    Locally, falls back to the existing site/events.json file.
+    """
+    url = os.getenv("PREVIOUS_EVENTS_URL")
+    if url:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "eventapp-pipeline/0.1"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read())
+            events = data.get("events", [])
+            log.info("Previous events: %d loaded from %s", len(events), url)
+            return {e["id"]: e for e in events}
+        except Exception as exc:
+            log.info("Previous events not available (%s) — starting without state", exc)
+            return {}
+
     if not EVENTS_OUT.exists():
         return {}
     with EVENTS_OUT.open(encoding="utf-8") as f:
@@ -35,6 +58,10 @@ def main():
     previous = load_previous_events()
     all_raw = []
 
+    # Per-source results: (venue_id, source_label, event_count, warning)
+    # warning is one of None / "zero_events" / "error"
+    source_results: list[tuple] = []
+
     for venue in venues:
         if not venue.get("active", True):
             continue
@@ -42,24 +69,33 @@ def main():
             adapter = ADAPTERS.get(source["type"])
             if adapter is None:
                 log.warning("No adapter for source type '%s' (venue %s)", source["type"], venue["id"])
+                source_results.append((venue["id"], source.get("type", "?"), 0, "error"))
                 continue
+            label = source.get("section") or source.get("strategy") or source["type"]
             try:
                 raw_events = adapter.fetch(venue, source)
-                log.info("%s [%s]: %d events fetched", venue["id"], source["type"], len(raw_events))
+                count = len(raw_events)
+                log.info("%s [%s]: %d events fetched", venue["id"], source["type"], count)
+                warning = None
                 if not raw_events:
-                    log.warning("%s [%s]: 0 events — site layout may have changed", venue["id"], source["type"])
+                    log.warning("%s [%s]: 0 events — site layout may have changed",
+                                venue["id"], source["type"])
+                    warning = "zero_events"
                 all_raw.extend(raw_events)
+                source_results.append((venue["id"], label, count, warning))
             except Exception as exc:
                 log.error("%s [%s]: %s", venue["id"], source["type"], exc)
+                source_results.append((venue["id"], label, 0, "error"))
 
     events = [normalize_event(r, previous) for r in all_raw]
     events = dedup_events(events)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
+    generated_at = datetime.datetime.now(PRAGUE_TZ).isoformat()
     output = {
         "schema_version": 1,
-        "generated_at": datetime.datetime.now(PRAGUE_TZ).isoformat(),
+        "generated_at": generated_at,
         "venues": venues,
         "events": events,
     }
@@ -67,6 +103,67 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     log.info("Wrote %d events to %s", len(events), EVENTS_OUT)
+
+    _write_job_summary(source_results, events, generated_at)
+
+
+def _write_job_summary(source_results, events, generated_at):
+    """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
+    summary_path = os.getenv("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+
+    # Events per venue
+    venue_counts: dict[str, int] = {}
+    for e in events:
+        venue_counts[e["venue_id"]] = venue_counts.get(e["venue_id"], 0) + 1
+
+    # Collect warnings from source results
+    warnings = [
+        (vid, lbl, f"0 events fetched")
+        for vid, lbl, cnt, w in source_results if w == "zero_events"
+    ] + [
+        (vid, lbl, f"source error / fetch failed")
+        for vid, lbl, cnt, w in source_results if w == "error"
+    ]
+
+    # Quality flags
+    flag_counts: dict[str, int] = {}
+    for e in events:
+        for flag in e.get("flags", []):
+            flag_counts[flag] = flag_counts.get(flag, 0) + 1
+
+    lines = [
+        f"## Pipeline summary — {generated_at[:16]} Prague",
+        "",
+        "### Events per venue",
+        "",
+        "| Venue | Events |",
+        "|---|---|",
+    ]
+    for vid, cnt in sorted(venue_counts.items()):
+        lines.append(f"| {vid} | {cnt} |")
+
+    lines += ["", f"**Total:** {len(events)} events", ""]
+
+    if warnings:
+        lines += ["### ⚠ Warnings", ""]
+        for vid, lbl, msg in warnings:
+            lines.append(f"- `{vid}` [{lbl}]: {msg}")
+        lines.append("")
+    else:
+        lines += ["### Warnings", "", "None", ""]
+
+    if flag_counts:
+        lines += ["### Quality flags", ""]
+        for flag, cnt in sorted(flag_counts.items()):
+            lines.append(f"- `{flag}`: {cnt}")
+        lines.append("")
+    else:
+        lines += ["### Quality flags", "", "None", ""]
+
+    with open(summary_path, "a", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 if __name__ == "__main__":
