@@ -27,7 +27,7 @@ Kódy `no` (1, 11 = predaj; 2 = vypredané; 5 = zrušené) sú odvodené z never
 
 ## Report
 
-Dátum: 2026-11-02. Commit: po pushi (doplniť).
+Dátum: 2026-11-02. Commit: `4bc0034` (Task 003: work order, Akropolis external rooms, vstupne codes, report rules).
 
 ### Čo je hotové
 
