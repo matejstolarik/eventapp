@@ -4,7 +4,7 @@
 Zadal: hlavný chat (Matej), 2026-11-02. Začni až po dokončení úlohy 001.
 
 ### Opravy z kontroly events.json (commit c792dfd)
-1. HTML entity v názvoch: „Polanský &amp;amp; Langman“. Dekóduj entity (`html.unescape`) v normalizácii pre všetky zdroje. Test.
+1. HTML entity v názvoch: „Polanský &amp; Langman“. Dekóduj entity (`html.unescape`) v normalizácii pre všetky zdroje. Test.
 2. Čitárna má v programe oznamy „pro veřejnost ZAVŘENO“ (2026-11-07, 2026-11-27). Nie sú to akcie: vyraď ich v adaptéri Čitárne a zaloguj, čo si vyradil. Pravidlo a dôvod daj do komentára adaptéra.
 3. Test `test_citarna_detail_date_conflict_flag`: neplatný dátum `2026-11-99` netestuje konflikt. Použi dva platné rozdielne dátumy (výpis 2026-11-05, detail 2026-11-06).
 4. Čitárna `max_requests` zvýš na 60 (dnes 22, v rušnom mesiaci by 30 nestačilo).
