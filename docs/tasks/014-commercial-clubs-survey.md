@@ -1,9 +1,13 @@
 # 014: Prieskum komerčných klubov
 
 ## Zadanie
-Zadal: hlavný chat (Matej), 2026-11-04. Robí sa po úlohe 013. Len prieskum ako v úlohe 008: žiadne adaptéry, žiadna zmena `venues.json` ani pipeline.
+Zadal: hlavný chat (Matej), 2026-11-04 (doplnené URL pred odovzdaním). Robí sa po úlohe 013. Len prieskum ako v úlohe 008: žiadne adaptéry, žiadna zmena `venues.json` ani pipeline.
 
-Matej chce pred PWA pridať 2–3 veľké komerčné kluby (ťahák, chodí tam veľa ľudí pravidelne). Kandidáti podľa Mateja: **EPIC, Duplex, Roxy, Lucerna**. Pri Lucerne zisti, či ide o Lucerna Music Bar (klub) a/alebo Palác Lucerna (Velký sál); uveď oboje, ak majú vlastný program.
+Matej chce pred PWA pridať 2–3 veľké komerčné kluby (ťahák, chodí tam veľa ľudí pravidelne). Kandidáti a stránky s programom (od Mateja 2026-11-04):
+- EPIC: https://www.epicprague.com/program
+- Duplex: https://www.duplex.cz/duplex-events/
+- Roxy: https://www.roxy.cz/club/#program
+- Lucerna Music Bar (len Music Bar, nie Velký sál): https://musicbar.cz/cs/program/
 
 ### Pre každý podnik zisti (ako v úlohe 008)
 1. Či podnik funguje (aktuálny program, nie zatvorený/premenovaný). Oficiálny web over (adresa, IG), nič nedomýšľaj.
