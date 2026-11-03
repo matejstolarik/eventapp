@@ -36,7 +36,15 @@ Posledná aktualizácia: 2026-10-31
 
 ## GitHub Actions — denný beh
 
-Workflow: `.github/workflows/daily.yml`. Spúšťa sa denne o 05:00 UTC (06:00 CET / 07:00 CEST). Výstup (`site/events.json`) sa zverejní na GitHub Pages, do repa sa necommituje.
+Workflow: `.github/workflows/daily.yml`. Spúšťa sa denne o **04:17 UTC** (05:17 CET / 06:17 CEST). Výstup (`site/events.json`) sa zverejní na GitHub Pages, do repa sa necommituje.
+
+### Ako overiť, že ranný beh prebehol
+
+1. **GitHub → repozitár → Actions → „Daily pipeline"** — posledný beh by mal mať čas ~04:17 UTC a v stĺpci „Event" hodnotu `schedule`.
+2. V detaile behu → krok „Log run metadata" → v **job summary** aj v **logu** je riadok `Trigger: schedule, Started: YYYY-MM-DD 04:1x UTC`.
+3. Ak je posledný beh starší ako 26 hodín a event nie je `schedule`, beh sa nevykonal.
+
+**Po prvej zmene cron-u:** prvé plánované behy po zmene treba sledovať aspoň 3 dni (GitHub môže spustiť prvý beh s oneskorením do 24 hodín).
 
 ### Stav medzi behmi
 

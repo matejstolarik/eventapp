@@ -2,8 +2,9 @@ name: Daily pipeline
 
 on:
   schedule:
-    # 05:00 UTC = 06:00 Prague winter time (CET) / 07:00 summer (CEST)
-    - cron: '0 5 * * *'
+    # 04:17 UTC = 05:17 Prague winter time (CET) / 06:17 summer (CEST)
+    # Off-the-hour to avoid GitHub Actions high-load period at :00
+    - cron: '17 4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -19,6 +20,13 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
 
     steps:
+      - name: Log run metadata
+        run: |
+          echo "## Run info" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Started:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "Trigger: ${{ github.event_name }}, Started: $(date -u '+%Y-%m-%d %H:%M UTC')"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5

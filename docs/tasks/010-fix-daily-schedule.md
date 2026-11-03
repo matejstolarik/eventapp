@@ -12,3 +12,24 @@ Plánovaný beh 2026-11-03 o 05:00 UTC (`cron: '0 5 * * *'`) sa nespustil vôbec
 5. Ručný beh nespúšťaj, chceme vidieť, či zajtra príde plánovaný.
 
 ## Report
+
+Dátum: 2026-11-03.
+
+### Príčina oneskoreného/vynechaného behu
+
+GitHub dokumentácia ([Events that trigger workflows — schedule](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule)):
+
+> "The `schedule` event can be delayed during periods of high loads of GitHub Actions workflow runs. High load times include the start of every hour. If the load is sufficiently high enough, some queued jobs may be dropped. To decrease the chance of delay, schedule your workflow to run at a different time of the hour."
+
+Cron `0 5 * * *` (presne na :00) je preto nevhodný — GitHub ho spúšťa s oneskorením alebo preskočí.
+
+### Čo bolo urobené
+
+1. **Cron zmenený** z `0 5 * * *` na `17 4 * * *` (04:17 UTC = 05:17 CET / 06:17 CEST) — mimo najzaťaženejšej minúty :00.
+2. **Nový krok `Log run metadata`** pridaný na začiatok workflow (pred checkout):
+   - Vypíše do **job summary** (`$GITHUB_STEP_SUMMARY`): trigger (`schedule`/`workflow_dispatch`) a čas začiatku.
+   - Vypíše rovnaké info aj do **logu** (stdout).
+3. **`docs/status.md`** doplnený o sekciu „Ako overiť, že ranný beh prebehol" a upozornenie, že prvé behy po zmene treba sledovať 3 dni.
+4. Ručný beh nespustený — čakáme na plánovaný beh zajtra (2026-11-04 ~04:17 UTC).
+
+### Commit
