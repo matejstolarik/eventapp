@@ -1,33 +1,34 @@
-# 007: Test LLM extrakcie, druhé kolo (opravený návrh testu)
+# 007: Porovnanie parser vs. LLM (experiment)
 
 ## Zadanie
-Zadal: hlavný chat (Matej), 2026-11-02 (upravené pred odovzdaním: Twist nedostupný). Jednorazový test lokálne u Mateja. Denný beh sa nemení. Rozpočet max 1 USD (kľúč `ANTHROPIC_API_KEY`, hodnotu nikdy nevypisuj ani neukladaj).
+Zadal: hlavný chat (Matej), 2026-11-02, **prepísané 2026-11-03 pred odovzdaním** (pôvodná verzia: test len na Akropolise a Twiste, v histórii gitu).
 
-Prvé kolo (úloha 006) nič nerozhodlo, lebo test bol zle postavený:
-- parser a LLM porovnávali rôzny rozsah (parser 21 položiek výpisu na stranu, LLM celý text stránky s ďalšími blokmi, 93 „akcií“ na p1); vysvetlenie „120 navyše mimo okna“ je chybné, jan.–apr. 2027 je v okne +180 dní,
-- nekontrolované „thinking“ a dôvod ukončenia odpovede (beh s 18 akciami),
-- nevedno, či čas a sála vôbec prežili čistenie HTML,
-- Twist sa netestoval.
+**Spustiť po úlohách 011 a 012**, najneskôr 2026-11-08 (kľúč `ANTHROPIC_API_KEY` platí do 2026-11-09; hodnotu nikdy nevypisuj ani neukladaj). Rozpočet max 3 USD (kredit 5 USD). Denný beh sa nemení, kód experimentu len v `scripts/llm_test/`.
 
-### Postup
-1. **Twist fixture:** Matej uloží stránku z prehliadača do `tests/fixtures/llm/twist_music.html` (prípadne s priečinkom súborov, ktorý prehliadač vytvorí). Ak súbor nie je k dispozícii, Twist preskoč (body 4 a 10 urob len zisťovanie dostupnosti) a sprav Akropolis; Twist uveď v reporte ako otvorený. Pozor: 2026-11-02 sa twistbar.co neotváral ani Matejovi v prehliadači („This site can't be reached“), takže príčina môže byť výpadok webu alebo DNS, nie blokovanie skriptov; zisti, čo platí (DNS záznam, odpoveď servera). Doplnené: Matejovi web ide cez mobilné dáta, nejde cez jeho domácu sieť. Príčina „ConnectionResetError“ v úlohe 006 je teda pravdepodobne Matejova sieť, nie blokovanie skriptov. Ak je Matejov počítač pripojený cez mobilné dáta (hotspot), skús stiahnuť stránku aj skriptom; do reportu zapíš výsledok. Ak súbor je, over, že v ňom je program (nie prázdna JS kostra).
-2. **Akropolis, variant A (rovnaký rozsah):** LLM dostane len HTML/text položiek výpisu (`.basic_cont3`), presne tie, ktoré číta parser. Porovnanie akcia po akcii s parserom.
-3. **Akropolis, variant B (realistický):** LLM dostane celú stránku po čistení, ako by to robil všeobecný adaptér. Výsledok porovnaj s parserom a zvlášť vypíš, čo LLM vrátilo navyše a odkiaľ zo stránky to je (ktorý blok).
-4. **Twist:** celá stránka po čistení. Kontrola: každá akcia musí mať dátum doslova na stránke; vypíš celú tabuľku (dátum zo stránky, deň v týždni, názov) a porovnaj počet s počtom riadkov programu na stránke, ktoré spočítaš v kóde jednoduchým regexom (napr. `\d{1,2}/\d{1,2}`).
-5. **Model a volanie:**
-   - over v dokumentácii Anthropicu, ako vypnúť alebo obmedziť „thinking“/effort pre Haiku 5.5, a použi najnižšie nastavenie; uveď ho v reporte,
-   - pre výstup použi štruktúrovaný formát (tool use / JSON schéma), nie voľný text,
-   - po každom volaní skontroluj `stop_reason`; ak odpoveď nie je úplná, beh označ ako zlyhaný a zapíš to, nič potichu neopakuj,
-   - rok dopočítava kód (ako v 006).
-6. **Čistenie:** pred volaním over a vypíš, že v čistenom vstupe sú časy a sály (počet výskytov). Ak tam nie sú, chyba je v čistení, nie v modeli; oprav čistenie.
-7. **Párovanie:** dátum + normalizovaný názov (malé písmená, bez diakritiky, bez `►`, bez prípon krajín typu `/CH`). Všetky nespárované položky vypíš v reporte, nech sa dajú skontrolovať ručne.
-8. **Stabilita:** každý variant 3×. Uveď počet akcií a zhodu medzi behmi.
-9. Závislosť `anthropic` presuň z hlavného `requirements.txt` do `scripts/llm_test/requirements.txt` (denný beh ju nepotrebuje).
-10. **Twist sťahovanie (len zistiť, neimplementovať):** prečo twistbar.co odmieta skriptované spojenie (User-Agent, TLS, ochrana typu Cloudflare?) a či ho odmieta aj z GitHub Actions. Možné riešenia popíš do reportu; ak by riešenie menilo spôsob sťahovania (napr. headless prehliadač), je to rozhodnutie pre Mateja.
+### Prečo
+Prieskum (008) ukázal, že projekt LLM nepotrebuje. Matej chce experiment aj tak, ako všeobecné porovnanie: kedy sa oplatí deterministický parser a kedy „pustiť na to AI“, so všetkými faktormi (presnosť, stabilita, cena, rýchlosť, náročnosť vývoja, odolnosť voči zmene webu). Výsledok má byť použiteľný aj mimo tohto projektu.
 
-### Report navyše
-- Tabuľka pre Akropolis A, Akropolis B, Twist: počet akcií, zhoda / chýba / navyše / zlý dátum / zlý čas / zlá sála / vymyslené, stabilita 3 behov.
-- Cena testu a odhad mesačnej ceny (15 podnikov denne).
-- Odporúčanie a s akou istotou; čo by sa ešte muselo overiť.
+### Poučenie z 1. kola (úloha 006)
+Porovnávať rovnaký rozsah; obmedziť „thinking“ (zisti v dokumentácii Anthropicu ako); štruktúrovaný výstup (tool use / JSON schéma); kontrolovať `stop_reason` (neúplná odpoveď = zlyhanie, nič potichu neopakovať); overiť, že čistenie HTML nezahodí čas a sálu; rok dopočítava kód.
+
+### Dáta (pevný snímok, nie živý web)
+Všetko nad uloženými stránkami z jedného dňa, aby sa výsledky dali zopakovať. Pravda = výstup našich adaptérov na tých istých súboroch.
+- So spoľahlivou pravdou: Akropolis, Archa+, Forum Karlín (parsery), MeetFactory, Fuchs2 (JSON-LD), Bike Jesus (JSON rozhranie), Cross Club (RSS; LLM dostane HTML programu, nie RSS).
+- Bez parsera (scenár „rýchly štart cez AI“): Jazz Republic, Futurum, El Magico. Pravda: ručná kontrola vzorky 10 akcií na podnik voči uloženej stránke.
+- Twist vynechaj (program sa skladá cez JavaScript).
+
+### Merania (každý web)
+1. Úplnosť a presnosť: zhoda / chýba / navyše; správnosť polí (dátum, čas, názov, sála a vypredané tam, kde ich máme); vymyslené hodnoty (hodnota, ktorá nie je doslova na stránke).
+2. Stabilita: 3 behy, rovnaký vstup.
+3. Cena a rýchlosť: tokeny vstup/výstup, USD, čas odpovede.
+4. Varianty vstupu: (A) len bloky akcií ako pri parseri, (B) celá stránka po čistení.
+5. Model: Claude Haiku 5.5 na všetkom. Ak to rozpočet dovolí, silnejší model (napr. Sonnet; cenu over v oficiálnom cenníku) na 2–3 weboch, aby bolo vidno, či pomáha väčší model.
+6. **Odolnosť voči zmene webu:** na 2–3 weboch s parserom simuluj redizajn (premenuj CSS triedy, zmeň poradie prvkov v uloženom HTML). Zaznamenaj, či parser spadne/vráti 0 a či LLM výsledok prežije.
+7. **Náročnosť vývoja:** z histórie gitu a kódu odhadni pre každý parser počet riadkov a počet úloh/opráv, ktoré potreboval (napr. Akropolis: kódy lístkov, cudzie sály). Pre LLM: veľkosť promptu a koľko úprav promptu bolo treba.
+
+### Výstup
+- Report v tomto súbore (čísla v tabuľke na web × variant × model, cena celkom, príklady chýb).
+- Súhrn `docs/experiments/llm-vs-parser.md`: zrozumiteľne aj pre nevývojára, faktory a kedy čo použiť, s číslami z experimentu. Toto je hlavný výstup pre Mateja.
+- Ak by experiment prekročil rozpočet, zastav sa a napíš, čo chýba.
 
 ## Report
