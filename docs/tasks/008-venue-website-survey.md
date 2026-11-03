@@ -186,4 +186,4 @@ Ostatné weby (Forum Karlín, Archa+, Jazz Republic, Futurum, El Magico) sú par
 
 ---
 
-Commit: TBD (pridaný po pushi)
+Commit: `16a5ddf`
