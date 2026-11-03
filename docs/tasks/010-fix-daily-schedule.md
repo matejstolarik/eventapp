@@ -33,3 +33,5 @@ Cron `0 5 * * *` (presne na :00) je preto nevhodný — GitHub ho spúšťa s on
 4. Ručný beh nespustený — čakáme na plánovaný beh zajtra (2026-11-04 ~04:17 UTC).
 
 ### Commit
+
+`e29ed3a` — pushnutý na main 2026-11-03.
