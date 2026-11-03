@@ -20,7 +20,7 @@ Zadal: hlavný chat (Matej), 2026-11-03. Podklady z prieskumu (úloha 008, fixtu
 
 ## Report
 
-Dátum: 2026-11-03. Commit hash: TBD (doplní sa po pushi).
+Dátum: 2026-11-03. Commit hash: da0bb5a.
 
 ### Čo je hotové
 
