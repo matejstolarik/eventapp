@@ -125,8 +125,8 @@
         "strategy": "wix_sitemap",
         "sitemap_url": "https://www.fuchs2.cz/event-pages-sitemap.xml",
         "url": "https://www.fuchs2.cz/events",
-        "sitemap_days_back": 90,
-        "max_requests": 70
+        "sitemap_days_back": 365,
+        "max_requests": 200
       }
     ],
     "active": true,
@@ -196,6 +196,64 @@
         "vstupne_url": "https://palacakropolis.cz/pub/vstupne_6",
         "pagination_param": "plg_33527_page",
         "max_requests": 20
+      }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "archa-plus",
+    "name": "Archa+",
+    "city": "Praha",
+    "address": "Na Poříčí 26, 110 00 Praha 1",
+    "lat": 50.0895078,
+    "lng": 14.4341757,
+    "web": "https://archa-plus.cz",
+    "ra_url": "https://ra.co/clubs/266130",
+    "instagram": "_archaplus_",
+    "facebook": null,
+    "type": [],
+    "character": [],
+    "music": [],
+    "size": null,
+    "capacity": null,
+    "features": [],
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "archa",
+        "url": "https://archa-plus.cz/cz/program/",
+        "max_requests": 10,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "forum-karlin",
+    "name": "Forum Karlín",
+    "city": "Praha",
+    "address": "Pernerova, Praha 8 - Karlín",
+    "lat": 50.091846,
+    "lng": 14.4548768,
+    "web": "https://www.forumkarlin.cz",
+    "ra_url": "https://ra.co/clubs/91332",
+    "instagram": "forum_karlin",
+    "facebook": null,
+    "type": [],
+    "character": [],
+    "music": [],
+    "size": null,
+    "capacity": null,
+    "features": [],
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "forum_karlin",
+        "url": "https://www.forumkarlin.cz/program/",
+        "max_requests": 50,
+        "timeout_secs": 180
       }
     ],
     "active": true,

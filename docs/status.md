@@ -8,8 +8,14 @@ Posledná aktualizácia: 2026-10-31
 | MeetFactory | `jsonld` | /cs/program/hudba + /cs/program/divadlo | ✅ hotovo | 42 (31+11) / 0 | `doorTime` → `doors_time`; `start_time` vždy null; dve sekcie; stránkovanie `?page=N` | `start_time` vždy null (zámer) |
 | Kasárna Karlín | `jsonld` | https://kasarnakarlin.cz/en/program | ✅ hotovo | 2 / 2 | TZ bug v JSON-LD → čas z textu stránky (riadok ~374); `/en/program` nie `/program` | — |
 | Čítárna Unijazz | `jsonld/mec_ajax` + detail | https://citarna.unijazz.cz/program/ | ✅ hotovo | 19 / 19 | JS-render, AJAX listing + detail pre každú akciu (`.event-time`); skin ID 47 | — |
-| Fuchs2 | `jsonld/wix_sitemap` | https://www.fuchs2.cz/event-pages-sitemap.xml | ✅ hotovo | 21 / 21 | Wix; listing má 1 JSON-LD v static HTML; ostatné cez sitemap + detail; čas overený (no TZ shift) | `ticket_url` null (JSON-LD nemá `offers`) |
+| Fuchs2 | `jsonld/wix_sitemap` | https://www.fuchs2.cz/event-pages-sitemap.xml | ✅ hotovo | 21 / 21 | Wix; sitemap 855 URL; okno rozšírené na 365 dní (178 URL, max_requests=200); čas overený (no TZ shift) | `ticket_url` null (JSON-LD nemá `offers`) |
 | Bike Jesus | `api/strapi` | https://bikejesus.com/api/events | ✅ hotovo | 34 / 0 | Strapi v5 API; len dátum, bez času; pageSize=100 = všetko na 1 stranu | `start_time` vždy null |
+| Archa+ | `html/archa` | https://archa-plus.cz/cz/program/ | ✅ hotovo | 64 / 64 | Pagination cez load-more JSON API; dátum z URL (ISO); GoOut widget → ticket_url null; free akcie z tagu „vstup zdarma" | Externé podniky (7 unikátnych v aktuálnom behu) sa nefiltrujú — listing nemá info o mieste |
+| Forum Karlín | `html/forum_karlin` | https://www.forumkarlin.cz/program/ | ✅ hotovo | 29 / 29 | Dátum DD.MM.YYYY z listingu; čas + doors_time z detail (max 50 requestov); ticket_url z #sellers | — |
+
+## Poznámky pre PWA
+
+- **Fuchs2 a Bike Jesus majú rovnaké súradnice** (`lat: 50.0952223, lng: 14.4363506`, ostrov Štvanice). Overené na OSM: oba podniky sú na rovnakom mieste. Na mape sa body prekryjú — PWA musí počítať s viacerými podnikmi na jednom bode (napr. clustrovanie alebo tooltip s viacerými podnikmi).
 
 ## Čítárna Unijazz — technické detaily
 
