@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from pipeline.adapters import rss as rss_adapter
 from pipeline.adapters import jsonld as jsonld_adapter
 from pipeline.adapters import html as html_adapter
+from pipeline.adapters import api as api_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
@@ -26,7 +27,8 @@ class _WarningCapture(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         self.messages.append(self.format(record))
 
-ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter}
+ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter,
+            "api": api_adapter}
 VENUES_PATH = pathlib.Path("data/venues.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
 PRAGUE_TZ = ZoneInfo("Europe/Prague")

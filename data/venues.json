@@ -103,6 +103,66 @@
     "notes": null
   },
   {
+    "id": "fuchs2",
+    "name": "Fuchs2",
+    "city": "Praha",
+    "address": "ostrov Štvanice, Praha 7",
+    "lat": 50.0952223,
+    "lng": 14.4363506,
+    "web": "https://www.fuchs2.cz",
+    "ra_url": "https://ra.co/clubs/162121",
+    "instagram": "fuchs2stvanice",
+    "facebook": null,
+    "type": [],
+    "character": [],
+    "music": [],
+    "size": null,
+    "capacity": null,
+    "features": [],
+    "sources": [
+      {
+        "type": "jsonld",
+        "strategy": "wix_sitemap",
+        "sitemap_url": "https://www.fuchs2.cz/event-pages-sitemap.xml",
+        "url": "https://www.fuchs2.cz/events",
+        "sitemap_days_back": 90,
+        "max_requests": 70
+      }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
+    "id": "bike-jesus",
+    "name": "Bike Jesus",
+    "city": "Praha",
+    "address": "ostrov Štvanice, Praha 7",
+    "lat": 50.0952223,
+    "lng": 14.4363506,
+    "web": "https://bikejesus.com",
+    "ra_url": "https://ra.co/clubs/178137",
+    "instagram": "bike.jesus",
+    "facebook": null,
+    "type": [],
+    "character": [],
+    "music": [],
+    "size": null,
+    "capacity": null,
+    "features": [],
+    "sources": [
+      {
+        "type": "api",
+        "strategy": "strapi",
+        "url": "https://bikejesus.com/api/events",
+        "venue_url": "https://bikejesus.com",
+        "page_size": 100,
+        "max_requests": 5
+      }
+    ],
+    "active": true,
+    "notes": null
+  },
+  {
     "id": "palac-akropolis",
     "name": "Palác Akropolis",
     "city": "Praha",

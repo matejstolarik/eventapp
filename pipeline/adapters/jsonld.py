@@ -16,6 +16,8 @@ def fetch(venue: dict, source_config: dict) -> list:
     strategy = source_config.get("strategy")
     if strategy == "mec_ajax":
         return _fetch_mec_ajax(venue, source_config)
+    if strategy == "wix_sitemap":
+        return _fetch_wix_sitemap(venue, source_config)
 
     fetcher = make_fetcher(source_config)
     try:
@@ -46,6 +48,215 @@ def parse_kasarna(venue: dict, source_config: dict, listing_html: str,
             return details_map[url]
 
     return _fetch_kasarna_details(venue, source_config, listing_html, _DictFetcher())
+
+
+# ── Wix sitemap strategy (Fuchs2 and other Wix Events sites) ─────────────────
+
+def _fetch_wix_sitemap(venue: dict, source_config: dict) -> list:
+    """Fetch events from a Wix site by crawling its event-pages sitemap.
+
+    Wix server-renders only the current/featured event in JSON-LD on the listing
+    page; all other events are loaded via JavaScript.  The event-pages sitemap
+    (event-pages-sitemap.xml) lists every event page URL with a <lastmod> date.
+
+    Strategy:
+    1. Fetch the sitemap XML.
+    2. Keep only URLs whose <lastmod> is within the last `sitemap_days_back` days
+       (default 90).  Events are typically added weeks before they happen, so
+       recently-modified pages are almost always upcoming events.
+    3. Fetch each event detail page and parse the JSON-LD Event object.
+    4. Filter to the yesterday–+180 day window.
+
+    Time check (Fuchs2 verified 2026-11-03): Wix JSON-LD includes the correct
+    Prague local time in startDate (e.g. "2026-11-26T23:00:00+01:00").  Three
+    events were verified: times match what is displayed on the page.  No timezone
+    shift was detected (unlike Kasárna where JSON-LD times were wrong).
+
+    Required source_config keys:
+      sitemap_url  – URL of the event-pages sitemap
+      url          – canonical listing page URL (used as fallback source url)
+    Optional:
+      sitemap_days_back – how many days back to look at lastmod (default 90)
+      max_requests      – combined sitemap + detail fetches (default 60)
+    """
+    import xml.etree.ElementTree as ET
+
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    cutoff = today + datetime.timedelta(days=180)
+    days_back = int(source_config.get("sitemap_days_back", 90))
+    sitemap_cutoff = today - datetime.timedelta(days=days_back)
+
+    sitemap_url = source_config["sitemap_url"]
+    listing_url = source_config["url"]
+    fetcher = make_fetcher(source_config)
+
+    # Fetch sitemap
+    try:
+        sitemap_xml = fetcher.get(sitemap_url)
+    except LimitExceeded as exc:
+        log.warning("%s [jsonld/wix_sitemap]: %s", venue["id"], exc)
+        return []
+    except Exception as exc:
+        log.error("%s [jsonld/wix_sitemap]: sitemap fetch failed: %s", venue["id"], exc)
+        return []
+
+    event_urls = _parse_wix_sitemap(sitemap_xml, sitemap_cutoff)
+    log.info("%s [jsonld/wix_sitemap]: %d candidate URLs (lastmod >= %s)",
+             venue["id"], len(event_urls), sitemap_cutoff)
+
+    all_events: list = []
+    section = source_config.get("section")
+    for url in event_urls:
+        try:
+            html = fetcher.get(url)
+        except LimitExceeded as exc:
+            log.warning("%s [jsonld/wix_sitemap]: %s — stopping at %d events",
+                        venue["id"], exc, len(all_events))
+            break
+        except Exception as exc:
+            log.warning("%s [jsonld/wix_sitemap]: %s failed: %s", venue["id"], url, exc)
+            continue
+
+        for item in _all_ld_items(BeautifulSoup(html, "html.parser")):
+            if not _is_event(item):
+                continue
+            ev = _wix_ld_to_raw(item, venue, url, section)
+            if ev is None:
+                continue
+            try:
+                ev_date = datetime.date.fromisoformat(ev.date)
+            except (ValueError, AttributeError):
+                continue
+            if yesterday <= ev_date <= cutoff:
+                all_events.append(ev)
+                break  # one JSON-LD per Wix event page
+
+    return all_events
+
+
+def _parse_wix_sitemap(xml_text: str, since: datetime.date) -> list:
+    """Parse a Wix event-pages sitemap and return URLs with lastmod >= since."""
+    import xml.etree.ElementTree as ET
+    NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError as exc:
+        log.error("[jsonld/wix_sitemap]: sitemap XML parse error: %s", exc)
+        return []
+
+    urls = []
+    for url_el in root.findall(f"{{{NS}}}url"):
+        loc_el = url_el.find(f"{{{NS}}}loc")
+        lastmod_el = url_el.find(f"{{{NS}}}lastmod")
+        if loc_el is None:
+            continue
+        loc = (loc_el.text or "").strip()
+        if not loc:
+            continue
+        if lastmod_el is not None:
+            try:
+                lm = datetime.date.fromisoformat((lastmod_el.text or "").strip()[:10])
+                if lm < since:
+                    continue
+            except ValueError:
+                pass
+        urls.append(loc)
+    return urls
+
+
+def _wix_ld_to_raw(item: dict, venue: dict, page_url: str,
+                   section: "str | None") -> "RawEvent | None":
+    """Convert a Wix JSON-LD Event to RawEvent.
+
+    Wix startDate includes Prague local time with correct UTC offset
+    (e.g. +01:00 in winter, +02:00 in summer).  Time is extracted directly
+    from the datetime string without any UTC conversion.
+    """
+    title = _str_or_none(item.get("name"))
+    if not title:
+        return None
+    start_raw = _str_or_none(item.get("startDate"))
+    if not start_raw:
+        return None
+
+    date_str, start_time = _parse_wix_datetime(start_raw)
+    if not date_str:
+        return None
+
+    end_raw = _str_or_none(item.get("endDate"))
+    _, end_time = _parse_wix_datetime(end_raw) if end_raw else (None, None)
+
+    image_url = _resolve_image(item.get("image"), page_url)
+
+    return RawEvent(
+        venue_id=venue["id"],
+        title=title,
+        date=date_str,
+        start_time=start_time,
+        end_time=end_time,
+        doors_time=None,
+        formats=[],
+        genres=[],
+        character=list(venue.get("character") or []),
+        artists=[],
+        price_text=None,
+        free=None,
+        sold_out=None,
+        room=None,
+        ticket_url=None,
+        image_url=image_url,
+        source={
+            "type": "jsonld",
+            "url": page_url,
+            "external_id": None,
+            "section": section,
+        },
+        flags=[],
+        status=_event_status(item.get("eventStatus", "")),
+    )
+
+
+def _parse_wix_datetime(s: str) -> "tuple[str | None, str | None]":
+    """Parse Wix ISO datetime like '2026-11-26T23:00:00+01:00'.
+
+    Returns (date_iso, time_str) in Prague local time.  The offset in the
+    string is the correct Prague offset (verified 2026-11-03 for Fuchs2):
+    time is extracted directly without UTC conversion.
+    """
+    m = re.match(r"(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):\d{2}[+-]\d{2}:\d{2}", s.strip())
+    if not m:
+        # Fall back to date-only
+        date_only = _parse_date_part(s)
+        return date_only, None
+    date_str = m.group(1)
+    hour, minute = int(m.group(2)), int(m.group(3))
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        return date_str, None
+    return date_str, f"{hour:02d}:{minute:02d}"
+
+
+def parse_fuchs2(venue: dict, source_config: dict, html: str) -> list:
+    """Parse a single Fuchs2 event detail page HTML (no HTTP; used in tests)."""
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    cutoff = today + datetime.timedelta(days=180)
+    section = source_config.get("section")
+    page_url = source_config.get("url", "https://fuchs2.cz/events")
+    result = []
+    for item in _all_ld_items(BeautifulSoup(html, "html.parser")):
+        if not _is_event(item):
+            continue
+        ev = _wix_ld_to_raw(item, venue, page_url, section)
+        if ev is None:
+            continue
+        try:
+            ev_date = datetime.date.fromisoformat(ev.date)
+        except (ValueError, AttributeError):
+            continue
+        if yesterday <= ev_date <= cutoff:
+            result.append(ev)
+    return result
 
 
 # ── MEC admin-ajax strategy (Čitárna Unijazz and any other MEC tile calendar) ──

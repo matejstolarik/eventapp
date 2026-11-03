@@ -51,6 +51,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.
 - `html`: venue-specific HTML scraping. Konfigurácia obsahuje `strategy` (napr. `akropolis` pre Palác Akropolis).
+- `api`: JSON API rozhranie webu podniku. Len verejne dostupné bez prihlásenia a bez kľúča. Konfigurácia obsahuje `strategy` (napr. `strapi` pre Strapi v5 API). Príklad: `bikejesus.com/api/events`.
 
 ### Štítky podniku (nastavuje Matej ručne)
 

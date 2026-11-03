@@ -8,6 +8,8 @@ Posledná aktualizácia: 2026-10-31
 | MeetFactory | `jsonld` | /cs/program/hudba + /cs/program/divadlo | ✅ hotovo | 42 (31+11) / 0 | `doorTime` → `doors_time`; `start_time` vždy null; dve sekcie; stránkovanie `?page=N` | `start_time` vždy null (zámer) |
 | Kasárna Karlín | `jsonld` | https://kasarnakarlin.cz/en/program | ✅ hotovo | 2 / 2 | TZ bug v JSON-LD → čas z textu stránky (riadok ~374); `/en/program` nie `/program` | — |
 | Čítárna Unijazz | `jsonld/mec_ajax` + detail | https://citarna.unijazz.cz/program/ | ✅ hotovo | 19 / 19 | JS-render, AJAX listing + detail pre každú akciu (`.event-time`); skin ID 47 | — |
+| Fuchs2 | `jsonld/wix_sitemap` | https://www.fuchs2.cz/event-pages-sitemap.xml | ✅ hotovo | 21 / 21 | Wix; listing má 1 JSON-LD v static HTML; ostatné cez sitemap + detail; čas overený (no TZ shift) | `ticket_url` null (JSON-LD nemá `offers`) |
+| Bike Jesus | `api/strapi` | https://bikejesus.com/api/events | ✅ hotovo | 34 / 0 | Strapi v5 API; len dátum, bez času; pageSize=100 = všetko na 1 stranu | `start_time` vždy null |
 
 ## Čítárna Unijazz — technické detaily
 
