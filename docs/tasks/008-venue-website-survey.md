@@ -38,7 +38,7 @@ Ulož 1 vzorku HTML programu na podnik do `tests/fixtures/survey/` (poslúži pr
 
 ## Report
 
-Dátum: 2026-11-03. Prieskum vykonaný skriptom (`fetch.py` User-Agent, bez prehliadača). Fixtures: `tests/fixtures/survey/` (11 zo 12 podnikov; Acid Kafe nenájdené).
+Dátum: 2026-11-03. Prieskum vykonaný skriptom (`fetch.py` User-Agent, bez prehliadača). Fixtures: `tests/fixtures/survey/` (12/12 podnikov). Acid Kafe = Acid Coffee, URL potvrdená Matejom (2026-11-03).
 
 ---
 
@@ -56,7 +56,7 @@ Dátum: 2026-11-03. Prieskum vykonaný skriptom (`fetch.py` User-Agent, bez preh
 | 8 | Kino Aero | kinoaero.cz/ (root; /program → redirect na root) | **JSON-LD Event** (32 na stránke) | áno | nie | OK | ✓ 200 | name, startDate+čas, url | 32 (1 týždeň; kino) | **rýchle** |
 | 9 | Střecha Radost | strecharadost.cz/#program (anchor; /program → 404) | — | sezónna pauza | nie | OK | ✓ 200 | — | 0 (zima; sezóna 1.5–15.10) | **bez zdroja** |
 | 10 | Kolektor | kolektorcafe.cz | — | "Pripravujeme nový web" | nie | OK | ✓ 200 | — | 0 | **bez zdroja** |
-| 11 | Acid Kafe | **nenájdené** | — | — | — | — | DNS fail (všetky domény) | — | — | **?** |
+| 11 | Acid Coffee | acidcoffee.cz (Wix, root; /program → 404) | — | Wix, žiadna stránka s programom | áno (Wix) | OK | ✓ 200 | — | 0 | **bez zdroja** |
 | 12 | El Magico | elmagico.cz/program/ | RSS `/feed/` (WP general feed, nie akcie) | áno (WP + Bricks Builder, `hp-datum-akce`, `hp-mesic-akce`) | nie | OK | ✓ 200 | deň, mesiac, rok (oddelené polia), stránkovanie | 4/týždeň + paging | **parser** |
 
 ---
@@ -129,9 +129,12 @@ Dátum: 2026-11-03. Prieskum vykonaný skriptom (`fetch.py` User-Agent, bez preh
 - robots.txt: `noindex, follow`.
 - Fixture: `kolektor.html`.
 
-**11. Acid Kafe** (nenájdené)
-- Preskúšané domény: `acidkafe.cz`, `acid-kafe.cz`, `acidcafe.cz`, `acid.cz`, `acidkafe.eu`, `acidkafe.com`, `acidkafe.net` — všetky DNS fail.
-- Podnik sa nenašiel. Potrebujem URL od Mateja.
+**11. Acid Coffee** (`acidcoffee.cz`, 200; potvrdené Matejom 2026-11-03)
+- Wix stránka (714 KB), kavárna + kultúrne miesto, adresa: Dukelských hrdinů 500/25a, Praha 7 (Strossmayerovo náměstí).
+- IG: `acidcoffeecz`. JSON-LD: `LocalBusiness` + `WebSite`, žiadne `Event`.
+- Stránka s programom neexistuje (`/program`, `/events`, `/akce`, `/calendar` → 404).
+- Text stránky: otváracie hodiny, newsletter, e-shop — žiadny zoznam akcií.
+- Fixture: `acid-coffee.html`.
 
 **12. El Magico** (`elmagico.cz/program/`, 200)
 - WordPress + Bricks Builder, 146 KB.
@@ -164,7 +167,7 @@ Dátum: 2026-11-03. Prieskum vykonaný skriptom (`fetch.py` User-Agent, bez preh
 **Bez zdroja (zatiaľ nepridávať):**
 10. **Kolektor** — web pod výstavbou
 11. **Střecha Radost** — zimná prestávka do mája 2027
-12. **Acid Kafe** — nenájdené
+12. **Acid Coffee** — žiadna stránka s programom (acidcoffee.cz, Wix kavárna)
 
 ---
 
@@ -178,11 +181,7 @@ Ostatné weby (Forum Karlín, Archa+, Jazz Republic, Futurum, El Magico) sú par
 
 ### Podniky na potvrdenie Matejom
 
-1. **Kino Aero** (`kinoaero.cz`) — artové kino Žižkov, IG `kino.aero`. Chce ho Matej zaradiť? Akcie = filmové premietania + špeciálne udalosti. Overenie: adresa Biskupcova 31, Praha 3 – Žižkov (z webovej stránky).
-2. **Střecha Radost** (`strecharadost.cz`) — vyhliadková terasa/bar, adresa nám. Winstona Churchilla 2, Praha 3. IG: `strecha_radosti`. Je to správny podnik?
-3. **Kolektor** (`kolektorcafe.cz`) — kavárna na Letné, web pod výstavbou. Je to správny podnik?
-4. **Acid Kafe** — nenájdené. Matej musí poskytnúť URL.
-5. **El Magico** (`elmagico.cz`) — Praha 4, IG `elmagico_club`. Je to správny El Magico?
+Všetky potvrdené Matejom 2026-11-03. Acid Kafe = Acid Coffee (`acidcoffee.cz`), žiadna stránka s programom.
 
 ---
 
