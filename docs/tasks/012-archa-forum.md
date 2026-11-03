@@ -25,7 +25,7 @@ Zadal: hlavný chat (Matej), 2026-11-03. Podklady z prieskumu (úloha 008, `test
 
 ## Report
 
-Dátum: 2026-11-03. Commit hash: (doplniť po pushi).
+Dátum: 2026-11-03. Commit hash: f17e0aa.
 
 ### Čo je hotové
 
