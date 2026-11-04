@@ -65,7 +65,37 @@ Dátum: 2026-11-04. Commit: `08bf152` (origin/main po pushi).
 - Detekcia postponed/moved v `normalize.py` (spoločná normalizácia) — nie v adaptéri.
 - ID generované z vyčisteného názvu (bez postponed prefixu) — konzistentnosť s budúcimi verziami akcie.
 
+### Druhý beh — oprava API kľúča (commit c4bc2de)
+
+Po prvom behu bolo zistené: `Illegal header value b'***'` — GitHub Secret `ANTHROPIC_API_KEY` bol uložený s trailing newline. httpx odmietol nevalidnú HTTP hlavičku. Oprava: `.strip()` pri čítaní kľúča v `classify_ai.py`.
+
+### Výsledky z workflow_dispatch behu 2026-11-04 15:43 UTC (commit c4bc2de)
+
+Príkaz použitý na čísla: čítané zo job summary (site/events.json nie je v repozitári).
+
+**Celkovo:** 305 akcií (archa-plus 63, bike-jesus 33, citarna-unijazz 15, cross-club 15, forum-karlin 29, fuchs2 22, kasarna-karlin 2, meetfactory 43, palac-akropolis 83).
+
+**Formáty po vrstve 2:**
+
+| Format | Count |
+|---|---|
+| comedy | 1 |
+| dance | 10 |
+| dj | 43 |
+| film | 1 |
+| live | 165 |
+| music | 19 |
+| opening | 2 |
+| other | 3 |
+| quiz | 1 |
+| talk | 6 |
+| theatre | 60 |
+| workshop | 4 |
+
+**Metódy klasifikácie:** keyword 60, llm 167, source 78.
+
+**AI layer:** 9 volaní, 0 chýb, 25 977 vstupných tokenov, 6 274 výstupných tokenov, **$0.0057**.
+
 ### Čo ostáva otvorené
-- Ručný `workflow_dispatch` beh v CI ešte nebol spustený (gh CLI nie je dostupné lokálne). Matej musí spustiť beh ručne cez GitHub UI a doplniť: odkaz na beh, počty formátov po vrstve 2, cena AI.
-- `docs/review/classification-RRRR-MM-DD.md` — doplniť po úspešnom CI behu s číslami z `events.json`.
 - Zadanie 2 (web search) presunuté do úlohy 018.
+- `docs/review/classification-2026-11-04.md` vytvorený nižšie.
