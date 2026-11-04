@@ -29,3 +29,43 @@ Plánovaný beh na 04:17 UTC sa spustil o 12:12 UTC (oneskorenie 8 h). **Matej: 
 Commit práce (finálny hash), odkaz na ručný beh v CI, počty formátov po vrstve 2, cena AI v CI. Nový `docs/review/classification-RRRR-MM-DD.md`.
 
 ## Report
+
+Dátum: 2026-11-04. Commit: `08bf152` (origin/main po pushi).
+
+### Čo je hotové
+
+**1. AI v GitHub Actions (classify_ai.py)**
+- Pridané 3-pokusové opakovanie s exponenciálnym čakaním (5 s, 10 s) pre `anthropic.APIConnectionError`, `RateLimitError` a 5xx chyby (`_call_api_with_retry`).
+- Log chýb teraz loguje aj typ výnimky a `exc.__cause__`.
+- Opravené počítadlo dávok: predtým ukazovalo `API call 1 failed` pre každú dávku; teraz `API call 2/8 failed`.
+- Správanie cache pri zlyhaní dávky: overené — `_build_ai_cache` zahrnie len udalosti s `method=llm`, takže nedokončené dávky ostanú ako `classification=null` a budú opätovne spracované v ďalšom behu.
+
+**2. Fuchs2 timeout**
+- Pridané `"timeout_secs": 360` do `data/venues.json` (Fuchs2 source config).
+- Zdôvodnenie: ~178 event-page GET requestov × 1 s rate-limit = min. 180 s; 360 s dáva dostatočnú rezervu pre pomalšie siete v GitHub Actions.
+
+**3. Presunuté a odložené akcie (normalize.py)**
+- Nový stav `postponed` v dátovom modeli (`docs/data-model.md`).
+- `_detect_postponed_moved(title)` v `pipeline/normalize.py`: deteguje prefixes EN/CZ/SK.
+  - `POSTPONED:`, `ODLOŽENO:`, `ODLOŽENÁ:`, `ODLOŽEN[OA]:` → `status=postponed`, prefix odstránený z názvu a z ID.
+  - `PŘESUNUTO DO`, `PRESUNUTO DO`, `MOVED TO` → udalosť vyradená, zalogovaná.
+- `normalize_event` vracia `None` pre presunuté udalosti; `pipeline/main.py` ich filtruje.
+- ID generované z vyčisteného názvu → konzistentné ID medzi `POSTPONED: deBasement` a `deBasement`.
+
+**4. Ranný beh oneskorenie**
+- `daily.yml` krok „Log run metadata" teraz počíta a loguje oneskorenie voči 04:17 UTC do job summary.
+
+**5. Testy**
+- `tests/test_normalize.py`: 20 testov pre postponed/moved handling.
+- Celá sada: 165 testov, 0 zlyhaní.
+- Pridaná fixture `tests/fixtures/fuchs2_event_latin_core.html`.
+
+### Rozhodnutia urobené samostatne
+- `timeout_secs: 360` pre Fuchs2 (násobok min. 180 s, s rezervou na sieťovú latenciu GitHub Actions).
+- Detekcia postponed/moved v `normalize.py` (spoločná normalizácia) — nie v adaptéri.
+- ID generované z vyčisteného názvu (bez postponed prefixu) — konzistentnosť s budúcimi verziami akcie.
+
+### Čo ostáva otvorené
+- Ručný `workflow_dispatch` beh v CI ešte nebol spustený (gh CLI nie je dostupné lokálne). Matej musí spustiť beh ručne cez GitHub UI a doplniť: odkaz na beh, počty formátov po vrstve 2, cena AI.
+- `docs/review/classification-RRRR-MM-DD.md` — doplniť po úspešnom CI behu s číslami z `events.json`.
+- Zadanie 2 (web search) presunuté do úlohy 018.
