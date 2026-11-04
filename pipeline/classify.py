@@ -5,15 +5,18 @@ Rule order (stops at the first rule that sets formats):
   1. override  – manual override from data/overrides.json (highest priority)
   2. source    – section from event source mapped to a format
   3. keyword   – keywords/patterns in event title mapped to live/dj
-  4. venue     – venue+section default; time-based rule for mixed venues
-  5. fallback  – 'music' if the event is known to be a music event but
+  4. fallback  – 'music' if the event is known to be a music event but
                  live/dj could not be determined; else leave formats empty
+
+Venue defaults were removed (task 015): venue info is now AI context, not
+a rule.  Events layer 1 cannot classify go to classify_ai (layer 2).
 
 Configuration lives in the dicts below — no format values are hard-coded
 inside the rule logic.
 
 classification field:
-  {"method": "manual"|"source"|"keyword"|"venue", "confidence": float|null}
+  {"method": "manual"|"source"|"keyword", "confidence": float}
+  null when layer 1 did not classify (AI layer will handle it)
 """
 
 import re
@@ -41,16 +44,22 @@ SECTION_MAP: dict[str, str | None] = {
     # opening / vernissage
     "vernisáž": "opening",
     "opening": "opening",
+    # dance
+    "tanec": "dance",
+    "dance": "dance",
+    # talk (lecture, debate, discussion, book reading)
+    "debata": "talk",
+    "debate": "talk",
+    "přednáška": "talk",
+    "lecture": "talk",
+    "konference": "talk",
+    "conference": "talk",
+    # workshop
+    "workshop": "workshop",
+    # comedy
+    "comedy": "comedy",
+    "stand-up": "comedy",
     # other
-    "tanec": "other",
-    "dance": "other",
-    "debata": "other",
-    "debate": "other",
-    "přednáška": "other",
-    "lecture": "other",
-    "workshop": "other",
-    "konference": "other",
-    "conference": "other",
     "off-program": "other",
     "performance": "other",
 }
@@ -80,59 +89,6 @@ DJ_PATTERNS: list[str] = [
     r"\brave\b",          # rave events = DJ
     r"\bnights?\b",       # "night" / "nights" in club context
 ]
-
-# ---------------------------------------------------------------------------
-# Config: venue + section defaults
-# "*" = catch-all section.  Entries here set the final format when rules 1–3
-# have not determined live/dj yet.
-# ---------------------------------------------------------------------------
-VENUE_DEFAULTS: dict[str, dict[str, str]] = {
-    # Concerts, all formats; section "hudba" → live; other sections from SECTION_MAP
-    "palac-akropolis": {
-        "hudba": "live",
-        "divadlo": "theatre",
-        "off-program": "other",
-    },
-    # Concerts and theatre
-    "meetfactory": {
-        "hudba": "live",
-        "divadlo": "theatre",
-    },
-    # Only concerts
-    "forum-karlin": {"*": "live"},
-    # Concerts, theatre, film, dance, talks, workshops
-    "archa-plus": {
-        "hudba": "live",
-        "divadlo": "theatre",
-        "film": "film",
-        "tanec": "other",
-        "debata": "other",
-        "workshop": "other",
-        "přednáška": "other",
-        "performance": "other",
-        "premiéra": "theatre",
-    },
-    # Jazz and experimental concerts only
-    "citarna-unijazz": {"*": "live"},
-    # DJ club; occasional live events detected by LIVE_PATTERNS above
-    "fuchs2": {"*": "dj"},
-    # DJ club; occasional live events detected by LIVE_PATTERNS above
-    "cross-club": {"*": "dj"},
-    # Kasárna: outdoor concerts, no DJ nights observed → live for all music
-    "kasarna-karlin": {"*": "live"},
-    # Bike Jesus: mixed (indie/shoegaze concerts + techno/house nights)
-    # → time-based rule in VENUE_TIME_RULES; no catch-all default here
-    "bike-jesus": {},
-}
-
-# ---------------------------------------------------------------------------
-# Config: time-based rule for venues without a clear section default.
-# start_time < threshold → "live";  >= threshold → "dj".
-# Pattern: Prague concerts 19–21 h, DJ nights from 22 h.
-# ---------------------------------------------------------------------------
-VENUE_TIME_RULES: dict[str, str] = {
-    "bike-jesus": "22:00",
-}
 
 # ---------------------------------------------------------------------------
 # Public API
@@ -174,9 +130,9 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
     start_time = event.get("start_time")
 
     # --- Rule 0: manual override -------------------------------------------
-    fmt, matched_override = _apply_override(event, overrides)
-    if fmt is not None:
-        event["formats"] = [fmt] if fmt else []
+    fmt_list, matched_override = _apply_override(event, overrides)
+    if matched_override:
+        event["formats"] = fmt_list
         event["classification"] = {"method": "manual", "confidence": 1.0}
         return
 
@@ -211,42 +167,18 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
         event["classification"] = {"method": "keyword", "confidence": 0.9}
         return
     if live_hit and dj_hit:
-        # Conflict — both keywords present; leave for venue rule
-        pass
-
-    # --- Rule 3: venue defaults + time rule ---------------------------------
-    venue_defaults = VENUE_DEFAULTS.get(venue_id, {})
-    # Try section-specific default, then catch-all
-    fmt_venue = venue_defaults.get(section) if section else None
-    if fmt_venue is None:
-        fmt_venue = venue_defaults.get("*")
-
-    if fmt_venue is not None:
-        if fmt_venue in ("theatre", "film", "quiz", "opening", "other"):
-            event["formats"] = [fmt_venue]
-        elif fmt_venue in ("live", "dj"):
-            event["formats"] = [fmt_venue]
-        else:
-            event["formats"] = [fmt_venue]
-        event["classification"] = {"method": "venue", "confidence": 0.7}
+        # Both signals present — event is both a concert and a club night
+        event["formats"] = ["live", "dj"]
+        event["classification"] = {"method": "keyword", "confidence": 0.8}
         return
 
-    # Time-based rule for mixed venues (e.g. bike-jesus)
-    threshold = VENUE_TIME_RULES.get(venue_id)
-    if threshold and start_time:
-        if start_time < threshold:
-            event["formats"] = ["live"]
-            event["classification"] = {"method": "venue", "confidence": 0.6}
-            return
-        else:
-            event["formats"] = ["dj"]
-            event["classification"] = {"method": "venue", "confidence": 0.6}
-            return
+    # --- Rule 3 (venue defaults) removed in task 015 ------------------------
+    # Venue context is now passed to AI layer instead of being used as a rule.
 
     # --- Rule 4: fallback ----------------------------------------------------
     if is_music_event:
         event["formats"] = ["music"]
-        event["classification"] = {"method": "venue", "confidence": 0.5}
+        # No classification set — AI layer will determine the actual format
     # else: formats stays empty, classification stays null
 
 
@@ -254,11 +186,8 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _apply_override(event: dict, overrides: list[dict]):
-    """Return (formats_value, True) if an override matches, else (None, False).
-
-    formats_value may be a string (single format) or list, or [] for empty.
-    """
+def _apply_override(event: dict, overrides: list[dict]) -> tuple[list[str], bool]:
+    """Return (formats_list, True) if an override matches, else ([], False)."""
     eid = event.get("id", "")
     title = event.get("title", "").lower()
     venue_id = event.get("venue_id", "")
@@ -270,15 +199,17 @@ def _apply_override(event: dict, overrides: list[dict]):
             needle = ov.get("title_contains", "")
             if needle and needle.lower() in title:
                 return _formats_from_override(ov), True
-    return None, False
+    return [], False
 
 
-def _formats_from_override(ov: dict):
-    """Extract the first format string from override dict."""
+def _formats_from_override(ov: dict) -> list[str]:
+    """Extract formats list from override dict."""
     fmts = ov.get("formats", [])
-    if isinstance(fmts, list) and fmts:
-        return fmts[0]
-    return ""
+    if isinstance(fmts, list):
+        return fmts
+    if isinstance(fmts, str):
+        return [fmts] if fmts else []
+    return []
 
 
 def _is_music_only_venue(venue: dict) -> bool:

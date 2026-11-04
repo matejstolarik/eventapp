@@ -14,6 +14,7 @@ from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
 from pipeline.classify import classify_events
+from pipeline.classify_ai import classify_events_ai
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -110,9 +111,11 @@ def main():
                 log.error("%s [%s]: %s", venue["id"], source["type"], exc)
                 source_results.append((venue["id"], label, 0, "error"))
 
+    previous_list = list(previous.values())
     events = [normalize_event(r, previous) for r in all_raw]
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
+    events, ai_stats = classify_events_ai(events, venues, previous_list)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -128,10 +131,11 @@ def main():
 
     log.info("Wrote %d events to %s", len(events), EVENTS_OUT)
 
-    _write_job_summary(source_results, events, generated_at, capture.messages)
+    _write_job_summary(source_results, events, generated_at, capture.messages, ai_stats)
 
 
-def _write_job_summary(source_results, events, generated_at, adapter_warnings=None):
+def _write_job_summary(source_results, events, generated_at, adapter_warnings=None,
+                       ai_stats=None):
     """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
     summary_path = os.getenv("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -188,6 +192,43 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
         lines.append("")
     else:
         lines += ["### Quality flags", "", "None", ""]
+
+    # Classification stats
+    fmt_counts: dict[str, int] = {}
+    method_counts: dict[str, int] = {}
+    for e in events:
+        for fmt in e.get("formats", []):
+            fmt_counts[fmt] = fmt_counts.get(fmt, 0) + 1
+        cls = e.get("classification")
+        m = cls.get("method") if cls else "null"
+        method_counts[m] = method_counts.get(m, 0) + 1
+
+    lines += ["### Classification", ""]
+    lines += ["| Format | Count |", "|---|---|"]
+    for fmt, cnt in sorted(fmt_counts.items()):
+        lines.append(f"| {fmt} | {cnt} |")
+    lines.append("")
+    lines += ["| Method | Count |", "|---|---|"]
+    for meth, cnt in sorted(method_counts.items()):
+        lines.append(f"| {meth} | {cnt} |")
+    lines.append("")
+
+    if ai_stats:
+        if ai_stats.get("skipped"):
+            lines += [f"**AI layer:** skipped — {ai_stats.get('reason', '?')}", ""]
+        else:
+            cost = ai_stats.get("estimated_cost_usd", 0)
+            lines += [
+                "### AI layer (layer 2)",
+                "",
+                f"- Cache hits: {ai_stats.get('cache_hits', 0)}",
+                f"- API calls: {ai_stats.get('api_calls', 0)}",
+                f"- Errors: {ai_stats.get('errors', 0)}",
+                f"- Input tokens: {ai_stats.get('total_input_tokens', 0):,}",
+                f"- Output tokens: {ai_stats.get('total_output_tokens', 0):,}",
+                f"- **Estimated cost: ${cost:.4f}**",
+                "",
+            ]
 
     with open(summary_path, "a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")

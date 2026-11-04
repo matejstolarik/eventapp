@@ -117,7 +117,7 @@ Polia:
 - `start_time`: nepovinné, niektoré zdroje čas nedávajú (Cross RSS). Appka vtedy ukáže len dátum.
 - `doors_time`: nepovinné, čas otvorenia dverí (napr. z `doorTime` v JSON-LD MeetFactory). Nikdy sa nepoužíva ako `start_time`.
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
-- `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť live vs. dj), `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
+- `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť live vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
@@ -174,10 +174,11 @@ Ak sa oprava aplikuje, `classification.method = "manual"`.
 
 ## Kategorizácia (formát, žánre, charakter)
 
-Tri vrstvy, od najlacnejšej:
-1. **Zdroj**, ak kategóriu dáva (sekcia na webe, žánre na RA), prevedená na naše pevné hodnoty.
-2. **LLM bez internetu** z názvu, popisu, interpretov, podniku a sekcie zdroja. Vráti hodnoty aj istotu.
-3. **LLM s vyhľadaním interpreta na webe** len pri nízkej istote, hlavne na doplnenie žánru. Výsledok sa ukladá k menu interpreta (cache), aby sa ten istý interpret nehľadal znova.
+Dve vrstvy:
+1. **Deterministická (layer 1):** Priorita: manual override → sekcia zdroja → kľúčové slová v názve → fallback `music`. Bez hádania podľa podniku — ak rule nepomôže, formát ostáva `music` alebo prázdny.
+2. **AI (layer 2, Claude Haiku):** Klasifikuje zostatok (prázdne formáty alebo `music`). Vstup: názov, interpreti, sekcia, čas začiatku, podnik a jeho štítky. Výsledok sa cachuje v `events.json` a znova sa volá AI len pri zmene názvu.
+
+`classification = {"method": "source" | "keyword" | "llm" | "manual", "confidence": float}`
 
 ## Rozhranie adaptéra
 

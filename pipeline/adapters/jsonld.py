@@ -631,15 +631,21 @@ def _parse_time_line(text: str) -> "str | None":
 # ── shared helpers ─────────────────────────────────────────────────────────────
 
 def _is_closed_notice(title: str) -> bool:
-    """Return True for non-event announcements like 'pro veřejnost ZAVŘENO'.
+    """Return True for non-event announcements from Čitárna Unijazz.
 
-    Čitárna Unijazz occasionally publishes JSON-LD Event entries for days when
-    the venue is closed to the public.  These are operational notices, not events.
+    Covers:
+    - 'pro veřejnost ZAVŘENO' / 'CLOSED' — closed notices
+    - 'otevřeno do HH:MM' — opening-hours notices (not events)
     """
     if not title:
         return False
     t = title.upper()
-    return "ZAVŘENO" in t or "CLOSED" in t
+    if "ZAVŘENO" in t or "CLOSED" in t:
+        return True
+    # "otevřeno do" = operational notice about opening hours
+    if "OTEVŘENO DO" in t:
+        return True
+    return False
 
 
 def _ld_to_raw(item: dict, venue: dict, base_url: str,
