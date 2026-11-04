@@ -136,7 +136,7 @@ def classify_events_ai(
     if max_tokens is None:
         max_tokens = int(os.environ.get("AI_MAX_TOKENS", 200_000))
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
     if not api_key:
         log.warning("[classify_ai]: ANTHROPIC_API_KEY not set — skipping AI layer")
         return events, {"skipped": True, "reason": "ANTHROPIC_API_KEY not set"}
