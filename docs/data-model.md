@@ -147,12 +147,13 @@ Akcie s formátom `live`, `dj` alebo `music`. Ostatné formáty (divadlo, vernis
 Platí pre `music` podniku aj `genres` akcie. Malé písmená, pomlčky, anglicky. Zostavený z `music` polí všetkých podnikov v `venues.json` (2026-11-04). Čaká na schválenie Matejom.
 
 ```
-ambient, drum-and-bass, dubstep, ebm, electro, electronic, experimental,
-folk, hip-hop, house, indie, jazz, metal, pop, post-punk, punk, reggae,
-rock, shoegaze, techno, world
+ambient, bassline, drum-and-bass, dubstep, ebm, electro, electro-swing,
+electronic, experimental, folk, funk, hip-hop, house, indie, jazz, metal,
+pop, post-punk, punk, reggae, rock, shoegaze, tech-house, techno,
+uk-bass, uk-garage, world
 ```
 
-(21 položiek)
+(27 položiek — schválené Matejom 2026-11-04)
 
 ## Ručné opravy klasifikácie (`data/overrides.json`)
 
