@@ -22,10 +22,20 @@ jobs:
     steps:
       - name: Log run metadata
         run: |
+          STARTED="$(date -u '+%Y-%m-%d %H:%M UTC')"
           echo "## Run info" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Started:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "Trigger: ${{ github.event_name }}, Started: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "- **Started:** ${STARTED}" >> $GITHUB_STEP_SUMMARY
+          SCHED_MINS=$(( 4 * 60 + 17 ))
+          ACTUAL_MINS=$(( 10#$(date -u '+%H') * 60 + 10#$(date -u '+%M') ))
+          DELAY_MINS=$(( ACTUAL_MINS - SCHED_MINS ))
+          if [ $DELAY_MINS -lt 0 ]; then DELAY_MINS=$(( DELAY_MINS + 1440 )); fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "- **Delay vs 04:17 UTC:** ${DELAY_MINS}m" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Delay vs 04:17 UTC:** n/a (manual)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "Trigger: ${{ github.event_name }}, Started: ${STARTED}"
 
       - uses: actions/checkout@v4
 

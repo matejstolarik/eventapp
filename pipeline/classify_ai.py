@@ -22,6 +22,7 @@ Configuration:
 import json
 import logging
 import os
+import time as _time
 
 import anthropic
 
@@ -167,8 +168,10 @@ def classify_events_ai(
     total_output = 0
     api_calls = 0
     errors = 0
+    total_batches = (len(still_need) + BATCH_SIZE - 1) // BATCH_SIZE if still_need else 0
 
-    for i in range(0, len(still_need), BATCH_SIZE):
+    for batch_idx, i in enumerate(range(0, len(still_need), BATCH_SIZE)):
+        batch_num = batch_idx + 1
         if api_calls >= max_calls:
             log.warning("[classify_ai]: max_calls=%d reached, stopping early", max_calls)
             break
@@ -180,14 +183,17 @@ def classify_events_ai(
         batch_venues = {e["venue_id"]: venues_map.get(e["venue_id"], {}) for e in batch}
 
         try:
-            results, usage = _call_api(client, batch, batch_venues)
+            results, usage = _call_api_with_retry(client, batch, batch_venues)
             api_calls += 1
             total_input += usage.input_tokens
             total_output += usage.output_tokens
             _apply_batch_results(batch, results)
         except Exception as exc:
-            log.warning("[classify_ai]: API call %d failed: %s — batch skipped",
-                        api_calls + 1, exc)
+            cause = f" (cause: {exc.__cause__})" if exc.__cause__ else ""
+            log.warning(
+                "[classify_ai]: API call %d/%d failed: %s: %s%s — batch skipped",
+                batch_num, total_batches, type(exc).__name__, exc, cause,
+            )
             errors += 1
 
     cost = (total_input / 1_000_000 * INPUT_PRICE_PER_MTOK +
@@ -275,6 +281,48 @@ def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
         else:
             log.warning("[classify_ai]: no valid formats in AI result for '%s'",
                         event.get("title"))
+
+
+def _call_api_with_retry(
+    client: anthropic.Anthropic,
+    batch: list[dict],
+    venues: dict,
+    max_retries: int = 3,
+    base_delay: float = 5.0,
+) -> tuple[list[dict], object]:
+    """Call API with retry on network errors, rate limits and 5xx responses."""
+    for attempt in range(max_retries):
+        try:
+            return _call_api(client, batch, venues)
+        except anthropic.APIConnectionError as exc:
+            if attempt >= max_retries - 1:
+                raise
+            delay = base_delay * (2 ** attempt)
+            log.warning(
+                "[classify_ai]: connection error (attempt %d/%d), retry in %.0fs: %s",
+                attempt + 1, max_retries, delay, exc,
+            )
+            _time.sleep(delay)
+        except anthropic.RateLimitError:
+            if attempt >= max_retries - 1:
+                raise
+            delay = base_delay * (2 ** attempt)
+            log.warning(
+                "[classify_ai]: rate limit 429 (attempt %d/%d), retry in %.0fs",
+                attempt + 1, max_retries, delay,
+            )
+            _time.sleep(delay)
+        except anthropic.APIStatusError as exc:
+            if exc.status_code >= 500 and attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)
+                log.warning(
+                    "[classify_ai]: HTTP %d (attempt %d/%d), retry in %.0fs",
+                    exc.status_code, attempt + 1, max_retries, delay,
+                )
+                _time.sleep(delay)
+            else:
+                raise
+    raise RuntimeError("unreachable")  # pragma: no cover
 
 
 def _call_api(

@@ -112,7 +112,7 @@ def main():
                 source_results.append((venue["id"], label, 0, "error"))
 
     previous_list = list(previous.values())
-    events = [normalize_event(r, previous) for r in all_raw]
+    events = [e for e in (normalize_event(r, previous) for r in all_raw) if e is not None]
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)

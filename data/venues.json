@@ -126,7 +126,8 @@
         "sitemap_url": "https://www.fuchs2.cz/event-pages-sitemap.xml",
         "url": "https://www.fuchs2.cz/events",
         "sitemap_days_back": 365,
-        "max_requests": 200
+        "max_requests": 200,
+        "timeout_secs": 360
       }
     ],
     "active": true,

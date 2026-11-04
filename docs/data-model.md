@@ -125,7 +125,7 @@ Polia:
 - `room`: nepovinné, sála alebo priestor v rámci podniku tak, ako ho uvádza zdroj (napr. Akropolis: Velký sál, Malá scéna, Jazz Bar); `null` ak zdroj ho neuvádza.
 - `ticket_url`: odkaz priamo na predaj lístkov (napr. GoOut, RA, Ticketmaster). Stránka akcie na webe podniku patrí len do `sources[].url`, nie sem. Ak zdroj neposkytuje predajný odkaz, pole je `null`.
 - `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
-- `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
+- `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `postponed` (akcia odložená bez nového dátumu; prefix odstránený z názvu) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.
 
 ### Dátum bez roka
