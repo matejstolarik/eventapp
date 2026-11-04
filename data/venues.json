@@ -15,7 +15,7 @@
     "music": ["drum-and-bass", "dubstep", "techno", "reggae"],
     "size": "small",
     "capacity": 250,
-    "features": ["open-air"],
+    "features": [],
     "sources": [
       { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
     ],
