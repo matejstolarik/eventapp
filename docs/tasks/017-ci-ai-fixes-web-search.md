@@ -28,7 +28,7 @@ Fuchs2 má akcie „POSTPONED: deBasement“ a „PŘESUNUTO DO MEETFACTORY / �
 - Rozpoznávanie (EN/CZ/SK: postponed, odloženo, přesunuto, moved to…) v spoločnej normalizácii, nie len pre Fuchs2.
 
 ### 5. Ranný beh príde neskoro
-Plánovaný beh na 04:17 UTC sa spustil o **12:12 UTC** (oneskorenie 8 h). Pridaj druhý plánovaný čas (napr. popoludní, mimo celej hodiny), aby boli dáta čerstvé aj pri oneskorení. Vďaka cache AI to nezvyšuje cenu. Do súhrnu behu zapíš oneskorenie oproti plánovanému času.
+Plánovaný beh na 04:17 UTC sa spustil o 12:12 UTC (oneskorenie 8 h). **Matej: jeden beh denne stačí, oneskorenie je v poriadku** (upravené pred odovzdaním, druhý beh sa nepridáva). Len do súhrnu behu zapíš oneskorenie oproti plánovanému času, aby bolo vidno, keby sa beh vynechal alebo chodil až večer.
 
 ### 6. Report
 Commit práce (finálny hash), odkaz na ručný beh v CI, počty formátov po vrstve 2 a 3, počet vyhľadávaní a cena, zoznam akcií, ktorým vyhľadávanie zmenilo formát (pred → po, zdrojová URL). Nový `docs/review/classification-RRRR-MM-DD.md`.
