@@ -53,7 +53,7 @@ Poradie pravidiel, každé len keď je isté; inak `formats` ostanú prázdne a 
 
 ## Report
 
-Dátum: 2026-11-04. Commit hash: (doplniť po pushi)
+Dátum: 2026-11-04. Commit hash: 17c098c
 
 ### Čo je hotové
 
