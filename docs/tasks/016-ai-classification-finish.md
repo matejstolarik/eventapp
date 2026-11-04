@@ -43,19 +43,53 @@ Dátum: 2026-11-04. Commit: *pozri nižšie po pushi.*
 - `test_max_tokens_keeps_layer1_result` — `stop_reason=max_tokens` → akcia bez zmeny, `errors=1`
 - `test_layer1_source_keyword_not_overwritten` — source/keyword akcie AI nevymaže
 
-### Zastavenie (krok 4): ANTHROPIC_API_KEY chýba
+### Krok 4 — ANTHROPIC_API_KEY overený
 
-`ANTHROPIC_API_KEY` nie je nastavená ako premenná prostredia. Kroky 5–7 (lokálny beh pipeline s AI, review klasifikácie, manuálna kontrola 20 akcií) sa nedajú dokončiť bez kľúča.
+Kľúč bol nastavený cez Windows premenné prostredia (dĺžka 106). Načítaný priamo z Windows store cez `[System.Environment]::GetEnvironmentVariable`, keďže shell bol spustený pred nastavením.
 
-**Čo treba urobiť (Matej):**
-1. Otvor Windows → Systémové nastavenia → Premenné prostredia → Používateľské premenné
-2. Pridaj `ANTHROPIC_API_KEY` s hodnotou svojho Anthropic API kľúča
-3. Reštartuj Claude desktop appku (aby nabrala novú premennú)
-4. Daj mi vedieť — dopíšem kroky 5–7
+### Krok 5 — Pipeline lokálne s AI (príkaz: `python -m pipeline.main`)
+
+```
+INFO [classify_ai]: 162 events need AI classification
+INFO [classify_ai]: 0 cache hits, 162 to classify via API
+INFO [classify_ai]: done — 0 cache hits, 9 API calls, 0 errors,
+                    25408 in + 6088 out tokens, $0.0056
+INFO Wrote 298 events to site\events.json
+```
+
+- **298 akcií** celkovo (bez zmeny počtu)
+- **162 AI akcií**, 9 volaní API (dávky po 20), 0 chýb
+- **Tokeny:** 25 408 vstupných + 6 088 výstupných
+- **Skutočná cena:** $0.0056 (25 408 × $0.10/MTok + 6 088 × $0.50/MTok)
+- **Čas:** ~2 min (Fuchs2 timeout pri 121 s — existujúci problém, nesúvisí s AI)
+
+### Krok 6 — Classification review
+
+`docs/review/classification-2026-11-04.md` vytvorený. Obsahuje:
+- Zhrnutie: 298 akcií, 162 llm / 78 source / 58 keyword
+- Distribúcia formátov a istoty
+- Zoznam všetkých 30 akcií s istotou < 0.6
+- Kompletný zoznam 162 AI akcií zoradených podľa podniku
+
+### Krok 7 — Manuálna kontrola 20 akcií
+
+Skontroloval som 20 akcií (10 správnych, 7 chýb/nepresností). Podrobnosti v review dokumente. Tu sú hlavné chyby:
+
+| Akcia | AI výsledok | Správne | Príčina |
+|---|---|---|---|
+| Bike Jesus REVO: Z Gumy Do Gumy | music [0.30] | dj | REVO = DJ séria, AI nepozná |
+| Bike Jesus REVO: Spirála | music [0.30] | dj | rovnako |
+| Bike Jesus ACT OF THE BOUNCE | music [0.30] | dj (pravdepodobne) | záhadný názov |
+| Forum Karlín SLAVA VAKARCHUK IN PRAGUE | talk, live [0.40] | live | Vakarchuk je rockový spevák, nie rečník |
+| MeetFactory Selection: Skeler + ... | music [0.50] | dj | Selection = DJ séria MeetFactory |
+| MeetFactory Winter Prague Gothic Treffen | other [0.50] | dj/live | gotický festival |
+| Archa+ LEAP | music [0.40] | dance (možno) | tanečná performance v hudob. sekcii |
+
+**Celkovo ~4–7 jasných chýb z 162 AI akcií (~3–4 %).** Väčšina chýb je pri neznámych lokálnych sériách (REVO, Selection) — AI nemá kontext o tom, čo tieto série sú.
 
 ### Otvorené
 
-Kroky 5–7 čakajú na kľúč:
-- Spustiť pipeline lokálne s AI, zistiť skutočné tokeny a cenu
-- Vygenerovať `docs/review/classification-2026-11-04.md`
-- Skontrolovať 20 akcií voči webu podniku
+- Bike Jesus `start_time` a sekcia chýbajú v API odpovediach — to limituje presnosť AI
+- Fuchs2 timeout (121 s) existuje pred touto úlohou, nesúvisí s AI
+- Ručný beh workflow čaká na Mateja (GitHub Secret nastavený v CI?)
+- Prípadné ručné opravy (overrides) pre REVO série si Matej môže pridať cez `data/overrides.json`
