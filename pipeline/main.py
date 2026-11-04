@@ -13,6 +13,7 @@ from pipeline.adapters import api as api_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
+from pipeline.classify import classify_events
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ class _WarningCapture(logging.Handler):
 ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter,
             "api": api_adapter}
 VENUES_PATH = pathlib.Path("data/venues.json")
+OVERRIDES_PATH = pathlib.Path("data/overrides.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
@@ -71,6 +73,11 @@ def main():
     with VENUES_PATH.open(encoding="utf-8") as f:
         venues = json.load(f)
 
+    overrides = []
+    if OVERRIDES_PATH.exists():
+        with OVERRIDES_PATH.open(encoding="utf-8") as f:
+            overrides = json.load(f)
+
     previous = load_previous_events()
     all_raw = []
 
@@ -105,6 +112,7 @@ def main():
 
     events = [normalize_event(r, previous) for r in all_raw]
     events = dedup_events(events)
+    events = classify_events(events, venues, overrides)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)

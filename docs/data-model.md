@@ -57,7 +57,18 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 
 **type** (viac naraz): `concert-club`, `dance-club`, `dj-bar`, `bar`, `cafe`, `culture-center`, `jazz-club`, `concert-hall`, `cinema`
 
-**character** (viac naraz): `underground`, `alternative`, `experimental`, `commercial`, `retro`, `queer`, `student`
+**character** (viac naraz): `underground`, `alternative`, `experimental`, `commercial`, `retro`, `queer`, `student`, `queer-friendly`, `late-night`, `community`, `diy`, `art-space`, `english-friendly`, `cozy`, `hangout`, `family-friendly`
+
+Definície nových štítkov:
+- `queer-friendly`: doložený queer program alebo spolupráca (queer kolektívy, Prague Pride, queer debaty). Len s doloženým zdrojom (do `notes` podniku), nikdy jediný štítok charakteru; nezistené neznamená „nie je". (`queer` ostáva pre podniky, ktoré sú queer ako také.)
+- `late-night`: program bežne do rána.
+- `community`: komunitne vedené.
+- `diy`: svojpomocné, nezávislé.
+- `art-space`: galéria/rezidencie popri hudbe.
+- `english-friendly`: program výslovne prístupný v angličtine.
+- `cozy`: komorný priestor.
+- `hangout`: hlavne posedenie, akcie doplnok.
+- `family-friendly`: aj pre deti.
 
 **music**: predvolené žánre podniku, z rovnakého zoznamu ako `genres` akcie.
 
@@ -106,7 +117,7 @@ Polia:
 - `start_time`: nepovinné, niektoré zdroje čas nedávajú (Cross RSS). Appka vtedy ukáže len dátum.
 - `doors_time`: nepovinné, čas otvorenia dverí (napr. z `doorTime` v JSON-LD MeetFactory). Nikdy sa nepoužíva ako `start_time`.
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
-- `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
+- `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť live vs. dj), `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
@@ -129,7 +140,36 @@ Niektoré zdroje uverejňujú oznamy, ktoré nie sú akciami (napr. „ZAVŘENO"
 Ako akcia sa berie len vernisáž (`opening`), jeden večer. Prebiehajúce výstavy sa nezobrazujú v zozname akcií, len v detaile podniku (neskôr).
 
 ### Predvolený pohľad v appke
-Akcie s formátom `live` alebo `dj`. Ostatné formáty (divadlo, vernisáže, film, kvízy, iné) sa zapínajú filtrom.
+Akcie s formátom `live`, `dj` alebo `music`. Ostatné formáty (divadlo, vernisáže, film, kvízy, iné) sa zapínajú filtrom.
+
+## Pevný zoznam žánrov
+
+Platí pre `music` podniku aj `genres` akcie. Malé písmená, pomlčky, anglicky. Zostavený z `music` polí všetkých podnikov v `venues.json` (2026-11-04). Čaká na schválenie Matejom.
+
+```
+ambient, drum-and-bass, dubstep, ebm, electro, electronic, experimental,
+folk, hip-hop, house, indie, jazz, metal, pop, post-punk, punk, reggae,
+rock, shoegaze, techno, world
+```
+
+(21 položiek)
+
+## Ručné opravy klasifikácie (`data/overrides.json`)
+
+Súbor `data/overrides.json` obsahuje opravy, ktoré majú prednosť pred pravidlami pipeline:
+
+```json
+[
+  { "id": "cross-club-2026-10-30-neurocells-hard-rave", "formats": ["dj"] },
+  { "venue_id": "fuchs2", "title_contains": "F2 LIVE", "formats": ["live"] }
+]
+```
+
+Typy záznamov:
+- `id` + `formats`: oprava konkrétnej akcie podľa ID.
+- `venue_id` + `title_contains` + `formats`: oprava všetkých akcií daného podniku, v ktorých sa v názve nachádza zadaný reťazec.
+
+Ak sa oprava aplikuje, `classification.method = "manual"`.
 
 ## Kategorizácia (formát, žánre, charakter)
 

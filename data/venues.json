@@ -11,7 +11,7 @@
     "instagram": "crossclubofficial",
     "facebook": "crossclubprague",
     "type": ["concert-club", "dance-club"],
-    "character": ["alternative", "underground"],
+    "character": ["alternative", "underground", "late-night"],
     "music": ["drum-and-bass", "dubstep", "techno", "reggae"],
     "size": "small",
     "capacity": 250,
@@ -33,18 +33,18 @@
     "ra_url": null,
     "instagram": "meetfactory",
     "facebook": null,
-    "type": null,
-    "character": null,
-    "music": null,
-    "size": null,
-    "capacity": null,
+    "type": ["culture-center", "concert-club"],
+    "character": ["alternative", "experimental", "art-space"],
+    "music": ["indie", "electronic", "experimental", "metal", "hip-hop", "jazz"],
+    "size": "medium",
+    "capacity": 750,
     "features": null,
     "sources": [
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba" },
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo" }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: meetfactory.cz/en/informace-pro-kapely"
   },
   {
     "id": "kasarna-karlin",
@@ -57,12 +57,12 @@
     "ra_url": null,
     "instagram": "kasarna_karlin",
     "facebook": null,
-    "type": null,
-    "character": null,
-    "music": null,
+    "type": ["culture-center", "bar", "cinema"],
+    "character": ["alternative", "hangout", "community", "family-friendly"],
+    "music": ["indie"],
     "size": null,
     "capacity": null,
-    "features": null,
+    "features": ["open-air", "seasonal"],
     "sources": [
       { "type": "jsonld", "url": "https://kasarnakarlin.cz/en/program", "follow_links": true, "detail_lang": "en" }
     ],
@@ -80,10 +80,10 @@
     "ra_url": null,
     "instagram": "citarna_unijazz",
     "facebook": null,
-    "type": null,
-    "character": null,
-    "music": null,
-    "size": null,
+    "type": ["cafe", "culture-center"],
+    "character": ["alternative", "experimental", "community", "cozy"],
+    "music": ["jazz", "experimental"],
+    "size": "small",
     "capacity": null,
     "features": null,
     "sources": [
@@ -113,11 +113,11 @@
     "ra_url": "https://ra.co/clubs/162121",
     "instagram": "fuchs2stvanice",
     "facebook": null,
-    "type": [],
-    "character": [],
-    "music": [],
-    "size": null,
-    "capacity": null,
+    "type": ["dance-club", "concert-club"],
+    "character": ["alternative", "underground", "queer-friendly", "late-night"],
+    "music": ["techno", "electro", "ebm", "post-punk", "indie"],
+    "size": "medium",
+    "capacity": 650,
     "features": [],
     "sources": [
       {
@@ -130,7 +130,7 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: selection.cz/en/venues/fuchs2. Queer-friendly: seria FEMXCORE (easterndaze.net/?p=2082) a lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/)."
   },
   {
     "id": "bike-jesus",
@@ -143,11 +143,11 @@
     "ra_url": "https://ra.co/clubs/178137",
     "instagram": "bike.jesus",
     "facebook": null,
-    "type": [],
-    "character": [],
-    "music": [],
-    "size": null,
-    "capacity": null,
+    "type": ["concert-club", "dance-club", "bar"],
+    "character": ["underground", "alternative", "community", "diy", "queer-friendly"],
+    "music": ["techno", "house", "post-punk", "indie", "shoegaze"],
+    "size": "small",
+    "capacity": 280,
     "features": [],
     "sources": [
       {
@@ -160,7 +160,7 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: kdykam.com/en/venue/bike-jesus-praha-165. Queer-friendly: lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/)."
   },
   {
     "id": "palac-akropolis",
@@ -173,11 +173,11 @@
     "ra_url": "https://ra.co/clubs/306167",
     "instagram": "palacakropolis",
     "facebook": "Palac.Akropolis.klub",
-    "type": null,
-    "character": null,
-    "music": null,
-    "size": null,
-    "capacity": null,
+    "type": ["concert-club", "culture-center"],
+    "character": ["alternative"],
+    "music": ["indie", "rock", "world", "jazz", "punk"],
+    "size": "medium",
+    "capacity": 700,
     "features": null,
     "sources": [
       {
@@ -199,7 +199,7 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: liveurope.eu/palac-akropolis (700 velky sal, 80 maly)."
   },
   {
     "id": "archa-plus",
@@ -212,11 +212,11 @@
     "ra_url": "https://ra.co/clubs/266130",
     "instagram": "_archaplus_",
     "facebook": null,
-    "type": [],
-    "character": [],
-    "music": [],
-    "size": null,
-    "capacity": null,
+    "type": ["culture-center", "concert-hall"],
+    "character": ["alternative", "experimental", "queer-friendly", "english-friendly"],
+    "music": ["indie", "electronic", "metal", "experimental"],
+    "size": "medium",
+    "capacity": 1200,
     "features": [],
     "sources": [
       {
@@ -228,7 +228,7 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: archatheatre.cz/en/spaces-and-technical.html (200-350 sedenie, do 1200 stanie). Queer-friendly: queer program na webe (debaty Jste queer?, God Save the Drama Queen)."
   },
   {
     "id": "forum-karlin",
@@ -241,11 +241,11 @@
     "ra_url": "https://ra.co/clubs/91332",
     "instagram": "forum_karlin",
     "facebook": null,
-    "type": [],
-    "character": [],
-    "music": [],
-    "size": null,
-    "capacity": null,
+    "type": ["concert-hall"],
+    "character": ["commercial"],
+    "music": ["rock", "pop", "metal", "hip-hop", "electronic"],
+    "size": "large",
+    "capacity": 3800,
     "features": [],
     "sources": [
       {
@@ -257,6 +257,6 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": "Kapacita: Cvent (3800 stanie, 1800 sedenie)."
   }
 ]

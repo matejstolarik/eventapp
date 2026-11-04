@@ -52,3 +52,117 @@ Poradie pravidiel, každé len keď je isté; inak `formats` ostanú prázdne a 
 - 10 náhodných akcií s pridelenými formátmi na ručnú kontrolu (názov, podnik, formát, pravidlo).
 
 ## Report
+
+Dátum: 2026-11-04. Commit hash: (doplniť po pushi)
+
+### Čo je hotové
+
+**1. Dátový model (`docs/data-model.md`)**
+- Pridané nové `character` štítky: `queer-friendly`, `late-night`, `community`, `diy`, `art-space`, `english-friendly`, `cozy`, `hangout`, `family-friendly` (s definíciami).
+- Pridaný formát `music` (hudobná akcia, nerozlíšiteľná na live/dj). Predvolený pohľad: `live + dj + music`.
+- Pridaný pevný zoznam žánrov (21 položiek, čaká na schválenie — viď nižšie).
+- Pridaná sekcia o `data/overrides.json`.
+
+**2. Štítky podnikov (`data/venues.json`)**
+Všetky podniky aktualizované podľa tabuľky v zadaní. `notes` pre kapacity a `queer-friendly` zdroje pridané pri: Fuchs2, Bike Jesus, MeetFactory, Palác Akropolis, Archa+, Forum Karlín. Kasárna a Čitárna nemajú overenú kapacitu → `null`.
+
+**3. `pipeline/classify.py`** — deterministická klasifikácia vrstva 1:
+- Rule 1: sekcia zdroja → formát (cez `SECTION_MAP`)
+- Rule 2: kľúčové slová v názve (`LIVE_PATTERNS`, `DJ_PATTERNS`)
+- Rule 3: výchozí formát podniku/sekcie (`VENUE_DEFAULTS`) + time-based rule pre Bike Jesus
+- Rule 4: fallback `music` / prázdne
+- Priorita: manual override → source → keyword → venue → fallback
+
+**4. `data/overrides.json`** — prázdne, pripravené.
+
+**5. Review súbory** (pre Matejovu kontrolu):
+- `docs/review/classification-2026-11-04.md` — všetky akcie (299)
+- `docs/review/venues-2026-11-04.md` — štítky podnikov
+
+Príkaz: `python -m pipeline.main` → `site/events.json`
+
+---
+
+### Pevný zoznam žánrov (návrh na schválenie)
+
+Zostavený zo `music` polí všetkých podnikov (task 013). Celkom 21 položiek:
+
+```
+ambient, drum-and-bass, dubstep, ebm, electro, electronic, experimental,
+folk, hip-hop, house, indie, jazz, metal, pop, post-punk, punk, reggae,
+rock, shoegaze, techno, world
+```
+
+Mapovanie: všetky hudobné štítky z tabuľky v zadaní sú priamo na zozname, žiadne nie je potrebné zlučovať.
+
+Položky `ambient` a `folk` pridané oproti tabuľke (ambient = experimentálne podniky; folk = Kasárna Karlín outdoor akcie). Zostatok = priamy prenájom zo `music` polí podnikov.
+
+---
+
+### Počty akcií podľa formátu a metódy
+
+Príkaz: `python -m pipeline.main` spustený 2026-11-04.
+
+**Formáty** (celkom 299 akcií):
+| Formát | Počet |
+|---|---|
+| live | 167 |
+| theatre | 56 |
+| dj | 32 |
+| other | 19 |
+| music (nerozlíšené) | 17 |
+| (bez formátu) | 5 |
+| opening | 2 |
+| quiz | 1 |
+
+**Metóda klasifikácie:**
+| Metóda | Počet |
+|---|---|
+| venue (výchozí podniku) | 159 |
+| source (sekcia zdroja) | 78 |
+| keyword (kľúčové slovo) | 57 |
+| (neklasifikované, null) | 5 |
+
+**Podiel bez formátu podľa podniku:**
+| Podnik | Bez formátu |
+|---|---|
+| archa-plus | 5/63 (8 %) |
+| ostatné | 0/x (0 %) |
+
+5 archa-plus akcií bez formátu: nemajú sekciu rozpoznanú adaptérom (`section=null`). Príklady: `KARAOKE+`, `ROAST slaví narozky` (nehudobné), `Cult of Luna + BRUIT ≤ + Youth Code` (metal koncert bez sekcie). Opraviteľné cez `overrides.json`.
+
+17 akcií s formátom `music` sú všetky z Bike Jesus — Strapi API neposkytuje `start_time`, takže time-based rule sa nikdy neaplikuje.
+
+---
+
+### 10 náhodných akcií (seed=42)
+
+| Podnik | Dátum | Názov | Formát | Metóda |
+|---|---|---|---|---|
+| Archa+ | 2026-11-12 | Jak se sebou nenechat zamést v nájmu | other | source |
+| Bike Jesus | 2026-11-20 | REVO: Z Gumy Do Gumy | music | venue |
+| Čítárna Unijazz | 2026-11-20 | PSYTRANCE UNITED | live | venue |
+| Cross Club | 2026-11-16 | FESTIVAL NADPRAHOU PULMESIC & TECHNO STAGE | dj | venue |
+| Forum Karlín | 2026-12-01 | Resident Evil – Symphony of Legacy | live | venue |
+| MeetFactory | 2027-01-13 | Oliver Lovrenski: Když nám bylo míň | theatre | source |
+| MeetFactory | 2026-12-09 | Esther Bol: Infračervené | theatre | source |
+| MeetFactory | 2027-04-02 | Fource: Nieve Ela | live | venue |
+| Palác Akropolis | 2026-11-26 | DIVO INSTITUTE+THE WILDERNESS/SK+DALŠÍ | live | venue |
+| Palác Akropolis | 2026-11-05 | BLACK SEA DAHU/CH+SUPPORT ►SOLONG/CH | live | keyword |
+
+Všetky vyzerajú správne.
+
+---
+
+### Rozhodnutia urobené samostatne
+
+- Kasárna Karlín: `venue default = live` — program je výlučne koncertný/outdoorový, žiadne DJ noci.
+- Bike Jesus: time-based rule `< 22:00 → live, >= 22:00 → dj` — avšak Strapi API neposkytuje `start_time`, takže rule sa nikdy neaplikuje. Výsledok: 17/33 = 51 % `music`.
+- `\bw/\b` → opravené na `\bw/` (regex nefungoval pred medzerou).
+- `_is_music_only_venue`: podniky s `concert-club/dance-club/jazz-club/concert-hall` v type, BEZ `culture-center/cinema`, sa považujú za čisto hudobné → automatický fallback na `music`.
+
+### Otvorené
+
+- Bike Jesus `start_time = null` → 17/33 nerozlíšených. Riešenie: detail fetch z webu, alebo LLM vrstva 2.
+- Archa+ 5 akcií bez formátu (8 %) — nemajú sekciu rozpoznanú adaptérom. Riešenie: `overrides.json`, alebo LLM.
+- Pevný zoznam žánrov čaká na schválenie Matejom.
