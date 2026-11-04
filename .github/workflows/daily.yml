@@ -45,6 +45,7 @@ jobs:
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python -m pipeline.main
 
       - name: Configure Pages

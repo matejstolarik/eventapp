@@ -20,3 +20,42 @@ Zadal: hlavný chat (Matej), 2026-11-04. Kontrola úlohy 015 (`170ea97`) našla:
 Ručný beh workflow nespúšťaj; Matej nastaví secret a ranný beh ukáže, či AI beží aj v CI.
 
 ## Report
+
+Dátum: 2026-11-04. Commit: *pozri nižšie po pushi.*
+
+### Hotovo (kroky 1–3)
+
+**1. daily.yml opravený** — `ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}` pridané do `env` kroku `Run pipeline`. Matej musí mať Secret nastavený v GitHub repo Settings → Secrets → Actions.
+
+**2. API dokumentácia overená** (zdroj: `claude-api` skill, 2026-11-04):
+- Model `claude-haiku-5-5` ✓ správne ID
+- Cena $0.10 / $0.50 per MTok (pre prompt ≤ 100 K tokenov) ✓ zhoduje sa s konštantami v kóde
+- `output_config={"effort": "low"}` — GA parameter, žiadny beta header, platný pre Haiku 5.5; hodnoty `low`–`max`, default `medium` ✓
+- `tool_choice={"type": "tool", "name": ...}` (forced tool use) — Haiku 5.5 ho stále podporuje; forced tool use bol odstránený len pre Fable 5.1, Mythos 5.1, Opus 5.5, Sonnet 5.5 ✓
+- Zdroj: Anthropic Claude API skill (interný, 2026-11-04); live docs: https://docs.anthropic.com/en/docs/about-claude/models
+
+**3. Testy pre `pipeline/classify_ai.py`** — 7 nových testov, všetky prechádzajú (145 total, bolo 138):
+- `test_batch_classifies_events` — mock API odpoveď, dávka 2 akcií
+- `test_cache_hit_skips_api` — rovnaký názov z `previous_events` → API sa nevolá
+- `test_changed_title_bypasses_cache` — zmenený názov → cache miss, volanie API
+- `test_invalid_format_and_genre_discarded` — hodnoty mimo zoznamu sa zahadzujú
+- `test_missing_api_key_skips_ai` — bez kľúča pipeline pokračuje, `skipped=True`
+- `test_max_tokens_keeps_layer1_result` — `stop_reason=max_tokens` → akcia bez zmeny, `errors=1`
+- `test_layer1_source_keyword_not_overwritten` — source/keyword akcie AI nevymaže
+
+### Zastavenie (krok 4): ANTHROPIC_API_KEY chýba
+
+`ANTHROPIC_API_KEY` nie je nastavená ako premenná prostredia. Kroky 5–7 (lokálny beh pipeline s AI, review klasifikácie, manuálna kontrola 20 akcií) sa nedajú dokončiť bez kľúča.
+
+**Čo treba urobiť (Matej):**
+1. Otvor Windows → Systémové nastavenia → Premenné prostredia → Používateľské premenné
+2. Pridaj `ANTHROPIC_API_KEY` s hodnotou svojho Anthropic API kľúča
+3. Reštartuj Claude desktop appku (aby nabrala novú premennú)
+4. Daj mi vedieť — dopíšem kroky 5–7
+
+### Otvorené
+
+Kroky 5–7 čakajú na kľúč:
+- Spustiť pipeline lokálne s AI, zistiť skutočné tokeny a cenu
+- Vygenerovať `docs/review/classification-2026-11-04.md`
+- Skontrolovať 20 akcií voči webu podniku
