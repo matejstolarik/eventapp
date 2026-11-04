@@ -1,17 +1,18 @@
 # 019: Roxy a EPIC (+ nové žánre a štítok `tourist`)
 
 ## Zadanie
-Zadal: hlavný chat (Matej), 2026-11-04 (pred odovzdaním doplnený formát `party`). Podklady: úloha 014, fixtures `tests/fixtures/survey/roxy.html`, `epic-prague.html`. Duplex a Lucerna Music Bar zatiaľ nie (Matej).
+Zadal: hlavný chat (Matej), 2026-11-04 (pred odovzdaním doplnený formát `party` a premenovanie `live` → `concert`). Podklady: úloha 014, fixtures `tests/fixtures/survey/roxy.html`, `epic-prague.html`. Duplex a Lucerna Music Bar zatiaľ nie (Matej).
 
 ### 1. Dátový model (odsúhlasené Matejom 2026-11-04; `data-model.md`, `decisions.md`)
 - Pevný zoznam žánrov doplň o: `hardstyle`, `trance` (vrátane psytrance), `latin` (reggaeton, latino), `r-n-b`, `disco`, `ska`.
 - Charakter podniku doplň o `tourist` (program a prevádzka zamerané najmä na turistov).
-- **Nový formát `party`** (Matej 2026-11-04): akcia, ktorej hlavnou pointou je párty/tancovanie (klubová noc, tematická párty, študentská párty). Je to doplnkový štítok, kombinuje sa s `dj` alebo `live`. `dj` hovorí, kto hrá; `party` hovorí, aký je to večer. Príklad: EPIC klubová noc = `dj` + `party`; Fuchs2 DJ set v klubovom/posluchovom duchu = `dj` bez `party`. Rozhoduje AI (vrstva 2) s týmto vysvetlením v prompte; kľúčové slová (`party`, `párty`, `night`, `rave`) a Roxy `#party` → `party` + `dj`. Prepočítaj `party` aj pre existujúce akcie všetkých podnikov (jednorazovo, pre akcie z cache stačí doplniť len tento formát; uveď cenu).
+- **Nový formát `party`** (Matej 2026-11-04): akcia, ktorej hlavnou pointou je párty/tancovanie (klubová noc, tematická párty, študentská párty). Je to doplnkový štítok, kombinuje sa s `dj` alebo `concert`. `dj`/`concert` hovorí, kto hrá; `party` hovorí, aký je to večer. Príklad: EPIC klubová noc = `dj` + `party`; Fuchs2 DJ set v klubovom/posluchovom duchu = `dj` bez `party`. Rozhoduje AI (vrstva 2) s týmto vysvetlením v prompte; kľúčové slová (`party`, `párty`, `night`, `rave`) a Roxy `#party` → `party` + `dj`. Prepočítaj `party` aj pre existujúce akcie všetkých podnikov (jednorazovo, pre akcie z cache stačí doplniť len tento formát; uveď cenu).
 - Téma večera (študentská, 80s/90s, latino) ide naďalej cez `character` akcie (`student`, `retro`…) a žánre.
+- **Premenovanie formátu `live` → `concert`** (Matej 2026-11-04, trefnejšie). Definícia: živé hudobné vystúpenie (kapela, sólo umelec, orchester, živý elektronický set). Premenuj všade: dátový model, kód (mapovania, kľúčové slová, prompt AI, testy), `overrides.json`, súbory na kontrolu, dokumentácia. Existujúce výsledky v cache a v predošlom `events.json` na Pages preveď (`live` → `concert`) bez nového volania AI. Starý riadok v `decisions.md` označ ako nahradený.
 
 ### 2. Roxy (`html`)
 - Program: https://www.roxy.cz/club/ (celý program na jednej stránke; `<time datetime>`, `h2.title`, `h3.subtitle`, `data-hashtags`).
-- `data-hashtags` použi ako sekciu zdroja (`sources[].section`) a v mapovaní formátov: `#concert` → `live`, `#party` → `dj` + `party`, ostatné zaloguj a mapuj rozumne (napr. umelecký večer → `other`/`opening` podľa obsahu); mapovanie v konfigurácii.
+- `data-hashtags` použi ako sekciu zdroja (`sources[].section`) a v mapovaní formátov: `#concert` → `concert`, `#party` → `dj` + `party`, ostatné zaloguj a mapuj rozumne (napr. umelecký večer → `other`/`opening` podľa obsahu); mapovanie v konfigurácii.
 - Over adresu a IG na webe (Dlouhá 33 je „všeobecne známa“, ale nebola nájdená v HTML; nájdi ju na stránke kontaktov alebo inde na webe Roxy, uveď URL).
 
 ### 3. EPIC (`html`)
