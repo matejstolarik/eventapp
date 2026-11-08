@@ -12,6 +12,8 @@ Posledná aktualizácia: 2026-10-31
 | Bike Jesus | `api/strapi` | https://bikejesus.com/api/events | ✅ hotovo | 34 / 0 | Strapi v5 API; len dátum, bez času; pageSize=100 = všetko na 1 stranu | `start_time` vždy null |
 | Archa+ | `html/archa` | https://archa-plus.cz/cz/program/ | ✅ hotovo | 64 / 64 | Pagination cez load-more JSON API; dátum z URL (ISO); GoOut widget → ticket_url null; free akcie z tagu „vstup zdarma" | Externé podniky (7 unikátnych v aktuálnom behu) sa nefiltrujú — listing nemá info o mieste |
 | Forum Karlín | `html/forum_karlin` | https://www.forumkarlin.cz/program/ | ✅ hotovo | 29 / 29 | Dátum DD.MM.YYYY z listingu; čas + doors_time z detail (max 50 requestov); ticket_url z #sellers | — |
+| ROXY | `html/roxy` | https://www.roxy.cz/club/ | ✅ hotovo | — | `data-hashtags` → formats; celý program na jednej stránke; `<time datetime>`, `h2.title` | — |
+| EPIC Prague | `html/epic` | https://www.epicprague.com/program | ✅ hotovo | — | Bez hashtagov → všetky akcie do AI vrstvy 2; `time.program__item-datetime`, `h2.program__item-heading` | — |
 
 ## Poznámky pre PWA
 

@@ -2,7 +2,7 @@
 
 Hodnoty v JSON príkladoch sú ilustračné (čas, cena a odkazy nie sú overené údaje).
 Stav: návrh, väčšina rozhodnutí odsúhlasená 2026-10-29. Zdroj pravdy pre dátové štruktúry. Zmeny najprv navrhnúť, potom upraviť tento súbor.
-Posledná aktualizácia: 2026-10-29
+Posledná aktualizácia: 2026-11-08
 
 ## Prehľad
 
@@ -57,9 +57,10 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 
 **type** (viac naraz): `concert-club`, `dance-club`, `dj-bar`, `bar`, `cafe`, `culture-center`, `jazz-club`, `concert-hall`, `cinema`
 
-**character** (viac naraz): `underground`, `alternative`, `experimental`, `commercial`, `retro`, `queer`, `student`, `queer-friendly`, `late-night`, `community`, `diy`, `art-space`, `english-friendly`, `cozy`, `hangout`, `family-friendly`
+**character** (viac naraz): `underground`, `alternative`, `experimental`, `commercial`, `retro`, `queer`, `student`, `tourist`, `queer-friendly`, `late-night`, `community`, `diy`, `art-space`, `english-friendly`, `cozy`, `hangout`, `family-friendly`
 
 Definície nových štítkov:
+- `tourist`: program a prevádzka zamerané najmä na turistov (hity, akcie pre cudzincov, prepredaj vstupeniek turistickými agentúrami).
 - `queer-friendly`: doložený queer program alebo spolupráca (queer kolektívy, Prague Pride, queer debaty). Len s doloženým zdrojom (do `notes` podniku), nikdy jediný štítok charakteru; nezistené neznamená „nie je". (`queer` ostáva pre podniky, ktoré sú queer ako také.)
 - `late-night`: program bežne do rána.
 - `community`: komunitne vedené.
@@ -117,7 +118,7 @@ Polia:
 - `start_time`: nepovinné, niektoré zdroje čas nedávajú (Cross RSS). Appka vtedy ukáže len dátum.
 - `doors_time`: nepovinné, čas otvorenia dverí (napr. z `doorTime` v JSON-LD MeetFactory). Nikdy sa nepoužíva ako `start_time`.
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
-- `formats` (viac naraz): `live` (živí hudobníci na pódiu), `dj`, `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť live vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
+- `formats` (viac naraz): `concert` (živí hudobníci na pódiu — kapela, sólo umelec, orchester, živý elektronický set), `dj`, `party` (klubová noc alebo tematická párty, kombinuje sa s `dj` alebo `concert`; rozhoduje AI vrstva 2 s vysvetlením v prompte), `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť concert vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
@@ -140,20 +141,20 @@ Niektoré zdroje uverejňujú oznamy, ktoré nie sú akciami (napr. „ZAVŘENO"
 Ako akcia sa berie len vernisáž (`opening`), jeden večer. Prebiehajúce výstavy sa nezobrazujú v zozname akcií, len v detaile podniku (neskôr).
 
 ### Predvolený pohľad v appke
-Akcie s formátom `live`, `dj` alebo `music`. Ostatné formáty (divadlo, vernisáže, film, kvízy, iné) sa zapínajú filtrom.
+Akcie s formátom `concert`, `dj` alebo `music`. Ostatné formáty (divadlo, vernisáže, film, kvízy, iné) sa zapínajú filtrom.
 
 ## Pevný zoznam žánrov
 
 Platí pre `music` podniku aj `genres` akcie. Malé písmená, pomlčky, anglicky. Zostavený z `music` polí všetkých podnikov v `venues.json` (2026-11-04). Čaká na schválenie Matejom.
 
 ```
-ambient, bassline, drum-and-bass, dubstep, ebm, electro, electro-swing,
-electronic, experimental, folk, funk, hip-hop, house, indie, jazz, metal,
-pop, post-punk, punk, reggae, rock, shoegaze, tech-house, techno,
-uk-bass, uk-garage, world
+ambient, bassline, disco, drum-and-bass, dubstep, ebm, electro, electro-swing,
+electronic, experimental, folk, funk, hardstyle, hip-hop, house, indie, jazz,
+latin, metal, pop, post-punk, punk, r-n-b, reggae, rock, ska, shoegaze,
+tech-house, techno, trance, uk-bass, uk-garage, world
 ```
 
-(27 položiek — schválené Matejom 2026-11-04)
+(33 položiek — pôvodných 27 schválených Matejom 2026-11-04; pridané 2026-11-08: disco, hardstyle, latin, r-n-b, ska, trance)
 
 ## Ručné opravy klasifikácie (`data/overrides.json`)
 

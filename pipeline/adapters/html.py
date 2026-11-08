@@ -2,14 +2,16 @@
 
 import logging
 
-from pipeline.adapters import html_akropolis, html_archa, html_forum_karlin
+from pipeline.adapters import html_akropolis, html_archa, html_epic, html_forum_karlin, html_roxy
 
 log = logging.getLogger(__name__)
 
 _STRATEGIES = {
     "akropolis": html_akropolis,
     "archa": html_archa,
+    "epic": html_epic,
     "forum_karlin": html_forum_karlin,
+    "roxy": html_roxy,
 }
 
 

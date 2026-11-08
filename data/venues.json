@@ -259,5 +259,63 @@
     ],
     "active": true,
     "notes": "Kapacita: Cvent (3800 stanie, 1800 sedenie)."
+  },
+  {
+    "id": "roxy",
+    "name": "ROXY",
+    "city": "Praha",
+    "address": "Dlouhá 33, Praha 1",
+    "lat": 50.0882,
+    "lng": 14.4248,
+    "web": "https://www.roxy.cz",
+    "ra_url": "https://ra.co/clubs/5",
+    "instagram": "roxyprague",
+    "facebook": "ClubRoxyPrague",
+    "type": ["concert-club", "dance-club"],
+    "character": ["alternative", "late-night"],
+    "music": ["techno", "drum-and-bass", "house", "hip-hop"],
+    "size": "medium",
+    "capacity": 750,
+    "features": [],
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "roxy",
+        "url": "https://www.roxy.cz/club/",
+        "max_requests": 5,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita podľa Mateja 2026-11-04 (750 stánie, 330 sedenie). Adresa z roxy.cz/contact/."
+  },
+  {
+    "id": "epic",
+    "name": "EPIC Prague",
+    "city": "Praha",
+    "address": "Revoluční 1003/3, Praha 1",
+    "lat": 50.0905,
+    "lng": 14.4297,
+    "web": "https://www.epicprague.com",
+    "ra_url": null,
+    "instagram": "epic_prague",
+    "facebook": null,
+    "type": ["dance-club"],
+    "character": ["commercial", "student", "tourist", "late-night"],
+    "music": ["house", "drum-and-bass", "hardstyle", "latin", "techno", "pop"],
+    "size": "medium",
+    "capacity": 600,
+    "features": [],
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "epic",
+        "url": "https://www.epicprague.com/program",
+        "max_requests": 5,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita podľa Mateja 2026-11-04. Adresa z epicprague.com/contact."
   }
 ]

@@ -4,9 +4,9 @@ Deterministic event classification — layer 1 (no LLM).
 Rule order (stops at the first rule that sets formats):
   1. override  – manual override from data/overrides.json (highest priority)
   2. source    – section from event source mapped to a format
-  3. keyword   – keywords/patterns in event title mapped to live/dj
+  3. keyword   – keywords/patterns in event title mapped to concert/dj
   4. fallback  – 'music' if the event is known to be a music event but
-                 live/dj could not be determined; else leave formats empty
+                 concert/dj could not be determined; else leave formats empty
 
 Venue defaults were removed (task 015): venue info is now AI context, not
 a rule.  Events layer 1 cannot classify go to classify_ai (layer 2).
@@ -32,6 +32,9 @@ SECTION_MAP: dict[str, str | None] = {
     # music sections — format undetermined at this stage
     "hudba": None,
     "music": None,
+    # explicit format sections (e.g. Roxy data-hashtags used as section)
+    "concert": "concert",
+    "dj": "dj",
     # theatre
     "divadlo": "theatre",
     "theatre": "theatre",
@@ -65,11 +68,11 @@ SECTION_MAP: dict[str, str | None] = {
 }
 
 # ---------------------------------------------------------------------------
-# Config: keyword patterns for live / dj detection in event title
+# Config: keyword patterns for concert / dj detection in event title
 # Case-insensitive.  At most one side must match; conflict → no assignment.
 # ---------------------------------------------------------------------------
-LIVE_PATTERNS: list[str] = [
-    r"\blive\b",          # "live", "LIVE"
+CONCERT_PATTERNS: list[str] = [
+    r"\blive\b",          # "live", "LIVE" (keyword; format renamed to concert)
     r"/live\b",           # "/Live", "/LIVE"
     r"\(live\)",          # "(live)"
     r"\bF2\s+LIVE\b",     # "F2 LIVE" (Fuchs2 specific)
@@ -155,20 +158,20 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
         is_music_event = True
 
     # --- Rule 2: keywords in title ------------------------------------------
-    live_hit = _matches_any(title, LIVE_PATTERNS)
+    concert_hit = _matches_any(title, CONCERT_PATTERNS)
     dj_hit = _matches_any(title, DJ_PATTERNS)
 
-    if live_hit and not dj_hit:
-        event["formats"] = ["live"]
+    if concert_hit and not dj_hit:
+        event["formats"] = ["concert"]
         event["classification"] = {"method": "keyword", "confidence": 0.9}
         return
-    if dj_hit and not live_hit:
+    if dj_hit and not concert_hit:
         event["formats"] = ["dj"]
         event["classification"] = {"method": "keyword", "confidence": 0.9}
         return
-    if live_hit and dj_hit:
+    if concert_hit and dj_hit:
         # Both signals present — event is both a concert and a club night
-        event["formats"] = ["live", "dj"]
+        event["formats"] = ["concert", "dj"]
         event["classification"] = {"method": "keyword", "confidence": 0.8}
         return
 

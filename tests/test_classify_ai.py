@@ -61,7 +61,7 @@ def _mock_client(classifications, stop_reason="end_turn", in_tok=100, out_tok=50
 def test_batch_classifies_events(mock_cls):
     mock_cls.return_value = _mock_client([
         {"event_index": 0, "formats": ["dj"], "genres": ["techno"], "confidence": 0.9},
-        {"event_index": 1, "formats": ["live"], "genres": [], "confidence": 0.8},
+        {"event_index": 1, "formats": ["concert"], "genres": [], "confidence": 0.8},
     ])
 
     events = [_ev("e1", "TECHNO NIGHT"), _ev("e2", "Live Band")]
@@ -70,7 +70,7 @@ def test_batch_classifies_events(mock_cls):
     assert result[0]["formats"] == ["dj"]
     assert result[0]["genres"] == ["techno"]
     assert result[0]["classification"]["method"] == "llm"
-    assert result[1]["formats"] == ["live"]
+    assert result[1]["formats"] == ["concert"]
     assert stats["api_calls"] == 1
     assert stats["skipped"] is False
 
@@ -100,7 +100,7 @@ def test_cache_hit_skips_api(mock_cls):
 def test_changed_title_bypasses_cache(mock_cls):
     """Cache miss when event title changed — event goes to API."""
     mock_cls.return_value = _mock_client([
-        {"event_index": 0, "formats": ["live"], "genres": [], "confidence": 0.7},
+        {"event_index": 0, "formats": ["concert"], "genres": [], "confidence": 0.7},
     ])
 
     prev = [_ev("e1", "OLD TITLE", method="llm", formats=["dj"])]
@@ -111,7 +111,7 @@ def test_changed_title_bypasses_cache(mock_cls):
 
     assert stats["cache_hits"] == 0
     assert stats["api_calls"] == 1
-    assert result[0]["formats"] == ["live"]
+    assert result[0]["formats"] == ["concert"]
 
 
 @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})

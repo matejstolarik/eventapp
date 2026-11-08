@@ -22,6 +22,7 @@ Configuration:
 import json
 import logging
 import os
+import re
 import time as _time
 
 import anthropic
@@ -35,14 +36,15 @@ OUTPUT_PRICE_PER_MTOK = 0.50  # USD per million output tokens (up to 100K prompt
 BATCH_SIZE = 20
 
 VALID_FORMATS = frozenset({
-    "live", "dj", "music", "dance", "talk", "comedy", "workshop",
+    "concert", "dj", "party", "music", "dance", "talk", "comedy", "workshop",
     "theatre", "film", "opening", "quiz", "other",
 })
 VALID_GENRES = frozenset({
-    "ambient", "bassline", "drum-and-bass", "dubstep", "ebm", "electro", "electro-swing",
-    "electronic", "experimental", "folk", "funk", "hip-hop", "house", "indie", "jazz",
-    "metal", "pop", "post-punk", "punk", "reggae", "rock", "shoegaze", "tech-house",
-    "techno", "uk-bass", "uk-garage", "world",
+    "ambient", "bassline", "disco", "drum-and-bass", "dubstep", "ebm", "electro",
+    "electro-swing", "electronic", "experimental", "folk", "funk", "hardstyle",
+    "hip-hop", "house", "indie", "jazz", "latin", "metal", "pop", "post-punk",
+    "punk", "r-n-b", "reggae", "rock", "ska", "shoegaze", "tech-house", "techno",
+    "trance", "uk-bass", "uk-garage", "world",
 })
 
 _CLASSIFY_TOOL = {
@@ -99,9 +101,13 @@ _SYSTEM_PROMPT = """\
 You classify events at music and culture venues in Prague.
 
 Formats:
-- live: live musicians/band on stage
+- concert: live musicians/band on stage (solo artist, band, orchestra, live electronic set)
 - dj: DJ set or electronic music performance
-- music: musical event but cannot determine if live or DJ (use as last resort)
+- party: the main point is dancing/partying (club night, themed party, student party). \
+Combine with "dj" or "concert". Key signals: "party", "párty", "night", "rave" in title, \
+or the event is a regular club night. Example: EPIC club night = ["dj", "party"]; \
+Fuchs2 listening-oriented DJ set = ["dj"] without "party".
+- music: musical event but cannot determine if concert or DJ (use as last resort)
 - dance: dance show/performance
 - talk: lecture, debate, reading, panel discussion
 - comedy: stand-up comedy
@@ -112,10 +118,38 @@ Formats:
 - quiz: pub quiz
 - other: does not fit any category above
 
-An event may have multiple formats (e.g. ["live", "dj"] for a concert that becomes a club night).
+An event may have multiple formats (e.g. ["concert", "dj"] for a concert that becomes a club night).
 Prefer specific formats over "music" or "other".
 For genres, only add items you are confident about — empty list is fine.\
 """
+
+
+_PARTY_TITLE_RE = re.compile(
+    r"\b(party|párty|night|rave|noc)\b", re.IGNORECASE
+)
+
+
+def add_party_retroactively(events: list[dict]) -> int:
+    """Add 'party' to cached llm-classified events whose title signals a club night.
+
+    One-time retroactive step: existing events classified before 'party' was
+    introduced get 'party' added when the title clearly indicates a club night.
+    Returns the number of events updated.
+    """
+    updated = 0
+    for ev in events:
+        cls = ev.get("classification") or {}
+        if cls.get("method") != "llm":
+            continue
+        fmts = ev.get("formats", [])
+        if "party" in fmts:
+            continue
+        if not any(f in fmts for f in ("dj", "concert", "music")):
+            continue
+        if _PARTY_TITLE_RE.search(ev.get("title", "")):
+            ev["formats"] = list(fmts) + ["party"]
+            updated += 1
+    return updated
 
 
 def classify_events_ai(

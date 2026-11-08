@@ -14,7 +14,7 @@ from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
 from pipeline.classify import classify_events
-from pipeline.classify_ai import classify_events_ai
+from pipeline.classify_ai import classify_events_ai, add_party_retroactively
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ def load_previous_events() -> dict:
                 data = json.loads(resp.read())
             events = data.get("events", [])
             log.info("Previous events: %d loaded from %s", len(events), url)
-            return {e["id"]: e for e in events}
+            return {e["id"]: _migrate_event(e) for e in events}
         except Exception as exc:
             log.info("Previous events not available (%s) — starting without state", exc)
             return {}
@@ -63,7 +63,17 @@ def load_previous_events() -> dict:
         return {}
     with EVENTS_OUT.open(encoding="utf-8") as f:
         data = json.load(f)
-    return {e["id"]: e for e in data.get("events", [])}
+    return {e["id"]: _migrate_event(e) for e in data.get("events", [])}
+
+
+def _migrate_event(e: dict) -> dict:
+    """Apply in-place migrations for schema changes (run once on load)."""
+    # live → concert rename (task 019, 2026-11-08)
+    fmts = e.get("formats")
+    if fmts and "live" in fmts:
+        e = dict(e)
+        e["formats"] = ["concert" if f == "live" else f for f in fmts]
+    return e
 
 
 def main():
@@ -116,6 +126,9 @@ def main():
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
+    party_added = add_party_retroactively(events)
+    if party_added:
+        log.info("add_party_retroactively: added 'party' to %d existing events", party_added)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
