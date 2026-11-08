@@ -3,6 +3,8 @@ import pathlib
 
 import pytest
 
+TEST_TODAY = datetime.date(2026, 11, 1)
+
 from pipeline.adapters.jsonld import (
     _fetch_listing_pages,
     _fetch_mec_detail_times,
@@ -94,7 +96,7 @@ def test_meetfactory_pagination_fetches_all_pages():
 
     events = _fetch_listing_pages(VENUE_MF, SOURCE_MF,
                                   fixture("meetfactory_hudba_p1.html"),
-                                  _DictFetcher())
+                                  _DictFetcher(), today=TEST_TODAY)
     titles = [e.title for e in events]
     assert "Page1 Event" in titles
     assert "Page2 Event" in titles

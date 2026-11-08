@@ -104,9 +104,11 @@ def fetch(venue: dict, source_config: dict) -> list:
     return all_events
 
 
-def parse(venue: dict, source_config: dict, html: str) -> list:
+def parse(venue: dict, source_config: dict, html: str,
+          today: datetime.date | None = None) -> list:
     """Parse a listing HTML page or fragment (no HTTP; used in tests)."""
-    today = datetime.date.today()
+    if today is None:
+        today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     cutoff = today + datetime.timedelta(days=180)
     soup = BeautifulSoup(html, "html.parser")

@@ -60,6 +60,15 @@ Workflow: `.github/workflows/daily.yml`. Spúšťa sa denne o **04:17 UTC** (05:
 
 Pipeline stiahne predošlý `events.json` zo zverejnenej adresy (`PREVIOUS_EVENTS_URL` env var → `https://matejstolarik.github.io/eventapp/events.json`). Na prvom behu vráti 404, pipeline začne bez stavu a zaloguje to.
 
+### Zlyhanie workflow — e-mailové notifikácie
+
+GitHub posiela e-mail vlastníkovi repozitára (Matejovi) pri každom zlyhaní plánovaného (`schedule`) behu. Toto je **zámerné správanie**: testy sú súčasťou pipeline a ich zlyhanie (napr. dátumovo-závislé testy) zablokuje publikovanie dát. Zlyhanie = pipeline nepublikovala — e-mail je správny poplach.
+
+**Dôsledky pre CI behy:**
+- Ak testy zlyhajú, `events.json` sa nezverejní (GitHub Actions zastaví pri zlyhaní kroku).
+- Stará verzia `events.json` zostáva na GitHub Pages, kým beh neuspeje.
+- Fix je commit s opravou + push → GitHub automaticky spustí nový beh pri ďalšom plánovanom čase alebo manuálne cez `workflow_dispatch`.
+
 ### Automatické vypnutie plánovaného workflow
 
 Zdroj: [GitHub Docs — schedule event](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule)

@@ -74,9 +74,11 @@ def fetch(venue: dict, source_config: dict) -> list:
 
 
 def parse(venue: dict, source_config: dict, html: str,
-          vstupne: dict, genre_cfg: dict | None = None) -> list:
+          vstupne: dict, genre_cfg: dict | None = None,
+          today: datetime.date | None = None) -> list:
     """Parse a single listing page.  Used in tests (no HTTP)."""
-    today = datetime.date.today()
+    if today is None:
+        today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     cutoff = today + datetime.timedelta(days=180)
     gc = genre_cfg or {"section": source_config.get("section")}

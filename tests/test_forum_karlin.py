@@ -9,6 +9,8 @@ from pipeline.models import RawEvent
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 
+TEST_TODAY = datetime.date(2026, 11, 1)
+
 VENUE = {"id": "forum-karlin", "character": []}
 SOURCE = {
     "type": "html",
@@ -51,47 +53,48 @@ def _stub_event(**kwargs) -> RawEvent:
 # ── listing ───────────────────────────────────────────────────────────────────
 
 def test_forum_karlin_parses_events():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     assert len(events) > 5
 
 
 def test_forum_karlin_titles_non_empty():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     for ev in events:
         assert ev.title and len(ev.title) > 1
 
 
 def test_forum_karlin_dates_valid():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
+    yesterday = TEST_TODAY - datetime.timedelta(days=1)
+    cutoff = TEST_TODAY + datetime.timedelta(days=180)
     for ev in events:
         d = datetime.date.fromisoformat(ev.date)
-        today = datetime.date.today()
-        assert d >= today - datetime.timedelta(days=1)
-        assert d <= today + datetime.timedelta(days=180)
+        assert d >= yesterday
+        assert d <= cutoff
 
 
 def test_forum_karlin_start_time_none_from_listing():
     """Listing has no time — start_time should be None before detail enrichment."""
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     for ev in events:
         assert ev.start_time is None
 
 
 def test_forum_karlin_detail_url_present():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     for ev in events:
         url = ev.source.get("url", "")
         assert "forumkarlin.cz" in url
 
 
 def test_forum_karlin_venue_id():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     for ev in events:
         assert ev.venue_id == "forum-karlin"
 
 
 def test_forum_karlin_shinedown_in_listing():
-    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"))
+    events = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program.html"), today=TEST_TODAY)
     assert any("Shinedown" in ev.title for ev in events), "Shinedown should appear in Nov listing"
 
 
@@ -175,10 +178,9 @@ _MINIMAL_DETAIL = """<!DOCTYPE html><html><body>
 
 
 def test_minimal_listing_count():
-    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING)
-    today = datetime.date.today()
-    cutoff = today + datetime.timedelta(days=180)
-    yesterday = today - datetime.timedelta(days=1)
+    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING, today=TEST_TODAY)
+    yesterday = TEST_TODAY - datetime.timedelta(days=1)
+    cutoff = TEST_TODAY + datetime.timedelta(days=180)
     in_window = sum(1 for d in [
         datetime.date(2026, 11, 15),
         datetime.date(2026, 11, 20),
@@ -189,10 +191,9 @@ def test_minimal_listing_count():
 
 
 def test_minimal_listing_band_one():
-    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING)
+    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING, today=TEST_TODAY)
     ev = next((e for e in events if e.title == "Band One"), None)
-    if ev is None:
-        pytest.skip("Band One is outside the +180 day window")
+    assert ev is not None, "Band One should be in window for TEST_TODAY"
     assert ev.date == "2026-11-15"
     assert ev.start_time is None
     assert ev.sold_out is None
@@ -201,26 +202,23 @@ def test_minimal_listing_band_one():
 
 
 def test_minimal_listing_sold_out():
-    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING)
+    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING, today=TEST_TODAY)
     ev = next((e for e in events if e.title == "Band Two"), None)
-    if ev is None:
-        pytest.skip("Band Two is outside the +180 day window")
+    assert ev is not None, "Band Two should be in window for TEST_TODAY"
     assert ev.sold_out is True
 
 
 def test_minimal_listing_cancelled():
-    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING)
+    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING, today=TEST_TODAY)
     ev = next((e for e in events if e.title == "Band Three"), None)
-    if ev is None:
-        pytest.skip("Band Three is outside the +180 day window")
+    assert ev is not None, "Band Three should be in window for TEST_TODAY"
     assert ev.status == "cancelled"
 
 
 def test_minimal_listing_jiz_brzy_no_change():
-    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING)
+    events = parse_listing(VENUE, SOURCE, _MINIMAL_LISTING, today=TEST_TODAY)
     ev = next((e for e in events if e.title == "Band Four"), None)
-    if ev is None:
-        pytest.skip("Band Four is outside the +180 day window")
+    assert ev is not None, "Band Four should be in window for TEST_TODAY"
     assert ev.status == "scheduled"
     assert ev.sold_out is None
 

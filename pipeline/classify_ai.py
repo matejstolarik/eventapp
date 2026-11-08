@@ -22,7 +22,6 @@ Configuration:
 import json
 import logging
 import os
-import re
 import time as _time
 
 import anthropic
@@ -123,33 +122,6 @@ Prefer specific formats over "music" or "other".
 For genres, only add items you are confident about — empty list is fine.\
 """
 
-
-_PARTY_TITLE_RE = re.compile(
-    r"\b(party|párty|night|rave|noc)\b", re.IGNORECASE
-)
-
-
-def add_party_retroactively(events: list[dict]) -> int:
-    """Add 'party' to cached llm-classified events whose title signals a club night.
-
-    One-time retroactive step: existing events classified before 'party' was
-    introduced get 'party' added when the title clearly indicates a club night.
-    Returns the number of events updated.
-    """
-    updated = 0
-    for ev in events:
-        cls = ev.get("classification") or {}
-        if cls.get("method") != "llm":
-            continue
-        fmts = ev.get("formats", [])
-        if "party" in fmts:
-            continue
-        if not any(f in fmts for f in ("dj", "concert", "music")):
-            continue
-        if _PARTY_TITLE_RE.search(ev.get("title", "")):
-            ev["formats"] = list(fmts) + ["party"]
-            updated += 1
-    return updated
 
 
 def classify_events_ai(
@@ -265,18 +237,32 @@ def _events_needing_ai(events: list[dict]) -> list[dict]:
     return result
 
 
+_MUSIC_FORMATS = frozenset({"dj", "concert", "music"})
+
+
 def _build_ai_cache(previous_events: list[dict]) -> dict:
-    """Build event_id → cached AI result from a previous pipeline output."""
+    """Build event_id → cached AI result from a previous pipeline output.
+
+    Events classified by LLM without 'party' in their formats are excluded from
+    the cache so the AI re-evaluates them for party on the next run.  This is a
+    one-time trigger: once the AI assigns (or withholds) 'party', the result is
+    cached normally on subsequent runs.
+    """
     cache: dict[str, dict] = {}
     for ev in previous_events:
         cls = ev.get("classification")
-        if cls and cls.get("method") == "llm":
-            cache[ev["id"]] = {
-                "title": ev.get("title"),
-                "formats": ev.get("formats", []),
-                "genres": ev.get("genres", []),
-                "confidence": cls.get("confidence", 0.5),
-            }
+        if not (cls and cls.get("method") == "llm"):
+            continue
+        fmts = ev.get("formats", [])
+        # Skip music events whose party status has not yet been assessed by AI
+        if any(f in _MUSIC_FORMATS for f in fmts) and "party" not in fmts:
+            continue
+        cache[ev["id"]] = {
+            "title": ev.get("title"),
+            "formats": fmts,
+            "genres": ev.get("genres", []),
+            "confidence": cls.get("confidence", 0.5),
+        }
     return cache
 
 

@@ -14,7 +14,7 @@ from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
 from pipeline.classify import classify_events
-from pipeline.classify_ai import classify_events_ai, add_party_retroactively
+from pipeline.classify_ai import classify_events_ai
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -126,9 +126,6 @@ def main():
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
-    party_added = add_party_retroactively(events)
-    if party_added:
-        log.info("add_party_retroactively: added 'party' to %d existing events", party_added)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)

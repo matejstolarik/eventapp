@@ -420,13 +420,14 @@ def _parse_event_time_div(text: str) -> "tuple[str | None, str | None]":
 # ── listing strategy (MeetFactory, Čitárna) ───────────────────────────────────
 
 def _fetch_listing_pages(venue: dict, source_config: dict, first_html: str,
-                         fetcher) -> list:
+                         fetcher, today: datetime.date | None = None) -> list:
     """Fetch all paginated listing pages (endless_more pattern) and return events.
 
     Stops when there is no more 'endless_more' link, the request limit is hit,
     or every event on the last page is beyond the +180-day window.
     """
-    today = datetime.date.today()
+    if today is None:
+        today = datetime.date.today()
     yesterday = today - datetime.timedelta(days=1)
     cutoff = today + datetime.timedelta(days=180)
     base_url = source_config["url"]

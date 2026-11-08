@@ -82,14 +82,14 @@ def test_cache_hit_skips_api(mock_cls):
     client = MagicMock()
     mock_cls.return_value = client
 
-    prev = [_ev("e1", "TECHNO NIGHT", method="llm", formats=["dj"], genres=["techno"])]
+    prev = [_ev("e1", "TECHNO NIGHT", method="llm", formats=["dj", "party"], genres=["techno"])]
     prev[0]["classification"]["confidence"] = 0.9
 
     events = [_ev("e1", "TECHNO NIGHT")]
     result, stats = classify_events_ai(events, VENUES, previous_events=prev)
 
     client.messages.create.assert_not_called()
-    assert result[0]["formats"] == ["dj"]
+    assert result[0]["formats"] == ["dj", "party"]
     assert result[0]["genres"] == ["techno"]
     assert stats["cache_hits"] == 1
     assert stats["api_calls"] == 0

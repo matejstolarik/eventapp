@@ -12,6 +12,10 @@ from pipeline.adapters.html_akropolis import (
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 
+# Fixed "today" so tests don't depend on the real clock — all fixture events
+# (Nov 2026 – Dec 2026) fall within the [yesterday, +180d] window.
+TEST_TODAY = datetime.date(2026, 11, 1)
+
 VENUE = {"id": "palac-akropolis", "character": []}
 SOURCE = {
     "type": "html",
@@ -53,7 +57,7 @@ def test_parse_time_room(text, exp_time, exp_room):
 # ── _parse_date_no_year ───────────────────────────────────────────────────────
 
 def test_date_no_year_current_year():
-    today = datetime.date.today()
+    today = TEST_TODAY
     # A date well in the future (but < 180 days) should use the current year
     future = today + datetime.timedelta(days=30)
     text = f"{future.day}. {future.month}."
@@ -78,7 +82,7 @@ def test_date_no_year_rollover_to_next_year():
 
 def test_date_no_year_beyond_cutoff_returns_none():
     """A date beyond +180 days returns None (outside window)."""
-    today = datetime.date.today()
+    today = TEST_TODAY
     yesterday = today - datetime.timedelta(days=1)
     cutoff = today + datetime.timedelta(days=180)
     far = today + datetime.timedelta(days=200)
@@ -107,12 +111,14 @@ def test_date_no_year_january_from_december():
 # ── parse (single page) ───────────────────────────────────────────────────────
 
 def test_akropolis_parses_three_events():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     assert len(events) == 3
 
 
 def test_akropolis_title_and_date():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.title == "KAFKA BAND HRAJE KAFKU"
     assert kafka.date.endswith("-11-04")
@@ -120,54 +126,62 @@ def test_akropolis_title_and_date():
 
 def test_akropolis_html_entities_in_title():
     """HTML entity ► in title should be decoded (title field is raw; normalize decodes)."""
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     nebojsy = next(e for e in events if "NEBOJSY" in e.title)
     # The raw title comes from .get_text(strip=True) so BS4 already decodes entities
     assert "►" in nebojsy.title or "KUCHYŇSKÉ" in nebojsy.title
 
 
 def test_akropolis_time_and_room():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.start_time == "19:30"
     assert kafka.room == "Velký sál"
 
 
 def test_akropolis_section():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     for e in events:
         assert e.source["section"] == "hudba"
 
 
 def test_akropolis_sold_out():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     nebojsy = next(e for e in events if "NEBOJSY" in e.title)
     assert nebojsy.sold_out is True
     assert nebojsy.ticket_url is None
 
 
 def test_akropolis_kup_ted_ticket_url():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.sold_out is False
     assert kafka.ticket_url == "https://palacakropolis.cz/work/33298?event_id=40205&no=62&page_id=42027"
 
 
 def test_akropolis_image_absolute():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.image_url and kafka.image_url.startswith("https://palacakropolis.cz")
 
 
 def test_akropolis_detail_url_in_source():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert "event_id=40205" in kafka.source["url"]
     assert "page_id=33824" in kafka.source["url"]
 
 
 def test_akropolis_event_id_in_source():
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.source["external_id"] == "40205"
 
@@ -177,7 +191,8 @@ def test_akropolis_event_id_in_source():
 def test_own_rooms_filters_external_venue():
     # Velký sál only → DECEMBER CONCERT (Malá scéna) is skipped
     source_strict = {**SOURCE, "own_rooms": ["Velký sál"]}
-    events = parse(VENUE, source_strict, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA)
+    events = parse(VENUE, source_strict, fixture("akropolis_hudba.html"), vstupne(), GENRE_HUDBA,
+                   today=TEST_TODAY)
     assert all("DECEMBER" not in e.title for e in events), "external-venue event should be filtered"
     assert any("KAFKA" in e.title for e in events), "own-venue event should be kept"
 
@@ -215,7 +230,8 @@ def test_own_rooms_external_room_skipped():
 
 def test_vstupne_code_3_free():
     v = {**vstupne(), "40205": {"no": 3}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.free is True
     assert kafka.sold_out is False
@@ -224,7 +240,8 @@ def test_vstupne_code_3_free():
 
 def test_vstupne_code_4_coming_soon():
     v = {**vstupne(), "40205": {"no": 4}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     # Not yet on sale: sold_out stays None, no ticket_url, status scheduled
     assert kafka.sold_out is None
@@ -234,14 +251,16 @@ def test_vstupne_code_4_coming_soon():
 
 def test_vstupne_code_5_cancelled():
     v = {**vstupne(), "40205": {"no": 5}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.status == "cancelled"
 
 
 def test_vstupne_code_6_postponed_stays_scheduled():
     v = {**vstupne(), "40205": {"no": 6}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.status == "scheduled"
 
@@ -249,7 +268,8 @@ def test_vstupne_code_6_postponed_stays_scheduled():
 def test_vstupne_code_11_external_url():
     ext_url = "https://goout.net/tickets/12345"
     v = {**vstupne(), "40205": {"no": 11, "url": ext_url}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.sold_out is False
     assert kafka.ticket_url == ext_url
@@ -257,7 +277,8 @@ def test_vstupne_code_11_external_url():
 
 def test_vstupne_unknown_code_no_crash():
     v = {**vstupne(), "40205": {"no": 99}}
-    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA)
+    events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
+                   today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.status == "scheduled"
     assert kafka.sold_out is None
@@ -279,13 +300,13 @@ def test_akropolis_pagination_fetches_all_pages():
             return pages[url]
 
     from pipeline.adapters.html_akropolis import _fetch_genre
-    import datetime as _dt
-    today = _dt.date.today()
+    yesterday = TEST_TODAY - datetime.timedelta(days=1)
+    cutoff = TEST_TODAY + datetime.timedelta(days=180)
     events = _fetch_genre(
         VENUE, SOURCE, GENRE_HUDBA, _DictFetcher(),
         vstupne(),
-        today - _dt.timedelta(days=1),
-        today + _dt.timedelta(days=180),
+        yesterday,
+        cutoff,
     )
     titles = [e.title for e in events]
     assert any("KAFKA" in t for t in titles), "page 1 event missing"
