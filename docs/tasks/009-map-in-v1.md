@@ -12,7 +12,8 @@ Ak je mapa v `project.md` ešte v časti „Mimo v1“ alebo v backlogu, presuň
 - **Značka:** pilulka vo farbe typu akcie s ikonou typu a názvom podniku. Čas na značke nie je.
 - **Zhlukovanie (clustering) nie je.** Pri oddialení sú body bez textu a názvy tam, kde je miesto.
 - **Dva podniky blízko seba sa nikdy nespájajú do jednej značky.** Ak sa pilulky prekrývajú, posunú sa nad seba (každá ukazuje na svoj bod). Žiadna akcia nesmie zmiznúť len preto, že sa jej značka nezmestila.
-- **Ovládanie hore:** „Dnes ▾“ s výberom jedného dňa, prepínač Všetko | Moje, filter podľa štítkov (formát vrátane `party`, žáner, typ podniku, charakter, veľkosť). Filtre sa dajú kombinovať.
+- **Ovládanie hore:** „Dnes ▾“ s výberom jedného dňa, prepínač Všetko | Obľúbené (premenované z „Moje“ 2026-11-08), filter podľa štítkov (formát vrátane `party`, žáner, typ podniku, charakter, veľkosť). Filtre sa dajú kombinovať.
+- **Farby:** farba nesie len typ akcie (koncert fialová, párty oranžová, dj tyrkysová, kultúra limetková); farba appky (ovládanie) je ružová. Presné hodnoty v artefakte.
 - **Panel po ťuknutí:** malá karta nad spodnou lištou s obrázkom, názvom, „podnik · čas · vzdialenosť“ a farebnými štítkami. Ťuknutím na kartu sa otvorí stránka akcie.
 - **Poloha používateľa:** len so súhlasom. Bez súhlasu mapa funguje, iba bez vzdialenosti.
 - **Vizuálny návrh:** artefakt „EventApp – mapa“ (odkaz má Matej). Detaily vzhľadu nie sú súčasťou tejto úlohy.
