@@ -20,7 +20,7 @@ Nový `docs/review/classification-RRRR-MM-DD.md` zo **zverejneného** `events.js
 
 ## Report
 
-Dátum: 2026-11-08. Commit: (viď nižšie po pushi).
+Dátum: 2026-11-08. Commit: 47c6cf1.
 
 ### Čo je hotové
 
