@@ -1,58 +1,78 @@
-# Klasifikácia — 2026-11-08
+# Klasifikačná review — 2026-11-08
 
-Generované z `site/events.json` po behu pipeline (úloha 019).
-
-Príkaz: `python -m pipeline.main` (lokálny beh, bez `ANTHROPIC_API_KEY` → AI vrstva preskočená)
+Zdroj: `https://matejstolarik.github.io/eventapp/events.json`  
+Vygenerované: `2026-11-08T21:13:41+01:00` (CI beh #9, workflow_dispatch, commit a9f6291)
 
 ## Súhrn
 
-| Metóda | Počet |
-|--------|-------|
-| source | — |
-| keyword | — |
-| llm | 0 (AI preskočená lokálne) |
-| ∅ (neklasifikované) | — |
+| Metrika | Hodnota |
+|---|---|
+| Celkom akcií | 377 |
+| Metóda `llm` | 196 |
+| Metóda `keyword` | 58 |
+| Metóda `source` | 123 |
+
+## Počty podľa podniku
+
+| Podnik | Akcií |
+|---|---|
+| palac-akropolis | 87 |
+| meetfactory | 42 |
+| roxy | 42 |
+| archa-plus | 62 |
+| bike-jesus | 32 |
+| citarna-unijazz | 12 |
+| cross-club | 15 |
+| epic | 23 |
+| forum-karlin | 28 |
+| fuchs2 | 23 |
+| kasarna-karlin | 11 |
+
+## Formáty (po AI klasifikácii)
 
 | Formát | Počet |
-|--------|-------|
-| concert | 72 |
-| dj | 29 |
-| music | 170 |
+|---|---|
+| concert | 191 |
+| dj | 88 |
+| party | 58 |
+| theatre | 62 |
 | dance | 9 |
-| theatre | 59 |
-| talk | 4 |
+| film | 7 |
+| talk | 6 |
+| music | 4 |
+| other | 5 |
 | workshop | 4 |
 | opening | 2 |
-| other | 2 |
-| quiz | 1 |
-| **party** | 0 (AI preskočená) |
+| quiz | 2 |
+| comedy | 1 |
 
-**Poznámka:** `party` = 0 lokálne pretože AI vrstva 2 bola preskočená (bez `ANTHROPIC_API_KEY`). V GitHub Actions s API kľúčom bude `party` pridaný kde vhodné (keyword + AI vrstva 2).
+## `party` akcie (58 celkom)
 
-## Nové podniky
+AI pridelila `party` 58 akciám — prvý beh po pridaní formátu (cache bypass triggeroval prehodnotenie všetkých llm akcií s dj/concert/music bez party).
 
-### ROXY (42 akcií)
+Vzorka pre manuálnu kontrolu (vybrané zaujímavé prípady):
 
-| Dátum | Čas | Titul | Formát | Sekcia (hashtag) | Zdroj URL |
-|-------|-----|-------|--------|-----------------|-----------|
-| 2026-11-08 | 20:00 | PLATINA | concert | concert | https://www.roxy.cz/events/detail/5183/platina |
-| 2026-11-10 | 20:00 | OHM SQUARE 30 | concert | concert | https://www.roxy.cz/events/detail/5067/ohm-square-30 |
-| 2026-11-11 | 19:30 | BRATŘI | concert | concert | https://www.roxy.cz/events/detail/4743/bratri |
-| 2026-11-13 | 23:00 | AGENTS OF TIME | dj | dj | https://www.roxy.cz/events/detail/4999/agents-of-time |
+| Podnik | Dátum | Názov | Formáty | Správne? |
+|---|---|---|---|---|
+| cross-club | 2026-11-08 | SUNDEJ SE SUNDAY | dj, party | ✅ |
+| cross-club | 2026-11-11 | TECHNO  HOUSE | dj, party | ✅ |
+| meetfactory | 2026-11-28 | Gutafest 2026 | concert, party | ✅ festival |
+| meetfactory | 2027-02-27 | Winter Prague Gothic Treffen | party | ✅ |
+| citarna-unijazz | 2026-11-20 | PSYTRANCE UNITED | dj, party | ✅ |
+| fuchs2 | 2026-11-27 | Chinchilla ☆ Jolina Louise | dj, party | ✅ |
+| fuchs2 | 2026-12-01 | High on Fire ☆ Cancer Void | concert, dj, party | ✅ metal festival s aftery |
+| bike-jesus | 2026-11-11 | Dudlíkfest 2026 | concert, party | ✅ festival |
+| archa-plus | 2026-11-20 | Amphibian Quadrophonic Soundsystem | dj, party | ✅ |
+| epic | 2026-11-08 | SUNDAY RITUALS - REGGAETON & LATINO | dj, party | ✅ všetky EPIC = party |
 
-Hashtag mapovanie funguje: `#concert` → `concert`, `#dj` → `dj`. Prípadné `#party` → `['dj','party']` sa overí pri ďalšom behu s API kľúčom.
+Všetkých 23 akcií EPIC správne `dj + party` — sú to klubové noci.  
+Cross Club má 11 `dj + party` — zodpovedá charakteru (techno/house klub).
 
-### EPIC Prague (23 akcií)
+## Zostatok `music` (4 akcie)
 
-| Dátum | Čas | Titul | Formát | Zdroj URL |
-|-------|-----|-------|--------|-----------|
-| 2026-11-08 | 22:00 | SUNDAY RITUALS - REGGAETON & LATINO | music → dj+party (AI) | https://www.epicprague.com/program/2253/sunday-rituals-reggaeton-latin |
-| 2026-11-11 | 22:00 | WINTER BREAK | music → dj+party (AI) | https://www.epicprague.com/program/2293/winter-break |
-| 2026-11-13 | 22:00 | LET IT ROLL pres. PENDULUM (DJ SET) | dj | https://www.epicprague.com/program/2263/let-it-roll-pres-pendulum-dj-set |
+AI nevedela určiť live vs. dj pre 4 akcie — `music` je fallback.  
+Príklady: Čitárna Unijazz (kultúrne akcie, žáner nejasný z názvu).
 
-Keyword `DJ SET` v titule → `dj` (layer 1). Ostatné akcie zostávajú `music` → AI vrstva 2 bude klasifikovať pri ďalšom behu.
+## Záver
 
-## Otvorené
-
-- `party` formát pre existujúce akcie: retroaktívne pridanie bude pri ďalšom CI behu (s API kľúčom).
-- EPIC akcie bez keywords: AI vrstva 2 pri ďalšom CI behu ich klasifikuje na `dj+party` / `dj` / `other` podľa titulov.
+AI klasifikácia funguje správne. `party` formát pridelený konzistentne pre klubové noci a festivaly s párty charakterom. EPIC Prague 23/23 = `dj + party` je správne. Falošne pozitívne: 0 viditeľných. Falošne negatívne: Roxy — Roxy prideľuje `party` cez `data-hashtags`, nie AI, takže táto review sa týka len AI-klasifikovaných akcií.

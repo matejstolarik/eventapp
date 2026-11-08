@@ -47,11 +47,53 @@ Metódy: source=123, keyword=58, null=195 (195 pôjde na AI v CI).
 
 ### 3. CI overenie
 
-**Čaká sa na CI beh** (workflow_dispatch alebo nasledujúci plánovaný beh). Report bude doplnený po úspešnom CI behu s:
-- odkazom na beh
-- počtami podľa podniku a formátu zo zverejneného `events.json`
-- cenou AI klasifikácie
-- novým `docs/review/classification-2026-11-08.md`
+**CI beh #9 — Success ✅** — workflow_dispatch, 2026-11-08, 7m 13s.  
+URL: https://github.com/matejstolarik/eventapp/actions/runs/42518415085  
+Zverejnené: `https://matejstolarik.github.io/eventapp/events.json` (21:13:41 CET)
+
+**Výsledky zo zverejneného `events.json`** (príkaz: `Invoke-WebRequest "https://matejstolarik.github.io/eventapp/events.json" | ConvertFrom-Json`):
+
+Celkom: **377 eventov**.
+
+| Podnik | Akcií |
+|---|---|
+| palac-akropolis | 87 |
+| archa-plus | 62 |
+| meetfactory | 42 |
+| roxy | 42 |
+| bike-jesus | 32 |
+| forum-karlin | 28 |
+| epic | 23 |
+| fuchs2 | 23 |
+| cross-club | 15 |
+| kasarna-karlin | 11 |
+| citarna-unijazz | 12 |
+
+| Formát | Počet |
+|---|---|
+| concert | 191 |
+| theatre | 62 |
+| dj | 88 |
+| **party** | **58** |
+| dance | 9 |
+| film | 7 |
+| talk | 6 |
+| music | 4 |
+| other | 5 |
+| workshop | 4 |
+| opening | 2 |
+| quiz | 2 |
+| comedy | 1 |
+
+| Metóda | Počet |
+|---|---|
+| llm | 196 |
+| source | 123 |
+| keyword | 58 |
+
+AI bežala (`llm=196`). `party=58` — vrátane všetkých 23 EPIC akcií (`dj + party`) a 11 Cross Club nočí. Logy s cenou AI nie sú dostupné bez prihlásenia do GitHub Actions; odhadovaná cena z task 019 metriky (~$0.003 pri 196 LLM volaniach).
+
+**Klasifikačná review:** `docs/review/classification-2026-11-08.md`
 
 ### Rozhodnutia urobené samostatne
 
