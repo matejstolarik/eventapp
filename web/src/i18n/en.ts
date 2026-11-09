@@ -28,7 +28,7 @@ export const en = {
     free: 'Free',
     soldOut: 'Sold out',
     linkCopied: 'Link copied',
-    notFound: 'This event has already happened',
+    notFound: 'This event has ended',
     backToMap: 'Back to map',
     noDescription: ''
   },

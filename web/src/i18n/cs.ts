@@ -28,7 +28,7 @@ export const cs = {
     free: 'Zdarma',
     soldOut: 'Vyprodáno',
     linkCopied: 'Odkaz zkopírován',
-    notFound: 'Akce již proběhla',
+    notFound: 'Akce už proběhla',
     backToMap: 'Zpět na mapu',
     noDescription: ''
   },

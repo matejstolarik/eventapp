@@ -23,17 +23,9 @@ export interface MarkerData {
   stackOffset: number
 }
 
-/** Creates the pill marker DOM element. */
-export function createPillElement(data: MarkerData, isSelected: boolean, isDotMode: boolean): HTMLElement {
+function buildPillContent(el: HTMLElement, data: MarkerData, isSelected: boolean, isDotMode: boolean): void {
   const color = EVENT_TYPE_COLOR[data.eventType]
   const dark = EVENT_TYPE_DARK[data.eventType]
-
-  const el = document.createElement('div')
-  el.className = 'pill-marker'
-    + (data.isLive ? ' live' : '')
-    + (isSelected ? ' selected' : '')
-    + (isDotMode ? ' dot-mode' : '')
-  el.style.setProperty('--live-color', color)
 
   if (isSelected) {
     el.style.background = '#F4F2FF'
@@ -43,54 +35,97 @@ export function createPillElement(data: MarkerData, isSelected: boolean, isDotMo
     el.style.color = dark
   }
 
-  // Icon circle
+  el.innerHTML = ''
+
   const iconDiv = document.createElement('span')
   iconDiv.className = 'pill-icon'
   iconDiv.style.background = isSelected ? color : dark
   iconDiv.innerHTML = ICON_SVG[data.eventType](isSelected ? dark : color)
   el.appendChild(iconDiv)
 
-  // Name
   const nameSpan = document.createElement('span')
   nameSpan.className = 'pill-name'
   nameSpan.textContent = data.name
   el.appendChild(nameSpan)
 
-  // Heart (favorites)
   if (data.isFavorite && !isDotMode) {
     const heart = document.createElement('span')
     heart.className = 'pill-heart'
-    heart.style.color = isSelected ? dark : dark
+    heart.style.color = dark
     heart.innerHTML = HEART_SVG
     el.appendChild(heart)
   }
 
-  // Extra count badge
   if (data.extraCount > 0 && !isDotMode) {
     const badge = document.createElement('span')
     badge.className = 'pill-extra'
     badge.textContent = `+${data.extraCount}`
     el.appendChild(badge)
   }
+}
 
+/** Creates the pill marker DOM element. */
+export function createPillElement(data: MarkerData, isSelected: boolean, isDotMode: boolean): HTMLElement {
+  const el = document.createElement('div')
+  el.className = 'pill-marker'
+    + (data.isLive ? ' live' : '')
+    + (isSelected ? ' selected' : '')
+    + (isDotMode ? ' dot-mode' : '')
+  el.dataset.eventType = data.eventType
+  buildPillContent(el, data, isSelected, isDotMode)
   return el
 }
 
-/** Groups venues by coordinates and assigns stack offsets.
- * Venues at the same lat/lng are stacked vertically. */
-export function assignStackOffsets(markers: MarkerData[]): MarkerData[] {
-  const groups = new Map<string, MarkerData[]>()
-  for (const m of markers) {
-    const key = `${m.lat.toFixed(6)},${m.lng.toFixed(6)}`
-    const group = groups.get(key) ?? []
-    group.push(m)
-    groups.set(key, group)
-  }
+/** Updates an existing pill element in-place. Uses classList.toggle so MapLibre's
+ * positioning classes (maplibregl-marker, -anchor-bottom) are never removed. */
+export function updatePillElement(el: HTMLElement, data: MarkerData, isSelected: boolean, isDotMode: boolean): void {
+  el.classList.toggle('live', data.isLive)
+  el.classList.toggle('selected', isSelected)
+  el.classList.toggle('dot-mode', isDotMode)
+  el.dataset.eventType = data.eventType
+  buildPillContent(el, data, isSelected, isDotMode)
+}
 
-  return markers.map(m => {
-    const key = `${m.lat.toFixed(6)},${m.lng.toFixed(6)}`
-    const group = groups.get(key)!
-    const idx = group.indexOf(m)
-    return { ...m, stackOffset: idx * 48 }
-  })
+interface OffsetMarker {
+  el: HTMLElement
+  setOffset: (offset: [number, number]) => void
+}
+
+function rectsOverlap(a: DOMRect, b: DOMRect): boolean {
+  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom)
+}
+
+/** Resolves marker overlaps using actual screen bounding rects.
+ * Resets all offsets to 0, then pushes overlapping markers upward. */
+export function resolveMarkerOverlaps(entries: OffsetMarker[]): void {
+  if (entries.length < 2) return
+
+  for (const { setOffset } of entries) setOffset([0, 0])
+
+  // Sort bottom-to-top (highest .top value = lower on screen = process first)
+  const sorted = [...entries].sort((a, b) =>
+    b.el.getBoundingClientRect().top - a.el.getBoundingClientRect().top
+  )
+
+  const placed: HTMLElement[] = []
+
+  for (const { el, setOffset } of sorted) {
+    let offsetY = 0
+
+    for (let pass = 0; pass < 20; pass++) {
+      const myRect = el.getBoundingClientRect()
+      let conflict: DOMRect | null = null
+      for (const other of placed) {
+        const r = other.getBoundingClientRect()
+        if (rectsOverlap(myRect, r)) { conflict = r; break }
+      }
+      if (!conflict) break
+
+      // Push up by overlap + 4px gap
+      offsetY -= myRect.bottom - conflict.top + 4
+      setOffset([0, offsetY])
+    }
+
+    placed.push(el)
+  }
 }

@@ -1,2 +1,4 @@
 node_modules/
 dist/
+# Local dev copy of generated pipeline data
+public/events.json

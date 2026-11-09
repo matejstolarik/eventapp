@@ -126,20 +126,42 @@ a {
   font-weight: 600;
 }
 
-@keyframes livepulse {
-  0% { box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--live-color), 0 0 0 8px color-mix(in srgb, var(--live-color) 55%, transparent); }
-  100% { box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--live-color), 0 0 0 24px color-mix(in srgb, var(--live-color) 0%, transparent); }
+/* Per-type live-ring keyframes using rgba() — matches 01-mapa.html exactly */
+@keyframes livepulse-concert {
+  0%   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #8B6CFF, 0 0 0 8px  rgba(139,108,255,0.55); }
+  100% { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #8B6CFF, 0 0 0 24px rgba(139,108,255,0); }
+}
+@keyframes livepulse-party {
+  0%   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #FF8A3D, 0 0 0 8px  rgba(255,138,61,0.55); }
+  100% { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #FF8A3D, 0 0 0 24px rgba(255,138,61,0); }
+}
+@keyframes livepulse-dj {
+  0%   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #2FD4C0, 0 0 0 8px  rgba(47,212,192,0.55); }
+  100% { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #2FD4C0, 0 0 0 24px rgba(47,212,192,0); }
+}
+@keyframes livepulse-culture {
+  0%   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #C6F432, 0 0 0 8px  rgba(198,244,50,0.55); }
+  100% { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #C6F432, 0 0 0 24px rgba(198,244,50,0); }
 }
 
 .pill-marker.live {
-  animation: livepulse 1.6s ease-out infinite;
+  animation-duration: 1.6s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
 }
+.pill-marker.live[data-event-type="concert"] { animation-name: livepulse-concert; }
+.pill-marker.live[data-event-type="party"]   { animation-name: livepulse-party; }
+.pill-marker.live[data-event-type="dj"]      { animation-name: livepulse-dj; }
+.pill-marker.live[data-event-type="culture"],
+.pill-marker.live[data-event-type="other"]   { animation-name: livepulse-culture; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pill-marker.live {
-    animation: none;
-    box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--live-color), 0 0 0 16px color-mix(in srgb, var(--live-color) 28%, transparent);
-  }
+  .pill-marker.live { animation: none !important; }
+  .pill-marker.live[data-event-type="concert"] { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #8B6CFF, 0 0 0 16px rgba(139,108,255,0.28) !important; }
+  .pill-marker.live[data-event-type="party"]   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #FF8A3D, 0 0 0 16px rgba(255,138,61,0.28)   !important; }
+  .pill-marker.live[data-event-type="dj"]      { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #2FD4C0, 0 0 0 16px rgba(47,212,192,0.28)   !important; }
+  .pill-marker.live[data-event-type="culture"],
+  .pill-marker.live[data-event-type="other"]   { box-shadow: 0 0 0 4px #111118, 0 0 0 8px #C6F432, 0 0 0 16px rgba(198,244,50,0.28)   !important; }
 }
 
 /* Safe area padding */

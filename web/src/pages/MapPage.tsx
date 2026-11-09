@@ -8,7 +8,7 @@ import { getToday, getUpcomingDays } from '../core/day'
 import { isFavorite } from '../core/store'
 import { getDict, formatDayLabel } from '../i18n'
 import { loadDarkMapStyle } from '../map/mapStyle'
-import { createPillElement, assignStackOffsets } from '../map/markers'
+import { createPillElement, updatePillElement, resolveMarkerOverlaps } from '../map/markers'
 import type { MarkerData } from '../map/markers'
 import {
   IconChevronDown, IconFilter, IconHeart, IconLocation
@@ -50,7 +50,7 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
       ? data.venues.filter(v => activeIds.has(v.id) && isFavorite(v.id))
       : data.venues.filter(v => activeIds.has(v.id))
 
-    const raw: MarkerData[] = venues.map(venue => {
+    return venues.map(venue => {
       const events = getVenueEvents(data.events, venue.id, selectedDay, curNow)
       const primary = getPrimaryEvent(events, curNow)
       const eventType: EventType = primary ? getEventType(primary.formats) : 'other'
@@ -67,7 +67,6 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         stackOffset: 0
       }
     })
-    return assignStackOffsets(raw)
   }, [data, selectedDay, showFavorites])
 
   // Update markers on the map
@@ -91,21 +90,26 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
       const existing = markersRef.current.get(md.venueId)
 
       if (existing) {
-        // Update element
-        const newEl = createPillElement(md, isSelected, isDotMode)
-        newEl.addEventListener('click', () => setSelectedVenueId(id => id === md.venueId ? null : md.venueId))
-        existing.el.replaceWith(newEl)
-        // Update the marker's internal element reference
-        markersRef.current.set(md.venueId, { marker: existing.marker, el: newEl })
+        // Mutate existing element in-place — never replaceWith() as that breaks MapLibre's
+        // internal _element reference, causing all markers to scatter on the next update.
+        updatePillElement(existing.el, md, isSelected, isDotMode)
       } else {
         const el = createPillElement(md, isSelected, isDotMode)
         el.addEventListener('click', () => setSelectedVenueId(id => id === md.venueId ? null : md.venueId))
-        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom', offset: [0, md.stackOffset] })
+        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom', offset: [0, 0] })
           .setLngLat([md.lng, md.lat])
           .addTo(map)
         markersRef.current.set(md.venueId, { marker, el })
       }
     }
+
+    // Resolve overlaps after all markers are placed/updated
+    resolveMarkerOverlaps(
+      Array.from(markersRef.current.values()).map(({ marker, el }) => ({
+        el,
+        setOffset: (o: [number, number]) => marker.setOffset(o),
+      }))
+    )
   }, [buildMarkers, selectedVenueId, isDotMode])
 
   // Init map
@@ -132,6 +136,18 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         map.on('zoom', () => {
           setIsDotMode(map.getZoom() < 11)
         })
+
+        // Re-resolve overlaps after each pan/zoom (pixel positions change)
+        const resolveOverlaps = () => {
+          resolveMarkerOverlaps(
+            Array.from(markersRef.current.values()).map(({ marker, el }) => ({
+              el,
+              setOffset: (o: [number, number]) => marker.setOffset(o),
+            }))
+          )
+        }
+        map.on('moveend', resolveOverlaps)
+        map.on('zoomend', resolveOverlaps)
 
         map.on('click', (e) => {
           // Close panel if click was on the map (not a marker)
