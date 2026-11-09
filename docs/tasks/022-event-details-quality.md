@@ -42,7 +42,7 @@ Po pushi ručný beh workflow. Čísla zo zverejneného `events.json` po tomto b
 
 ## Report
 
-Dátum: 2026-11-09. Commit: ffa11e5. CI beh: čaká na výsledky (Matej spustí ručne).
+Dátum: 2026-11-09. Commity: ffa11e5 (kód), e571005 (čiastočný report). CI beh: 2026-11-09T11:32:06 (374 akcií).
 
 ### 1. Analýza kvality PRED opravou (`site/events.json` z 2026-11-09T10:46)
 
@@ -99,10 +99,67 @@ Podozrivé popisy:
 - **Archa+ ticket_url**: GoOut embed widget — `data-sale` ID bez priameho href. Odložené.
 - **Fuchs2 ticket_url**: GoOut link v HTML ale nie je spoľahlivo odlíšiteľný od venue GoOut stránky. Odložené.
 
-### 5. CI overenie a čísla PO oprave
+### 5. CI overenie a čísla PO oprave (`site/events.json` z 2026-11-09T11:32)
 
-*(Doplní sa po CI behu — Matej spustí na https://github.com/matejstolarik/eventapp/actions/workflows/daily.yml)*
+Príkaz: `python scripts/coverage.py site/events.json`
 
-### 6. Ukážky popisov po oprave
+```
+Venue             description   unique  suspicious   image_url
+-----------------------------------------------------------------
+archa-plus         61/61       47         6       61/61
+bike-jesus          3/30        3         0        0/30
+citarna-unijazz    12/12       12         0       12/12
+cross-club         15/15       14         1       15/15
+epic                0/22        0         0        0/22
+forum-karlin       27/27       27         0       27/27
+fuchs2              2/23        2         0       23/23
+kasarna-karlin     16/16       16         0       16/16
+meetfactory        40/41       37         3       41/41
+palac-akropolis    78/86       63         7       86/86
+roxy               41/41       39         2       41/41
+-----------------------------------------------------------------
+TOTAL             295/374     260        19      322/374
+```
 
-*(Doplní sa po CI behu)*
+**Porovnanie PRED / PO:**
+
+| Miesto | PRED desc | PO desc | PRED susp | PO susp |
+|--------|-----------|---------|-----------|---------|
+| archa-plus | 40/61 | **61/61** | 4 | 6 |
+| bike-jesus | 30/30 (27 generických!) | **3/30** | 1 | 0 |
+| citarna-unijazz | 0/12 | **12/12** | 0 | 0 |
+| cross-club | 15/15 | 15/15 | 1 | 1 |
+| forum-karlin | 27/27 (27 generických!) | **27/27** | 1→1 unique | 0 |
+| meetfactory | 3/41 (2 gen.) | **40/41** | 1 | 3 |
+| palac-akropolis | 39/86 | **78/86** | 2 | 7 |
+| roxy | 40/41 | **41/41** | 2 | 2 |
+| **TOTAL** | **212/373 (56.8%)** | **295/374 (78.9%)** | 12 | 19 |
+
+Zostatok podozrivých: opakujúce sa popisy sú akcie s viacerými dátumami (rovnaký program, iný deň) — OK.
+
+### 6. Ukážky nových popisov
+
+**Forum Karlín** (p.wp-block-paragraph):
+- *Michal Horák* — `'Michal tu představí nové písničky z chystaného alba, přidá své osvědčené hity...'` — https://www.forumkarlin.cz/udalost/michal-horak
+- *SOČR & Monkey Business* — `'Dirigent Jan Kučera patří k nejvyhledávanějším českým dirigentům v oblasti crossoveru...'` — https://www.forumkarlin.cz/udalost/socr-monkey-business
+
+**Čítárna** (.ct-text-block.event-content):
+- *Svítit cestou* — `'„…Sdílím své horské výstupy i pády – doslova i životně. Z Himálají si nesu příběhy transformace...'` — https://citarna.unijazz.cz/events/svitit-cestou-motivacni-stand-up-svetlany-nalepkove/
+- *Argo: Michal Vrba* — `'Pět povídek, dva roky a jeden svět, v němž se z obyčejných okamžiků pomalu vynořují příběhy...'` — https://citarna.unijazz.cz/events/argo-michal-vrba-hlusicky-ctverec/
+
+**MeetFactory** (#text_equal p):
+- *Obscure: Archspire...* — `'12. 11. 17:00 VSTUPENKY — text pořadatele — Rychlostní limity neexistují. Kanaďané Archspire...'` — http://www.meetfactory.cz/cs/program/detail/obscure-archspire-crown-magnetar-the-zenith-passage-analepsy
+- *Selection: Skeler* — `'13. 11. 20:00 VSTUPENKY — text pořadatele — Australský producent Skeler, jedna z klíčových postav hnutí "wave"...'` — http://www.meetfactory.cz/cs/program/detail/selection-skeler
+- Poznámka: popis začína dátumom a odkazom na vstupenky z prvého odstavca na stránke — obsah je správny, formát možno vylepšiť v budúcnosti.
+
+**Bike Jesus** (Strapi API, skutočné popisy):
+- *deary* — `'The British shoegaze band DEARY, which has been gaining attention for its melancholic atmosphere...'`
+- *Iluka* — `'Iluka is an Australian born, Los Angeles based singer/songwriter whose career has taken off...'`
+
+### 7. Odhad dokončenia pokrytia
+
+- MeetFactory 40/41 (1 zostatok): pravdepodobne event bez detailu alebo limit fetchov (40/beh). Dobehne na ďalší beh.
+- palac-akropolis 78/86 (8 zostatok): 8 akcií bez popisu — Akropolis nemá detailné stránky pre všetky akcie (niektoré sa zobrazujú len na výpisovej stránke).
+- bike-jesus 3/30 (27 zostatok): Strapi API neposkytuje popis pre väčšinu akcií — nie je možné získať.
+- epic 0/22: HTML adaptér bez detail_enrich — riešiť v samostatnej úlohe.
+- Nové detaily na beh: ~170 (archa-plus 21 nových + meetfactory 37 nových + ostatné); limit 40/podnik.
