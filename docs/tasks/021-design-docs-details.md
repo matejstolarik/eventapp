@@ -70,7 +70,7 @@ Po pushi spusti ručný beh workflow (alebo požiadaj Mateja) a čísla pokrytia
 
 ## Report
 
-Dátum: 2026-11-09. Commit hash: (po pushi na origin/main — doplní sa).
+Dátum: 2026-11-09. Commit hash: dde2e7e.
 
 ### 1. Dizajn: oprava dokumentácie
 
