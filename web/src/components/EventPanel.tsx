@@ -61,7 +61,7 @@ function TagRow({ children, 'aria-label': ariaLabel }: { children: React.ReactNo
   )
 }
 
-export function EventPanel({ events, venue, lang, userLocation, onClose, onEventOpen }: Props) {
+export function EventPanel({ events, venue, lang, userLocation, onClose: _onClose, onEventOpen }: Props) {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
