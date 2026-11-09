@@ -27,6 +27,16 @@ Hlavný chat s Matejom prepracoval značky na **piny**. Predloha je aktualizovan
 - **Piny sa môžu prekrývať.** Zruš posúvanie nad seba, spojnice aj prechod na bodky pri oddialení. Ťuk na prekryté miesto vyberie vrchný pin.
 - Hrot pinu musí ukazovať presne na súradnicu miesta (`anchor: bottom`), aj pri vybranom pine.
 
+### 2b. Animácie a ikonky (Matej 2026-11-10, doplnené pred odovzdaním)
+- Animácie presne podľa `design.md` časť 2 „Animácie“:
+  - rozšírenie pinu do pilulky s menom pri výbere,
+  - vysunutie karty,
+  - jemné objavenie pinov pri zmene dňa alebo filtra,
+  - vypnutie pri `prefers-reduced-motion`.
+
+  Plynulo aj na slabšom telefóne: animuj `transform`/`opacity`/šírku jedného prvku, nie celé prekreslenie mapy.
+- Ikonky metra a budov: zo **sprite hotového štýlu** (Maki/Temaki alebo čo štýl obsahuje), len triedy z `design.md`, tlmene sivé, od priblíženia ~14 (metro ~13). Over licenciu sprite. Daj snímku ulice s metrom a divadlom/múzeom.
+
 ### 3. Karta a šípky (`design.md` časť 3)
 - **Prvé ťuknutie na pin mapu nepresúva ani necentruje.**
 - **Štítky miesta (charakter) z karty odstráň.** Ostáva jeden posúvateľný riadok štítkov akcie s rozplynutím vpravo.
@@ -49,6 +59,7 @@ Playwright je v `web/package.json` (`@playwright/test`). Ak chýba prehliadač, 
   - ulica s metrom a budovami,
   - vybraný pin + karta,
   - karta po stlačení › (iné miesto),
+  - krátke video alebo séria 4 snímok animácie výberu pinu (Playwright `recordVideo` alebo snímky v čase 0/80/160/240 ms),
   - stránka akcie.
 - **Test dotykov** (`hasTouch: true`): otvorená karta → posun mapy (karta ostane, mapa sa posunie) → ťuk na iný pin (prepne kartu) → `page.goBack()` (karta sa zavrie, mapa ostane na mieste). Pozície a výsledok do reportu.
 - **Offline, odkaz na akciu, manifest:** ako v zadaní 025 bod 6.
