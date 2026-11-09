@@ -41,3 +41,68 @@ Po pushi ručný beh workflow. Čísla zo zverejneného `events.json` po tomto b
 - Koľko požiadaviek na detail pribudlo na beh a odhad, kedy bude doplnené všetko.
 
 ## Report
+
+Dátum: 2026-11-09. Commit: ffa11e5. CI beh: čaká na výsledky (Matej spustí ručne).
+
+### 1. Analýza kvality PRED opravou (`site/events.json` z 2026-11-09T10:46)
+
+```
+Venue             description   unique  suspicious   image_url
+-----------------------------------------------------------------
+archa-plus         40/61       33         4       61/61
+bike-jesus         30/30        4         1        0/30
+citarna-unijazz     0/12        0         0       12/12
+cross-club         15/15       14         1       15/15
+epic                0/22        0         0        0/22
+forum-karlin       27/27        1         1       27/27
+fuchs2              2/22        2         0       22/22
+kasarna-karlin     16/16       16         0       16/16
+meetfactory         3/41        2         1       41/41
+palac-akropolis    39/86       37         2       86/86
+roxy               40/41       38         2       40/41
+-----------------------------------------------------------------
+TOTAL             212/373     147        12      320/373
+```
+Príkaz: `python scripts/coverage.py site/events.json`
+
+Podozrivé popisy:
+- **bike-jesus** x27: `'bike jesus, multifunkční prostor...'` — og:description z domovskej stránky https://bikejesus.com (venue_url), nie zo stránky akcie
+- **forum-karlin** x27: `'Jedinečný prostor v centru Prahy...'` — og:description je všeobecný text webu, nie popis akcie
+- **meetfactory** x2: `'Buckle up, the winter is coming'` — sezónny generický og:description
+- **cross-club** x15: og:description = názov akcie (napr. `'SUNDEJ SE SUNDAY ( James Wing a hosté )'`)
+- citarna-unijazz 0/12: og:description je null, popis v `.ct-text-block.event-content`
+- epic 0/22: nie je HTML adaptér s detail_enrich (mimo scope)
+
+### 2. Miesta bez popisu
+
+**EPIC 0/22**: EPIC má vlastný HTML adaptér, ktorý neprechádza cez detail_enrich. Mimo scope tejto úlohy.
+
+**Čítárna 0/12**: Opravené — `.ct-text-block.event-content` v `jsonld.py/_fetch_mec_detail_times`. Og:description je null, popis je v tomto elemente.
+
+**MeetFactory 3/41**: Opravené — `detail_desc_selector: "#text_equal p"` v `venues.json`, cache invalidácia v `detail_enrich.py`.
+
+**Fuchs2 2/22**: Zostáva bez zmeny — popis v dynamických Wix CSS triedach, GoOut ticket link neodlíšiteľný od venue linku.
+
+### 3. Opravy extrakcie
+
+| Miesto | Problém | Oprava |
+|--------|---------|--------|
+| Bike Jesus | venue_url sa používal ako URL detailu → detail_enrich fetchoval domovskú stránku | `_build_listing_urls` zahrňuje `venue_url` — homepage sa preskakuje |
+| Forum Karlín | og:description = všeobecný text webu | `html_forum_karlin._enrich_from_detail` teraz používa `p.wp-block-paragraph` |
+| Čítárna | og:description je null | `jsonld._fetch_mec_detail_times` teraz skúša `.ct-text-block.event-content` |
+| MeetFactory | og:description = sezónny generický text | `detail_desc_selector: "#text_equal p"` v venues.json + cache skip |
+| Cross Club | og:description = názov akcie | `detail_enrich` zahadzuje popis rovnajúci sa názvu akcie |
+
+### 4. Bod 2b — chýbajúce polia z detailu
+
+- **Bike Jesus start_time**: API vracia len dátum, nie čas. Stránky akcií neexistujú. `start_time` zostáva null — nie je možné získať.
+- **Archa+ ticket_url**: GoOut embed widget — `data-sale` ID bez priameho href. Odložené.
+- **Fuchs2 ticket_url**: GoOut link v HTML ale nie je spoľahlivo odlíšiteľný od venue GoOut stránky. Odložené.
+
+### 5. CI overenie a čísla PO oprave
+
+*(Doplní sa po CI behu — Matej spustí na https://github.com/matejstolarik/eventapp/actions/workflows/daily.yml)*
+
+### 6. Ukážky popisov po oprave
+
+*(Doplní sa po CI behu)*
