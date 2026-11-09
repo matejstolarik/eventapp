@@ -111,7 +111,24 @@ python scripts/coverage.py
 | roxy | 0/41 | 0/41 |
 | **CELKOM** | **21/373** | **253/373** |
 
-**Pokrytie po behu CI:** doplní sa po prvom behu pipeline s `detail_enrich`. Odhadom: description vzrastie na ~60–70 % (HTML stránky akcie zvyčajne majú og:description), image_url na ~75–80 %.
+**Pokrytie po behu CI** (generated_at: 2026-11-09T10:46:32, 373 akcií):
+
+| Podnik | description | image_url |
+|--------|-------------|-----------|
+| archa-plus | 40/61 | 61/61 |
+| bike-jesus | 30/30 | 0/30 |
+| citarna-unijazz | 0/12 | 12/12 |
+| cross-club | 15/15 | 15/15 |
+| epic | 0/22 | 0/22 |
+| forum-karlin | 27/27 | 27/27 |
+| fuchs2 | 2/22 | 22/22 |
+| kasarna-karlin | 16/16 | 16/16 |
+| meetfactory | 3/41 | 41/41 |
+| palac-akropolis | 39/86 | 86/86 |
+| roxy | 40/41 | 40/41 |
+| **CELKOM** | **212/373 (56,8 %)** | **320/373 (85,8 %)** |
+
+Príkaz: `python scripts/coverage.py site/events.json` (alebo bez argumentu, ak je `site/events.json` lokálne).
 
 **Nové typy údajov na detail stránkach (zmapovanie pre §2b):**
 
@@ -168,5 +185,5 @@ Sekcia `### Oprava (2026-11-09, úloha 021)` pridaná do `docs/tasks/009-map-in-
 
 ### CI pokrytie
 
-Doplní sa po behu pipeline na GitHub Actions (spustí Matej ručne alebo automaticky o polnoci).
+Viď tabuľku "Pokrytie po behu CI" vyššie (generated_at: 2026-11-09T10:46:32).
 

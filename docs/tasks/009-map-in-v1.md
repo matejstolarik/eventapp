@@ -170,7 +170,21 @@ Výsledky z behu 2026-11-09 (373 akcií celkom):
 python scripts/coverage.py
 ```
 
-**image_url a description po úlohe 021** (spustite po behu pipeline):
-```bash
-python scripts/coverage.py
-```
+**Pokrytie po behu CI s úlohou 021** (generated_at: 2026-11-09T10:46:32, 373 akcií):
+
+| Podnik | description | image_url |
+|--------|-------------|-----------|
+| archa-plus | 40/61 | 61/61 |
+| bike-jesus | 30/30 | 0/30 |
+| citarna-unijazz | 0/12 | 12/12 |
+| cross-club | 15/15 | 15/15 |
+| epic | 0/22 | 0/22 |
+| forum-karlin | 27/27 | 27/27 |
+| fuchs2 | 2/22 | 22/22 |
+| kasarna-karlin | 16/16 | 16/16 |
+| meetfactory | 3/41 | 41/41 |
+| palac-akropolis | 39/86 | 86/86 |
+| roxy | 40/41 | 40/41 |
+| **CELKOM** | **212/373 (56,8 %)** | **320/373 (85,8 %)** |
+
+Príkaz: `python scripts/coverage.py`
