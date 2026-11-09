@@ -5,11 +5,32 @@ Currently supports: `strapi` (Strapi v5 REST API, e.g. Bike Jesus).
 """
 import datetime
 import logging
+import re
 
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
 
 log = logging.getLogger(__name__)
+
+_DESC_MAX = 1000
+
+
+def _clean_description(val) -> "str | None":
+    """Return plain-text description, stripped and truncated to 1000 chars."""
+    if not isinstance(val, str) or not val.strip():
+        return None
+    text = re.sub(r"<[^>]+>", " ", val)
+    text = re.sub(r"\s+", " ", text).strip()
+    if not text:
+        return None
+    if len(text) <= _DESC_MAX:
+        return text
+    cut = text[:_DESC_MAX]
+    for marker in (". ", "! ", "? "):
+        pos = cut.rfind(marker)
+        if pos > _DESC_MAX // 2:
+            return cut[: pos + 1].strip()
+    return cut.rsplit(" ", 1)[0] + "..."
 
 
 def fetch(venue: dict, source_config: dict) -> list:
@@ -103,6 +124,8 @@ def _strapi_item_to_raw(item: dict, venue: dict, source_config: dict) -> "RawEve
 
     external_id = item.get("documentId") or str(item.get("stableId") or item.get("id") or "")
 
+    description = _clean_description(item.get("Description"))
+
     # sources[].url: bikejesus.com has no individual event pages; use venue website root.
     source_url = source_config.get("venue_url", "https://bikejesus.com")
 
@@ -123,6 +146,8 @@ def _strapi_item_to_raw(item: dict, venue: dict, source_config: dict) -> "RawEve
         room=None,
         ticket_url=ticket_url,
         image_url=None,
+        description=description,
+        description_source="source" if description else None,
         source={
             "type": "api",
             "url": source_url,

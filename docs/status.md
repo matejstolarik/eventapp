@@ -15,6 +15,10 @@ Posledná aktualizácia: 2026-10-31
 | ROXY | `html/roxy` | https://www.roxy.cz/club/ | ✅ hotovo | — | `data-hashtags` → formats; celý program na jednej stránke; `<time datetime>`, `h2.title` | — |
 | EPIC Prague | `html/epic` | https://www.epicprague.com/program | ✅ hotovo | — | Bez hashtagov → všetky akcie do AI vrstvy 2; `time.program__item-datetime`, `h2.program__item-heading` | — |
 
+## Pravidlá pre nové podniky
+
+- **Súradnice sú povinné.** Nový podnik musí mať `lat`/`lng` z overiteľného zdroja (OSM Nominatim alebo mapa na webe podniku). Adresu najprv overiť na webe podniku, potom vyhľadať na Nominatim (`nominatim.openstreetmap.org/search`). Ak presný bod nenájdeš, podnik do `venues.json` nepridaj a napíš to do reportu úlohy.
+
 ## Poznámky pre PWA
 
 - **Fuchs2 a Bike Jesus majú rovnaké súradnice** (`lat: 50.0952223, lng: 14.4363506`, ostrov Štvanice). Overené na OSM: oba podniky sú na rovnakom mieste. Na mape sa body prekryjú — PWA musí počítať s viacerými podnikmi na jednom bode (napr. clustrovanie alebo tooltip s viacerými podnikmi).

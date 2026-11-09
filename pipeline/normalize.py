@@ -81,6 +81,8 @@ def normalize_event(raw_event, previous_events: dict = None) -> "dict | None":
         "room": raw_event.room,
         "ticket_url": raw_event.ticket_url,
         "image_url": raw_event.image_url,
+        "description": raw_event.description,
+        "description_source": raw_event.description_source,
         "sources": [raw_event.source],
         "classification": classification,
         "first_seen": prev["first_seen"] if prev else today,

@@ -1,4 +1,6 @@
 import datetime
+import html as _html_module
+import re
 from zoneinfo import ZoneInfo
 
 import feedparser
@@ -8,6 +10,30 @@ from pipeline.models import RawEvent
 
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 USER_AGENT = "eventapp/0.1 (personal project; contact matejstolarik@gmail.com)"
+
+_DESC_MAX = 1000
+
+
+def _description_from_entry(entry) -> "str | None":
+    """Extract plain-text description from an RSS entry, truncated to 1000 chars."""
+    raw = entry.get("summary") or entry.get("description") or ""
+    if isinstance(raw, list):
+        raw = raw[0].get("value", "") if raw else ""
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    text = re.sub(r"<[^>]+>", " ", raw)
+    text = _html_module.unescape(text)
+    text = re.sub(r"\s+", " ", text).strip()
+    if not text:
+        return None
+    if len(text) <= _DESC_MAX:
+        return text
+    cut = text[:_DESC_MAX]
+    for marker in (". ", "! ", "? "):
+        pos = cut.rfind(marker)
+        if pos > _DESC_MAX // 2:
+            return cut[: pos + 1].strip()
+    return cut.rsplit(" ", 1)[0] + "..."
 
 
 def fetch(venue: dict, source_config: dict) -> list:
@@ -24,6 +50,7 @@ def parse(venue: dict, source_config: dict, xml_text: str) -> list:
         date = _parse_date(entry)
         if date is None:
             continue
+        description = _description_from_entry(entry)
         events.append(RawEvent(
             venue_id=venue["id"],
             title=entry.get("title", "").strip(),
@@ -38,6 +65,8 @@ def parse(venue: dict, source_config: dict, xml_text: str) -> list:
             free=None,
             ticket_url=None,  # RSS gives the event page URL, not a ticket sales link
             image_url=None,
+            description=description,
+            description_source="source" if description else None,
             source={
                 "type": "rss",
                 "url": entry.get("link") or source_config["url"],

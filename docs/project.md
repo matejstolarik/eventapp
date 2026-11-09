@@ -19,11 +19,11 @@ Aplikácia, kde si používateľ pridá obľúbené podniky a na pár klikov vid
 - **Onboarding** pri prvom spustení: výber podnikov a formátov, žánre až po vzniku zoznamu; každý krok preskočiteľný; uložený lokálne.
 - **Osobné „going”**: lokálne uložený zoznam „moje akcie”.
 - **Pridať do kalendára**: tlačidlo na stiahnutie `.ics` súboru akcie.
+- **Mapa akcií** (rozhodnuté 2026-11-02 až 2026-11-08): interaktívna mapa podnikov na úvodnej obrazovke. Knižnica: MapLibre GL JS (bez API kľúča). Každá venuje = jeden marker (farba podľa „action type” skupiny). Tap na marker otvorí panel s podrobnosťami. Mapa sa ovláda dvoma prstami (gestami). Poloha používateľa voliteľná (geolocation API, s výslovným súhlasom).
 - Bez účtu a bez backendu v1. Profil a obľúbené cez jednu vrstvu (napr. `profileStore`), aby sa neskôr dala vymeniť za sync s účtom bez prepisovania UI.
 - Odkazy na akcie a podniky musia fungovať bez prihlásenia a stáť na nemennom `id`.
 
 ## Mimo v1 (backlog)
-- Mapa akcií dnes v Prahe (obľúbené alebo všetky podniky, s filtrami).
 - Sociálne „going” (kto ešte ide) a push notifikácie.
 - Účty a registrácia.
 - Odkaz na interpreta na Spotify.

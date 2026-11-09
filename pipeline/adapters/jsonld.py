@@ -188,6 +188,7 @@ def _wix_ld_to_raw(item: dict, venue: dict, page_url: str,
     _, end_time = _parse_wix_datetime(end_raw) if end_raw else (None, None)
 
     image_url = _resolve_image(item.get("image"), page_url)
+    description = _clean_description(item.get("description"))
 
     return RawEvent(
         venue_id=venue["id"],
@@ -206,6 +207,8 @@ def _wix_ld_to_raw(item: dict, venue: dict, page_url: str,
         room=None,
         ticket_url=None,
         image_url=image_url,
+        description=description,
+        description_source="source" if description else None,
         source={
             "type": "jsonld",
             "url": page_url,
@@ -572,6 +575,8 @@ def _parse_kasarna_detail(venue: dict, source_config: dict,
     if not title:
         return None
 
+    description = _clean_description(ld.get("description"))
+
     return RawEvent(
         venue_id=venue["id"],
         title=title,
@@ -587,6 +592,8 @@ def _parse_kasarna_detail(venue: dict, source_config: dict,
         free=None,
         ticket_url=None,
         image_url=_resolve_image(ld.get("image"), detail_url),
+        description=description,
+        description_source="source" if description else None,
         source={
             "type": "jsonld",
             "url": detail_url,
@@ -663,6 +670,7 @@ def _ld_to_raw(item: dict, venue: dict, base_url: str,
 
     doors_time = _str_or_none(item.get("doorTime"))
     event_url = _str_or_none(item.get("url"))
+    description = _clean_description(item.get("description"))
 
     return RawEvent(
         venue_id=venue["id"],
@@ -679,6 +687,8 @@ def _ld_to_raw(item: dict, venue: dict, base_url: str,
         free=None,
         ticket_url=None,  # offers.url points to the event page, not ticket sales
         image_url=_resolve_image(item.get("image"), base_url),
+        description=description,
+        description_source="source" if description else None,
         source={
             "type": "jsonld",
             "url": event_url or base_url,
@@ -741,6 +751,27 @@ def _str_or_none(val) -> "str | None":
     if isinstance(val, str) and val.strip():
         return val.strip()
     return None
+
+
+_DESC_MAX = 1000
+
+
+def _clean_description(val) -> "str | None":
+    """Return plain-text description from a JSON-LD value, truncated to 1000 chars at sentence end."""
+    if not isinstance(val, str):
+        return None
+    text = re.sub(r"<[^>]+>", " ", val)
+    text = re.sub(r"\s+", " ", text).strip()
+    if not text:
+        return None
+    if len(text) <= _DESC_MAX:
+        return text
+    cut = text[:_DESC_MAX]
+    for marker in (". ", "! ", "? "):
+        pos = cut.rfind(marker)
+        if pos > _DESC_MAX // 2:
+            return cut[: pos + 1].strip()
+    return cut.rsplit(" ", 1)[0] + "..."
 
 
 def _event_status(status_str) -> str:

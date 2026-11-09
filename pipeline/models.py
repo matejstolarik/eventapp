@@ -19,6 +19,8 @@ class RawEvent:
     room: str | None = None       # room/hall as reported by source (e.g. "Velký sál"); None if not provided
     ticket_url: str | None = None
     image_url: str | None = None
+    description: str | None = None         # plain text, max 1000 chars; from source data
+    description_source: str | None = None  # "source" if from data, "ai" if AI-generated
     source: dict = field(default_factory=dict)  # {type, url, external_id, section?}
     flags: list = field(default_factory=list)   # pre-detected quality flags from adapter
     status: str = "scheduled"

@@ -46,7 +46,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `id`: slug, stabilný, nikdy sa nemení (odkazujú naň obľúbené v PWA).
 - `sources`: nesmie byť prázdne. Podnik bez zdroja akcií sa do `venues.json` nepridá.
 - `capacity`: nepovinné, len overené číslo.
-- `lat`, `lng`: súradnice pre budúcu mapu akcií. Doplniť už teraz pri zakladaní podniku, neskôr by sa dopĺňali spätne.
+- `lat`, `lng`: súradnice pre zobrazenie na mape. **Povinné** — podnik bez súradníc sa na mape nezobrazí. Zdroj: OSM Nominatim alebo mapa na webe podniku; vždy overiť adresou. Nový podnik bez súradníc sa do `venues.json` nepridá.
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.
@@ -100,6 +100,8 @@ Definície nových štítkov:
   "free": false,
   "ticket_url": "https://ra.co/events/...",
   "image_url": null,
+  "description": "Popisný text akcie z webu podniku, čistý text, max 1 000 znakov.",
+  "description_source": "source",
   "sources": [
     { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/detail/event", "external_id": null, "section": "hudba" },
     { "type": "rss", "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/", "external_id": "8697", "section": null }
@@ -125,6 +127,8 @@ Polia:
 - `sold_out`: `true` len ak zdroj výslovne uvádza vypredané; `false` len ak zdroj výslovne ponúka lístky; inak `null`. Nie je to `status`.
 - `room`: nepovinné, sála alebo priestor v rámci podniku tak, ako ho uvádza zdroj (napr. Akropolis: Velký sál, Malá scéna, Jazz Bar); `null` ak zdroj ho neuvádza.
 - `ticket_url`: odkaz priamo na predaj lístkov (napr. GoOut, RA, Ticketmaster). Stránka akcie na webe podniku patrí len do `sources[].url`, nie sem. Ak zdroj neposkytuje predajný odkaz, pole je `null`.
+- `description`: popis akcie z webu podniku. Čistý text bez HTML, max 1 000 znakov, skrátený na koniec vety (`. `, `! `, `? `), ak je dlhší — `null` ak zdroj popis neposkytuje alebo je prázdny. Žiadne nové HTTP požiadavky len kvôli popisu. HTML adaptéry (Akropolis, Archa+, Forum Karlín, ROXY, EPIC) description nepridávajú. Adaptery RSS, JSON-LD a API ho extrahujú priamo zo zdroja, ak je k dispozícii.
+- `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér), `"ai"` ak ho vygeneruje AI vrstva 2 (neskôr), `null` ak `description` je `null`.
 - `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
 - `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `postponed` (akcia odložená bez nového dátumu; prefix odstránený z názvu) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.

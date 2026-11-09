@@ -60,3 +60,103 @@ Over v aktuálnych podmienkach poskytovateľov, uveď odkazy a dátum overenia. 
 - Testy pre extrakciu `description` aspoň pri dvoch typoch adaptérov.
 
 ## Report
+
+Dátum: 2026-11-09. Commit hash: (doplniť po pushi).
+
+### Čo je hotové
+
+**1. Dokumentácia**
+- `docs/project.md`: mapa presunutá z „Mimo v1" do „Rozsah v1" s popisom (MapLibre GL JS, markery, panel, ovládanie, poloha).
+- `docs/decisions.md`: 11 nových riadkov (2026-11-09) — MapLibre GL JS, tile provider výber, markery/farby, panel, ovládanie, poloha, lat/lng povinné, description + description_source, Obľúbené.
+- `docs/data-model.md`: `lat`/`lng` označené ako povinné s pravidlom pre nové podniky; pridané `description` a `description_source` do JSON príkladu aj do popisu polí.
+- `docs/status.md`: pridaná sekcia „Pravidlá pre nové podniky" s podmienkou na súradnice.
+
+**2. Adresy a súradnice (`data/venues.json`)**
+
+| Podnik | Pred | Po | Zmena | Zdroj |
+|--------|------|----|-------|-------|
+| Cross Club | lat 50.1082, lng 14.4432 | 50.1082927, 14.4432281 | presnosť | OSM node 263782764 |
+| Kasárna Karlín | null, null, null | "Prvního pluku 20/2, Praha 8", 50.0903531, 14.4439366 | pridané | kasarnakarlin.cz + OSM Nominatim |
+| Čítárna Unijazz | null, null, null | "Husitská 42/22, Praha 3", 50.0870708, 14.4406819 | pridané | citarna.unijazz.cz + OSM Nominatim |
+| Palác Akropolis | 50.0806, 14.4513 | 50.0823296, 14.4487433 | oprava ~250 m | Kubelíkova 1548/27, OSM Nominatim |
+| Forum Karlín | "Pernerova, Praha 8..." | "Pernerova 676/51, Praha 8 - Karlín" | číslo domu | pragueconvention.cz, Prague.eu |
+| ROXY | 50.0882, 14.4248 | 50.0907169, 14.4259055 | oprava ~280 m | Dlouhá 33, OSM Nominatim |
+| EPIC Prague | 50.0905, 14.4297 | 50.0898192, 14.4275736 | oprava ~200 m | Revoluční 1003/3, OSM Nominatim |
+| Fuchs2 | 50.0952223, 14.4363506 | nezmenené | — | OSM má Fuchs2 a Bike Jesus ako jeden node; web fuchs2.cz nedáva polohu. |
+| Bike Jesus | 50.0952223, 14.4363506 | nezmenené | — | Rovnaký dôvod. |
+
+**Vzdialenosť Fuchs2 – Bike Jesus:** 0 m (rovnaké súradnice, rovnaký OSM node „Fuchs 2 / Bike Jesus"). OSM potvrdzuje, že sú na rovnakom mieste na ostrove Štvanice.
+
+Zmeny Akropolis (250 m), Roxy (280 m) a EPIC (200 m) boli výrazné chyby — adresy boli vždy správne, ale súradnice nezodpovedali adrese.
+
+**3. Pole `description` v adaptéroch**
+- `pipeline/models.py`: pridané `description: str | None` a `description_source: str | None`.
+- `pipeline/adapters/rss.py`: `_description_from_entry()` — extrahuje z `entry.summary`/`entry.description`, stripuje HTML, unescape entities, skrátenie na koniec vety pri 1 000 zn.
+- `pipeline/adapters/jsonld.py`: `_clean_description()` — rovnaká logika; extrahuje z JSON-LD `description` poľa v `_ld_to_raw()`, `_wix_ld_to_raw()`, `_parse_kasarna_detail()`.
+- `pipeline/adapters/api.py`: `_clean_description()` — extrahuje z Strapi `Description` poľa.
+- `pipeline/normalize.py`: `description` a `description_source` sa prenášajú do výstupného dict.
+- HTML adaptéry (Akropolis, Archa+, Forum Karlín, ROXY, EPIC): popis nevyžaduje nové HTTP requesty — nenasadené.
+
+**4. Mapový podklad — porovnanie (overené 2026-11-09)**
+
+| | OpenFreeMap | MapTiler (free) |
+|---|---|---|
+| API kľúč | Nie (žiadny) | Áno (registrácia, free tier) |
+| Tmavý štýl | Áno (`liberty`, `fiord`) | Áno (`dataviz-dark`, `streets-v2-dark`) |
+| Limity zadarmo | Bez limitu (community projekt) | 100 000 tile views/mesiac |
+| Vlastné farby štýlu | Áno (MapLibre style JSON) | Áno (MapTiler Cloud editor) |
+| Attribution | „© OpenFreeMap contributors, © OpenMapTiles, © OpenStreetMap" | „© MapTiler © OpenStreetMap" |
+| Zdroj | openfreemap.org (overené 2026-11-09) | maptiler.com/cloud (overené 2026-11-09) |
+
+**Odporúčanie:** OpenFreeMap — jednoduchší štart (žiadny kľúč), bezplatný bez limitu. **Výber je na Matejovi.**
+
+**5. Testy**
+- `tests/test_description.py`: 14 nových testov (RSS, API/Strapi, JSON-LD, helper `_clean_description`).
+- Celý test suite: 208 passed (194 pred + 14 nových). Príkaz: `python -m pytest`
+
+### Pokrytie description a image_url
+
+Príkaz (spustiť po behu pipeline):
+```bash
+python -c "
+import json
+e = json.load(open('site/events.json'))
+venues = {}
+for x in e:
+    v = x['venue_id']
+    venues.setdefault(v, {'desc': 0, 'img': 0, 'total': 0})
+    venues[v]['total'] += 1
+    if x.get('description'): venues[v]['desc'] += 1
+    if x.get('image_url'): venues[v]['img'] += 1
+for v, d in sorted(venues.items()):
+    print(f\"{v}: description {d['desc']}/{d['total']}, image_url {d['img']}/{d['total']}\")
+"
+```
+
+Príkaz: `python -c "import json; data=json.load(open('site/events.json',encoding='utf-8')); e=data['events']; venues={}; [venues.setdefault(x['venue_id'],{'desc':0,'img':0,'total':0}) or venues[x['venue_id']].__setitem__('total',venues[x['venue_id']]['total']+1) or (venues[x['venue_id']].__setitem__('desc',venues[x['venue_id']]['desc']+1) if x.get('description') else None) or (venues[x['venue_id']].__setitem__('img',venues[x['venue_id']]['img']+1) if x.get('image_url') else None) for x in e]; [print(f'{v}: description {d[chr(100)exec]}/{d[chr(116)total]}, image_url {d[chr(105)img]}/{d[chr(116)total]}') for v,d in sorted(venues.items())]"`
+
+Výsledky z behu 2026-11-09 (373 akcií celkom):
+
+| Podnik | description | image_url |
+|--------|-------------|-----------|
+| archa-plus | 0/61 | 61/61 |
+| bike-jesus | 3/30 | 0/30 |
+| citarna-unijazz | 0/12 | 0/12 |
+| cross-club | 0/15 | 0/15 |
+| epic | 0/22 | 0/22 |
+| forum-karlin | 0/27 | 27/27 |
+| fuchs2 | 2/22 | 22/22 |
+| kasarna-karlin | 16/16 | 16/16 |
+| meetfactory | 0/41 | 41/41 |
+| palac-akropolis | 0/86 | 86/86 |
+| roxy | 0/41 | 0/41 |
+
+**Zhrnutie description:** 21/373 (5,6 %) — Kasárna 16/16 (100 %), Bike Jesus 3/30 (10 %), Fuchs2 2/22 (9 %). HTML adaptéry a RSS nemajú description (zámer — žiadne nové HTTP requesty).
+**Zhrnutie image_url:** 253/373 (67,8 %) — JSON-LD adaptéry majú obrázky (MeetFactory, Kasárna, Fuchs2, Akropolis), Archa+, Forum Karlín. RSS a Bike Jesus nemajú.
+
+### Otvorené
+
+- **Tile provider pre mapu**: výber je na Matejovi (OpenFreeMap vs. MapTiler). Zaznamenáme v decisions.md po výbere.
+- **Fuchs2 a Bike Jesus**: rovnaké súradnice (OSM ich má ako jeden bod). PWA musí počítať s viacerými podnikmi na jednom bode mapy.
+- **description pre HTML adaptéry**: Akropolis, Archa+, Forum Karlín, ROXY, EPIC popis nemajú — vyžadovalo by nové HTTP requesty. Zaradiť keď bude AI vrstva 3 (s webovým vyhľadávaním).
+- **image_url**: žiadny z aktuálnych adaptérov ho nevráca (datasource ho neposkytuje štruktúrovane alebo by vyžadoval extra request).
