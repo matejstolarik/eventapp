@@ -75,3 +75,49 @@ Licencia OpenStreetMap/OpenFreeMap vyžaduje autorstvo, **odstrániť sa nesmie*
 - Odkazy na tri varianty pre Mateja (`?map=a|b|c`) a krátky opis, čím sa líšia.
 
 ## Report
+
+**Dátum:** 2026-11-09
+
+### Čo je hotové
+
+**1. Príčina chýbajúcich popisov (potvrdená)**
+Vlastný štýl v úlohe 024 používal source-layer názvy zo schémy Protomaps (`roads`, `buildings`, `places`, `roads_labels`, `transit_stops`) a atribút `pmap:kind`. OpenFreeMap poskytuje dlaždice v schéme OpenMapTiles, kde sú správne názvy `transportation`, `building`, `place`, `transportation_name`, `poi`, `water_name` a atribút `class`. Kód bol prepísaný s overenými názvami z OpenMapTiles dokumentácie.
+
+**2. Tri varianty podkladu**
+Implementované v `web/src/map/mapStyle.ts`:
+- `?map=a` – neutrálna tmavá (zem `#1E1E2A`, text `#B4B0CC`)
+- `?map=b` – tmavomodrá/námornícka (zem `#1B2230`, text `#A4B3CC`)
+- `?map=c` – svetlejšia sivofialová (zem `#2A2A36`, text `#D0CCE2`)
+
+Výber sa ukladá do `localStorage`. Všetky tri varianty majú: popisy štvrtí od zoom 11, ulice od 13/15, Vltavu a ostrovy, stanice metra so značkou a názvom od zoom 12.
+
+**3. Spojnice posunutých piluliek**
+GeoJSON source `connectors` s vrstvami `connector-lines` (2px, farba typu) a `connector-dots` (4px, tmavý okraj) pridaný v `MapPage.tsx`. Funkcia `updateConnectorData()` sa volá po každom `moveend`/`zoomend`. Posuny piluliek overené cez React fiber: Archa+ offset [0, -48], Čítárna [0, -17] pri zoom 11. Obmedzenie: bodky spojníc sú zakryté susednými HTML pilulkami (WebGL canvas je pod HTML vrstvou) keď sú pilulky tesne vedľa seba.
+
+**4. Štítky v karte akcie**
+`EventPanel.tsx`: komponent `TagRow` s fade-out maskImage, `overflowX: auto`. Riadok 1: formáty + žánre; riadok 2: charakter miesta (obrys). Rovnaké rozdelenie na `EventPage.tsx` (wrap, nie scroll). `touchAction: pan-y` na karte.
+
+**4b. Mapa pri otvorenej karte**
+`maximum-scale=1.0, user-scalable=no` vo viewport meta. History API: `history.pushState` pri otvorení, `popstate` pri Späť. Stav mapy (centrum, zoom) sa pri otvorení/zatvorení karty nemení.
+
+**5. Autorstvo mapy**
+`attributionControl: false` v Map konštruktore, ikonka `i` vľavo nad spodnou lištou (`left: 16, bottom: 108`).
+
+### Čísla
+Príkaz: `python -c "import json; d=json.load(open('site/events.json', encoding='utf-8')); print(len(d['events']), len(d['venues']))"`
+- **374 akcií**, **11 miest**
+
+### Snímky (v `docs/tasks/025/`)
+- `a-01-celaPraha-overlap.jpg` – variant A, celá Praha, posunuté pilulky (Archa+, Čítárna)
+- `a-02-centrum-markers.jpg` – variant A, centrum zoom ~11
+- `a-03-ulica-buildings.jpg` – variant A, zoom ~15, budovy viditeľné
+- `b-01-centrum-markers.jpg` – variant B (tmavomodrá), centrum
+- `c-01-centrum-markers.jpg` – variant C (sivofialová), centrum
+- `card-two-row-tags.jpg` – karta akcie so štítkami v dvoch riadkoch
+
+Chýbajúce snímky pre B a C (celá Praha, ulica) – prerušené z časových dôvodov. Varianty B a C sú funkčné (overené na b-01, c-01).
+
+### Otvorené
+- Playwright / dotyková emulácia – nie je nainštalovaný
+- Offline test, deep link test, Lighthouse PWA – nespustené
+- Snímky zo všetkých troch priblížení pre varianty B a C

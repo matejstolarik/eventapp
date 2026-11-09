@@ -2,12 +2,13 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { EventsData, Language, EventType } from '../core/types'
-import { getEventType } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR } from '../core/eventType'
 import { getVenueEvents, getActiveVenueIds, getPrimaryEvent, isEventLive } from '../core/events'
 import { getToday, getUpcomingDays } from '../core/day'
 import { isFavorite } from '../core/store'
 import { getDict, formatDayLabel } from '../i18n'
-import { loadDarkMapStyle } from '../map/mapStyle'
+import { loadMapStyle } from '../map/mapStyle'
+import type { MapVariant } from '../map/mapStyle'
 import { createPillElement, updatePillElement, resolveMarkerOverlaps } from '../map/markers'
 import type { MarkerData } from '../map/markers'
 import {
@@ -26,11 +27,25 @@ interface Props {
   onEventOpen: (eventId: string) => void
 }
 
+function getMapVariant(): MapVariant {
+  const params = new URLSearchParams(window.location.search)
+  const param = params.get('map')
+  if (param === 'a' || param === 'b' || param === 'c') {
+    try { localStorage.setItem('mapVariant', param) } catch { /* ignore */ }
+    return param
+  }
+  try {
+    const stored = localStorage.getItem('mapVariant')
+    if (stored === 'a' || stored === 'b' || stored === 'c') return stored
+  } catch { /* ignore */ }
+  return 'a'
+}
+
 export function MapPage({ data, lang, onEventOpen }: Props) {
   const dict = getDict(lang)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
-  const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
+  const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement; offset: [number, number] }>>(new Map())
 
   const now = new Date()
   const [selectedDay, setSelectedDay] = useState(() => getToday(now))
@@ -40,7 +55,101 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
   const [isDotMode, setIsDotMode] = useState(false)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationLoading, setLocationLoading] = useState(false)
+  const [showAttribution, setShowAttribution] = useState(false)
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
+
+  // Refs for stale-closure-safe access in map event callbacks
+  const selectedVenueIdRef = useRef<string | null>(null)
+  const isDotModeRef = useRef(isDotMode)
+  const dataRef = useRef(data)
+  const panelOpenRef = useRef(false)
+  const openPanelRef = useRef<(venueId: string) => void>(() => {})
+  const closePanelRef = useRef<() => void>(() => {})
+
+  useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
+  useEffect(() => { isDotModeRef.current = isDotMode }, [isDotMode])
+  useEffect(() => { dataRef.current = data }, [data])
+
+  // Keep open/close panel refs up to date every render
+  openPanelRef.current = (venueId: string) => {
+    if (!panelOpenRef.current) {
+      history.pushState({ panel: 'open' }, '')
+      panelOpenRef.current = true
+    }
+    setSelectedVenueId(venueId)
+  }
+  closePanelRef.current = () => {
+    if (panelOpenRef.current) {
+      history.back()   // popstate handler will set selectedVenueId(null)
+    } else {
+      setSelectedVenueId(null)
+    }
+  }
+
+  // Handle browser back button: close panel
+  useEffect(() => {
+    function onPopState() {
+      if (panelOpenRef.current) {
+        panelOpenRef.current = false
+        setSelectedVenueId(null)
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  // Update connector GeoJSON on the map
+  function updateConnectorData() {
+    const map = mapRef.current
+    if (!map) return
+    const src = map.getSource('connectors') as maplibregl.GeoJSONSource | undefined
+    if (!src) return
+
+    if (isDotModeRef.current) {
+      src.setData({ type: 'FeatureCollection', features: [] })
+      return
+    }
+
+    type Feat = {
+      type: 'Feature'
+      properties: { color: string }
+      geometry:
+        | { type: 'LineString'; coordinates: number[][] }
+        | { type: 'Point'; coordinates: number[] }
+    }
+    const features: Feat[] = []
+
+    for (const [venueId, entry] of markersRef.current) {
+      const { offset, el } = entry
+      if (offset[0] === 0 && offset[1] === 0) continue
+
+      const venue = dataRef.current.venues.find(v => v.id === venueId)
+      if (!venue) continue
+
+      const eventType = (el.dataset.eventType ?? 'other') as EventType
+      const color = EVENT_TYPE_COLOR[eventType]
+
+      const actualScreen = map.project([venue.lng, venue.lat])
+      const pillScreen = {
+        x: actualScreen.x + offset[0],
+        y: actualScreen.y + offset[1],
+      }
+      const pillLngLat = map.unproject([pillScreen.x, pillScreen.y])
+
+      features.push({
+        type: 'Feature',
+        properties: { color },
+        geometry: { type: 'LineString', coordinates: [[pillLngLat.lng, pillLngLat.lat], [venue.lng, venue.lat]] },
+      })
+      features.push({
+        type: 'Feature',
+        properties: { color },
+        geometry: { type: 'Point', coordinates: [venue.lng, venue.lat] },
+      })
+    }
+
+    src.setData({ type: 'FeatureCollection', features })
+  }
 
   // Build marker data from current state
   const buildMarkers = useCallback((): MarkerData[] => {
@@ -90,27 +199,36 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
       const existing = markersRef.current.get(md.venueId)
 
       if (existing) {
-        // Mutate existing element in-place — never replaceWith() as that breaks MapLibre's
-        // internal _element reference, causing all markers to scatter on the next update.
         updatePillElement(existing.el, md, isSelected, isDotMode)
       } else {
         const el = createPillElement(md, isSelected, isDotMode)
-        el.addEventListener('click', () => setSelectedVenueId(id => id === md.venueId ? null : md.venueId))
+        const venueId = md.venueId
+        el.addEventListener('click', () => {
+          if (selectedVenueIdRef.current === venueId) {
+            closePanelRef.current()
+          } else {
+            openPanelRef.current(venueId)
+          }
+        })
         const marker = new maplibregl.Marker({ element: el, anchor: 'bottom', offset: [0, 0] })
           .setLngLat([md.lng, md.lat])
           .addTo(map)
-        markersRef.current.set(md.venueId, { marker, el })
+        markersRef.current.set(venueId, { marker, el, offset: [0, 0] })
       }
     }
 
     // Resolve overlaps after all markers are placed/updated
     resolveMarkerOverlaps(
-      Array.from(markersRef.current.values()).map(({ marker, el }) => ({
-        el,
-        setOffset: (o: [number, number]) => marker.setOffset(o),
+      Array.from(markersRef.current.entries()).map(([, entry]) => ({
+        el: entry.el,
+        setOffset: (o: [number, number]) => {
+          entry.marker.setOffset(o)
+          entry.offset = o
+        },
       }))
     )
-  }, [buildMarkers, selectedVenueId, isDotMode])
+    updateConnectorData()
+  }, [buildMarkers, selectedVenueId, isDotMode])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Init map
   useEffect(() => {
@@ -119,7 +237,8 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
 
     async function initMap() {
       try {
-        const style = await loadDarkMapStyle()
+        const variant = getMapVariant()
+        const style = await loadMapStyle(variant)
         if (!mounted || !mapContainerRef.current) return
 
         const map = new maplibregl.Map({
@@ -128,8 +247,7 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
           center: PRAGUE_CENTER,
           zoom: 12,
           maxBounds: PRAGUE_BOUNDS,
-          attributionControl: { compact: true },
-          logoPosition: 'bottom-right'
+          attributionControl: false,  // custom attribution button
         })
         mapRef.current = map
 
@@ -137,26 +255,58 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
           setIsDotMode(map.getZoom() < 11)
         })
 
-        // Re-resolve overlaps after each pan/zoom (pixel positions change)
+        // Re-resolve overlaps + connectors after each pan/zoom (pixel positions change)
         const resolveOverlaps = () => {
           resolveMarkerOverlaps(
-            Array.from(markersRef.current.values()).map(({ marker, el }) => ({
-              el,
-              setOffset: (o: [number, number]) => marker.setOffset(o),
+            Array.from(markersRef.current.entries()).map(([, entry]) => ({
+              el: entry.el,
+              setOffset: (o: [number, number]) => {
+                entry.marker.setOffset(o)
+                entry.offset = o
+              },
             }))
           )
+          updateConnectorData()
         }
         map.on('moveend', resolveOverlaps)
         map.on('zoomend', resolveOverlaps)
 
         map.on('click', (e) => {
-          // Close panel if click was on the map (not a marker)
           if ((e.originalEvent.target as HTMLElement).classList.contains('maplibregl-canvas')) {
-            setSelectedVenueId(null)
+            closePanelRef.current()
           }
         })
 
         map.on('load', () => {
+          // Connector source and layers (drawn below HTML markers)
+          map.addSource('connectors', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          })
+          map.addLayer({
+            id: 'connector-lines',
+            type: 'line',
+            source: 'connectors',
+            filter: ['==', ['geometry-type'], 'LineString'],
+            paint: {
+              'line-color': ['get', 'color'],
+              'line-width': 2,
+              'line-opacity': 0.8,
+            },
+          })
+          map.addLayer({
+            id: 'connector-dots',
+            type: 'circle',
+            source: 'connectors',
+            filter: ['==', ['geometry-type'], 'Point'],
+            paint: {
+              'circle-color': ['get', 'color'],
+              'circle-radius': 4,
+              'circle-stroke-color': '#111118',
+              'circle-stroke-width': 1.5,
+            },
+          })
+
           if (mounted) updateMarkers()
         })
       } catch (err) {
@@ -313,14 +463,33 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         <IconLocation size={22} color="#111118" />
       </button>
 
-      {/* Event panel */}
+      {/* Attribution "i" button – required by OSM/OpenFreeMap licence */}
+      <button
+        style={{
+          position: 'absolute', left: 16, bottom: 108,
+          height: 28, padding: '0 10px', borderRadius: 14,
+          background: 'rgba(28,28,39,0.90)', color: '#B9B6CC',
+          border: '1px solid #2E2D3C',
+          fontSize: 12, fontWeight: showAttribution ? 400 : 700,
+          display: 'flex', alignItems: 'center', gap: 6, zIndex: 10,
+          whiteSpace: 'nowrap',
+        }}
+        onClick={() => setShowAttribution(a => !a)}
+        aria-label="Autorstvo mapy"
+      >
+        {showAttribution
+          ? '© OpenStreetMap prispievatelia | OpenFreeMap'
+          : 'i'}
+      </button>
+
+      {/* Event panel – NO backdrop div; map canvas click handles closing */}
       {panelVenue && panelEvents.length > 0 && (
         <EventPanel
           events={panelEvents}
           venue={panelVenue}
           lang={lang}
           userLocation={userLocation}
-          onClose={() => setSelectedVenueId(null)}
+          onClose={() => closePanelRef.current()}
           onEventOpen={onEventOpen}
         />
       )}
