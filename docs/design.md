@@ -65,6 +65,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 
 - **Otvorí sa ťuknutím na značku** (nie potiahnutím). Je to **malá karta, ktorá pláva nad spodnou lištou** (12 px od okrajov, 112 px od spodku, `#1C1C27`, zaoblenie 28, obrys `#2E2D3C`), nie panel z boku ani na celú obrazovku.
 - Obsah: vľavo obrázok 88 × 88 (zaoblenie 18), vpravo názov akcie (Bricolage 21/700) a riadok „miesto · čas · vzdialenosť“; pod tým **štítky v dvoch riadkoch** (výška 32, zaoblenie 16; upravené 2026-11-09): **1. riadok štítky akcie** (formáty vo farbe typu, potom žánre), **2. riadok štítky miesta** (charakter ako obrys). Každý riadok je jeden, **vodorovne posúvateľný**, a pri pravom okraji sa štítky **rozplynú** (prechod do priehľadnosti), aby bolo vidno, že ich je viac. Karta tak má vždy rovnakú výšku.
+- **Pri otvorenej karte ostáva mapa plne ovládateľná** (posun, priblíženie, ťuk na inú pilulku prepne kartu); otvorenie ani zatvorenie karty nemení polohu mapy. **Späť** (systémové/prehliadač) kartu zavrie. Priblíženie dvoma prstami nikdy nezväčšuje celú appku. (Matej 2026-11-09)
 - **Ťuknutie kdekoľvek na kartu otvorí stránku akcie.** Ak má miesto v ten deň viac akcií, karta ukáže prvú a dá sa listovať (doplniť po dohode s Matejom).
 - Chýba obrázok → ikona typu akcie na farebnom pozadí typu.
 
