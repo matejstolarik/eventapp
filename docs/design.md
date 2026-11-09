@@ -42,7 +42,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 
 ## 2. Mapa (`01-mapa.png`)
 
-- **Knižnica MapLibre GL JS, podklad OpenFreeMap** (bez kľúča). Štýl podkladu tmavý, prefarbený do palety appky (pozadie `#14141D`, cesty `#22222E`, voda tmavomodrá `#1E2A44`, zeleň `#17261F`), bez rušivých popisov a POI.
+- **Knižnica MapLibre GL JS, podklad OpenFreeMap** (bez kľúča). Štýl podkladu **tmavý, ale čitateľný** (upravené 2026-11-09 po teste v telefóne: pôvodné farby z kresby mali na skutočnej mape príliš malý kontrast). Paleta a vrstvy podľa úlohy 024: vidno ulice, Vltavu, parky; **ostávajú názvy štvrtí, hlavných ulíc, Vltavy a ostrovov a stanice metra**; preč sú obchody, reštaurácie a ostatné body záujmu. Značky akcií musia byť na podklade najvýraznejšie.
 - Mapa je **na celú obrazovku**, posúva sa **jedným prstom**, priblíženie dvoma. (Nie „dva prsty na posun“, to je pre mapy vložené v stránke.)
 - **Na mape sú len miesta, ktoré majú akciu vo zvolenom dni.** Miesto bez akcie sa neukazuje.
 - **Značka = pilulka vo farbe typu akcie:** výška 40, zaoblenie 20, vľavo tmavý kruh 32 px s ikonou typu vo farbe typu, potom názov miesta (Outfit 15/600, tmavá dvojica). **Bez času.**
