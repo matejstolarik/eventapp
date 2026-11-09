@@ -50,6 +50,16 @@ Keď sa pilulka kvôli prekrytiu posunie, nakresli tenkú čiaru (2 px, farba ty
 - Každý riadok je vodorovne posúvateľný a pri pravom okraji sa štítky rozplynú do priehľadnosti. Karta má stálu výšku.
 - Rovnako na stránke akcie: štítky akcie a štítky miesta v dvoch oddelených riadkoch (tam môžu byť zalomené, nie posúvateľné).
 
+### 4b. Správanie mapy pri otvorenej karte (Matej 2026-11-09, doplnené pred odovzdaním)
+Dnes, keď sa po ťuknutí na pilulku otvorí karta, mapa „zamrzne“: nedá sa posúvať, priblíženie dvoma prstami zväčšuje celú appku (stránku) namiesto mapy a na iné miesto sa dá prepnúť až po zavretí karty, čo navyše vráti mapu do pôvodnej polohy. Matej chce, aby **všetko ostalo tak, ako je, a len sa zobrazila karta**:
+- Pri otvorenej karte sa mapa dá ďalej **posúvať a približovať** (žiadna vrstva cez mapu, ktorá zachytáva dotyky; karta zachytáva dotyky len na svojej ploche).
+- **Priblíženie dvoma prstami nikdy nezväčšuje celú appku**, ani pri otvorenej karte, ani inde (viewport a `touch-action` nastav tak, aby sa stránka nezväčšovala; priblíženie patrí len mape a plagátu na celú obrazovku).
+- **Ťuknutie na inú pilulku pri otvorenej karte rovno prepne kartu** na to miesto.
+- Otvorenie ani zatvorenie karty **nemení polohu ani priblíženie mapy** (žiadne automatické presúvanie a vracanie mapy). Ak je vybraná pilulka pod kartou, mapa sa môže jemne posunúť, aby bola vidieť, ale pri zatvorení sa nevracia.
+- **Tlačidlo Späť** (systémové na Androide, gesto späť, tlačidlo Späť v prehliadači) kartu zavrie a ostane na mape. Na stránke akcie Späť vráti na mapu s otvorenou kartou v rovnakom stave. (Otvorenie karty pridá záznam do histórie.)
+- Ťuknutie na prázdne miesto mapy kartu zavrie (ako doteraz).
+- Over v Playwright s dotykovou emuláciou (otvorená karta → posun mapy → ťuk na inú pilulku → Späť) a daj do reportu výsledok.
+
 ### 5. Autorstvo mapy
 Licencia OpenStreetMap/OpenFreeMap vyžaduje autorstvo, **odstrániť sa nesmie**. Zobraz ho ako malú ikonku „i“ (kompaktné autorstvo MapLibre), ktorá sa rozbalí po ťuknutí. Umiestni ju tak, aby neprekrývala značky ani tlačidlá (napr. vpravo hore pod lištou alebo vľavo nad spodnou lištou).
 
