@@ -48,7 +48,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Značka = pilulka vo farbe typu akcie:** výška 40, zaoblenie 20, vľavo tmavý kruh 32 px s ikonou typu vo farbe typu, potom názov miesta (Outfit 15/600, tmavá dvojica). **Bez času.**
   - Obľúbené miesto: za názvom malé **vyplnené srdiečko** v tmavej farbe dvojice.
   - Viac akcií v ten deň: za názvom odznak `+1`, `+2` (pozadie `#23232F`, text `#F4F2FF`).
-  - Akcia, ktorá dnes už skončila: pilulka sivá (`#3A3948`, kruh `#5D5677`, text `#B9B6CC`) (pozri MeetFactory na snímke).
+  - **Akcia, ktorá už skončila, sa na mape neukazuje** (Matej 2026-11-09: sivé pilulky nemajú pre používateľa hodnotu). Skončená = má `end_time` a ten už uplynul. Ak koniec nepoznáme, akcia ostáva na mape do prepnutia dňa o 5:00 (nehádame, kedy skončila).
   - **Práve prebiehajúca akcia:** okolo pilulky prstenec vo farbe typu s tmavou medzerou (`box-shadow: 0 0 0 4px #111118, 0 0 0 8px <farba>`) a **pulzujúca žiara** (animácia 1,6 s, presný kód v `01-mapa.html`, trieda `.live`). Bez štítku „teraz“. Pri `prefers-reduced-motion` statický prstenec.
   - **Vybraná značka** (po ťuknutí): pilulka zosvetlí na `#F4F2FF` s tmavým textom, zväčší sa (scale 1,12) a dostane tieň; ikona ostáva v kruhu farby typu (`02-mapa-panel.png`).
 - **Žiadne zhlukovanie (clustering).** Pri oddialení sa značky zmenšia na farebné body (26 px, biely okraj 3 px), názvy sa ukazujú tam, kde je miesto.
