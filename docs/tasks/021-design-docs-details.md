@@ -69,3 +69,104 @@ Po pushi spusti ručný beh workflow (alebo požiadaj Mateja) a čísla pokrytia
 - Ukážka 3 popisov (miesto, názov akcie, prvých 150 znakov, `source_url`) na kontrolu proti webu.
 
 ## Report
+
+Dátum: 2026-11-09. Commit hash: (po pushi na origin/main — doplní sa).
+
+### 1. Dizajn: oprava dokumentácie
+
+- `docs/decisions.md`: 3 chybné riadky z úlohy 009 označené `(nahradené 2026-11-09, pozri docs/design.md)`. Pridané 3 náhradné riadky (farby markerov, panel, ovládanie) podľa `docs/design.md`. Riadok o tile providerovi doplnený o výber: **OpenFreeMap** (Matej 2026-11-09).
+- `docs/project.md`: sekcia mapy skrátená na odkaz na `docs/design.md`; inline popis dizajnu odstránený.
+- `CLAUDE.md`: pridané pravidlo o UI dizajne (anglicky).
+- `docs/data-model.md`: pridané polia `description` a `description_url` pre podniky do JSON príkladu a do popisu polí.
+- `docs/design.md`: nemenený.
+
+### 2. Popis a obrázok z detailu akcie
+
+**Nové súbory:**
+- `pipeline/detail_enrich.py` — post-processing krok; sťahuje detail iba ak chýba `description` alebo `image_url`, limit 40 nových fetchov na podnik/beh, cache cez `previous_events`, preskočenie `ra.co` a listing URL.
+- `scripts/coverage.py` — výpis pokrytia description/image_url po podnikoch.
+
+**Upravené adaptéry (bez ďalších HTTP requestov):**
+- `pipeline/adapters/html_forum_karlin.py` — `_enrich_from_detail()` dopĺňa `description` (og:description → meta description) a `image_url` (og:image) z tej istej detail stránky, ktorú adaptér už sťahuje.
+- `pipeline/adapters/jsonld.py` — Wix sitemap (Fuchs2): og:description/og:image fallback z tej istej stránky akcie. MEC detail (Čítárna): og:description/og:image z tej istej odpovede.
+
+**Pipeline:** `main.py` volá `enrich_missing_details` po AI klasifikácii; `_write_job_summary` obsahuje coverage tabuľku a enrich štatistiky.
+
+**Pokrytie pred (z `site/events.json` pred týmto behom):**
+```
+python scripts/coverage.py
+```
+| Podnik | description | image_url |
+|--------|-------------|-----------|
+| archa-plus | 0/61 | 61/61 |
+| bike-jesus | 3/30 | 0/30 |
+| citarna-unijazz | 0/12 | 0/12 |
+| cross-club | 0/15 | 0/15 |
+| epic | 0/22 | 0/22 |
+| forum-karlin | 0/27 | 27/27 |
+| fuchs2 | 2/22 | 22/22 |
+| kasarna-karlin | 16/16 | 16/16 |
+| meetfactory | 0/41 | 41/41 |
+| palac-akropolis | 0/86 | 86/86 |
+| roxy | 0/41 | 0/41 |
+| **CELKOM** | **21/373** | **253/373** |
+
+**Pokrytie po behu CI:** doplní sa po prvom behu pipeline s `detail_enrich`. Odhadom: description vzrastie na ~60–70 % (HTML stránky akcie zvyčajne majú og:description), image_url na ~75–80 %.
+
+**Nové typy údajov na detail stránkach (zmapovanie pre §2b):**
+
+| Podnik | start_time | ticket_url | price_text | sold_out | artists | vekový limit | organizátor |
+|--------|-----------|-----------|------------|---------|---------|-------------|-------------|
+| Forum Karlín | ✓ (detail) | ✓ (detail) | — | ✓ (listing) | — | — | — |
+| Čítárna Unijazz | ✓ (MEC detail) | — | — | — | — | — | — |
+| Fuchs2 | ✓ (Wix) | ✓ (Wix) | — | — | ✓ (Wix) | — | — |
+| Kasárna Karlín | ✓ (JSON-LD) | ✓ (JSON-LD) | — | — | — | — | — |
+| Bike Jesus | — | ✓ (Strapi) | ✓ (Strapi) | ✓ (Strapi) | ✓ (Strapi) | — | — |
+| Archa+, ROXY, EPIC, Akropolis | v HTML, parser potrebný | — | — | — | — | — | — |
+
+Vekový limit a organizátor sa na webe vyskytujú sporadicky; pridanie do dátového modelu pre budúce rozhodnutie Mateja.
+
+**Ukážky popisov (z events.json pred týmto behom, prvých 150 zn.):**
+
+| Podnik | Akcia | Prvých 150 zn. | source_url |
+|--------|-------|----------------|------------|
+| kasarna-karlin | Music Quiz | "The next Kasárna Music Quiz is here – and for the first time, it won't be held under the open sky. Listen closely to the notes of familiar melodies, r" | kasarnakarlin.cz/en/program/... |
+| kasarna-karlin | Double feature: Scary Movie | "ENG + CZ subtitles\"Unrestrained by taste, inhibitions or political correctness, it boldly goes where no one in the mainstream has gone before.\" That i" | kasarnakarlin.cz/en/program/... |
+| kasarna-karlin | Beyond Belief: Fact or Fiction | "Is it really true that Kasárna Karlín is moving back indoors, or are our writers just pulling your leg? Come find out for yourself at our Garage and t" | kasarnakarlin.cz/en/program/... |
+
+### 3. Popisy podnikov (description v venues.json)
+
+| Podnik | description | URL |
+|--------|-------------|-----|
+| cross-club | null | — (žiadna O nás stránka) |
+| meetfactory | ✓ 3 vety | https://www.meetfactory.cz/cs/o-nas |
+| kasarna-karlin | ✓ 2 vety | https://kasarnakarlin.cz/en/page/44 |
+| citarna-unijazz | ✓ 3 vety | https://citarna.unijazz.cz/about/ |
+| fuchs2 | ✓ 3 vety | https://www.fuchs2.cz/about |
+| bike-jesus | ✓ 3 vety | https://bikejesus.com (About sekcia na homepage) |
+| palac-akropolis | ✓ 3 vety | https://palacakropolis.cz/work/33298?no=62&page_id=33133 |
+| archa-plus | null | — (About stránka neexistuje, /cz/o-arche/ aj /cz/o-archa-plus/ vrátia 404) |
+| forum-karlin | ✓ 3 vety | https://www.forumkarlin.cz/o-nas/ |
+| roxy | null | — (sekcia „Klub" je len program, žiadny popis) |
+| epic | null | — (web vrátil 403 pri /about) |
+
+### 4. Fuchs2 a Bike Jesus — OSM
+
+- OSM má oba podniky ako **jeden objekt**: way/274617182, name="Fuchs 2 / Bike Jesus", amenity=nightclub, building=yes.
+- Obrysu zodpovedajú 4 rohové uzly (ID 2793102450, 2793102447, 2793102452, 2793102473) — žiadne nemajú tag `entrance=*`.
+- Vzdialenosť Fuchs2 – Bike Jesus: 0 m (rovnaký centroid 50.0952223, 14.4363506).
+- **Záver:** Z OSM dát sa predná a zadná strana budovy jednoznačne nedá určiť. Súradnice zostávajú rovnaké pre oba podniky, ako navrhuje dizajn (prekrývajúce sa značky sú v dizajne riešené).
+
+### 5. Oprava reportu 009
+
+Sekcia `### Oprava (2026-11-09, úloha 021)` pridaná do `docs/tasks/009-map-in-v1.md`.
+
+### 6. Testy
+
+- `tests/test_detail_enrich.py`: 13 nových testov (extrakcia z JSON-LD, og:, meta[name], cache hit, listing URL skip, ra.co skip, prázdna stránka, plne vyplnená akcia).
+- Celý test suite: **221 passed** (208 pred + 13 nových). Príkaz: `python -m pytest`
+
+### CI pokrytie
+
+Doplní sa po behu pipeline na GitHub Actions (spustí Matej ručne alebo automaticky o polnoci).
+

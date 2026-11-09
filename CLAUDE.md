@@ -34,6 +34,7 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Secrets (API keys) only via environment variables / GitHub Secrets, never in the repo.
 - Code, comments, commit messages and docs inside code: English. Talk to Matej in Slovak.
 - Keep it simple. This is a small personal project; prefer plain functions and standard libraries over frameworks.
+- **UI design:** UI must follow `docs/design.md` and `docs/design/` almost 1:1. Do not invent UI behaviour, colours or layout. If something is missing or not feasible, stop and ask Matej.
 - **Never rewrite git history** (no `filter-branch`, `rebase -i`, `reset --hard` on pushed commits, or `push --force`) without explicit approval from Matej. To remove a file: `git rm` + normal commit is enough.
 
 ## Repository layout (proposal, adjust when scaffolding)

@@ -156,7 +156,21 @@ Výsledky z behu 2026-11-09 (373 akcií celkom):
 
 ### Otvorené
 
-- **Tile provider pre mapu**: výber je na Matejovi (OpenFreeMap vs. MapTiler). Zaznamenáme v decisions.md po výbere.
+- **Tile provider pre mapu**: výber je na Matejovi (OpenFreeMap vs. MapTiler). Zaznamenáme v decisions.md po výbere. *(Matej vybral OpenFreeMap 2026-11-09, zaznačené v decisions.md)*
 - **Fuchs2 a Bike Jesus**: rovnaké súradnice (OSM ich má ako jeden bod). PWA musí počítať s viacerými podnikmi na jednom bode mapy.
 - **description pre HTML adaptéry**: Akropolis, Archa+, Forum Karlín, ROXY, EPIC popis nemajú — vyžadovalo by nové HTTP requesty. Zaradiť keď bude AI vrstva 3 (s webovým vyhľadávaním).
 - **image_url**: žiadny z aktuálnych adaptérov ho nevráca (datasource ho neposkytuje štruktúrovane alebo by vyžadoval extra request).
+
+### Oprava (2026-11-09, úloha 021)
+
+**Chyba č. 1 – Rozpor v pokrytí image_url.** Riadok „**image_url**: žiadny z aktuálnych adaptérov ho nevráca" v sekcii „Otvorené" je nesprávny. Pokrývacia tabuľka v sekcii „Pokrytie description a image_url" ukazuje 253/373 (67,8 %) akcií s image_url. JSON-LD adaptér vracel `image_url` z tej doby (MeetFactory 41/41, Kasárna 16/16, Fuchs2 22/22, Palác Akropolis 86/86, Archa+ 61/61, Forum Karlín 27/27). Chybný riadok bol doplnený neskôr ako nepresná poznámka; celkový text reportu je správny, len táto jedna veta je v rozpore s tabuľkou.
+
+**Chyba č. 2 – Nefunkčný príkaz na pokrytie.** Druhý príkaz na riadku 136 (`python -c "import json; ..."`) je nefunkčný (syntaktická chyba v jednom riadku). Správny príkaz od úlohy 021:
+```bash
+python scripts/coverage.py
+```
+
+**image_url a description po úlohe 021** (spustite po behu pipeline):
+```bash
+python scripts/coverage.py
+```

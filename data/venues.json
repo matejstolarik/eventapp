@@ -16,6 +16,8 @@
     "size": "small",
     "capacity": 250,
     "features": [],
+    "description": null,
+    "description_url": null,
     "sources": [
       { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
     ],
@@ -39,6 +41,8 @@
     "size": "medium",
     "capacity": 750,
     "features": null,
+    "description": "MeetFactory je neziskové mezinárodní centrum současného umění založené v roce 2001 umělcem Davidem Černým. V důsledku povodní v roce 2002 bylo nutné opustit původní prostory v Praze - Holešovicích a projekt byl vzkříšen o tři roky později v průmyslové budově v pražské čtvrti Smíchov. Program byl spuštěn po rozsáhlé rekonstrukci prostor v roce 2007.",
+    "description_url": "https://www.meetfactory.cz/cs/o-nas",
     "sources": [
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba" },
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo" }
@@ -63,6 +67,8 @@
     "size": null,
     "capacity": null,
     "features": ["open-air", "seasonal"],
+    "description": "Kasárny Karlín jsou kulturní centrum v areálu bývalých vojenských kasáren, které se veřejnosti otevřelo v roce 2017. Jedná se o vnitroblok, který skrývá rozlehlé nádvoří s útulnými bary a kavárnou, posezením pod korunami stromů a prostorem pro pohyb, kulturu i dětské skotačení.",
+    "description_url": "https://kasarnakarlin.cz/en/page/44",
     "sources": [
       { "type": "jsonld", "url": "https://kasarnakarlin.cz/en/program", "follow_links": true, "detail_lang": "en" }
     ],
@@ -86,6 +92,8 @@
     "size": "small",
     "capacity": null,
     "features": null,
+    "description": "V našem 'útulném obýváčku' najdete útočiště každý den kromě neděle, ať už potřebujete místo pro studium nebo si chcete jen tak popovídat s přáteli. Několikrát týdně navíc připravujeme klubový program – autorská čtení, přednášky a besedy, filmové projekce i koncerty a divadelní představení. K tomu každý měsíc otevíráme novou výstavu a přijít můžete i na pravidelný šachový turnaj.",
+    "description_url": "https://citarna.unijazz.cz/about/",
     "sources": [
       {
         "type": "jsonld",
@@ -119,6 +127,8 @@
     "size": "medium",
     "capacity": 650,
     "features": [],
+    "description": "A newly (re)opened legendary venue located on an island in the center of Prague, yet very far away from the mainstream. Fuchs2 has a long history that started in the early 1930s when the architect Josef Fuchs built it as a functionalist-styled café. Since December 2018 it is known as Fuchs2 and it is a safe haven for alternative culture.",
+    "description_url": "https://www.fuchs2.cz/about",
     "sources": [
       {
         "type": "jsonld",
@@ -150,6 +160,8 @@
     "size": "small",
     "capacity": 280,
     "features": [],
+    "description": "We are a music club, bicycle studio, bar and a multifunctional space. Constantly in motion fascinated by music and movement within the city. We build space for free individuality.",
+    "description_url": "https://bikejesus.com",
     "sources": [
       {
         "type": "api",
@@ -180,6 +192,8 @@
     "size": "medium",
     "capacity": 700,
     "features": null,
+    "description": "Palác Akropolis – labyrint kulturního dění! Centrum nezávislé kultury, které nabízí ojedinělé hudební, divadelní a výtvarné projekty. Aktivujeme vaše smysly hudbou, divadlem, tancem, novým cirkusem, výstavami, workshopy, cestovatelskými večery i festivaly.",
+    "description_url": "https://palacakropolis.cz/work/33298?no=62&page_id=33133",
     "sources": [
       {
         "type": "html",
@@ -219,6 +233,8 @@
     "size": "medium",
     "capacity": 1200,
     "features": [],
+    "description": null,
+    "description_url": null,
     "sources": [
       {
         "type": "html",
@@ -248,6 +264,8 @@
     "size": "large",
     "capacity": 3800,
     "features": [],
+    "description": "Forum Karlín se stalo synonymem pro špičkové kulturní a společenské akce v Praze. Tento moderní multifunkční prostor představuje unikátní koncept, který v hlavním městě nemá obdoby. Díky své impozantní kapacitě pro tisíce návštěvníků je Forum Karlín ideálním místem pro velkolepé koncerty, konference, televizní přenosy i gala večery.",
+    "description_url": "https://www.forumkarlin.cz/o-nas/",
     "sources": [
       {
         "type": "html",
@@ -277,6 +295,8 @@
     "size": "medium",
     "capacity": 750,
     "features": [],
+    "description": null,
+    "description_url": null,
     "sources": [
       {
         "type": "html",
@@ -306,6 +326,8 @@
     "size": "medium",
     "capacity": 600,
     "features": [],
+    "description": null,
+    "description_url": null,
     "sources": [
       {
         "type": "html",

@@ -38,6 +38,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
   "sources": [
     { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
   ],
+  "description": "Kultový underground klub a komunitné centrum v industriálnom komplexe. Multifunkčný priestor s barom, záhradou a štúdiami.",
+  "description_url": "https://www.crossclub.cz/cs/o-nas/",
   "active": true,
   "notes": null
 }
@@ -47,6 +49,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `sources`: nesmie byť prázdne. Podnik bez zdroja akcií sa do `venues.json` nepridá.
 - `capacity`: nepovinné, len overené číslo.
 - `lat`, `lng`: súradnice pre zobrazenie na mape. **Povinné** — podnik bez súradníc sa na mape nezobrazí. Zdroj: OSM Nominatim alebo mapa na webe podniku; vždy overiť adresou. Nový podnik bez súradníc sa do `venues.json` nepridá.
+- `description`: krátky popis podniku (2–4 vety, čistý text, bez prekladu, z webu podniku). `null` ak podnik nemá stránku „O nás" / „About" alebo tam popis nie je.
+- `description_url`: URL stránky, z ktorej popis pochádza. `null` ak `description` je `null`.
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.

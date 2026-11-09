@@ -118,7 +118,8 @@ def _fetch_wix_sitemap(venue: dict, source_config: dict) -> list:
             log.warning("%s [jsonld/wix_sitemap]: %s failed: %s", venue["id"], url, exc)
             continue
 
-        for item in _all_ld_items(BeautifulSoup(html, "html.parser")):
+        page_soup = BeautifulSoup(html, "html.parser")
+        for item in _all_ld_items(page_soup):
             if not _is_event(item):
                 continue
             ev = _wix_ld_to_raw(item, venue, url, section)
@@ -129,6 +130,16 @@ def _fetch_wix_sitemap(venue: dict, source_config: dict) -> list:
             except (ValueError, AttributeError):
                 continue
             if yesterday <= ev_date <= cutoff:
+                # Fallback: og:description / og:image when JSON-LD has none
+                import dataclasses as _dc
+                if not ev.description:
+                    og_d = _og_meta(page_soup, "og:description")
+                    if og_d:
+                        ev = _dc.replace(ev, description=og_d, description_source="source")
+                if not ev.image_url:
+                    og_i = _og_meta(page_soup, "og:image")
+                    if og_i and og_i.startswith("http"):
+                        ev = _dc.replace(ev, image_url=og_i)
                 all_events.append(ev)
                 break  # one JSON-LD per Wix event page
 
@@ -389,18 +400,38 @@ def _fetch_mec_detail_times(venue: dict, source_config: dict,
             continue
 
         soup = BeautifulSoup(html, "html.parser")
-        et_el = soup.select_one(".event-time")
-        if not et_el:
-            updated.append(ev)
-            continue
-        det_date, det_time = _parse_event_time_div(et_el.get_text(strip=True))
-        if not det_time:
-            updated.append(ev)
-            continue
+
+        # time
+        det_time = None
         flags = list(ev.flags)
-        if det_date and det_date != ev.date:
-            flags.append("date_conflict")
-        updated.append(dataclasses.replace(ev, start_time=det_time, flags=flags))
+        et_el = soup.select_one(".event-time")
+        if et_el:
+            det_date, det_time = _parse_event_time_div(et_el.get_text(strip=True))
+            if det_date and det_date != ev.date:
+                flags.append("date_conflict")
+
+        # description / image fallback from og: tags
+        description = ev.description
+        description_source = ev.description_source
+        image_url = ev.image_url
+        if not description:
+            og_d = _og_meta(soup, "og:description")
+            if og_d:
+                description = og_d
+                description_source = "source"
+        if not image_url:
+            og_i = _og_meta(soup, "og:image")
+            if og_i and og_i.startswith("http"):
+                image_url = og_i
+
+        updated.append(dataclasses.replace(
+            ev,
+            start_time=det_time if det_time else ev.start_time,
+            flags=flags,
+            description=description,
+            description_source=description_source,
+            image_url=image_url,
+        ))
     return updated
 
 
@@ -791,6 +822,17 @@ def _resolve_image(image_val, base_url: str) -> "str | None":
     if not url.startswith("http"):
         url = urljoin(f"{_origin(base_url)}/", url.lstrip("/"))
     return url
+
+
+def _og_meta(soup: BeautifulSoup, prop: str) -> "str | None":
+    """Return content of a <meta property="og:…"> tag, truncated to 1000 chars."""
+    el = soup.find("meta", property=prop)
+    if not el:
+        return None
+    text = (el.get("content") or "").strip()
+    if not text:
+        return None
+    return _clean_description(text)
 
 
 def _origin(url: str) -> str:

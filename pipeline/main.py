@@ -15,6 +15,7 @@ from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
 from pipeline.classify import classify_events
 from pipeline.classify_ai import classify_events_ai
+from pipeline.detail_enrich import enrich_missing_details
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ def main():
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
+    events, enrich_stats = enrich_missing_details(events, previous, venues)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -141,11 +143,12 @@ def main():
 
     log.info("Wrote %d events to %s", len(events), EVENTS_OUT)
 
-    _write_job_summary(source_results, events, generated_at, capture.messages, ai_stats)
+    _write_job_summary(source_results, events, generated_at, capture.messages, ai_stats,
+                      enrich_stats)
 
 
 def _write_job_summary(source_results, events, generated_at, adapter_warnings=None,
-                       ai_stats=None):
+                       ai_stats=None, enrich_stats=None):
     """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
     summary_path = os.getenv("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -239,6 +242,41 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
                 f"- **Estimated cost: ${cost:.4f}**",
                 "",
             ]
+
+    # description / image_url coverage per venue
+    desc_counts: dict[str, dict] = {}
+    for e in events:
+        vid = e["venue_id"]
+        if vid not in desc_counts:
+            desc_counts[vid] = {"desc": 0, "img": 0, "total": 0}
+        desc_counts[vid]["total"] += 1
+        if e.get("description"):
+            desc_counts[vid]["desc"] += 1
+        if e.get("image_url"):
+            desc_counts[vid]["img"] += 1
+
+    total_desc = sum(v["desc"] for v in desc_counts.values())
+    total_img = sum(v["img"] for v in desc_counts.values())
+    total_ev = len(events)
+
+    lines += ["### description / image_url coverage", ""]
+    lines += [f"**description:** {total_desc}/{total_ev} · "
+              f"**image_url:** {total_img}/{total_ev}", ""]
+    lines += ["| Venue | description | image_url |", "|---|---|---|"]
+    for vid, d in sorted(desc_counts.items()):
+        lines.append(f"| {vid} | {d['desc']}/{d['total']} | {d['img']}/{d['total']} |")
+    lines.append("")
+
+    if enrich_stats:
+        lines += [
+            "### Detail enrichment (task 021)",
+            "",
+            f"- New fetches: {enrich_stats.get('fetched', 0)}",
+            f"- Cache hits: {enrich_stats.get('cache_hits', 0)}",
+            f"- Skipped: {enrich_stats.get('skipped', 0)}",
+            f"- Errors: {enrich_stats.get('errors', 0)}",
+            "",
+        ]
 
     with open(summary_path, "a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")

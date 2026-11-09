@@ -214,8 +214,59 @@ def _enrich_from_detail(ev, html: str):
             log.debug("%s [html/forum_karlin] %s: extra sellers: %s",
                       ev.venue_id, ev.title, extra)
 
+    # ── description: og:description → meta description ────────────────────
+    description = ev.description
+    description_source = ev.description_source
+    if not description:
+        description = _og_text(soup, "og:description") or _meta_name(soup, "description")
+        if description:
+            description_source = "source"
+
+    # ── image_url: og:image (listing image already set; only fill if missing) ──
+    image_url = ev.image_url
+    if not image_url:
+        og_img = soup.find("meta", property="og:image")
+        if og_img and (og_img.get("content") or "").strip().startswith("http"):
+            image_url = og_img["content"].strip()
+
     return dataclasses.replace(ev, start_time=start_time, doors_time=doors_time,
-                               ticket_url=ticket_url)
+                               ticket_url=ticket_url, description=description,
+                               description_source=description_source, image_url=image_url)
+
+
+def _og_text(soup: BeautifulSoup, prop: str) -> "str | None":
+    el = soup.find("meta", property=prop)
+    if not el:
+        return None
+    text = (el.get("content") or "").strip()
+    return _clean_description(text)
+
+
+def _meta_name(soup: BeautifulSoup, name: str) -> "str | None":
+    el = soup.find("meta", attrs={"name": name})
+    if not el:
+        return None
+    text = (el.get("content") or "").strip()
+    return _clean_description(text)
+
+
+def _clean_description(text: str) -> "str | None":
+    """Return text cleaned of HTML entities, truncated at 1000 chars on sentence end."""
+    import re
+    if not text:
+        return None
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    if not text or len(text) < 10:
+        return None
+    if len(text) <= 1000:
+        return text
+    cut = text[:1000]
+    for marker in (". ", "! ", "? "):
+        pos = cut.rfind(marker)
+        if pos > 500:
+            return cut[:pos + 1].strip()
+    return cut.rsplit(" ", 1)[0] + "..."
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
