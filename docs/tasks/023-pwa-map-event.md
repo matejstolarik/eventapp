@@ -83,3 +83,111 @@ Prvá časť appky. Cieľ: Matej si appku otvorí v telefóne (Android), nainšt
 - Zoznam vecí, ktoré si musel doriešiť, lebo v predlohe neboli, a ako si ich vyriešil.
 
 ## Report
+
+**Dátum:** 2026-11-09  
+**Stav:** Hotovo (build + unit testy). Playwright screenshoty a nasadenie čakajú na ďalší commit po push.
+
+### Čo je hotové
+
+**Sekcia 0 — základ:**
+- `web/` inicializovaný: React 18 + TypeScript + Vite 5 + vite-plugin-pwa, `base: '/eventapp/'`
+- `web/src/core/` — čistý TS bez React/DOM: `types.ts`, `day.ts`, `events.ts`, `eventType.ts`, `distance.ts`, `store.ts`
+- `web/src/i18n/` — sk/cs/en slovníky + `formatDayLabel`, `formatEventDate`
+- `web/src/icons/index.tsx` — SVG ikony z dizajnových HTML predlôh
+- `web/src/styles/global.css` — CSS premenné, pill marker štýly, animácia pulzu
+- `web/src/map/mapStyle.ts` — dark OpenFreeMap liberty štýl (25 farebných nahradení + filtre POI vrstiev)
+- `web/src/map/markers.ts` — `createPillElement`, `assignStackOffsets`
+- PWA manifest, service worker (Workbox: NetworkFirst events.json, CacheFirst tiles + fonty)
+- Ikony `icon.svg`, `icon-192.png`, `icon-512.png`
+
+**Sekcia 1 — spodná lišta:** `BottomNav.tsx` — aktívna záložka ružová pill, ostatné sivé ikony
+
+**Sekcia 2 — Mapa:** `MapPage.tsx`
+- MapLibre GL JS, OpenFreeMap liberty dark štýl
+- Pill markery (variant B, plná farba) + dot mode (zoom < 11)
+- Výber dňa (14 dní), Všetky/Obľúbené prepínač
+- Tlačidlo polohy (geolocation API)
+- `assignStackOffsets` pre Fuchs2 + Bike Jesus (rovnaké súradnice na Štvanici)
+- `DaySelector.tsx` — spodný sheet s 14 dňami
+
+**Sekcia 3 — panel akcie:** `EventPanel.tsx`
+- Plávajúca karta nad spodnou lištou (12 px od okrajov, 112 px od spodku)
+- Swipe na prechod medzi viacerými akciami, bodkový indikátor
+- Zatvorenie tapom mimo panel
+
+**Sekcia 4 — stránka akcie:** `EventPage.tsx`
+- Hash routing `#/akcia/<id>`
+- Poster fullscreen (100 % šírky), gradient prechod, tlačidlo na zobrazenie celého posteru
+- Lístky / Web CTA, Idem/Kalendár/Zdieľať/IG tlačidlá
+- `generateICS()` s `TZID=Europe/Prague`
+- Web Share API → clipboard fallback s toastom
+- „Akcia sa nenašla" pre neexistujúce eventId
+
+**Môj účet:** `MyAccountPage.tsx` — zoznam going + výber jazyka (SK/CS/EN)
+
+**Sekcia 5 — deploy:**
+- `daily.yml` rozšírený: po pipeline builduje web app a nasadí app + events.json dokopy
+- Nový `deploy-app.yml`: nasadí web app + stiahne aktuálny events.json z Pages (zachová dáta)
+
+### Unit testy
+
+```
+npm test -- --reporter=verbose
+```
+
+```
+Test Files  4 passed (4)
+Tests       32 passed (32)
+```
+
+- `core/day.test.ts` — 9 testov (05:00 pravidlo, hranica mesiaca)
+- `core/eventType.test.ts` — 6 testov (priorita formátov)
+- `core/events.test.ts` — 11 testov (midnight-spanning, live, triedenie)
+- `core/distance.test.ts` — 6 testov (haversine, formátovanie)
+
+**Oprava testu:** `sorts live events first` opravená — pri 20:30 sú live aj `e1` (20:00, bez end) aj `e5` (19:00–21:00); test bol presunutý na 21:30, keď je `e5` ukončená. Logika `getVenueEvents` je správna.
+
+### Build
+
+```
+npm run build
+```
+
+Vite: 54 modulov, `dist/index.html` + `dist/assets/index-*.js` (989 kB, ~277 kB gzip) + SW + manifest.  
+Upozornenie na veľkosť bundle (maplibre-gl je veľká knižnica) — v1 akceptovateľné, code-split možný neskôr.
+
+### TypeScript chyby opravené
+
+- `vite.config.ts`: chýbal `/// <reference types="vitest" />` pre `test` config
+- `App.tsx`: `routeToHash` a `setUserLocation` odstránené (nepoužité); `setLastFetched` opravené (store funkcia bez arg)
+- `i18n/index.ts`: CS/EN slovníky pretypované cez `as unknown as Dict` (rôzne string literály)
+- `EventPage.tsx`: uzávery TS neukazajú narrowing — `const ev = event` po guard bloku
+- `EventPanel.tsx`: nepoužité importy a parametre odstránené
+- `MapPage.tsx`: `attributionControl: { compact: true }`, nepoužité importy odstránené
+
+### Playwright screenshoty
+
+**Zatiaľ nespustené** — Playwright vyžaduje spustený dev server a stiahnutie Chromium prehliadača. Screenshoty budú v `docs/tasks/023/` po prvom spustení.
+
+### Čo zostáva otvorené
+
+- Playwright screenshoty (spustiť `npm run playwright` po `npx playwright install chromium`)
+- Porovnanie screenshotov s `docs/design/screens/`
+- Prvý push a nasadenie na GitHub Pages (Matej musí nastaviť Pages deployment environment ak ešte nie je)
+- Testovanie na skutočnom telefóne
+
+### Ako otvoriť appku v telefóne (po nasadení)
+
+1. Otvor `https://matejstolarik.github.io/eventapp/` v Chrome (Android) alebo Safari (iOS)
+2. Android: Chrome → ⋮ → „Pridať na plochu" → Inštalovať
+3. iOS: Safari → Zdieľať → „Pridať na plochu"
+4. Appka sa otvorí v standalone režime (bez adresného riadku), funguje offline
+
+### Veci doriešené bez predlohy
+
+- **Pole `price_text`** v `Event` type: pridané do `types.ts` (z data-model.md, v dizajne sa zobrazuje)
+- **Pole `free`** v `Event` type: boolean, zobrazuje „vstup voľný"
+- **Pole `sold_out`** v `Event` type: boolean
+- **`EventType`** typ v `types.ts`: `'concert' | 'party' | 'dj' | 'culture' | 'other'` — odvodené z formátov
+- **Testovacie súradnice** pre unit testy: Cross Club a Fuchs2 — skutočné pražské súradnice z pipeline dát
+
