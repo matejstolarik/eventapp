@@ -61,7 +61,7 @@ Over v aktuálnych podmienkach poskytovateľov, uveď odkazy a dátum overenia. 
 
 ## Report
 
-Dátum: 2026-11-09. Commit hash: (doplniť po pushi).
+Dátum: 2026-11-09. Commit hash: c9d2e2a (po pushi na origin/main).
 
 ### Čo je hotové
 
