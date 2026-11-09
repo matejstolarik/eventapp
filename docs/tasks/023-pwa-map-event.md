@@ -85,7 +85,8 @@ Prvá časť appky. Cieľ: Matej si appku otvorí v telefóne (Android), nainšt
 ## Report
 
 **Dátum:** 2026-11-09  
-**Stav:** Hotovo (build + unit testy). Playwright screenshoty a nasadenie čakajú na ďalší commit po push.
+**Commit:** c490c84  
+**Stav:** Hotovo (build + unit testy). Playwright screenshoty čakajú na spustenie po push.
 
 ### Čo je hotové
 
