@@ -35,6 +35,13 @@ Stav po 009: `description` má 21 z 373 akcií, `image_url` 253 z 373. Popis a o
 - Ak web detail nemá alebo popis neobsahuje, nechaj `null` a uveď to v reporte. Nič nedomýšľaj a neprekladaj.
 - Testy na extrakciu aspoň pre 3 rôzne miesta (uložené vzorky HTML) a test cache (akcia s popisom z predošlého stavu sa znova nesťahuje).
 
+### 2b. Ďalšie chýbajúce údaje z toho istého detailu (Matej 2026-11-09, doplnené pred odovzdaním)
+Keď už detail sťahujeme, vezmi z neho aj ostatné údaje, ktoré akcii chýbajú. Žiadna ďalšia požiadavka, tá istá odpoveď a tá istá cache.
+- **Polia, ktoré už v dátovom modeli sú:** `start_time` (napr. Bike Jesus nemá čas vôbec), `doors_time`, `end_time`, `price_text`, `free`, `ticket_url` (chýba napr. Archa+, Fuchs2), `sold_out`, `room`, `artists`. Dopĺňaj len to, čo chýba. Ak sa hodnota z detailu líši od hodnoty z výpisu, neprepisuj ju a označ nesúlad (`flags`), tak ako pri ostatných kontrolách kvality.
+- **Nové typy údajov** (napr. vekový limit, organizátor, časy vystúpení, žánrové značky zo zdroja, jazyk, bezbariérovosť): **nepridávaj**, len ich zmapuj. Do reportu daj tabuľku: miesto × údaj, či ho detail má, príklad hodnoty. Matej rozhodne, čo pridať (zmena dátového modelu).
+- Ak by niektorý údaj vyžadoval parser výrazne zložitejší než popis a obrázok, nerob ho a uveď to v reporte.
+- V reporte uveď pokrytie týchto polí po miestach pred a po.
+
 ### 3. Popis miesta (zmena dátového modelu, Matej schválil 2026-11-09)
 Profil miesta v dizajne má krátky popis miesta. Do `venues.json` a `data-model.md` pridaj pole `description` (string alebo `null`) a `description_url` (odkiaľ text je).
 - Vyplň ho len vtedy, keď ho miesto má na svojom webe (stránka „O nás“ / „About“), skrátený na 2–4 vety, bez prekladu a bez úprav obsahu.
