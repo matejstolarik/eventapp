@@ -53,16 +53,18 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
   - **Vybraná značka** (po ťuknutí): pilulka zosvetlí na `#F4F2FF` s tmavým textom, zväčší sa (scale 1,12) a dostane tieň; ikona ostáva v kruhu farby typu (`02-mapa-panel.png`).
 - **Žiadne zhlukovanie (clustering).** Pri oddialení sa značky zmenšia na farebné body (26 px, biely okraj 3 px), názvy sa ukazujú tam, kde je miesto.
 - **Dve značky sa nikdy nespájajú do jednej a žiadna nesmie zmiznúť.** Ak sa prekrývajú (napr. Fuchs2 a Bike Jesus na Štvanici, rovnaký bod v OSM), posunú sa nad seba, každá s vlastnou farbou a ikonou (`01-mapa.png`).
+  - **Posunutá pilulka má spojnicu k skutočnému bodu** (upravené 2026-11-09): tenká čiara 2 px vo farbe typu od pilulky k malej bodke (8 px, farba typu, tmavý okraj) na presnom mieste, aby bolo vidno, kde miesto naozaj je.
 - **Horná lišta** (16 px od okrajov, 56 px od vrchu, mriežka na celú šírku, všetky prvky **výška 44**):
   1. **Dnes ▾** (biele): výber **jedného dňa**. „Dnes“ sa prepína o 5:00 ráno (do 5:00 je „dnes“ ešte predošlý večer).
   2. Prepínač **Všetko | Obľúbené** (rovnako široké polovice, zapnutá polovica vypĺňa celú výšku): zapnuté Všetko = biele; zapnuté Obľúbené = ružové s **vyplneným čiernym srdiečkom**, vypnuté = obrys srdiečka.
   3. **Filter:** ružový kruh len s ikonou (bez textu), počet aktívnych filtrov ako biely odznak v rohu. Filter: formát (vrátane `party`), žáner, typ miesta, charakter, veľkosť; kombinovateľné. **Panel filtra zároveň slúži ako legenda:** typy akcií v ňom majú rovnakú farbu a ikonu ako značky. (Panel filtra ešte nie je nakreslený; navrhni ho v tomto štýle a ukáž Matejovi pred dokončením.)
+- **Autorstvo mapy** (OpenFreeMap / OpenStreetMap) je povinné podľa licencie, nesmie sa odstrániť. Zobrazuje sa ako malá ikonka „i“, ktorá sa rozbalí po ťuknutí, umiestnená tak, aby nič neprekrývala (upravené 2026-11-09).
 - **Moja poloha:** biely kruh 52 px vpravo nad spodnou lištou. Poloha len so súhlasom; bez súhlasu mapa funguje, iba bez vzdialeností.
 
 ## 3. Panel akcie na mape (`02-mapa-panel.png`)
 
 - **Otvorí sa ťuknutím na značku** (nie potiahnutím). Je to **malá karta, ktorá pláva nad spodnou lištou** (12 px od okrajov, 112 px od spodku, `#1C1C27`, zaoblenie 28, obrys `#2E2D3C`), nie panel z boku ani na celú obrazovku.
-- Obsah: vľavo obrázok 88 × 88 (zaoblenie 18), vpravo názov akcie (Bricolage 21/700) a riadok „miesto · čas · vzdialenosť“; pod tým **riadok štítkov** (výška 32, zaoblenie 16): formáty vo farbe typu, žánre, charakter miesta ako obrys.
+- Obsah: vľavo obrázok 88 × 88 (zaoblenie 18), vpravo názov akcie (Bricolage 21/700) a riadok „miesto · čas · vzdialenosť“; pod tým **štítky v dvoch riadkoch** (výška 32, zaoblenie 16; upravené 2026-11-09): **1. riadok štítky akcie** (formáty vo farbe typu, potom žánre), **2. riadok štítky miesta** (charakter ako obrys). Každý riadok je jeden, **vodorovne posúvateľný**, a pri pravom okraji sa štítky **rozplynú** (prechod do priehľadnosti), aby bolo vidno, že ich je viac. Karta tak má vždy rovnakú výšku.
 - **Ťuknutie kdekoľvek na kartu otvorí stránku akcie.** Ak má miesto v ten deň viac akcií, karta ukáže prvú a dá sa listovať (doplniť po dohode s Matejom).
 - Chýba obrázok → ikona typu akcie na farebnom pozadí typu.
 
