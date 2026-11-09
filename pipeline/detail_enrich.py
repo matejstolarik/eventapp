@@ -43,6 +43,7 @@ def enrich_missing_details(
     Returns (enriched_events, stats_dict).
     """
     listing_urls = _build_listing_urls(venues)
+    venue_desc_selectors = _build_venue_desc_selectors(venues)
 
     stats = {
         "fetched": 0,
@@ -88,6 +89,8 @@ def enrich_missing_details(
 
         # Cache check: reuse from previous pipeline run
         prev = previous_events.get(ev_id)
+        event_title = ev.get("title", "")
+        has_custom_selector = venue_id in venue_desc_selectors
         if prev:
             prev_sources = prev.get("sources", [])
             prev_url = prev_sources[0].get("url") if prev_sources else None
@@ -95,10 +98,15 @@ def enrich_missing_details(
                 ev = dict(ev)
                 filled = False
                 if needs_desc and prev.get("description"):
-                    ev["description"] = prev["description"]
-                    ev["description_source"] = prev.get("description_source", "source")
-                    needs_desc = False
-                    filled = True
+                    prev_desc = prev["description"]
+                    # Skip cached desc if venue has a custom selector (old extraction may be wrong)
+                    # or if the cached description equals the event title (not a real description)
+                    is_title_only = prev_desc.strip().lower() == event_title.strip().lower()
+                    if not has_custom_selector and not is_title_only:
+                        ev["description"] = prev_desc
+                        ev["description_source"] = prev.get("description_source", "source")
+                        needs_desc = False
+                        filled = True
                 if needs_img and prev.get("image_url"):
                     ev["image_url"] = prev["image_url"]
                     needs_img = False
@@ -147,11 +155,15 @@ def enrich_missing_details(
             result.append(ev)
             continue
 
-        enriched = _extract_from_page(html, detail_url)
+        selector = venue_desc_selectors.get(venue_id)
+        enriched = _extract_from_page(html, detail_url, selector=selector)
         ev = dict(ev)
         if needs_desc and enriched.get("description"):
-            ev["description"] = enriched["description"]
-            ev["description_source"] = "source"
+            desc = enriched["description"]
+            # Discard if description equals the event title (not a real description)
+            if desc.strip().lower() != event_title.strip().lower():
+                ev["description"] = desc
+                ev["description_source"] = "source"
         if needs_img and enriched.get("image_url"):
             ev["image_url"] = enriched["image_url"]
 
@@ -164,21 +176,26 @@ def enrich_missing_details(
     return result, stats
 
 
-def _extract_from_page(html: str, url: str) -> dict:
+def _extract_from_page(html: str, url: str, selector: "str | None" = None) -> dict:
     """Extract description and image_url from an event detail page.
 
-    Priority:
-      description: JSON-LD description → og:description → meta[name=description]
-      image_url:   JSON-LD image       → og:image
+    When *selector* is given, use that CSS selector to extract description text
+    instead of og:description / meta[name=description].
+
+    Priority (description):
+      If selector: CSS selector text
+      Else: JSON-LD description → og:description → meta[name=description]
+
+    Priority (image_url): JSON-LD image → og:image
     """
     soup = BeautifulSoup(html, "html.parser")
     result: dict = {}
 
-    # 1. JSON-LD Event
+    # 1. JSON-LD Event (always tried for image; description only when no custom selector)
     for item in _all_ld_items(soup):
         if not _is_event(item):
             continue
-        if "description" not in result:
+        if "description" not in result and not selector:
             d = _clean_description(item.get("description"))
             if d:
                 result["description"] = d
@@ -188,17 +205,27 @@ def _extract_from_page(html: str, url: str) -> dict:
                 result["image_url"] = img
         break  # first Event block is enough
 
-    # 2. og:description
-    if "description" not in result:
-        d = _meta_property(soup, "og:description")
-        if d:
-            result["description"] = d
+    if selector:
+        # Custom CSS selector for venue-specific description extraction
+        if "description" not in result:
+            els = soup.select(selector)
+            parts = [el.get_text(separator=" ", strip=True) for el in els]
+            text = " ".join(p for p in parts if p)
+            d = _truncate(text)
+            if d:
+                result["description"] = d
+    else:
+        # 2. og:description
+        if "description" not in result:
+            d = _meta_property(soup, "og:description")
+            if d:
+                result["description"] = d
 
-    # 3. meta[name=description]
-    if "description" not in result:
-        d = _meta_name(soup, "description")
-        if d:
-            result["description"] = d
+        # 3. meta[name=description]
+        if "description" not in result:
+            d = _meta_name(soup, "description")
+            if d:
+                result["description"] = d
 
     # 4. og:image
     if "image_url" not in result:
@@ -257,5 +284,21 @@ def _build_listing_urls(venues: list) -> dict:
             ajax = source.get("ajax_url")
             if ajax:
                 urls.add(ajax)
+            # venue_url is the venue root page, not an individual event page
+            venue_url = source.get("venue_url")
+            if venue_url:
+                urls.add(venue_url)
         result[venue["id"]] = urls
+    return result
+
+
+def _build_venue_desc_selectors(venues: list) -> dict:
+    """Return {venue_id: css_selector} for venues with custom description extraction."""
+    result: dict = {}
+    for venue in venues:
+        for source in venue.get("sources", []):
+            sel = source.get("detail_desc_selector")
+            if sel:
+                result[venue["id"]] = sel
+                break
     return result

@@ -214,13 +214,16 @@ def _enrich_from_detail(ev, html: str):
             log.debug("%s [html/forum_karlin] %s: extra sellers: %s",
                       ev.venue_id, ev.title, extra)
 
-    # ── description: og:description → meta description ────────────────────
+    # ── description: p.wp-block-paragraph (og:description is generic venue text) ──
     description = ev.description
     description_source = ev.description_source
     if not description:
-        description = _og_text(soup, "og:description") or _meta_name(soup, "description")
-        if description:
-            description_source = "source"
+        paragraphs = soup.select("p.wp-block-paragraph")
+        if paragraphs:
+            text = " ".join(p.get_text(separator=" ", strip=True) for p in paragraphs)
+            description = _clean_description(text)
+            if description:
+                description_source = "source"
 
     # ── image_url: og:image (listing image already set; only fill if missing) ──
     image_url = ev.image_url

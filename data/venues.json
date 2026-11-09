@@ -44,8 +44,8 @@
     "description": "MeetFactory je neziskové mezinárodní centrum současného umění založené v roce 2001 umělcem Davidem Černým. V důsledku povodní v roce 2002 bylo nutné opustit původní prostory v Praze - Holešovicích a projekt byl vzkříšen o tři roky později v průmyslové budově v pražské čtvrti Smíchov. Program byl spuštěn po rozsáhlé rekonstrukci prostor v roce 2007.",
     "description_url": "https://www.meetfactory.cz/cs/o-nas",
     "sources": [
-      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba" },
-      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo" }
+      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba", "detail_desc_selector": "#text_equal p" },
+      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo", "detail_desc_selector": "#text_equal p" }
     ],
     "active": true,
     "notes": "Kapacita: meetfactory.cz/en/informace-pro-kapely"

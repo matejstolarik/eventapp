@@ -5,6 +5,7 @@ import pytest
 from pipeline.detail_enrich import (
     _extract_from_page,
     _build_listing_urls,
+    _build_venue_desc_selectors,
     enrich_missing_details,
 )
 
@@ -198,3 +199,105 @@ def test_fully_populated_event_is_passed_through():
     assert stats["fetched"] == 0
     assert stats["skipped"] == 0
     assert stats["cache_hits"] == 0
+
+
+# ── new features: venue_url skip, custom selector, title dedup ────────────────
+
+def test_build_listing_urls_includes_venue_url():
+    venues = [
+        {
+            "id": "bike-jesus",
+            "sources": [
+                {
+                    "type": "api",
+                    "url": "https://bikejesus.com/api/events",
+                    "venue_url": "https://bikejesus.com",
+                }
+            ],
+        }
+    ]
+    result = _build_listing_urls(venues)
+    assert "https://bikejesus.com/api/events" in result["bike-jesus"]
+    assert "https://bikejesus.com" in result["bike-jesus"]
+
+
+def test_venue_url_source_is_skipped():
+    ev = _make_event("bj1", "bike-jesus", "https://bikejesus.com")
+    venues = [
+        {
+            "id": "bike-jesus",
+            "sources": [{"type": "api", "url": "https://bikejesus.com/api/events", "venue_url": "https://bikejesus.com"}],
+        }
+    ]
+    result, stats = enrich_missing_details([ev], {}, venues)
+    assert result[0]["description"] is None
+    assert stats["skipped"] == 1
+
+
+def test_build_venue_desc_selectors():
+    venues = [
+        {"id": "meetfactory", "sources": [{"type": "jsonld", "url": "https://meetfactory.cz/hudba", "detail_desc_selector": "#text_equal p"}]},
+        {"id": "roxy", "sources": [{"type": "html", "url": "https://www.roxy.cz/club/"}]},
+    ]
+    result = _build_venue_desc_selectors(venues)
+    assert result["meetfactory"] == "#text_equal p"
+    assert "roxy" not in result
+
+
+def test_extract_from_page_uses_css_selector():
+    html = """
+    <html><head>
+    <meta property="og:description" content="Generic venue text that should be ignored." />
+    </head><body>
+    <div id="text_equal">
+      <p>An exciting concert featuring jazz bands from across Europe.</p>
+      <p>Doors open at 20:00.</p>
+    </div>
+    </body></html>
+    """
+    result = _extract_from_page(html, "https://meetfactory.cz/event/1", selector="#text_equal p")
+    assert "jazz" in result["description"]
+    # og:description should be ignored when selector is provided
+    assert "Generic venue" not in result["description"]
+
+
+def test_cache_skipped_when_venue_has_custom_selector():
+    ev = {**_make_event("mf1", "meetfactory", "https://meetfactory.cz/event/1"), "title": "Jazz Night"}
+    prev = {
+        "mf1": {
+            "id": "mf1",
+            "venue_id": "meetfactory",
+            "sources": [{"url": "https://meetfactory.cz/event/1"}],
+            "description": "Buckle up, the winter is coming to MeetFactory.",
+            "description_source": "source",
+            "image_url": None,
+        }
+    }
+    # venue has detail_desc_selector → cache for description should be skipped
+    venues = [
+        {"id": "meetfactory", "sources": [{"type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba",
+                                            "detail_desc_selector": "#text_equal p"}]}
+    ]
+    result, stats = enrich_missing_details([ev], prev, venues)
+    # description should NOT be filled from cache (needs re-fetch)
+    assert result[0].get("description") is None
+    assert stats["cache_hits"] == 0
+
+
+def test_cache_skipped_when_desc_equals_title():
+    title = "SUNDEJ SE SUNDAY"
+    ev = {**_make_event("cc1", "cross-club", "https://crossclub.cz/event/1"), "title": title}
+    prev = {
+        "cc1": {
+            "id": "cc1",
+            "venue_id": "cross-club",
+            "sources": [{"url": "https://crossclub.cz/event/1"}],
+            "description": title,
+            "description_source": "source",
+            "image_url": None,
+        }
+    }
+    venues = [{"id": "cross-club", "sources": [{"type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/"}]}]
+    result, stats = enrich_missing_details([ev], prev, venues)
+    # description == title → should be discarded
+    assert result[0].get("description") is None

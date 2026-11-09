@@ -410,10 +410,17 @@ def _fetch_mec_detail_times(venue: dict, source_config: dict,
             if det_date and det_date != ev.date:
                 flags.append("date_conflict")
 
-        # description / image fallback from og: tags
+        # description: .ct-text-block.event-content first (og:description is null for Čítárna)
         description = ev.description
         description_source = ev.description_source
         image_url = ev.image_url
+        if not description:
+            ct_el = soup.select_one(".ct-text-block.event-content")
+            if ct_el:
+                text = ct_el.get_text(separator=" ", strip=True)
+                if text and len(text) >= 10:
+                    description = text[:1000]
+                    description_source = "source"
         if not description:
             og_d = _og_meta(soup, "og:description")
             if og_d:
