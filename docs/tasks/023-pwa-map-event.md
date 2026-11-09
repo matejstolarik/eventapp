@@ -24,8 +24,8 @@ Prvá časť appky. Cieľ: Matej si appku otvorí v telefóne (Android), nainšt
   - manifest s názvom, ikonou a tmavou farbou `#111118`, inštalácia na plochu,
   - service worker: offline zobrazí posledné stiahnuté dáta s nenápadnou informáciou, z kedy sú,
   - písma Bricolage Grotesque a Outfit.
-- **Jazyk:** texty cez jeden slovník. Čeština a slovenčina, predvolene podľa jazyka prehliadača (sk → slovenčina, inak čeština). **Tykanie.** Štítky vždy po anglicky malými písmenami.
-- **Spodná lišta** podľa predlohy: Mapa / Akcie / Miesta / Môj účet. Akcie a Miesta zatiaľ ukážu jednoduchú obrazovku „Pripravujeme“ v štýle appky. Tie prídu v ďalšej úlohe. Môj účet ukáže zatiaľ len zoznam akcií označených „Idem“ (jednoduchý zoznam v štýle riadkov z `04-akcie-zoznam.png`).
+- **Jazyk:** texty cez jeden slovník. **Čeština, slovenčina a angličtina** (Matej 2026-11-09). Predvolene podľa jazyka prehliadača: `sk` → slovenčina, `cs` → čeština, inak angličtina. **Jazyk sa dá kedykoľvek zmeniť** v Môj účet (jednoduchý výber z troch jazykov, uložený v `profileStore`). **Tykanie** (v angličtine prirodzene neformálne). Štítky vždy po anglicky malými písmenami.
+- **Spodná lišta** podľa predlohy: Mapa / Akcie / Miesta / Môj účet. Akcie a Miesta zatiaľ ukážu jednoduchú obrazovku „Pripravujeme“ v štýle appky. Tie prídu v ďalšej úlohe. Môj účet ukáže zatiaľ len zoznam akcií označených „Idem“ a výber jazyka (jednoduchý zoznam v štýle riadkov z `04-akcie-zoznam.png`).
 
 ### 2. Mapa (`design.md` časť 2, `01-mapa.png`)
 - MapLibre GL JS, podklad **OpenFreeMap** (bez kľúča). Štýl prefarbi do palety z predlohy a odstráň rušivé popisy a body záujmu. **Uveď autorstvo podkladu** podľa podmienok OpenFreeMap / OpenStreetMap (nenápadne, ale viditeľne).
