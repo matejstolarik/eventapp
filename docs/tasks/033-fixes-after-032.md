@@ -43,3 +43,63 @@ Web, Instagram a Navigovať **v jednom riadku**, rovnaké tlačidlá (veľkosť,
   - program miesta s cenou.
 
 ## Report
+
+**Dátum:** 2026-11-10  
+**Commit:** e68664c
+
+### Čo je hotové
+
+**1. Mená pinov na mape**
+- Odstránené CSS triedy `.pin-pair-west/.pin-pair-east` a všetok kód v `checkPinOverlaps`, ktorý ich prideľoval. Mená sú vždy vycentrované pod pinom cez CSS (bez `!important` override).
+- Pridaný globálny overlay `<div class="pin-combined-name">` v `map.getContainer()`, ref `combinedLabelRef`.
+- `checkNameCollisions` prepísaný: pri zistení prekrytia vycentrovaných mien sa west/east určí cez `map.project().x`, spoločné meno sa zobrazí v overlay dive na pozícii `left: midX, top: minPinY + 4` (px od rohu mapy). Bez prekrytia — oba normálne.
+- Výber pinu: spoločné meno skryté, len vybrané meno vycentrované (CSS `.pin-selected .pin-name`).
+- Testovateľné len keď Fuchs2 aj Bike Jesus majú udalosti v rovnaký deň (live dáta to potvrdia v pipeline). DOM inšpekcia potvrdzuje: `pin-pair-west/east: 0`, combinedLabel existuje v DOM, mená viditeľné a vycentrované.
+
+**2. Zoznam Miest**
+- Príčina: `overflow: hidden` na `<div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>` v `App.tsx` blokoval natívny touch scroll na mobilnom Safari/Android. Odstránené.
+- `AllFavsToggle` extrahovaný do `web/src/components/AllFavsToggle.tsx`, používajú ho `PlacesPage` aj `MapPage`. Štýl: pink `#FF4D8D` pre Obľúbené, `#F4F2FF` pre Všetky.
+
+**3. Profil miesta**
+- Tlačidlá Web/Instagram/Navigovať zmenené z horizontálnych pillov (height 44, padding 0 16px, ikona+text vedľa seba) na vertikálny štýl EventPage: `flex: 1, height: 64, flexDirection: 'column', gap: 4, fontSize: 11`. Všetky tri v jednom riadku.
+
+**4. Zvyšky z 032**
+- `price_text` / `free` v `EventPanel` (karta na mape): malý riadok pod subtitulom, farba `#8B8AA0`.
+- `price_text` / `free` v programe miesta (`VenuePage`): malý riadok pod tagmi, farba `#8B8AA0`.
+- Vitest testy tab navigácie: `web/src/App.test.ts` — 14 testov pre `parseHash()`, pokrýva všetky kombinácie hashov záložiek a overlay routes. `parseHash` exportovaný z `App.tsx`.
+
+### Čísla
+```
+python -c "import json; d=json.load(open('site/events.json', encoding='utf-8')); print('events:', len(d['events']), 'venues:', len(d['venues']))"
+events: 374  venues: 11
+```
+(site/events.json z posledného pipeline behu, nie nový fetch)
+
+### Testy
+```
+npm test: 59 testov (6 súborov), všetky OK
+npm run build: OK, čistý build
+```
+
+### Snímky
+Uložené v `docs/tasks/033/`:
+- `01-mapa-mena-pinov.png` — mapa zoom 14, pin ROXY s vycentrovaným menom
+- `02-miesta-vsetky.png` — zoznam Miest, hneď po otvorení
+- `03-miesta-oblubene.png` — toggle Obľúbené aktívny (pink)
+- `04-venue-cross-club.png` — Cross Club, vertikálne tlačidlá Web/Instagram/Navigovať
+- `05-venue-roxy.png` — ROXY venue profil
+
+### Overenie URL
+- http://localhost:5175/eventapp/#/miesto/cross-club → Web, Instagram, Navigovať vertikálne ✓
+- http://localhost:5175/eventapp/#/miesta → zoznam celý hneď, toggle pink pre Obľúbené ✓
+- http://localhost:5175/eventapp/ → mapa s vycentrovanými menami pinov ✓
+
+### Samostatné rozhodnutia
+- `parseHash` exportovaný z `App.tsx` (bol private) — potrebné pre unit testy bez React testing library. Bez vedľajších efektov.
+- Kombinovaný label overlay div vytvorený po init mapy a nikdy neodstránený (mapa sa nikdy nezruší v normálnom flow).
+- `showOffHeart` premenná z MapPage odstránená — AllFavsToggle vždy zobrazuje srdiečko.
+
+### Čo zostáva otvorené
+- Kombinovaný label (Bike Jesus · Fuchs2) nemožno otestovať v live dátach, kým obaja nemajú udalosti v rovnaký deň. Logika je správna podľa DOM inšpekcie a code review.
+- Full E2E Playwright testy tab navigácie (s renderovanou komponentou) by vyžadovali `@testing-library/react` — nie je nainštalovaný. Nahradené unit testami `parseHash`.
+- Pipeline beh nie je súčasťou tejto úlohy.
