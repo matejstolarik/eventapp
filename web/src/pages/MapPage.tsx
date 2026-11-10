@@ -12,7 +12,7 @@ import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
 import { createPinElement, updatePinElement, initPinShadows } from '../map/markers'
 import type { MarkerData } from '../map/markers'
 import { isNightTime, isNightEvent, NIGHT_DAY } from '../core/night'
-import { decidePairLabel } from '../map/pairLabel'
+import { decidePairLabel, significantOverlap } from '../map/pairLabel'
 import {
   IconChevronDown, IconFilter, IconLocation
 } from '../icons'
@@ -242,9 +242,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const toggleRef = useRef<HTMLDivElement>(null)
   const [toggleWidth, setToggleWidth] = useState(999)
   const pendingPanelOpenRef = useRef<string | null>(null)
-  const pairsRef = useRef<Map<string, string>>(new Map())
-  const combinedLabelRef = useRef<HTMLElement | null>(null)
-  const combinedMarkerRef = useRef<maplibregl.Marker | null>(null)
+  const combinedPoolRef = useRef<{ el: HTMLElement; marker: maplibregl.Marker }[]>([])
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
@@ -505,125 +503,107 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
   }, [buildMarkers, selectedVenueId])
 
+  // Name collisions (task 034, Matej 2026-11-10): names are always centered under their pins.
+  // Two names that overlap significantly (see pairLabel.ts) merge into one combined name
+  // (west · east or north · south) shown as a map marker. A slight touch is fine: both names stay.
+  // A name is hidden only when it significantly overlaps a name of higher priority
+  // (selected > live > favourite > other), e.g. the partner of a selected pin.
+  function getCombinedSlot(i: number) {
+    const map = mapRef.current
+    const pool = combinedPoolRef.current
+    while (map && pool.length <= i) {
+      const el = document.createElement('div')
+      el.className = 'pin-combined-name'
+      const marker = new maplibregl.Marker({ element: el, anchor: 'top', offset: [0, 4] })
+        .setLngLat(PRAGUE_CENTER)
+        .addTo(map)
+      pool.push({ el, marker })
+    }
+    return pool[i]
+  }
+
   function checkNameCollisions() {
     const map = mapRef.current
     if (!map || map.getZoom() < 13) return
 
-    // Reset combined label for this pass — re-activated below if a pair combines
-    if (combinedLabelRef.current) combinedLabelRef.current.classList.remove('is-active')
-
-    type PinEntry = { venueId: string; el: HTMLElement; nameEl: HTMLElement; priority: number }
-    const entries: PinEntry[] = []
-
-    for (const [venueId, { el }] of markersRef.current) {
+    type Entry = {
+      venueId: string; nameEl: HTMLElement; priority: number; selected: boolean
+      rect: DOMRect; pt: { x: number; y: number }; ll: { lng: number; lat: number }
+    }
+    const entries: Entry[] = []
+    for (const [venueId, { el, marker }] of markersRef.current) {
       const nameEl = el.querySelector('.pin-name') as HTMLElement | null
       if (!nameEl) continue
-      const isSelected = el.classList.contains('pin-selected')
+      nameEl.style.visibility = 'visible'
+      const selected = el.classList.contains('pin-selected')
       const isLive = el.querySelector('.pin-live-ring') !== null
       const isFav = el.querySelector('.pin-badge-heart') !== null
-      entries.push({ venueId, el, nameEl, priority: isSelected ? 4 : isLive ? 3 : isFav ? 2 : 1 })
+      const ll = marker.getLngLat()
+      entries.push({
+        venueId, nameEl, selected,
+        priority: selected ? 4 : isLive ? 3 : isFav ? 2 : 1,
+        rect: nameEl.getBoundingClientRect(),
+        pt: map.project(ll), ll: { lng: ll.lng, lat: ll.lat },
+      })
     }
+    const measured = entries.filter(e => e.rect.width > 0)
 
-    entries.sort((a, b) => b.priority - a.priority)
+    // 1. Merge candidates: unselected pairs with significant overlap, strongest overlap first
+    const cands: { a: Entry; b: Entry; score: number }[] = []
+    for (let i = 0; i < measured.length; i++) {
+      for (let j = i + 1; j < measured.length; j++) {
+        const a = measured[i], b = measured[j]
+        if (a.selected || b.selected) continue
+        const score = significantOverlap(a.rect, b.rect)
+        if (score > 0) cands.push({ a, b, score })
+      }
+    }
+    cands.sort((x, y) => y.score - x.score)
 
-    const processedPairs = new Set<string>()
-    const occupied: DOMRect[] = []
+    type Item =
+      | { kind: 'name'; priority: number; e: Entry }
+      | { kind: 'combined'; priority: number; a: Entry; b: Entry }
+    const items: Item[] = []
+    const merged = new Set<string>()
+    for (const { a, b } of cands) {
+      if (merged.has(a.venueId) || merged.has(b.venueId)) continue
+      merged.add(a.venueId); merged.add(b.venueId)
+      items.push({ kind: 'combined', priority: Math.max(a.priority, b.priority), a, b })
+    }
+    for (const e of measured) if (!merged.has(e.venueId)) items.push({ kind: 'name', priority: e.priority, e })
+    items.sort((x, y) => y.priority - x.priority)
 
-    for (const { venueId, el, nameEl, priority } of entries) {
-      const partnerId = pairsRef.current.get(venueId)
-
-      if (partnerId && !processedPairs.has(venueId)) {
-        processedPairs.add(venueId)
-        processedPairs.add(partnerId)
-
-        const partnerEntry = entries.find(e => e.venueId === partnerId)
-        if (!partnerEntry) continue
-
-        const thisSelected = el.classList.contains('pin-selected')
-        const partnerSelected = partnerEntry.el.classList.contains('pin-selected')
-
-        // When one of the pair is selected: show only its own name, centered under its pin
-        if (thisSelected || partnerSelected) {
-          const selectedEntry = thisSelected ? { venueId, el, nameEl } : partnerEntry
-          const otherEntry = thisSelected ? partnerEntry : { venueId, el, nameEl }
-          otherEntry.nameEl.style.visibility = 'hidden'
-          selectedEntry.nameEl.style.visibility = ''
-          const r = selectedEntry.nameEl.getBoundingClientRect()
-          if (r.width > 0) occupied.push(r)
-          continue
-        }
-
-        // Both unselected: show centered names and check for significant overlap
-        nameEl.style.visibility = 'visible'
-        partnerEntry.nameEl.style.visibility = 'visible'
-
-        const rA = nameEl.getBoundingClientRect()
-        const rB = partnerEntry.nameEl.getBoundingClientRect()
-        const markerA = markersRef.current.get(venueId)
-        const markerB = markersRef.current.get(partnerId)
-
-        if (rA.width > 0 && rB.width > 0 && markerA && markerB) {
-          const ptA = map.project(markerA.marker.getLngLat())
-          const ptB = map.project(markerB.marker.getLngLat())
-          const llA = markerA.marker.getLngLat()
-          const llB = markerB.marker.getLngLat()
-          const decision = decidePairLabel(rA, rB, ptA, ptB, llA, llB)
-
-          if (decision.action === 'combine' && combinedLabelRef.current && combinedMarkerRef.current) {
-            nameEl.style.visibility = 'hidden'
-            partnerEntry.nameEl.style.visibility = 'hidden'
-
-            const { order, midLng, lowerLat } = decision
-            let firstName: string, secondName: string
-            if (order === 'west-east') {
-              const [westId, eastId] = ptA.x <= ptB.x ? [venueId, partnerId] : [partnerId, venueId]
-              firstName = dataRef.current.venues.find(v => v.id === westId)?.name ?? westId
-              secondName = dataRef.current.venues.find(v => v.id === eastId)?.name ?? eastId
-            } else {
-              const [northId, southId] = ptA.y <= ptB.y ? [venueId, partnerId] : [partnerId, venueId]
-              firstName = dataRef.current.venues.find(v => v.id === northId)?.name ?? northId
-              secondName = dataRef.current.venues.find(v => v.id === southId)?.name ?? southId
-            }
-
-            const lbl = combinedLabelRef.current
-            lbl.textContent = `${firstName} · ${secondName}`
-            lbl.classList.add('is-active')
-            combinedMarkerRef.current.setLngLat([midLng, lowerLat])
-
-            const rC = lbl.getBoundingClientRect()
-            if (rC.width > 0) occupied.push(rC)
-          } else {
-            // No significant overlap: pair members never hide each other — both always show
-            for (const ne of [nameEl, partnerEntry.nameEl]) {
-              ne.style.visibility = 'visible'
-              const r = ne.getBoundingClientRect()
-              if (r.width > 0) occupied.push(r)
-            }
-          }
-        }
+    // 2. Place in priority order; hide only on significant overlap with an already placed name
+    const placed: DOMRect[] = []
+    const clashes = (r: DOMRect) => placed.some(p => significantOverlap(r, p) > 0)
+    let slot = 0
+    for (const it of items) {
+      if (it.kind === 'name') {
+        if (it.e.selected || !clashes(it.e.rect)) placed.push(it.e.rect)
+        else it.e.nameEl.style.visibility = 'hidden'
         continue
       }
-
-      if (processedPairs.has(venueId)) continue
-
-      // Non-pair pin: standard logic
-      if (priority === 4) {
-        nameEl.style.visibility = ''
-        const r = nameEl.getBoundingClientRect()
-        if (r.width > 0) occupied.push(r)
-        continue
-      }
-      nameEl.style.visibility = 'visible'
-      const r = nameEl.getBoundingClientRect()
-      if (r.width === 0) continue
-      let overlaps = false
-      for (const occ of occupied) {
-        if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
-          overlaps = true; break
-        }
-      }
-      if (overlaps) nameEl.style.visibility = 'hidden'
-      else occupied.push(r)
+      const { a, b } = it
+      a.nameEl.style.visibility = 'hidden'
+      b.nameEl.style.visibility = 'hidden'
+      const d = decidePairLabel(a.rect, b.rect, a.pt, b.pt, a.ll, b.ll)
+      if (d.action !== 'combine') continue
+      const [first, second] = d.order === 'west-east'
+        ? (a.pt.x <= b.pt.x ? [a, b] : [b, a])
+        : (a.pt.y <= b.pt.y ? [a, b] : [b, a])
+      const nameOf = (e: Entry) => dataRef.current.venues.find(v => v.id === e.venueId)?.name ?? e.venueId
+      const { el, marker } = getCombinedSlot(slot)
+      el.textContent = `${nameOf(first)} · ${nameOf(second)}`
+      marker.setLngLat([d.midLng, d.lowerLat])
+      el.classList.add('is-active')
+      const r = el.getBoundingClientRect()
+      if (r.width > 0 && clashes(r)) { el.classList.remove('is-active'); continue }
+      if (r.width > 0) placed.push(r)
+      slot++
+    }
+    // Deactivate unused combined names
+    for (let i = slot; i < combinedPoolRef.current.length; i++) {
+      combinedPoolRef.current[i].el.classList.remove('is-active')
     }
   }
 
@@ -640,7 +620,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
 
     // Reset
-    pairsRef.current.clear()
     for (const { el } of pins) {
       el.style.removeProperty('--pin-dx')
     }
@@ -651,16 +630,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const dx = a.pt.x - b.pt.x
         const dy = a.pt.y - b.pt.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 200) {
-          const west = a.lng <= b.lng ? a : b
-          const east = a.lng <= b.lng ? b : a
-          pairsRef.current.set(west.venueId, east.venueId)
-          pairsRef.current.set(east.venueId, west.venueId)
-          if (dist < 20) {
-            const off = west === a ? -8 : 8
-            a.el.style.setProperty('--pin-dx', `${off}px`)
-            b.el.style.setProperty('--pin-dx', `${-off}px`)
-          }
+        if (dist < 20) {
+          const off = a.lng <= b.lng ? -8 : 8
+          a.el.style.setProperty('--pin-dx', `${off}px`)
+          b.el.style.setProperty('--pin-dx', `${-off}px`)
         }
       }
     }
@@ -687,19 +660,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           attributionControl: false,
         })
         mapRef.current = map
-
-        // Combined pair label as a maplibregl.Marker — moves with the map during panning
-        const combinedLabelEl = document.createElement('div')
-        combinedLabelEl.className = 'pin-combined-name'
-        const combinedMarker = new maplibregl.Marker({
-          element: combinedLabelEl,
-          anchor: 'top',
-          offset: [0, 4],
-        })
-          .setLngLat(PRAGUE_CENTER)
-          .addTo(map)
-        combinedLabelRef.current = combinedLabelEl
-        combinedMarkerRef.current = combinedMarker
 
         // WebGL context loss recovery
         const canvas = map.getCanvas()
