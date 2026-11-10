@@ -40,19 +40,20 @@ Texty na snímkach sú po slovensky. Appka je primárne v češtine (SK a EN ako
 ### Ikony
 Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = koktailový pohár, DJ = gramofón, kultúra = divadelné masky. Presné SVG sú v `docs/design/html/`. Pri stavbe sa môže použiť hotová sada (Phosphor, Tabler) s rovnakými motívmi, ale **mikrofón, pohár, gramofón a masky musia ostať**.
 
-## 2. Mapa (`01-mapa-piny.png`; prepracované 2026-11-09, staré pilulky `01-mapa.png` už neplatia)
+## 2. Mapa (`01-mapa-piny-mena.png`, `02-mapa-vybrany-pin-ziara.png`; prepracované 2026-11-10, staré `01-mapa.png`, `01-mapa-piny.png`, `02-mapa-panel.png`, `02-mapa-vybrany-pin-karta.png` už neplatia)
 
 - **Knižnica MapLibre GL JS, podklad OpenFreeMap** (bez kľúča). **Štýl: hotový overený tmavý štýl pre schému OpenMapTiles (napr. Dark Matter, licencia umožňuje úpravy), prefarbený do palety variantu A** (zem `#1E1E2A`, voda `#1D3352` všade rovnaká, parky `#1C2E24`, ulice `#34344A`/`#4A4A66`/`#5E5E7E`, text `#B4B0CC`). Vlastné skladanie štýlu po vrstvách sa nerobí (3 neúspešné pokusy). **Najväčšie oddialenie = celá Praha** (pri väčšom sú dáta dlaždíc zjednodušené). Popisy: štvrte, ulice, Vltava a ostrovy; **stanice metra a dôležité budovy ako malé sivé ikonky** (pozri nižšie Ikonky metra a budov). Farby liniek metra sa nepoužívajú (farba patrí len typom akcií).
 - Mapa je **na celú obrazovku**, posúva sa **jedným prstom**, priblíženie dvoma. (Nie „dva prsty na posun“, to je pre mapy vložené v stránke.)
 - **Na mape sú len miesta, ktoré majú akciu vo zvolenom dni.** Miesto bez akcie sa neukazuje.
-- **Značka = pin** (kvapka so stredne ostrým hrotom dole, presný tvar v `01-mapa-piny.html`): plochý, vo farbe typu, **bez mena miesta a bez času**, v strede tmavý kruh 36 px s ikonou typu 22 px vo farbe typu. **Tieň pod pinom** (`drop-shadow`), aby pin pôsobil, že je nad mapou. Žiadne 3D prechody.
+- **Značka = pin** (kvapka so stredne ostrým hrotom dole, presný tvar v `01-mapa-piny-mena.html`): plochý, vo farbe typu, bez času, v strede tmavý kruh 36 px s ikonou typu 22 px vo farbe typu. **Tieň pod pinom** (`drop-shadow`), aby pin pôsobil, že je nad mapou. Žiadne 3D prechody.
   - Obľúbené miesto: biely odznak 20 px vpravo hore s čiernym vyplneným srdiečkom.
   - Viac akcií v ten deň: tmavý odznak `+1`, `+2` vľavo hore (pozadie `#111118`, biely text a obrys).
   - **Akcia, ktorá už skončila, sa na mape neukazuje.** Skončená = má `end_time` a ten už uplynul. Ak koniec nepoznáme, akcia ostáva na mape do prepnutia dňa o 5:00 (nehádame, kedy skončila).
   - **Práve prebiehajúca akcia:** okolo kruhu pinu pulzuje žiara vo farbe typu (1,6 s, kód v `01-mapa-piny.html`, trieda `.pinlive`; pri `prefers-reduced-motion` statický prstenec).
-  - **Vybraný pin** (po ťuknutí, `02-mapa-vybrany-pin-karta.png`): zmení sa na **pilulku vo farbe typu** (výška 48) s tmavým kruhom a ikonou a **menom miesta tmavým písmom** (+ srdiečko, ak je obľúbené), s **chvostom dole** na presnom bode. Ostatné piny sa nehýbu.
+  - **Meno miesta pod pinom** (Matej 2026-11-10): Outfit 12/600, `#E4E2EE`, tmavý obrys textu, od priblíženia ~13 (pri celej Prahe bez mien). Pri kolízii mien sa skryje meno s nižšou prioritou (priorita: vybraný > prebiehajúca akcia > obľúbené > ostatné); **pin sa nikdy neskryje**.
+  - **Vybraný pin** (po ťuknutí, `02-mapa-vybrany-pin-ziara.png`): **zväčší sa (1,22×, od hrotu) a dostane jemnú žiaru vo farbe typu**, meno pod ním biele a tučné (13/800). **Žiadna pilulka, žiadny biely obrys, žiadna bodka.** Vybraný pin je **vždy navrchu** (nad ostatnými pinmi aj menami).
 - **Animácie (Matej 2026-11-10: „živé, ale nie chaotické“):**
-  - **Výber pinu:** pin sa plynule **rozšíri do pilulky** a meno sa vysunie (šírka a tvar 220 ms, `ease-out`, meno sa objaví s oneskorením ~80 ms). Zrušenie výberu = opačná animácia. Pri prepnutí na iný pin sa starý zbalí a nový rozbalí naraz.
+  - **Výber pinu:** plynulé zväčšenie a objavenie žiary (220 ms, `ease-out`); **zrušenie výberu = opačná animácia** (zmenšenie, žiara zmizne). Pri prepnutí na iný pin (ťuknutím alebo šípkou) sa starý zmenší a nový zväčší naraz.
   - **Karta** sa vysunie zdola (200 ms) a pri zatvorení zasunie; pri prepnutí miesta šípkou sa obsah karty len prelína, karta neodchádza.
   - **Zmena dňa alebo filtra:** nové piny sa jemne objavia (krátke zväčšenie z ~0,8 a zosvetlenie, 180 ms, mierne postupne), zmiznuté zmiznú. Žiadne poskakovanie ani padanie zhora.
   - Nič sa nehýbe samo okrem pulzu prebiehajúcej akcie. Pri `prefers-reduced-motion` sa animácie vypnú (okamžitá zmena).
@@ -63,6 +64,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
   2. Prepínač **Všetko | Obľúbené** (rovnako široké polovice, zapnutá polovica vypĺňa celú výšku): zapnuté Všetko = biele; zapnuté Obľúbené = ružové s **vyplneným čiernym srdiečkom**, vypnuté = obrys srdiečka.
   3. **Filter:** ružový kruh len s ikonou (bez textu), počet aktívnych filtrov ako biely odznak v rohu. Filter: formát (vrátane `party`), žáner, typ miesta, charakter, veľkosť; kombinovateľné. **Panel filtra zároveň slúži ako legenda:** typy akcií v ňom majú rovnakú farbu a ikonu ako značky. (Panel filtra ešte nie je nakreslený; navrhni ho v tomto štýle a ukáž Matejovi pred dokončením.)
 - **Autorstvo mapy** (OpenFreeMap / OpenStreetMap) je povinné podľa licencie, nesmie sa odstrániť. Zobrazuje sa ako malá ikonka „i“, ktorá sa rozbalí po ťuknutí, umiestnená tak, aby nič neprekrývala (upravené 2026-11-09).
+- **Kompas** (Matej 2026-11-10): keď je mapa otočená, vpravo pod hornou lištou sa ukáže biely kruh 44 px s ihlou (sever ružový); ťuk otočí mapu späť na sever a kompas zmizne.
 - **Moja poloha:** biely kruh 52 px vpravo nad spodnou lištou. Poloha len so súhlasom; bez súhlasu mapa funguje, iba bez vzdialeností.
 
 ## 3. Panel akcie na mape (`02-mapa-vybrany-pin-karta.png`)
