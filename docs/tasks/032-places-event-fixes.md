@@ -50,7 +50,7 @@ Matej otestoval 031 v telefóne. Predloha je aktualizovaná: `docs/design.md` č
 ## Report
 
 **Dátum:** 2026-11-10  
-**Commit:** (pozri nižšie po commite)
+**Commit:** `9f590c7`
 
 ### Čo je hotové
 
