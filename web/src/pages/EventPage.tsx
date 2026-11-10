@@ -15,6 +15,7 @@ interface Props {
   lang: Language
   userLocation: { lat: number; lng: number } | null
   onBack: () => void
+  onVenueOpen?: (venueId: string) => void
 }
 
 function generateICS(event: { title: string; date: string; start_time: string | null; end_time: string | null }, venueName: string, url: string): string {
@@ -41,7 +42,7 @@ function generateICS(event: { title: string; date: string; start_time: string | 
   ].filter(Boolean).join('\r\n')
 }
 
-export function EventPage({ eventId, data, lang, userLocation, onBack }: Props) {
+export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOpen }: Props) {
   const dict = getDict(lang)
   const event = data.events.find(e => e.id === eventId)
   const [going, setGoing] = useState(() => isGoing(eventId))
@@ -219,7 +220,16 @@ export function EventPage({ eventId, data, lang, userLocation, onBack }: Props) 
 
         {/* Venue */}
         <p style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>
-          {venue?.name ?? ev.venue_id}
+          {venue && onVenueOpen ? (
+            <span
+              onClick={() => onVenueOpen(venue.id)}
+              style={{ cursor: 'pointer', borderBottom: '1px solid #5D5677' }}
+            >
+              {venue.name}
+            </span>
+          ) : (
+            venue?.name ?? ev.venue_id
+          )}
           {distStr && <span style={{ color: '#B9B6CC', fontWeight: 400 }}>{distStr}</span>}
         </p>
 

@@ -43,6 +43,23 @@ export const en = {
     language: 'Language',
     languages: { sk: 'Slovenčina', cs: 'Čeština', en: 'English' }
   },
+  places: {
+    title: 'Places',
+    search: 'Search venue',
+    noFavorites: 'No favorite venues yet. Add them with the heart.',
+    noResults: 'Nothing found.'
+  },
+  venue: {
+    back: 'Back',
+    more: 'More about venue',
+    less: 'Less',
+    program: 'Program',
+    web: 'Web',
+    instagram: 'Instagram',
+    onMap: 'On map',
+    noProgram: 'No upcoming events.',
+    dot: '·'
+  },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',
   days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

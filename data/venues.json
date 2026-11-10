@@ -18,6 +18,8 @@
     "features": [],
     "description": null,
     "description_url": null,
+    "image_url": "https://www.crossclub.cz/media/images/logo-fb.png",
+    "image_source": "https://www.crossclub.cz",
     "sources": [
       { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
     ],
@@ -43,6 +45,8 @@
     "features": null,
     "description": "MeetFactory je neziskové mezinárodní centrum současného umění založené v roce 2001 umělcem Davidem Černým. V důsledku povodní v roce 2002 bylo nutné opustit původní prostory v Praze - Holešovicích a projekt byl vzkříšen o tři roky později v průmyslové budově v pražské čtvrti Smíchov. Program byl spuštěn po rozsáhlé rekonstrukci prostor v roce 2007.",
     "description_url": "https://www.meetfactory.cz/cs/o-nas",
+    "image_url": "https://www.meetfactory.cz/media/images/rescaled/Barak_MeetFactory_2026_Karolina_Mala_fullsize-7-320x426.jpg",
+    "image_source": "https://www.meetfactory.cz/cs/o-nas",
     "sources": [
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba", "detail_desc_selector": "#text_equal p" },
       { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo", "detail_desc_selector": "#text_equal p" }
@@ -69,6 +73,8 @@
     "features": ["open-air", "seasonal"],
     "description": "Kasárny Karlín jsou kulturní centrum v areálu bývalých vojenských kasáren, které se veřejnosti otevřelo v roce 2017. Jedná se o vnitroblok, který skrývá rozlehlé nádvoří s útulnými bary a kavárnou, posezením pod korunami stromů a prostorem pro pohyb, kulturu i dětské skotačení.",
     "description_url": "https://kasarnakarlin.cz/en/page/44",
+    "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2022/12/21/10/06/53/kreslena-mapa-kasaren-karlin.jpeg",
+    "image_source": "https://kasarnakarlin.cz",
     "sources": [
       { "type": "jsonld", "url": "https://kasarnakarlin.cz/en/program", "follow_links": true, "detail_lang": "en" }
     ],
@@ -94,6 +100,8 @@
     "features": null,
     "description": "V našem 'útulném obýváčku' najdete útočiště každý den kromě neděle, ať už potřebujete místo pro studium nebo si chcete jen tak popovídat s přáteli. Několikrát týdně navíc připravujeme klubový program – autorská čtení, přednášky a besedy, filmové projekce i koncerty a divadelní představení. K tomu každý měsíc otevíráme novou výstavu a přijít můžete i na pravidelný šachový turnaj.",
     "description_url": "https://citarna.unijazz.cz/about/",
+    "image_url": "https://citarna.unijazz.cz/wp-content/uploads/2022/11/DSC_0040-scaled.jpg",
+    "image_source": "https://citarna.unijazz.cz",
     "sources": [
       {
         "type": "jsonld",
@@ -129,6 +137,8 @@
     "features": [],
     "description": "A newly (re)opened legendary venue located on an island in the center of Prague, yet very far away from the mainstream. Fuchs2 has a long history that started in the early 1930s when the architect Josef Fuchs built it as a functionalist-styled café. Since December 2018 it is known as Fuchs2 and it is a safe haven for alternative culture.",
     "description_url": "https://www.fuchs2.cz/about",
+    "image_url": "https://static.wixstatic.com/media/39a8c2_773b5d8657ee4083ba1c6e8af8b4a143~mv2.jpg/v1/fill/w_960,h_540,al_c/39a8c2_773b5d8657ee4083ba1c6e8af8b4a143~mv2.jpg",
+    "image_source": "https://www.fuchs2.cz",
     "sources": [
       {
         "type": "jsonld",
@@ -162,6 +172,8 @@
     "features": [],
     "description": "We are a music club, bicycle studio, bar and a multifunctional space. Constantly in motion fascinated by music and movement within the city. We build space for free individuality.",
     "description_url": "https://bikejesus.com",
+    "image_url": "https://bikejesus.com/img/pana-top.png",
+    "image_source": "https://bikejesus.com",
     "sources": [
       {
         "type": "api",
@@ -194,6 +206,8 @@
     "features": null,
     "description": "Palác Akropolis – labyrint kulturního dění! Centrum nezávislé kultury, které nabízí ojedinělé hudební, divadelní a výtvarné projekty. Aktivujeme vaše smysly hudbou, divadlem, tancem, novým cirkusem, výstavami, workshopy, cestovatelskými večery i festivaly.",
     "description_url": "https://palacakropolis.cz/work/33298?no=62&page_id=33133",
+    "image_url": "https://palacakropolis.cz/images/photos/0026/5273/8Z0A0439-2_web_hp.jpg",
+    "image_source": "https://palacakropolis.cz",
     "sources": [
       {
         "type": "html",
@@ -235,6 +249,8 @@
     "features": [],
     "description": null,
     "description_url": null,
+    "image_url": "https://archa-plus.cz/layout/logo-social.png",
+    "image_source": "https://archa-plus.cz",
     "sources": [
       {
         "type": "html",
@@ -266,6 +282,8 @@
     "features": [],
     "description": "Forum Karlín se stalo synonymem pro špičkové kulturní a společenské akce v Praze. Tento moderní multifunkční prostor představuje unikátní koncept, který v hlavním městě nemá obdoby. Díky své impozantní kapacitě pro tisíce návštěvníků je Forum Karlín ideálním místem pro velkolepé koncerty, konference, televizní přenosy i gala večery.",
     "description_url": "https://www.forumkarlin.cz/o-nas/",
+    "image_url": "https://www.forumkarlin.cz/wp-content/themes/forum/assets/images/facebook.jpg",
+    "image_source": "https://www.forumkarlin.cz",
     "sources": [
       {
         "type": "html",
@@ -297,6 +315,8 @@
     "features": [],
     "description": null,
     "description_url": null,
+    "image_url": null,
+    "image_source": null,
     "sources": [
       {
         "type": "html",
@@ -328,6 +348,8 @@
     "features": [],
     "description": null,
     "description_url": null,
+    "image_url": "https://www.epicprague.com/data/slider/seq-11601-0mmb2s5itt-oopv4qnozn.jpeg",
+    "image_source": "https://www.epicprague.com",
     "sources": [
       {
         "type": "html",

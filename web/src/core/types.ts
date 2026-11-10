@@ -17,6 +17,8 @@ export interface Venue {
   features?: string[] | null
   description: string | null
   description_url: string | null
+  image_url: string | null
+  image_source: string | null
   sources: VenueSource[]
   active: boolean
   notes?: string | null

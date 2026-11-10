@@ -157,6 +157,40 @@ const PIN_CSS = `
   display: block;
 }
 
+/* Pair label alignment */
+.pin-pair-west .pin-name {
+  left: auto !important;
+  right: 50% !important;
+  transform: none !important;
+  text-align: right !important;
+}
+.pin-pair-east .pin-name {
+  left: 50% !important;
+  transform: none !important;
+  text-align: left !important;
+}
+
+/* Combined pair label */
+.pin-combined-name {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #E4E2EE;
+  text-shadow: 0 0 3px #111118, 0 0 3px #111118, 0 1px 2px #111118;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  display: none;
+  z-index: 4;
+}
+.map-zoom-13 .pin-combined-name {
+  display: block;
+}
+
 .pin-new .pin-inner {
   animation: pin-appear 180ms ease-out both;
 }
@@ -180,12 +214,14 @@ interface Props {
   lang: Language
   isVisible?: boolean
   onEventOpen: (eventId: string) => void
+  pendingSelect?: { venueId: string; date: string } | null
+  onPendingSelectHandled?: () => void
 }
 
 type EdgeKey = 'top' | 'bottom' | 'left' | 'right'
 interface EdgeBadge { count: number; nearestLng: number; nearestLat: number }
 
-export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
+export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled }: Props) {
   const dict = getDict(lang)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -221,12 +257,22 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
   const closePanelRef = useRef<() => void>(() => {})
   const toggleRef = useRef<HTMLDivElement>(null)
   const [toggleWidth, setToggleWidth] = useState(999)
+  const pendingPanelOpenRef = useRef<string | null>(null)
+  const pairsRef = useRef<Map<string, string>>(new Map())
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
   useEffect(() => { selectedDayRef.current = selectedDay }, [selectedDay])
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])
   useEffect(() => { isVisibleRef.current = isVisible }, [isVisible])
+
+  // External "Na mape" selection: set day and queue panel open after markers update
+  useEffect(() => {
+    if (!pendingSelect) return
+    setSelectedDay(pendingSelect.date)
+    pendingPanelOpenRef.current = pendingSelect.venueId
+    onPendingSelectHandled?.()
+  }, [pendingSelect, onPendingSelectHandled])
 
   useEffect(() => {
     const el = toggleRef.current
@@ -441,28 +487,140 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
       }
     }
 
-    requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
+    // Handle external "Na mape" navigation
+    if (pendingPanelOpenRef.current) {
+      const vid = pendingPanelOpenRef.current
+      pendingPanelOpenRef.current = null
+      const entry = markersRef.current.get(vid)
+      if (entry) {
+        const oldId = selectedVenueIdRef.current
+        if (oldId && oldId !== vid) {
+          const oldEntry = markersRef.current.get(oldId)
+          if (oldEntry) { oldEntry.el.classList.remove('pin-selected'); oldEntry.el.style.zIndex = '' }
+        }
+        entry.el.classList.add('pin-selected')
+        entry.el.style.zIndex = '10'
+        openPanelRef.current(vid)
+        const venue = dataRef.current.venues.find(v => v.id === vid)
+        if (venue && map) {
+          map.easeTo({
+            center: [venue.lng, venue.lat],
+            padding: { top: 100, bottom: 240, left: 60, right: 60 },
+            duration: 320,
+          })
+        }
+      }
+    }
+
+    requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
   }, [buildMarkers, selectedVenueId])
 
   function checkNameCollisions() {
     const map = mapRef.current
     if (!map || map.getZoom() < 13) return
 
-    type PinEntry = { el: HTMLElement; nameEl: HTMLElement; priority: number }
+    type PinEntry = { venueId: string; el: HTMLElement; nameEl: HTMLElement; priority: number }
     const entries: PinEntry[] = []
 
+    // Reset combined names
     for (const [, { el }] of markersRef.current) {
+      const combined = el.querySelector('.pin-combined-name') as HTMLElement | null
+      if (combined) combined.style.display = 'none'
+    }
+
+    for (const [venueId, { el }] of markersRef.current) {
       const nameEl = el.querySelector('.pin-name') as HTMLElement | null
       if (!nameEl) continue
       const isSelected = el.classList.contains('pin-selected')
       const isLive = el.querySelector('.pin-live-ring') !== null
       const isFav = el.querySelector('.pin-badge-heart') !== null
-      entries.push({ el, nameEl, priority: isSelected ? 4 : isLive ? 3 : isFav ? 2 : 1 })
+      entries.push({ venueId, el, nameEl, priority: isSelected ? 4 : isLive ? 3 : isFav ? 2 : 1 })
     }
 
     entries.sort((a, b) => b.priority - a.priority)
+
+    // Track processed pair IDs (avoid double-processing)
+    const processedPairs = new Set<string>()
     const occupied: DOMRect[] = []
-    for (const { nameEl, priority } of entries) {
+
+    for (const { venueId, el, nameEl, priority } of entries) {
+      const partnerId = pairsRef.current.get(venueId)
+
+      if (partnerId && !processedPairs.has(venueId)) {
+        processedPairs.add(venueId)
+        processedPairs.add(partnerId)
+
+        const partnerEntry = entries.find(e => e.venueId === partnerId)
+        if (!partnerEntry) continue
+
+        // Both pair members: show directional names, check if they overlap
+        nameEl.style.visibility = 'visible'
+        partnerEntry.nameEl.style.visibility = 'visible'
+
+        const rA = nameEl.getBoundingClientRect()
+        const rB = partnerEntry.nameEl.getBoundingClientRect()
+        const namesOverlap = rA.width > 0 && rB.width > 0 &&
+          !(rA.right < rB.left || rA.left > rB.right || rA.bottom < rB.top || rA.top > rB.bottom)
+
+        if (namesOverlap) {
+          // Show combined name on the east pin
+          nameEl.style.visibility = 'hidden'
+          partnerEntry.nameEl.style.visibility = 'hidden'
+
+          // Determine which is west/east
+          const westEntry = el.classList.contains('pin-pair-west') ? { venueId, el, nameEl } : partnerEntry
+          const eastEntry = el.classList.contains('pin-pair-east') ? { venueId, el, nameEl } : { ...partnerEntry }
+          const westName = dataRef.current.venues.find(v => v.id === westEntry.venueId)?.name ?? westEntry.venueId
+          const eastName = dataRef.current.venues.find(v => v.id === eastEntry.venueId)?.name ?? eastEntry.venueId
+
+          // Show combined on the east pin
+          const eastEl = eastEntry === partnerEntry ? partnerEntry.el : el
+          let combinedEl = eastEl.querySelector('.pin-combined-name') as HTMLElement | null
+          if (!combinedEl) {
+            combinedEl = document.createElement('span')
+            combinedEl.className = 'pin-combined-name'
+            eastEl.querySelector('.pin-inner')?.appendChild(combinedEl)
+          }
+
+          const westSelected = el.classList.contains('pin-pair-west') && el.classList.contains('pin-selected')
+          const eastSelected = !westSelected && (el.classList.contains('pin-pair-east') && el.classList.contains('pin-selected') || partnerEntry.el.classList.contains('pin-selected'))
+          const pWestSelected = el.classList.contains('pin-pair-west') && el.classList.contains('pin-selected')
+          const pEastSelected = partnerEntry.el.classList.contains('pin-selected')
+
+          if (pWestSelected) {
+            combinedEl.innerHTML = `<strong style="color:#fff;font-weight:800">${westName}</strong> · ${eastName}`
+          } else if (pEastSelected) {
+            combinedEl.innerHTML = `${westName} · <strong style="color:#fff;font-weight:800">${eastName}</strong>`
+          } else {
+            combinedEl.textContent = `${westName} · ${eastName}`
+          }
+          combinedEl.style.display = 'block'
+          void westSelected; void eastSelected // suppress unused var warnings
+
+          const rC = combinedEl.getBoundingClientRect()
+          if (rC.width > 0) occupied.push(rC)
+        } else {
+          // Check each against existing occupied
+          for (const nameElPair of [nameEl, partnerEntry.nameEl]) {
+            const r = nameElPair.getBoundingClientRect()
+            if (r.width === 0) continue
+            if (priority === 4) { occupied.push(r); continue }
+            let overlaps = false
+            for (const occ of occupied) {
+              if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
+                overlaps = true; break
+              }
+            }
+            if (overlaps) nameElPair.style.visibility = 'hidden'
+            else occupied.push(r)
+          }
+        }
+        continue
+      }
+
+      if (processedPairs.has(venueId)) continue
+
+      // Non-pair pin: standard logic
       if (priority === 4) {
         nameEl.style.visibility = ''
         const r = nameEl.getBoundingClientRect()
@@ -487,28 +645,40 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
     const map = mapRef.current
     if (!map) return
 
-    type PinInfo = { el: HTMLElement; pt: { x: number; y: number }; lng: number }
+    type PinInfo = { venueId: string; el: HTMLElement; pt: { x: number; y: number }; lng: number }
     const pins: PinInfo[] = []
-    for (const [, { el, marker }] of markersRef.current) {
+    for (const [venueId, { el, marker }] of markersRef.current) {
       const ll = marker.getLngLat()
       const pt = map.project([ll.lng, ll.lat])
-      pins.push({ el, pt, lng: ll.lng })
+      pins.push({ venueId, el, pt, lng: ll.lng })
     }
 
-    // Reset horizontal offsets on all pins
-    for (const { el } of pins) el.style.removeProperty('--pin-dx')
+    // Reset
+    pairsRef.current.clear()
+    for (const { el } of pins) {
+      el.style.removeProperty('--pin-dx')
+      el.classList.remove('pin-pair-west', 'pin-pair-east')
+    }
 
-    // Shift overlapping pairs horizontally
+    // Detect and handle pairs within 40px
     for (let i = 0; i < pins.length; i++) {
       for (let j = i + 1; j < pins.length; j++) {
         const a = pins[i], b = pins[j]
         const dx = a.pt.x - b.pt.x
         const dy = a.pt.y - b.pt.y
-        if (Math.sqrt(dx * dx + dy * dy) < 20) {
-          // West pin shifts left, east pin shifts right
-          const off = a.lng < b.lng ? -8 : 8
-          a.el.style.setProperty('--pin-dx', `${off}px`)
-          b.el.style.setProperty('--pin-dx', `${-off}px`)
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 40) {
+          const west = a.lng <= b.lng ? a : b
+          const east = a.lng <= b.lng ? b : a
+          pairsRef.current.set(west.venueId, east.venueId)
+          pairsRef.current.set(east.venueId, west.venueId)
+          west.el.classList.add('pin-pair-west')
+          east.el.classList.add('pin-pair-east')
+          if (dist < 20) {
+            const off = west === a ? -8 : 8
+            a.el.style.setProperty('--pin-dx', `${off}px`)
+            b.el.style.setProperty('--pin-dx', `${-off}px`)
+          }
         }
       }
     }
@@ -629,12 +799,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
         })
 
         map.on('zoomend', () => {
-          requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
+          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
           scheduleEdgeBadges()
         })
 
         map.on('moveend', () => {
-          requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
+          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
           scheduleEdgeBadges()
         })
 

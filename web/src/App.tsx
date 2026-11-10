@@ -8,21 +8,32 @@ import { OfflineBanner } from './components/OfflineBanner'
 import { ComingSoon } from './components/ComingSoon'
 import { MapPage } from './pages/MapPage'
 import { EventPage } from './pages/EventPage'
+import { VenuePage } from './pages/VenuePage'
+import { PlacesPage } from './pages/PlacesPage'
 import { MyAccountPage } from './pages/MyAccountPage'
 import { getDict } from './i18n'
 
 type Route =
   | { page: Tab }
   | { page: 'event'; eventId: string }
+  | { page: 'venue'; venueId: string }
 
 function parseHash(hash: string): Route {
   const path = hash.replace(/^#\//, '')
   if (path.startsWith('akcia/')) {
     return { page: 'event', eventId: path.slice(6) }
   }
+  if (path.startsWith('miesto/')) {
+    return { page: 'venue', venueId: path.slice(7) }
+  }
+  if (path === 'miesta') {
+    return { page: 'places' }
+  }
   return { page: 'map' }
 }
 
+
+type MapPendingSelect = { venueId: string; date: string } | null
 
 export default function App() {
   const [data, setData] = useState<EventsData | null>(null)
@@ -30,10 +41,18 @@ export default function App() {
   const [isOffline, setIsOffline] = useState(false)
   const [lastFetched, setLastFetchedState] = useState<Date | null>(null)
   const [lang, setLang] = useState<Language>(detectLanguage)
-  const [activeTab, setActiveTab] = useState<Tab>('map')
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    const r = parseHash(window.location.hash)
+    if (r.page === 'places') return 'places'
+    return 'map'
+  })
+  const [mapPendingSelect, setMapPendingSelect] = useState<MapPendingSelect>(null)
 
   // Hash routing
-  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash))
+  const [route, setRoute] = useState<Route>(() => {
+    const r = parseHash(window.location.hash)
+    return r
+  })
 
   // Track if MapPage was ever mounted (once true, never unmount it)
   const mapMountedRef = useRef(false)
@@ -41,7 +60,11 @@ export default function App() {
 
   useEffect(() => {
     function onHashChange() {
-      setRoute(parseHash(window.location.hash))
+      const r = parseHash(window.location.hash)
+      setRoute(r)
+      // Sync activeTab from hash for tab pages
+      if (r.page === 'places') setActiveTab('places')
+      else if (r.page === 'map') setActiveTab('map')
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
@@ -50,6 +73,10 @@ export default function App() {
   function navigate(newRoute: Route) {
     if (newRoute.page === 'event') {
       window.location.hash = `/akcia/${(newRoute as { page: 'event'; eventId: string }).eventId}`
+    } else if (newRoute.page === 'venue') {
+      window.location.hash = `/miesto/${(newRoute as { page: 'venue'; venueId: string }).venueId}`
+    } else if (newRoute.page === 'places') {
+      window.location.hash = '/miesta'
     } else {
       window.location.hash = '/'
     }
@@ -60,11 +87,38 @@ export default function App() {
     navigate({ page: 'event', eventId })
   }
 
+  function openVenue(venueId: string) {
+    navigate({ page: 'venue', venueId })
+  }
+
+  function openVenueFromPlaces(venueId: string) {
+    // Ensure places hash in history so Back returns to places list
+    if (window.location.hash !== '#/miesta') {
+      history.pushState(null, '', '#/miesta')
+    }
+    navigate({ page: 'venue', venueId })
+  }
+
   function goBack() {
     if (window.history.length > 1) {
       window.history.back()
     } else {
       navigate({ page: 'map' })
+    }
+  }
+
+  function goToMap(venueId: string, date: string) {
+    setActiveTab('map')
+    setMapPendingSelect({ venueId, date })
+    navigate({ page: 'map' })
+  }
+
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab)
+    if (tab === 'places') {
+      window.location.hash = '/miesta'
+    } else if (window.location.hash.startsWith('#/miesta')) {
+      window.location.hash = '/'
     }
   }
 
@@ -99,6 +153,7 @@ export default function App() {
   }, [])
 
   const dict = getDict(lang)
+  void dict // used below
 
   if (loading) {
     return (
@@ -116,17 +171,18 @@ export default function App() {
     )
   }
 
-  // Map is active when on map tab and not on event page
-  const isMapActive = route.page !== 'event' && activeTab === 'map'
+  // Map is active when on map tab and not on overlay page
+  const isOverlay = route.page === 'event' || route.page === 'venue'
+  const isMapActive = !isOverlay && activeTab === 'map'
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#111118', display: 'flex', flexDirection: 'column' }}>
-      {isOffline && route.page !== 'event' && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
+      {isOffline && !isOverlay && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
 
       {/* Page content */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {/* Map — always mounted once data loads, hidden when not active tab.
-            Never unmounted so the WebGL context survives tab switches and event-page navigation. */}
+            Never unmounted so the WebGL context survives tab switches and overlay navigation. */}
         {mapMountedRef.current && (
           <div style={{ position: 'absolute', inset: 0, display: isMapActive ? undefined : 'none' }}>
             <MapPage
@@ -134,6 +190,8 @@ export default function App() {
               lang={lang}
               isVisible={isMapActive}
               onEventOpen={openEvent}
+              pendingSelect={mapPendingSelect}
+              onPendingSelectHandled={() => setMapPendingSelect(null)}
             />
           </div>
         )}
@@ -142,13 +200,17 @@ export default function App() {
             <p style={{ color: '#B9B6CC' }}>Žiadne dáta</p>
           </div>
         )}
-        {activeTab === 'events' && (
+        {activeTab === 'events' && !isOverlay && (
           <ComingSoon lang={lang} title={dict.nav.events} />
         )}
-        {activeTab === 'places' && (
-          <ComingSoon lang={lang} title={dict.nav.places} />
+        {activeTab === 'places' && !isOverlay && (
+          <PlacesPage
+            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+            lang={lang}
+            onVenueOpen={openVenueFromPlaces}
+          />
         )}
-        {activeTab === 'account' && (
+        {activeTab === 'account' && !isOverlay && (
           <MyAccountPage
             data={data}
             lang={lang}
@@ -158,8 +220,8 @@ export default function App() {
         )}
       </div>
 
-      {route.page !== 'event' && (
-        <BottomNav active={activeTab} lang={lang} onChange={setActiveTab} />
+      {!isOverlay && (
+        <BottomNav active={activeTab} lang={lang} onChange={handleTabChange} />
       )}
 
       {/* Event page renders as a full-screen overlay; MapPage stays mounted underneath */}
@@ -172,6 +234,23 @@ export default function App() {
             lang={lang}
             userLocation={null}
             onBack={goBack}
+            onVenueOpen={openVenue}
+          />
+        </div>
+      )}
+
+      {/* Venue profile renders as overlay above everything */}
+      {route.page === 'venue' && (
+        <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 55 }}>
+          {isOffline && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
+          <VenuePage
+            venueId={(route as { page: 'venue'; venueId: string }).venueId}
+            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+            lang={lang}
+            userLocation={null}
+            onBack={goBack}
+            onEventOpen={openEvent}
+            onGoToMap={goToMap}
           />
         </div>
       )}

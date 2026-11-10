@@ -43,6 +43,23 @@ export const sk = {
     language: 'Jazyk',
     languages: { sk: 'Slovenčina', cs: 'Čeština', en: 'English' }
   },
+  places: {
+    title: 'Miesta',
+    search: 'Hľadať miesto',
+    noFavorites: 'Zatiaľ nemáš obľúbené miesta. Pridáš ich srdiečkom.',
+    noResults: 'Nič sme nenašli.'
+  },
+  venue: {
+    back: 'Späť',
+    more: 'Viac o mieste',
+    less: 'Menej',
+    program: 'Program',
+    web: 'Web',
+    instagram: 'Instagram',
+    onMap: 'Na mape',
+    noProgram: 'Žiadne nadchádzajúce akcie.',
+    dot: '·'
+  },
   comingSoon: 'Pripravujeme',
   offline: 'Offline. Dáta z',
   days: ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So'],
