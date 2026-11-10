@@ -132,5 +132,5 @@ Snímky 375×812 (pane limit), jazyk sk, reálne dáta:
 ### Nasadenie
 
 Build: `npm run build` ✓ (3.67s, žiadne chyby)  
-Commit hash: viď nižšie  
-GitHub Actions deploy: po pushi automaticky
+Commit hash: `3ee7a1a`  
+GitHub Actions deploy: po pushi automaticky — skontroluj https://github.com/matejstolarik/eventapp/actions
