@@ -14,19 +14,21 @@ Matej testoval 033 v telefóne. Mená nefungujú. Hlavný chat našiel príčiny
 ### Správne správanie
 1. **Spoločné meno sa správa ako ostatné mená:** hýbe sa s mapou plynulo (aj počas ťahania a približovania), pri priblížení < 13 zmizne rovnako ako ostatné mená.
    - Odporúčané riešenie: spoločné meno je samostatný `maplibregl.Marker` (element s textom, `anchor: 'top'`) na polovici súradníc dvojice, posunutý pod piny (`offset`), nie `div` umiestňovaný ručne. Viditeľnosť pri priblížení cez rovnakú triedu `.map-zoom-13` ako `.pin-name`. Ak zvolíš iné riešenie, musí spĺňať to isté.
-2. **Spájať len pri značnom prekrytí.** Obe mená vycentrované pod pinmi, porovnaj ich obdĺžniky. Spojiť len ak:
+2. **Spájať len pri značnom prekrytí** (v akomkoľvek smere). Obe mená vycentrované pod pinmi, porovnaj ich obdĺžniky. Spojiť len ak:
    - prekryv na šírku ≥ 30 % šírky kratšieho mena **a**
-   - prekryv na výšku ≥ 50 % výšky mena **a**
-   - piny sú pri sebe skôr vodorovne (`|dx| ≥ |dy|` v pixeloch obrazovky).
+   - prekryv na výšku ≥ 50 % výšky mena.
 
-   Inak sa nespájajú. Mierny dotyk alebo malý prekryv je v poriadku, obe mená ostanú. Hodnoty 30 % / 50 % daj ako konštanty na začiatok súboru, Matej ich môže chcieť doladiť.
-3. Ak sa mená prekrývajú značne, ale piny sú nad sebou (zvislo), nespájaj. Skry meno s nižšou prioritou (doterajšie priority: vybraný > prebieha > obľúbený > ostatné).
+   Inak sa nespájajú a **ostanú obe mená**. Mierny dotyk alebo malý prekryv je v poriadku. Hodnoty 30 % / 50 % daj ako konštanty na začiatok súboru, Matej ich môže chcieť doladiť.
+3. **Spoločné meno** (Matej 2026-11-10, platí pre vodorovné aj zvislé dvojice):
+   - poradie: piny skôr vedľa seba (`|dx| ≥ |dy|` na obrazovke) → západ · východ („Bike Jesus · Fuchs2“); piny skôr nad sebou → sever · juh („Roxy · EPIC“),
+   - poloha: vodorovne v strede dvojice, zvislo pod spodným pinom (tam, kde by bolo meno spodného pinu).
+   - Žiadne meno sa kvôli prekrytiu dvojice neskrýva. Skrývanie podľa priority ostáva len pre iné kolízie (napr. meno jedného miesta cez pin alebo meno tretieho miesta), ako doteraz.
 4. Výber pinu z dvojice: spoločné meno zmizne, vybraný má svoje meno vycentrované pod pinom, meno druhého sa neukáže (ako v 033, nemeň).
 5. Prepočet pri `zoomend`/`moveend` ostáva (rozhoduje len o tom, či spojiť). Polohu spoločného mena počas pohybu rieši marker, nie prepočet.
 6. Rozostúpenie pinov (±8 px pri < 20 px) ostáva bez zmeny.
 
 ### Test
-- Unit test čistej funkcie, ktorá z dvoch obdĺžnikov a polôh pinov rozhodne: spojiť / nechať obe / skryť nižšiu prioritu. Prípady: dotyk 1 px (obe), prekryv 20 % (obe), prekryv 60 % vodorovne (spojiť), prekryv 60 % zvislo (skryť jedno).
+- Unit test čistej funkcie, ktorá z dvoch obdĺžnikov a polôh pinov rozhodne: spojiť / nechať obe / skryť nižšiu prioritu. Prípady: dotyk 1 px (obe), prekryv 20 % (obe), prekryv 60 % vedľa seba (spojiť, západ · východ), prekryv 60 % nad sebou (spojiť, sever · juh, pod spodným pinom).
 - Fuchs2 a Bike Jesus majú akcie málokedy v rovnaký deň. Na ručnú kontrolu preto pridaj len v dev režime (`import.meta.env.DEV`) parameter `?debugPair=1`, ktorý ukáže všetky miesta bez ohľadu na deň. V produkcii nesmie nič meniť.
 
 ### Overenie
