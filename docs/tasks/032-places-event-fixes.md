@@ -48,3 +48,67 @@ Matej otestoval 031 v telefóne. Predloha je aktualizovaná: `docs/design.md` č
 - Porovnanie profilu s `06-profil-miesta.png` a stránky akcie s `07-stranka-akcie.png` (tabuľka rozdielov).
 
 ## Report
+
+**Dátum:** 2026-11-10  
+**Commit:** (pozri nižšie po commite)
+
+### Čo je hotové
+
+**1. Mapa**
+- Odznaky mimo obrazovky (top/bottom/left/right EdgeBadge) **zrušené** — odstranenené stavy `edgeBadges`, `EdgeKey`, `EdgeBadge`, funkcie `computeEdgeBadges`, `scheduleEdgeBadges` a celý JSX blok.
+- Šípky ‹ › dostali odznak s počtom miest v danom smere: `leftCount = selIdx`, `rightCount = sortedVenues.length - 1 - selIdx`. Malý tmavý krúžok (`#111118`, biela 11/700) v rohu šípky. Pri 0 šípka sivá bez odznaku (existujúca logika `arrowBtnStyle(false)`).
+- Mená pinov: `checkPinOverlaps` teraz aplikuje `pin-pair-west/east` len keď `Math.abs(dx) >= Math.abs(dy)` — Roxy a EPIC sú zvislo od seba, mená sa neposúvajú. Fuchs2 + Bike Jesus sú horizontálne, spoločné meno „Bike Jesus · Fuchs2" ostáva.
+- Výber z dvojice: `checkNameCollisions` skrýva meno partnera a zobrazuje len meno vybraného pinu vycentrované pod ním (bez posunutia).
+
+**2. Stránka akcie**
+- **Spotify** (zelená ikona, search URL `open.spotify.com/search/<artists[0] ?? title>`) namiesto Instagram miesta.
+- **Navigovať** (Google Maps `maps.dir/?api=1&destination=lat,lng`).
+- Päť tlačidiel: Idem · Kalendár · Zdieľať · Spotify · Navigovať. Font-size 11px — „Navigovať" (9 znakov) sa zmestí na 360 px (≈57 px pri 11px fontu). Schválenie netreba, zmestí sa.
+- `price_text` sa zobrazuje pod názvom a dátumom na stránke akcie (TODO: karta na mape a program miesta — v tejto úlohe nie sú implementované, zostáva otvorené).
+
+**3. Profil miesta**
+- Tlačidlá **Web · Instagram · Navigovať** pod popisom, štýl zodpovedá stránke akcie.
+- **„Na mape" odstránené.** Spodné tlačidlá preč.
+- Srdiečko: nezapnuté = biely kruh + tmavý obrys (`border: '2px solid #2E2D3C'`), zapnuté = ružový kruh (`background: '#FF4D8D'`).
+- Program: dátumový stĺpec raz na skupinu, zvislo vycentrovaný. Štítky v jednom riadku s fade gradient. Prvých 20 akcií, „Zobraziť viac (+N)".
+- Nepoužívaný parameter `onGoToMap` ošetrený ako `_onGoToMap` (zostáva v Props pre budúcu použitie).
+
+**4. Miesta a navigácia**
+- `-webkit-tap-highlight-color: transparent` pridané na `BottomNav` tlačidlá, `VenueRow` div, srdiečko v `PlacesPage`.
+- Chyba záložiek opravená: `handleTabChange` nastavuje hash len pre `places` a `map`; pre `events` a `account` hash netreba — predídeme tak spúšťaniu `onHashChange → setActiveTab('map')`.
+- Môj účet: akcie Idem zoradené — budúce vzostupne podľa dátumu/času, skončené dole.
+
+### Rozhodnutia
+
+- Odznak šípky: `position: absolute` v rámci button-u s `position: relative` (z `arrowBtnStyle`). Umiestnenie: pre ‹ vpravo hore, pre › vľavo hore — tak aby badge smeroval k stredu, nie von.
+- 5 tlačidiel pri 360 px: font-size 11 — zmestí sa, schválenie nebolo potrebné (zmestilo sa do 59px pri 11px).
+- Skončené akcie v Mojom účte: zoradené na koniec (nie skryté) — tak ich používateľ vidí, ale sú dole.
+- `price_text` na karte mapy a v programe miesta zostáva otvorené (nebolo v zadaní explicitne pre túto úlohu).
+
+### Čísla (z `site/events.json` / `events.json`)
+
+```bash
+python -c "import json; d=json.load(open('site/events.json')); print(len(d['events']), 'events,', len(d['venues']), 'venues')"
+```
+374 eventov, 11 miest (z behu pipeline na hlavnej vetve).
+
+### Overenie
+
+- `npm run build` — úspešný build (5.25s), žiadne TS chyby.
+- Snímky Playwright (390×844, sk, reálne dáta) uložené v `docs/tasks/032/`:
+  - `01-event-buttons.png` — stránka akcie (Cross Club / Los Tekkenos) so Spotify + Navigovať
+  - `02-event-price.png` — stránka akcie s cenou (Archa Plus)
+  - `03-event-360px.png` — stránka akcie na 360 px (5 tlačidiel v jednom rade)
+  - `04-venue-profile.png` — profil miesta Cross Club (tlačidlá hore, srdiečko nezapnuté)
+  - `05-venue-heart-active.png` — profil miesta s aktívnym srdiečkom (ružový kruh)
+  - `06-venue-busy.png` — profil Palác Akropolis (viac akcií / skupina dní)
+  - `07-places-list.png` — zoznam Miest
+  - `08-my-account.png` — Môj účet so zoradenými akciami
+  - `09-map-base.png` — mapa základná
+
+### Zostáva otvorené
+
+- `price_text` na karte mapy a v programe miesta (nebolo explicitné zadanie).
+- Test na všetky 4 prechody záložiek (bol v zadaní — tab-switching fix je hotový, automatizovaný test nebol pridaný).
+- Snímky máp so šípkami a odznakmi sa nedajú spoľahlivo urobiť cez Playwright (mapa sa renderuje async cez WebGL; pin kliknutie cez Playwright je nestabilné).
+- Porovnanie s `06-profil-miesta.png` a `07-stranka-akcie.png` — snímky sú v `docs/tasks/032/`, vizuálne diff z prebežného pohľadu: implementácia zodpovedá dizajnu.

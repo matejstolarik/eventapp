@@ -44,7 +44,9 @@ export function BottomNav({ active, lang, onChange }: Props) {
               display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: isActive ? 8 : 0,
               fontSize: 15, fontWeight: 600,
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              WebkitTapHighlightColor: 'transparent',
+              border: 'none', cursor: 'pointer',
             }}
             onClick={() => onChange(id)}
             aria-current={isActive ? 'page' : undefined}

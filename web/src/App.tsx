@@ -117,9 +117,13 @@ export default function App() {
     setActiveTab(tab)
     if (tab === 'places') {
       window.location.hash = '/miesta'
-    } else if (window.location.hash.startsWith('#/miesta')) {
-      window.location.hash = '/'
+    } else if (tab === 'map') {
+      // Only clear the hash if we were on a named route
+      if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+        window.location.hash = '/'
+      }
     }
+    // For 'events' and 'account' tabs: leave the hash as-is so we don't trigger onHashChange → setActiveTab('map')
   }
 
   // Fetch events data

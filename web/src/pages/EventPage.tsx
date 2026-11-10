@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
@@ -6,7 +6,7 @@ import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
 import {
   IconChevronLeft, IconExpand, IconCheck, IconCalendar,
-  IconShare, IconInstagram, EventTypeIcon
+  IconShare, IconSpotify, IconNavigate, EventTypeIcon
 } from '../icons'
 
 interface Props {
@@ -123,9 +123,13 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
       showToast(dict.event.linkCopied)
     }
   }
-  function handleIG() {
-    if (venue?.instagram) {
-      window.open(`https://instagram.com/${venue.instagram}`, '_blank', 'noopener')
+  function handleSpotify() {
+    const query = ev.artists?.[0] ?? ev.title
+    window.open(`https://open.spotify.com/search/${encodeURIComponent(query)}`, '_blank', 'noopener')
+  }
+  function handleNavigate() {
+    if (venue) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}`, '_blank', 'noopener')
     }
   }
 
@@ -279,14 +283,17 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           {ev.ticket_url ? dict.event.tickets : dict.event.website}
         </button>
 
-        {/* Secondary actions */}
+        {/* Secondary actions: Idem · Kalendár · Zdieľať · Spotify · Navigovať
+            At 360px viewport (328px inner): 5 × flex-1 with gap 8 → ~59px each.
+            Labels use font-size 11 to fit "Navigovať" (9 chars) in that width. */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          {[
-            { label: going ? dict.event.going : dict.event.going, onClick: handleGoing, active: going, Icon: IconCheck },
-            { label: dict.event.calendar, onClick: handleCalendar, active: false, Icon: IconCalendar },
-            { label: dict.event.share, onClick: handleShare, active: false, Icon: IconShare },
-            ...(venue?.instagram ? [{ label: dict.event.ig, onClick: handleIG, active: false, Icon: IconInstagram }] : [])
-          ].map(({ label, onClick, active: isActive, Icon }) => (
+          {([
+            { label: dict.event.going, onClick: handleGoing, active: going, icon: <IconCheck size={18} color={going ? '#FF4D8D' : '#F4F2FF'} /> },
+            { label: dict.event.calendar, onClick: handleCalendar, active: false, icon: <IconCalendar size={18} color="#F4F2FF" /> },
+            { label: dict.event.share, onClick: handleShare, active: false, icon: <IconShare size={18} color="#F4F2FF" /> },
+            { label: dict.event.spotify, onClick: handleSpotify, active: false, icon: <IconSpotify size={18} /> },
+            ...(venue ? [{ label: dict.event.navigate, onClick: handleNavigate, active: false, icon: <IconNavigate size={18} color="#F4F2FF" /> }] : []),
+          ] as { label: string; onClick: () => void; active: boolean; icon: React.ReactNode }[]).map(({ label, onClick, active: isActive, icon }) => (
             <button
               key={label}
               style={{
@@ -295,11 +302,12 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                 color: isActive ? '#FF4D8D' : '#F4F2FF',
                 display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center', gap: 4,
-                fontSize: 12, fontWeight: 600
+                fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
               }}
               onClick={onClick}
             >
-              <Icon size={20} color={isActive ? '#FF4D8D' : '#F4F2FF'} />
+              {icon}
               {label}
             </button>
           ))}

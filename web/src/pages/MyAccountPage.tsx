@@ -12,7 +12,22 @@ interface Props {
 export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) {
   const dict = getDict(lang)
   const goingIds = getGoing()
-  const goingEvents = data ? data.events.filter(e => goingIds.has(e.id)) : []
+  const now = new Date()
+  const todayStr = now.toISOString().slice(0, 10)
+  const goingEvents = data
+    ? data.events
+        .filter(e => goingIds.has(e.id))
+        .sort((a, b) => {
+          const aEnded = a.date < todayStr || (a.date === todayStr && !!a.end_time && a.end_time < now.toTimeString().slice(0, 5))
+          const bEnded = b.date < todayStr || (b.date === todayStr && !!b.end_time && b.end_time < now.toTimeString().slice(0, 5))
+          if (aEnded !== bEnded) return aEnded ? 1 : -1
+          if (a.date !== b.date) return a.date.localeCompare(b.date)
+          if (!a.start_time && !b.start_time) return 0
+          if (!a.start_time) return 1
+          if (!b.start_time) return -1
+          return a.start_time.localeCompare(b.start_time)
+        })
+    : []
   const venueMap = data ? Object.fromEntries(data.venues.map(v => [v.id, v])) : {}
 
   function handleLangChange(newLang: Language) {

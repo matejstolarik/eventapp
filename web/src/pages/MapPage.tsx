@@ -152,6 +152,10 @@ const PIN_CSS = `
   font-size: 13px !important;
   font-weight: 800 !important;
   color: #FFFFFF !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  text-align: center !important;
 }
 .map-zoom-13 .pin-name {
   display: block;
@@ -218,9 +222,6 @@ interface Props {
   onPendingSelectHandled?: () => void
 }
 
-type EdgeKey = 'top' | 'bottom' | 'left' | 'right'
-interface EdgeBadge { count: number; nearestLng: number; nearestLat: number }
-
 export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled }: Props) {
   const dict = getDict(lang)
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -241,11 +242,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [bearing, setBearing] = useState(0)
   const [showFilterMsg, setShowFilterMsg] = useState(false)
   const [showNight, setShowNight] = useState(() => isNightTime(new Date()))
-  const [edgeBadges, setEdgeBadges] = useState<Partial<Record<EdgeKey, EdgeBadge>>>({})
 
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const edgeBadgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isVisibleRef = useRef(isVisible)
 
   const selectedVenueIdRef = useRef<string | null>(null)
@@ -553,6 +552,21 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const partnerEntry = entries.find(e => e.venueId === partnerId)
         if (!partnerEntry) continue
 
+        const thisSelected = el.classList.contains('pin-selected')
+        const partnerSelected = partnerEntry.el.classList.contains('pin-selected')
+
+        // When one of the pair is selected: show only its own name centered under its pin
+        if (thisSelected || partnerSelected) {
+          const selectedEntry = thisSelected ? { venueId, el, nameEl } : partnerEntry
+          const otherEntry = thisSelected ? partnerEntry : { venueId, el, nameEl }
+          // Hide other, show selected centered (CSS .pin-selected .pin-name already handles centering)
+          otherEntry.nameEl.style.visibility = 'hidden'
+          selectedEntry.nameEl.style.visibility = ''
+          const r = selectedEntry.nameEl.getBoundingClientRect()
+          if (r.width > 0) occupied.push(r)
+          continue
+        }
+
         // Both pair members: show directional names, check if they overlap
         nameEl.style.visibility = 'visible'
         partnerEntry.nameEl.style.visibility = 'visible'
@@ -582,20 +596,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
             eastEl.querySelector('.pin-inner')?.appendChild(combinedEl)
           }
 
-          const westSelected = el.classList.contains('pin-pair-west') && el.classList.contains('pin-selected')
-          const eastSelected = !westSelected && (el.classList.contains('pin-pair-east') && el.classList.contains('pin-selected') || partnerEntry.el.classList.contains('pin-selected'))
-          const pWestSelected = el.classList.contains('pin-pair-west') && el.classList.contains('pin-selected')
-          const pEastSelected = partnerEntry.el.classList.contains('pin-selected')
-
-          if (pWestSelected) {
-            combinedEl.innerHTML = `<strong style="color:#fff;font-weight:800">${westName}</strong> · ${eastName}`
-          } else if (pEastSelected) {
-            combinedEl.innerHTML = `${westName} · <strong style="color:#fff;font-weight:800">${eastName}</strong>`
-          } else {
-            combinedEl.textContent = `${westName} · ${eastName}`
-          }
+          combinedEl.textContent = `${westName} · ${eastName}`
           combinedEl.style.display = 'block'
-          void westSelected; void eastSelected // suppress unused var warnings
 
           const rC = combinedEl.getBoundingClientRect()
           if (rC.width > 0) occupied.push(rC)
@@ -660,7 +662,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       el.classList.remove('pin-pair-west', 'pin-pair-east')
     }
 
-    // Detect and handle pairs within 40px
+    // Detect and handle pairs within 40px.
+    // Only apply name-pair classes (pin-pair-west/east) when pins are primarily HORIZONTAL
+    // (|dx| > |dy|): avoids displacing names for vertically-offset pairs like Roxy+EPIC.
     for (let i = 0; i < pins.length; i++) {
       for (let j = i + 1; j < pins.length; j++) {
         const a = pins[i], b = pins[j]
@@ -672,8 +676,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           const east = a.lng <= b.lng ? b : a
           pairsRef.current.set(west.venueId, east.venueId)
           pairsRef.current.set(east.venueId, west.venueId)
-          west.el.classList.add('pin-pair-west')
-          east.el.classList.add('pin-pair-east')
+          // Name pair classes only when mostly horizontal (names would actually overlap)
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            west.el.classList.add('pin-pair-west')
+            east.el.classList.add('pin-pair-east')
+          }
           if (dist < 20) {
             const off = west === a ? -8 : 8
             a.el.style.setProperty('--pin-dx', `${off}px`)
@@ -682,47 +689,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         }
       }
     }
-  }
-
-  // Throttled edge badge computation (after map move/zoom)
-  const computeEdgeBadges = useCallback(() => {
-    const map = mapRef.current
-    if (!map || !map.loaded()) return
-    const cv = map.getCanvas().getBoundingClientRect()
-    const { width, height } = cv
-
-    const badges: Partial<Record<EdgeKey, { count: number; bestDist: number; nearestLng: number; nearestLat: number }>> = {}
-    const margin = 0
-
-    for (const md of currentMarkerDataRef.current) {
-      const pt = map.project([md.lng, md.lat])
-      if (pt.x >= margin && pt.x <= width - margin && pt.y >= margin && pt.y <= height - margin) continue
-
-      const dx = pt.x < 0 ? -pt.x : pt.x > width ? pt.x - width : 0
-      const dy = pt.y < 0 ? -pt.y : pt.y > height ? pt.y - height : 0
-
-      let edge: EdgeKey
-      if (dx > dy) edge = pt.x < 0 ? 'left' : 'right'
-      else edge = pt.y < 0 ? 'top' : 'bottom'
-
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      if (!badges[edge] || dist < badges[edge]!.bestDist) {
-        badges[edge] = { count: (badges[edge]?.count ?? 0) + 1, bestDist: dist, nearestLng: md.lng, nearestLat: md.lat }
-      } else {
-        badges[edge]!.count++
-      }
-    }
-
-    setEdgeBadges(
-      Object.fromEntries(
-        Object.entries(badges).map(([k, v]) => [k, { count: v!.count, nearestLng: v!.nearestLng, nearestLat: v!.nearestLat }])
-      )
-    )
-  }, [])
-
-  function scheduleEdgeBadges() {
-    if (edgeBadgeTimerRef.current) clearTimeout(edgeBadgeTimerRef.current)
-    edgeBadgeTimerRef.current = setTimeout(computeEdgeBadges, 150)
   }
 
   // Init map
@@ -800,12 +766,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
         map.on('zoomend', () => {
           requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-          scheduleEdgeBadges()
         })
 
         map.on('moveend', () => {
           requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-          scheduleEdgeBadges()
         })
 
         map.on('rotate', () => setBearing(map.getBearing()))
@@ -914,7 +878,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const selectedDayLabel = formatDayLabel(selectedDay, lang, curNow)
   const panelOpen = panelVenue && panelEvents.length > 0
 
-  // Arrow button style (40px, grey when disabled)
+  // Arrow button style (40px, grey when disabled/at edge)
   function arrowBtnStyle(enabled: boolean): React.CSSProperties {
     return {
       position: 'absolute', bottom: 310,
@@ -930,31 +894,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
   }
 
-  // Edge badge style
-  function edgeBadgeStyle(edge: EdgeKey): React.CSSProperties {
-    const base: React.CSSProperties = {
-      position: 'absolute',
-      height: 29,
-      background: 'rgba(28,28,39,0.92)',
-      border: '1px solid #3A3A50',
-      borderRadius: 20,
-      padding: '0 10px',
-      display: 'flex', alignItems: 'center', gap: 4,
-      fontSize: 12, fontWeight: 700, color: '#F4F2FF',
-      fontFamily: "'Outfit', sans-serif",
-      zIndex: 20,
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-    }
-    switch (edge) {
-      case 'top':    return { ...base, top: 112, left: '50%', transform: 'translateX(-50%)' }
-      case 'bottom': return { ...base, bottom: 100, left: '50%', transform: 'translateX(-50%)' }
-      case 'left':   return { ...base, left: 8, top: '50%', transform: 'translateY(-50%)' }
-      case 'right':  return { ...base, right: 8, top: '50%', transform: 'translateY(-50%)' }
-    }
-  }
-
-  const BADGE_ARROWS: Record<EdgeKey, string> = { left: '‹', right: '›', top: '∧', bottom: '∨' }
+  // Count badge on arrow buttons: how many venues are in each direction
+  const leftCount = selIdx > 0 ? selIdx : 0
+  const rightCount = selIdx >= 0 && selIdx < sortedVenues.length - 1 ? sortedVenues.length - 1 - selIdx : 0
 
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
@@ -1110,7 +1052,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         {showAttribution ? '© OpenStreetMap prispievatelia | OpenFreeMap' : 'i'}
       </button>
 
-      {/* Navigation arrows — 40px, always rendered when panel open, grey when at edge */}
+      {/* Navigation arrows — 40px, grey when at edge, with count badge when count > 0 */}
       {panelOpen && (
         <>
           <button
@@ -1123,6 +1065,16 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
               strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 6l-6 6 6 6" />
             </svg>
+            {leftCount > 0 && (
+              <span style={{
+                position: 'absolute', top: -4, right: -4,
+                minWidth: 18, height: 18, borderRadius: 9,
+                background: '#111118', color: '#F4F2FF',
+                fontSize: 11, fontWeight: 700, lineHeight: '18px',
+                textAlign: 'center', padding: '0 4px',
+                pointerEvents: 'none',
+              }}>{leftCount}</span>
+            )}
           </button>
           <button
             style={{ ...arrowBtnStyle(!!nextVenue), right: 16 }}
@@ -1134,6 +1086,16 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
               strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M9 6l6 6-6 6" />
             </svg>
+            {rightCount > 0 && (
+              <span style={{
+                position: 'absolute', top: -4, left: -4,
+                minWidth: 18, height: 18, borderRadius: 9,
+                background: '#111118', color: '#F4F2FF',
+                fontSize: 11, fontWeight: 700, lineHeight: '18px',
+                textAlign: 'center', padding: '0 4px',
+                pointerEvents: 'none',
+              }}>{rightCount}</span>
+            )}
           </button>
         </>
       )}
@@ -1152,23 +1114,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         />
       )}
 
-      {/* Off-screen edge badges */}
-      {(Object.entries(edgeBadges) as [EdgeKey, EdgeBadge][]).map(([edge, badge]) =>
-        badge.count > 0 ? (
-          <button
-            key={edge}
-            style={edgeBadgeStyle(edge)}
-            onClick={() => mapRef.current?.flyTo({
-              center: [badge.nearestLng, badge.nearestLat],
-              zoom: Math.max(mapRef.current.getZoom(), 13),
-              duration: 600,
-            })}
-            aria-label={`${badge.count} miesto mimo obrazovky`}
-          >
-            {BADGE_ARROWS[edge]} {badge.count}
-          </button>
-        ) : null
-      )}
 
       {/* Day selector sheet */}
       {showDaySelector && (

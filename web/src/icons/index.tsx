@@ -205,3 +205,32 @@ export function IconExpand({ size = 16, color = 'currentColor' }: IconProps) {
     </svg>
   )
 }
+
+export function IconSpotify({ size = 20 }: { size?: number }) {
+  // Official Spotify "play" icon (simplified circular mark, brand-compliant)
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="12" fill="#1DB954" />
+      <path d="M17.9 10.9C14.7 9 9.35 8.8 6.3 9.75c-.5.15-1-.15-1.15-.6-.15-.5.15-1 .6-1.15C9.65 6.8 15.5 7 19.1 9.15c.45.25.6.85.35 1.3-.25.35-.85.5-1.3.2-.05-.1-.1-.2-.25-.25zM17.75 13.65c-.2.3-.6.4-.9.2-2.6-1.6-6.55-2.1-9.6-1.1-.35.1-.75-.1-.85-.45-.1-.35.1-.75.45-.85 3.5-1.1 7.85-.55 10.8 1.3.3.15.4.6.1.9zM16.6 16.4c-.15.25-.5.3-.75.15-2.25-1.4-5.1-1.7-8.45-.9-.3.05-.6-.1-.65-.4-.05-.3.1-.6.4-.65 3.65-.8 6.8-.45 9.3 1.05.3.1.3.5.15.75z" fill="white" />
+    </svg>
+  )
+}
+
+export function IconNavigate({ size = 20, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2l9 20-9-4-9 4z" />
+    </svg>
+  )
+}
+
+export function IconGlobe({ size = 20, color = 'currentColor' }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  )
+}

@@ -29,6 +29,8 @@ export const cs = {
     calendar: 'Kalendář',
     share: 'Sdílet',
     ig: 'IG místa',
+    spotify: 'Spotify',
+    navigate: 'Navigovat',
     free: 'Zdarma',
     soldOut: 'Vyprodáno',
     linkCopied: 'Odkaz zkopírován',
@@ -56,6 +58,7 @@ export const cs = {
     program: 'Program',
     web: 'Web',
     instagram: 'Instagram',
+    navigate: 'Navigovat',
     onMap: 'Na mapě',
     noProgram: 'Žádné nadcházející akce.',
     dot: '·'

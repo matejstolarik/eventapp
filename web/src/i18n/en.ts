@@ -29,6 +29,8 @@ export const en = {
     calendar: 'Calendar',
     share: 'Share',
     ig: 'Venue IG',
+    spotify: 'Spotify',
+    navigate: 'Navigate',
     free: 'Free',
     soldOut: 'Sold out',
     linkCopied: 'Link copied',
@@ -56,6 +58,7 @@ export const en = {
     program: 'Program',
     web: 'Web',
     instagram: 'Instagram',
+    navigate: 'Navigate',
     onMap: 'On map',
     noProgram: 'No upcoming events.',
     dot: '·'

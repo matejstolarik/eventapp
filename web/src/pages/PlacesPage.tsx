@@ -200,7 +200,8 @@ function VenueRow({ venue, isFav, onToggleFav, onOpen }: RowProps) {
       onClick={() => onOpen(venue.id)}
       style={{
         display: 'flex', alignItems: 'center', gap: 12,
-        padding: '10px 16px', cursor: 'pointer'
+        padding: '10px 16px', cursor: 'pointer',
+        WebkitTapHighlightColor: 'transparent',
       }}
     >
       <VenuePhoto venue={venue} size={56} radius={28} />
@@ -231,7 +232,8 @@ function VenueRow({ venue, isFav, onToggleFav, onOpen }: RowProps) {
         onClick={e => onToggleFav(e, venue.id)}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          padding: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          padding: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          WebkitTapHighlightColor: 'transparent',
         }}
         aria-label={isFav ? 'Odobrať z obľúbených' : 'Pridať do obľúbených'}
       >
