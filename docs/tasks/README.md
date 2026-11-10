@@ -10,9 +10,15 @@ Each task is a Markdown file `NNN-short-name.md` in this directory.
 ## Zadanie
 (Written by the main chat / Matej. Do not edit.)
 
+**Čítaj:** (docs sections and code files needed for this task, e.g. `design.md` 1 + 6, `web/src/pages/VenuePage.tsx`)
+
+(task text)
+
 ## Report
 (Written by Claude at the end of the task.)
 ```
+
+Every task names what to read in a **Čítaj** line. Read that, not whole docs (see CLAUDE.md "Before you start"). Search other files with `grep` only when needed.
 
 ## Rules
 
@@ -30,6 +36,8 @@ At the end of every task, write `## Report` with:
 - Numbers: computed from `site/events.json` of the latest pipeline run; always include the command used
 - Verification against the web (specific URLs and values)
 - What remains open or was not finished
+
+For UI-only tasks, numbers and web verification are not needed (write "n/a, UI task"). Keep the report short: facts, hashes, run numbers, open items. No restating the task.
 
 ## Rules for the report
 

@@ -3,7 +3,12 @@
 App that shows events (concerts, parties, culture) at the user's favourite venues in Prague. Personal project of Matej, built to be usable by others later.
 
 ## Before you start
-- Read `docs/project.md` (goal, scope) and `docs/decisions.md` (agreed decisions) before any larger change.
+- **Read only what the task needs** (credits are limited). The task file says which docs and sections to read. Do not read whole large docs by default:
+  - `docs/decisions.md` (large, append-only): search it (`grep -n`) for the topic of the task and read only the matching rows. Read it whole only for changes to the pipeline architecture or data sources.
+  - `docs/design.md`: read section 1 (general, colours) plus the sections named in the task.
+  - `docs/data-model.md`: only when the task touches data fields.
+  - `docs/project.md`: only for scope questions.
+- In code, read the files and functions the task names; search (`grep -n`) before opening big files whole.
 - Data structures are defined in `docs/data-model.md`. Follow it exactly; if you need to change it, propose the change first and update the doc.
 - If a task would contradict a decision in `docs/decisions.md`, stop and say so instead of silently deviating.
 - When a new decision is made while coding, add it to `docs/decisions.md` (date, decision, reason).
@@ -35,6 +40,12 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Code, comments, commit messages and docs inside code: English. Talk to Matej in Slovak.
 - Keep it simple. This is a small personal project; prefer plain functions and standard libraries over frameworks.
 - **UI design:** UI must follow `docs/design.md` and `docs/design/` almost 1:1. Do not invent UI behaviour, colours or layout. If something is missing or not feasible, stop and ask Matej.
+- **Screenshots and browser (credits):**
+  - Make screenshots only with a Playwright script run from the shell (reuse the existing scripts in `tests/playwright/`). Never use the session's interactive browser tools.
+  - Take only the screenshots the task lists. Save them as JPEG (quality 80, 390 × 844 unless stated) into `docs/tasks/NNN/`.
+  - Do not open/view the screenshots yourself to judge the design; the main chat and Matej review them. Check the script ran and the files exist. View an image only to debug a concrete failure, at most a few times per task.
+  - If a screenshot cannot be made reliably after 2 attempts, stop trying, say so in the report and move on.
+  - Do not paste long build/test logs into the context; use `--reporter=dot`/`-q` and look only at failures.
 - **Never rewrite git history** (no `filter-branch`, `rebase -i`, `reset --hard` on pushed commits, or `push --force`) without explicit approval from Matej. To remove a file: `git rm` + normal commit is enough.
 
 ## Repository layout (proposal, adjust when scaffolding)
