@@ -13,6 +13,26 @@ const ICON_SVG: Record<EventType, (c: string) => string> = {
 
 const HEART_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="#111118" stroke="#111118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.6L12 20l-7.5-7.4A5 5 0 1 1 12 6a5 5 0 1 1 7.5 6.6z"/></svg>`
 
+/** Inject a shared SVG <defs> block with the pin drop-shadow filter into document.body. */
+export function initPinShadows(): void {
+  if (document.getElementById('pin-shadow-defs')) return
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.id = 'pin-shadow-defs'
+  svg.setAttribute('width', '0')
+  svg.setAttribute('height', '0')
+  svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none'
+  svg.innerHTML = `<defs>
+    <filter id="pin-drop-shadow" x="-40%" y="-10%" width="180%" height="150%" color-interpolation-filters="linearRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+      <feOffset in="blur" dx="0" dy="7" result="offset"/>
+      <feFlood flood-color="#000" flood-opacity="0.50" result="color"/>
+      <feComposite in="color" in2="offset" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`
+  document.body.appendChild(svg)
+}
+
 export interface MarkerData {
   venueId: string
   name: string
@@ -26,40 +46,41 @@ export interface MarkerData {
 
 /**
  * Creates a pin element for a MapLibre marker.
- * DOM is built once; state changes are via CSS class toggles (no innerHTML rebuilds).
- * .pin-selected triggers scale(1.22), glow opacity, and bold white name.
+ * DOM is built once; state changes are via CSS class toggles.
+ * Shadow is baked into the SVG (no CSS filter on the element).
+ * Pulse uses transform/opacity (no box-shadow).
  */
 export function createPinElement(data: MarkerData, isSelected: boolean): HTMLElement {
   const el = document.createElement('div')
   el.className = 'map-pin'
   el.dataset.venueId = data.venueId
-  el.style.cssText = 'filter:drop-shadow(0 8px 6px rgba(0,0,0,0.55)) drop-shadow(0 2px 2px rgba(0,0,0,0.35));cursor:pointer;'
+  el.style.cssText = 'cursor:pointer;'
 
   const color = EVENT_TYPE_COLOR[data.eventType]
   const dark = EVENT_TYPE_DARK[data.eventType]
 
-  // pin-inner: scale transform anchor = bottom center (pin tip)
   const inner = document.createElement('div')
   inner.className = 'pin-inner'
 
-  // Glow — always in DOM, opacity 0→1 via .pin-selected .pin-glow
+  // Glow — opacity 0→1 via .pin-selected .pin-glow
   const glow = document.createElement('span')
   glow.className = 'pin-glow'
   glow.style.background = `radial-gradient(circle, ${color}88 0%, ${color}33 45%, transparent 70%)`
   inner.appendChild(glow)
 
-  // Live pulse ring
+  // Live pulse ring (transform + opacity animation, no box-shadow)
   if (data.isLive) {
     const ring = document.createElement('span')
     ring.className = 'pin-live-ring'
     ring.style.setProperty('--pc', color)
+    ring.style.borderColor = color
     inner.appendChild(ring)
   }
 
-  // Pin SVG shape
+  // Pin SVG with shadow baked in (no CSS filter)
   const pinSvg = document.createElement('div')
   pinSvg.className = 'pin-svg'
-  pinSvg.innerHTML = `<svg width="50" height="64" viewBox="0 0 50 64" aria-hidden="true"><path d="${PIN_PATH}" fill="${color}"/></svg>`
+  pinSvg.innerHTML = `<svg width="50" height="64" viewBox="0 0 50 64" aria-hidden="true"><path d="${PIN_PATH}" fill="${color}" filter="url(#pin-drop-shadow)"/></svg>`
   inner.appendChild(pinSvg)
 
   // Icon circle
@@ -85,7 +106,7 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
     inner.appendChild(badge)
   }
 
-  // Name label — hidden by default; shown at zoom ≥13 via .map-zoom-13 .pin-name
+  // Name label
   const name = document.createElement('span')
   name.className = 'pin-name'
   name.textContent = data.name
@@ -95,16 +116,16 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
 
   if (isSelected) {
     el.classList.add('pin-selected')
-    el.style.zIndex = '999'
+    el.style.zIndex = '10'
   }
 
   return el
 }
 
-/** Toggles selected state in-place via CSS class — transitions are in PIN_CSS. */
+/** Toggles selected state in-place via CSS class. */
 export function updatePinElement(el: HTMLElement, _data: MarkerData, isSelected: boolean): void {
   const wasSelected = el.classList.contains('pin-selected')
   if (isSelected === wasSelected) return
   el.classList.toggle('pin-selected', isSelected)
-  el.style.zIndex = isSelected ? '999' : ''
+  el.style.zIndex = isSelected ? '10' : ''
 }

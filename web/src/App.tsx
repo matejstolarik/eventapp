@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from './core/types'
 import { detectLanguage } from './core/store'
 import { setLastFetched, getLastFetched } from './core/store'
@@ -34,6 +34,10 @@ export default function App() {
 
   // Hash routing
   const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash))
+
+  // Track if MapPage was ever mounted (once true, never unmount it)
+  const mapMountedRef = useRef(false)
+  if (data !== null) mapMountedRef.current = true
 
   useEffect(() => {
     function onHashChange() {
@@ -112,36 +116,28 @@ export default function App() {
     )
   }
 
-  // Event page (full-screen, no bottom nav)
-  if (route.page === 'event') {
-    return (
-      <div style={{ position: 'fixed', inset: 0, background: '#111118' }}>
-        {isOffline && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
-        <EventPage
-          eventId={(route as { page: 'event'; eventId: string }).eventId}
-          data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
-          lang={lang}
-          userLocation={null}
-          onBack={goBack}
-        />
-      </div>
-    )
-  }
+  // Map is active when on map tab and not on event page
+  const isMapActive = route.page !== 'event' && activeTab === 'map'
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: '#111118', display: 'flex', flexDirection: 'column' }}>
-      {isOffline && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
+      {isOffline && route.page !== 'event' && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
 
       {/* Page content */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        {activeTab === 'map' && data && (
-          <MapPage
-            data={data}
-            lang={lang}
-            onEventOpen={openEvent}
-          />
+        {/* Map — always mounted once data loads, hidden when not active tab.
+            Never unmounted so the WebGL context survives tab switches and event-page navigation. */}
+        {mapMountedRef.current && (
+          <div style={{ position: 'absolute', inset: 0, display: isMapActive ? undefined : 'none' }}>
+            <MapPage
+              data={data!}
+              lang={lang}
+              isVisible={isMapActive}
+              onEventOpen={openEvent}
+            />
+          </div>
         )}
-        {activeTab === 'map' && !data && (
+        {!mapMountedRef.current && activeTab === 'map' && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <p style={{ color: '#B9B6CC' }}>Žiadne dáta</p>
           </div>
@@ -162,7 +158,23 @@ export default function App() {
         )}
       </div>
 
-      <BottomNav active={activeTab} lang={lang} onChange={setActiveTab} />
+      {route.page !== 'event' && (
+        <BottomNav active={activeTab} lang={lang} onChange={setActiveTab} />
+      )}
+
+      {/* Event page renders as a full-screen overlay; MapPage stays mounted underneath */}
+      {route.page === 'event' && (
+        <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 50 }}>
+          {isOffline && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
+          <EventPage
+            eventId={(route as { page: 'event'; eventId: string }).eventId}
+            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+            lang={lang}
+            userLocation={null}
+            onBack={goBack}
+          />
+        </div>
+      )}
     </div>
   )
 }

@@ -12,8 +12,10 @@ export function getDict(lang: Language): Dict {
 }
 
 /** Formats a YYYY-MM-DD date for display in the given language.
+ * Handles special value 'night' for V noci mode.
  * Uses abbreviated day name + day + dot + month number. */
 export function formatDayLabel(dateStr: string, lang: Language, now?: Date): string {
+  if (dateStr === 'night') return getDict(lang).map.night
   const dict = getDict(lang)
   const d = new Date(dateStr + 'T12:00:00')
   const today = new Date(now ?? new Date())

@@ -3,6 +3,8 @@ export const sk = {
   map: {
     today: 'Dnes',
     tomorrow: 'Zajtra',
+    night: 'V noci',
+    otherDate: 'Iný dátum',
     all: 'Všetko',
     favorites: 'Obľúbené',
     filter: 'Filter',

@@ -176,17 +176,15 @@ function buildLayers(src: string): MapLayer[] {
       },
       paint: { 'text-color': p.text, 'text-halo-color': halo, 'text-halo-width': 1.5 } },
 
-    // === Metro/rail/subway stations: from zoom 13 ===
-    // Liberty sprite uses underscore names (railway_metro, railway) without size suffix.
+    // === Metro stations only: subway class, from zoom 13 ===
+    // Liberty sprite uses railway_metro icon. Only class=subway (Praha metro A/B/C).
     { id: 'poi-metro', type: 'symbol', source: src, 'source-layer': 'poi',
-      filter: ['match', ['get', 'class'],
-        ['rail', 'railway', 'subway', 'station', 'train_station'], true, false],
+      filter: ['match', ['get', 'class'], ['subway', 'station'], true, false],
       minzoom: 13,
       layout: {
         'icon-image': ['coalesce',
           ['image', 'railway_metro'], ['image', 'railway_metro_11'],
-          ['image', 'railway'],       ['image', 'railway_11'],
-          ['image', 'railway_light'], ['image', 'railway_light_11'],
+          ['image', 'subway'],        ['image', 'subway_11'],
         ],
         'icon-size': 0.75,
         'icon-allow-overlap': false,

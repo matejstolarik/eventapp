@@ -3,6 +3,8 @@ export const en = {
   map: {
     today: 'Today',
     tomorrow: 'Tomorrow',
+    night: 'Late night',
+    otherDate: 'Other date',
     all: 'All',
     favorites: 'Favorites',
     filter: 'Filter',

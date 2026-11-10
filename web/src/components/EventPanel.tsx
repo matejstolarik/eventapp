@@ -9,6 +9,7 @@ interface Props {
   venue: Venue
   lang: Language
   userLocation: { lat: number; lng: number } | null
+  className?: string
   onClose: () => void
   onEventOpen: (eventId: string) => void
 }
@@ -61,7 +62,7 @@ function TagRow({ children, 'aria-label': ariaLabel }: { children: React.ReactNo
   )
 }
 
-export function EventPanel({ events, venue, lang, userLocation, onClose: _onClose, onEventOpen }: Props) {
+export function EventPanel({ events, venue, lang, userLocation, className, onClose: _onClose, onEventOpen }: Props) {
   // venue is used for distance; character tags are shown only on the venue profile page
   const [currentIdx, setCurrentIdx] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
@@ -114,7 +115,7 @@ export function EventPanel({ events, venue, lang, userLocation, onClose: _onClos
 
   return (
     <section
-      className="event-panel-enter"
+      className={className}
       style={{
         position: 'absolute', left: 12, right: 12, bottom: 112,
         borderRadius: 28, background: '#1C1C27',
