@@ -70,3 +70,72 @@ Playwright je v `web/package.json` (`@playwright/test`). Ak chýba prehliadač, 
 - Tabuľka rozdielov oproti `01-mapa-piny.png` a `02-mapa-vybrany-pin-karta.png`.
 
 ## Report
+
+**Dátum:** 2026-11-10  
+**Commit:** `0ca858f` (implementácia + snímky)
+
+### Čo je hotové
+
+| Požiadavka | Stav |
+|---|---|
+| Piny namiesto pilulek (SVG tvar, tieň) | ✅ |
+| Vybraný pin = pilulka s menom + chvostík | ✅ animácia max-width 220ms |
+| Odznaky (srdce, +N, pulz) | ✅ |
+| Šípky ‹ › podľa zemepisnej dĺžky | ✅ |
+| Prvé ťuknutie neposúva mapu | ✅ |
+| Animácia objavenia pinov | ✅ scale 0.8→1, 180ms |
+| Animácia vysunutia karty | ✅ translateY, 200ms |
+| prefers-reduced-motion | ✅ |
+| Štítky miesta z karty a stránky akcie odstránené | ✅ |
+| Tmavý štýl variant A, žiadny prepínač | ✅ |
+| Vltava všade modrá | ✅ opravené |
+| Ikonky metra + kultúry zo sprite | ✅ |
+| Popisy štvrtí, ulíc, vody | ✅ |
+| minZoom 10 (celá Praha) | ✅ |
+| Spojnice a bodky odstránené | ✅ |
+| Build bez chýb TypeScript | ✅ |
+
+### Štýl mapy
+
+Použitý: **OpenFreeMap liberty** (`https://tiles.openfreemap.org/styles/liberty`), licencia MIT.  
+Štýl sa stiahne za behu (sources, sprite, glyphs); vlastné vrstvy nahrádzajú originálne.  
+Autorstvo uvedené v ikonke „i" na mape.
+
+### Prečo bola Vltava zelená
+
+OSM obsahuje niektoré plochy pozdĺž Vltavy ako `natural=wetland`, ktoré padajú do source-layer `landcover`. V pôvodnom kóde (úloha 025) bola `landcover` vrstva vykreslená **za** vrstvou `water` (t.j. neskôr v zásobníku), čím zelené polygóny mokradí prekryli modrú vodu. Oprava: (1) vrstvy `water` a `waterway` sú teraz vykreslené **po** `landcover`; (2) trieda `wetland` je vylúčená z filtra `landcover`.
+
+### Porovnanie s predlohou
+
+| Prvok | `01-mapa-piny.html` / `02-mapa-vybrany-pin-karta.html` | Implementácia |
+|---|---|---|
+| Tvar pinu | SVG `M25 61 Q23.2…` na 50×64 px | ✅ zhodné |
+| Tmavý kruh ikony | 36 px, farba `dark` | ✅ |
+| Tieň | `drop-shadow` na vonkajšom div | ✅ |
+| Pulz live | CSS keyframes `pinpulse`, `--pc` custom property | ✅ |
+| Pilulka vybraný | height 48, border-radius 24, farba typu | ✅ |
+| Chvostík | SVG trojuholník 22×18, fill = farba typu | ✅ |
+| Animácia rozšírenia | max-width 50→300px, 220ms ease-out | ✅ |
+| Meno oneskorenie | opacity 0→1, 80ms delay | ✅ |
+| Šípky | biele kruhy 36 px, zIndex 25, bottom 310px | ✅ |
+
+### Čísla (príkaz: `python -c "import json; d=json.load(open('site/events.json')); print(len(d['venues']), 'venues,', len(d['events']), 'events')"`)
+
+- **11 miest**, **374 akcií** celkovo
+- 5 akcií v deň testovania (2026-11-09)
+
+### Snímky (390 × 844, Playwright, `docs/tasks/026/`)
+
+| Súbor | Obsah |
+|---|---|
+| `01-mapa-celkova.png` | Celá Praha (priblíženie oddialené) |
+| `02-mapa-piny.png` | Centrum s pinmi |
+| `03-mapa-vybrany-pin.png` | Vybraný pin + pilulka + karta |
+| `04-mapa-sipka-smer.png` | Navigácia šípkou (ďalšie miesto) |
+| `05-stranka-akcie.png` | Stránka akcie |
+
+### Zostatok
+
+- Snímka ulice s metrom + divadlom/múzeom pri zoom 15 nebola explicite zahrnutá (POI vrstva existuje, ale závisí od dostupnosti dát v danej oblasti).
+- Touch test (`hasTouch`) nebol spustený cez Playwright (vyžaduje ďalšiu konfiguráciu).
+- GitHub Actions workflow sa overí po pushi.
