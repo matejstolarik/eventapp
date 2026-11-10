@@ -591,19 +591,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
             const rC = lbl.getBoundingClientRect()
             if (rC.width > 0) occupied.push(rC)
           } else {
-            // No significant overlap: check each against existing occupied
+            // No significant overlap: pair members never hide each other — both always show
             for (const ne of [nameEl, partnerEntry.nameEl]) {
+              ne.style.visibility = 'visible'
               const r = ne.getBoundingClientRect()
-              if (r.width === 0) continue
-              if (priority === 4) { occupied.push(r); continue }
-              let overlaps = false
-              for (const occ of occupied) {
-                if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
-                  overlaps = true; break
-                }
-              }
-              if (overlaps) ne.style.visibility = 'hidden'
-              else occupied.push(r)
+              if (r.width > 0) occupied.push(r)
             }
           }
         }
