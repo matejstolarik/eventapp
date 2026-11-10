@@ -67,3 +67,40 @@ Snímky neboli vykonané (screenshotovací skript vyžaduje dev server a ?debugP
 
 ### Čo ostáva otvorené
 - Snímky do `docs/tasks/034/` (vyžadujú telefón / skript + live server s `?debugPair=1`).
+
+---
+
+### Opravy po testovaní (2026-11-10)
+
+Po nasadení sa ukázali tri ďalšie chyby, opravené v samostatných commitoch.
+
+#### Chyba 1: Člen páru bez mena pri malom prekrytí (07c4177)
+
+**Príčina:** Vo vetve „both" (prekryv nebol dostatočný na zlúčenie) sa do `occupied` pridalo meno prvého člena páru ešte pred kontrolou druhého. Druhý člen mal `visibility: hidden`, lebo jeho meno sa prekrývalo s prvým.
+
+**Oprava:** V „both" vetve obidve mená vždy zobrazené a obidve pridané do `occupied` bez vzájomnej kontroly. Spec: „Žiadne meno sa kvôli prekrytiu dvojice neskrýva."
+
+#### Chyba 2: Asymetrické mená pri prechode cez zoom 13 (bee94d3 → acbb7b2)
+
+**Príčina:** Keď zoom klesol pod 13, `checkNameCollisions` prestal bežať, ale `visibility: hidden` nastavené predošlým behom zostalo na jednom mene. Keď zoom stúpol späť nad 13, CSS trieda `.map-zoom-13` ihneď zobrazila mená, pričom stav bol asymetrický (jedno `hidden`, druhé `visible`).
+
+Druhý aspect: pri prepínaní šípkami sa `checkNameCollisions` spúšťal cez React re-render cyklus (1–3 framy oneskorenie), combined label pritom stále svietil.
+
+**Oprava 1 (bee94d3):** `zoom` event detekoval prechod cez 13 smerom hore a spustil `checkPinOverlaps` + `checkNameCollisions` v `requestAnimationFrame`. Nestačilo — problém sa vyskytoval aj pri zoome vnútri ≥ 13.
+
+**Oprava 2 (acbb7b2):** `zoom` event spúšťa `checkPinOverlaps` + `checkNameCollisions` každý frame (nie len pri prechode). Klik a šípky spúšťajú `requestAnimationFrame` s recomputom priamo po zmene triedy `pin-selected`, bez čakania na React re-render.
+
+#### Chyba 3: Skutočná príčina asymetrie — hranica párovania (571a3f5)
+
+**Príčina:** Pri vyšších zoomoch (15–16+) sú Fuchs2 a Bike Jesus na obrazovke ďalej ako 40 px, `checkPinOverlaps` ich nepároval, a tak šli cez štandardnú kolíznu logiku. Tá pridá meno prvého pinu do `occupied` a meno druhého skryje, lebo na neho narazí — aj keď sú mená v skutočnosti iba v dotyku alebo bez prekryvu.
+
+Vetva pre páry (`decidePairLabel`) oba mená vždy zobrazí alebo správne zlúči. Štandardná vetva nemá toto správanie.
+
+**Oprava:** Hranica párovania zvýšená z 40 px na 200 px. Pri vzdialenosti pinov > 200 px sú mená (< 100 px šírky) fyzicky vzdialené — `decidePairLabel` vráti `'both'` a obidve sa ukážu, rovnaký výsledok ako štandardná logika pre neprekrývajúce sa mená. Pri 0–200 px idú správnou vetvou a nedochádza k asymetrii.
+
+### Záverečná verifikácia
+```
+npm test -- --run   → 64 passed
+npm run build       → ✓ built
+```
+Commity: 998f3dc → 07c4177 → bee94d3 → acbb7b2 → 571a3f5
