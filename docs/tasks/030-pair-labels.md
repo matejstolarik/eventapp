@@ -1,6 +1,8 @@
 # 030: Mená dvojice pinov tesne pri sebe
 
 ## Zadanie
+**Nespúšťať samostatne (Matej 2026-11-10): obsah sa robí v rámci nasledujúcej úlohy, ktorá na tento súbor odkáže.**
+
 Zadal: hlavný chat, 2026-11-10. Po úlohe 029.
 
 Matej: pri priblížení, keď sa ukážu mená, sa pri Fuchs2 a Bike Jesus ukáže len „Bike Jesus“, „Fuchs2“ zmizne (kolízia mien). Takto to riešiť nemôžeme. Malá úloha, nič iné nemeň.
