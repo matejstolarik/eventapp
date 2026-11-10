@@ -36,3 +36,34 @@ Matej testoval 033 v telefóne. Mená nefungujú. Hlavný chat našiel príčiny
 - Snímky (skript, JPEG, 390 × 844, `sk`, `?debugPair=1`) do `docs/tasks/034/`: zoom 15 a 16 pri Fuchs2/Bike Jesus, zoom 15 pri Roxy/EPIC, zoom 12 (žiadne mená). Ak snímky mapy dvakrát zlyhajú, napíš to a pokračuj.
 
 ## Report
+
+Dátum: 2026-11-10
+
+### Hotovo
+1. **Spoločné meno ako `maplibregl.Marker`** — nahradený statický `div` Markerom s `anchor: 'top'`, `offset: [0, 4]`. Marker sa pohybuje s mapou počas ťahania aj priblíženia; viditeľnosť riadi CSS (`.map-zoom-13 .pin-combined-name.is-active`), nie JS. Problém so statickým pinom opravený.
+
+2. **Spájanie len pri značnom prekrytí** — extrahovaná čistá funkcia `decidePairLabel` do `web/src/map/pairLabel.ts`. Konštanty na začiatku súboru: `COMBINE_MIN_H_OVERLAP = 0.30`, `COMBINE_MIN_V_OVERLAP = 0.50`. Spájanie nastane len ak horizontálny prekryv ≥ 30 % šírky kratšieho mena **a** vertikálny ≥ 50 % výšky. Predtým stačil 1 px.
+
+3. **Poradie mien** — `|dx| ≥ |dy|` → západ · východ; `|dy| > |dx|` → sever · juh.
+
+4. **Poloha spoločného mena** — stred dvojice (`midLng`), pod spodným pinom (`lowerLat`, väčší `y` na obrazovke), `anchor: 'top'` + `offset [0, 4]` = rovnaká vertikálna poloha ako `.pin-name`.
+
+5. **`?debugPair=1`** — len v `import.meta.env.DEV`; zobrazí všetky miesta bez ohľadu na deň. V produkcii nič nemení.
+
+6. **Unit testy** — `web/src/map/pairLabel.test.ts`, 5 prípadov: 1 px dotyk, 20 % prekryv, 60 % vodorovne, 60 % zvislo, tesne pod prahom.
+
+### Verifikácia
+```
+npm test -- --run   → 64 passed (7 test files, vrátane 5 nových)
+npm run build       → ✓ built in 4.88s (tsc + vite, žiadna chyba)
+```
+
+Snímky neboli vykonané (screenshotovací skript vyžaduje dev server a ?debugPair na telefóne).
+
+### Rozhodnutia
+- Konštanty `COMBINE_MIN_H_OVERLAP/COMBINE_MIN_V_OVERLAP` sú v `pairLabel.ts` (exportované), nie v `MapPage.tsx`, aby bola funkcia nezávisle testovateľná. Hodnoty zodpovedajú zadaniu (30 %/50 %).
+- CSS trieda `is-active` na prvku markera (nie `style.display`) — čistejšia spolupráca s `.map-zoom-13`.
+- Ak `rA.width === 0` alebo `rB.width === 0` (meno ešte nemá rozmery), dvojica sa nespája — bezpečný fallback bez zmeny UX.
+
+### Čo ostáva otvorené
+- Snímky do `docs/tasks/034/` (vyžadujú telefón / skript + live server s `?debugPair=1`).

@@ -12,6 +12,7 @@ import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
 import { createPinElement, updatePinElement, initPinShadows } from '../map/markers'
 import type { MarkerData } from '../map/markers'
 import { isNightTime, isNightEvent, NIGHT_DAY } from '../core/night'
+import { decidePairLabel } from '../map/pairLabel'
 import {
   IconChevronDown, IconFilter, IconLocation
 } from '../icons'
@@ -162,10 +163,8 @@ const PIN_CSS = `
   display: block;
 }
 
-/* Combined pair label — positioned dynamically in JS via style.left/top */
+/* Combined pair label — maplibregl.Marker element, moves with the map */
 .pin-combined-name {
-  position: absolute;
-  transform: translateX(-50%);
   white-space: nowrap;
   font-family: 'Outfit', sans-serif;
   font-size: 12px;
@@ -176,6 +175,9 @@ const PIN_CSS = `
   pointer-events: none;
   display: none;
   z-index: 10;
+}
+.map-zoom-13 .pin-combined-name.is-active {
+  display: block;
 }
 
 .pin-new .pin-inner {
@@ -242,6 +244,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const pendingPanelOpenRef = useRef<string | null>(null)
   const pairsRef = useRef<Map<string, string>>(new Map())
   const combinedLabelRef = useRef<HTMLElement | null>(null)
+  const combinedMarkerRef = useRef<maplibregl.Marker | null>(null)
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
@@ -366,7 +369,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const venueById = Object.fromEntries(data.venues.map(v => [v.id, v]))
 
     let venues
-    if (selectedDay === NIGHT_DAY) {
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('debugPair')) {
+      venues = data.venues
+    } else if (selectedDay === NIGHT_DAY) {
       const nightDate = getToday(curNow)
       venues = data.venues.filter(v => {
         const events = getVenueEvents(data.events, v.id, nightDate, curNow)
@@ -502,8 +507,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const map = mapRef.current
     if (!map || map.getZoom() < 13) return
 
-    // Hide shared combined label
-    if (combinedLabelRef.current) combinedLabelRef.current.style.display = 'none'
+    // Reset combined label for this pass — re-activated below if a pair combines
+    if (combinedLabelRef.current) combinedLabelRef.current.classList.remove('is-active')
 
     type PinEntry = { venueId: string; el: HTMLElement; nameEl: HTMLElement; priority: number }
     const entries: PinEntry[] = []
@@ -546,52 +551,60 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           continue
         }
 
-        // Both unselected: show centered names and check if they overlap
+        // Both unselected: show centered names and check for significant overlap
         nameEl.style.visibility = 'visible'
         partnerEntry.nameEl.style.visibility = 'visible'
 
         const rA = nameEl.getBoundingClientRect()
         const rB = partnerEntry.nameEl.getBoundingClientRect()
-        const namesOverlap = rA.width > 0 && rB.width > 0 &&
-          !(rA.right < rB.left || rA.left > rB.right || rA.bottom < rB.top || rA.top > rB.bottom)
+        const markerA = markersRef.current.get(venueId)
+        const markerB = markersRef.current.get(partnerId)
 
-        if (namesOverlap && combinedLabelRef.current) {
-          nameEl.style.visibility = 'hidden'
-          partnerEntry.nameEl.style.visibility = 'hidden'
+        if (rA.width > 0 && rB.width > 0 && markerA && markerB) {
+          const ptA = map.project(markerA.marker.getLngLat())
+          const ptB = map.project(markerB.marker.getLngLat())
+          const llA = markerA.marker.getLngLat()
+          const llB = markerB.marker.getLngLat()
+          const decision = decidePairLabel(rA, rB, ptA, ptB, llA, llB)
 
-          // Determine west/east by screen X from map.project()
-          const markerA = markersRef.current.get(venueId)
-          const markerB = markersRef.current.get(partnerId)
-          if (markerA && markerB) {
-            const ptA = map.project(markerA.marker.getLngLat())
-            const ptB = map.project(markerB.marker.getLngLat())
-            const [westId, eastId] = ptA.x <= ptB.x ? [venueId, partnerId] : [partnerId, venueId]
-            const westName = dataRef.current.venues.find(v => v.id === westId)?.name ?? westId
-            const eastName = dataRef.current.venues.find(v => v.id === eastId)?.name ?? eastId
+          if (decision.action === 'combine' && combinedLabelRef.current && combinedMarkerRef.current) {
+            nameEl.style.visibility = 'hidden'
+            partnerEntry.nameEl.style.visibility = 'hidden'
+
+            const { order, midLng, lowerLat } = decision
+            let firstName: string, secondName: string
+            if (order === 'west-east') {
+              const [westId, eastId] = ptA.x <= ptB.x ? [venueId, partnerId] : [partnerId, venueId]
+              firstName = dataRef.current.venues.find(v => v.id === westId)?.name ?? westId
+              secondName = dataRef.current.venues.find(v => v.id === eastId)?.name ?? eastId
+            } else {
+              const [northId, southId] = ptA.y <= ptB.y ? [venueId, partnerId] : [partnerId, venueId]
+              firstName = dataRef.current.venues.find(v => v.id === northId)?.name ?? northId
+              secondName = dataRef.current.venues.find(v => v.id === southId)?.name ?? southId
+            }
 
             const lbl = combinedLabelRef.current
-            lbl.textContent = `${westName} · ${eastName}`
-            lbl.style.left = `${(ptA.x + ptB.x) / 2}px`
-            lbl.style.top = `${Math.min(ptA.y, ptB.y) + 4}px`
-            lbl.style.display = 'block'
+            lbl.textContent = `${firstName} · ${secondName}`
+            lbl.classList.add('is-active')
+            combinedMarkerRef.current.setLngLat([midLng, lowerLat])
 
             const rC = lbl.getBoundingClientRect()
             if (rC.width > 0) occupied.push(rC)
-          }
-        } else {
-          // No overlap: check each against existing occupied
-          for (const ne of [nameEl, partnerEntry.nameEl]) {
-            const r = ne.getBoundingClientRect()
-            if (r.width === 0) continue
-            if (priority === 4) { occupied.push(r); continue }
-            let overlaps = false
-            for (const occ of occupied) {
-              if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
-                overlaps = true; break
+          } else {
+            // No significant overlap: check each against existing occupied
+            for (const ne of [nameEl, partnerEntry.nameEl]) {
+              const r = ne.getBoundingClientRect()
+              if (r.width === 0) continue
+              if (priority === 4) { occupied.push(r); continue }
+              let overlaps = false
+              for (const occ of occupied) {
+                if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
+                  overlaps = true; break
+                }
               }
+              if (overlaps) ne.style.visibility = 'hidden'
+              else occupied.push(r)
             }
-            if (overlaps) ne.style.visibility = 'hidden'
-            else occupied.push(r)
           }
         }
         continue
@@ -681,11 +694,18 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         })
         mapRef.current = map
 
-        // Overlay div for combined pair label (positioned by checkNameCollisions via map.project())
-        const combinedLabel = document.createElement('div')
-        combinedLabel.className = 'pin-combined-name'
-        map.getContainer().appendChild(combinedLabel)
-        combinedLabelRef.current = combinedLabel
+        // Combined pair label as a maplibregl.Marker — moves with the map during panning
+        const combinedLabelEl = document.createElement('div')
+        combinedLabelEl.className = 'pin-combined-name'
+        const combinedMarker = new maplibregl.Marker({
+          element: combinedLabelEl,
+          anchor: 'top',
+          offset: [0, 4],
+        })
+          .setLngLat(PRAGUE_CENTER)
+          .addTo(map)
+        combinedLabelRef.current = combinedLabelEl
+        combinedMarkerRef.current = combinedMarker
 
         // WebGL context loss recovery
         const canvas = map.getCanvas()
