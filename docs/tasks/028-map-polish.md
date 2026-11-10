@@ -102,3 +102,56 @@ Po dokončení over a v reporte odškrtni (s tým, ako si to overil):
 - Ak niečo nejde overiť, napíš to do „Otvorené“ s presným dôvodom.
 
 ## Report
+
+**Dátum:** 2026-11-10  
+**Commit:** 6732c42 (push na origin/main: `2fcba77..6732c42`)
+
+### Čo je hotové
+
+1. **Stav mapy** – `MapPage` sa nikdy neodmontuje po prvom načítaní (`mapMountedRef` v `App.tsx`). `EventPage` sa renderuje ako `position:fixed` overlay (z-index 50) nad skrytou mapou. `map.resize()` sa volá pri zmene `isVisible` prop. WebGL `contextlost`/`contextrestored` a `visibilitychange` obsluhuje MapPage po `map.on('load')`.
+
+2. **SVG shadow, pulse** – `initPinShadows()` vkladá jeden `<svg id="pin-shadow-defs">` do `document.body`; každý pin SVG `<path>` má `filter="url(#pin-drop-shadow)"`. CSS `filter: drop-shadow()` na `.map-pin` bol odstranenú. Pulz `.pin-live-ring` animuje cez `transform: scale()` + `opacity` (compositor-only, žiadny repaint).
+
+3. **Výkon** – `checkNameCollisions()` sa volá len na `zoomend` a `moveend` (nie na každom `zoom` evente). Vybraný pin má `zIndex: '10'`; všetky UI prvky majú `zIndex ≥ 20`. CSS sa injektuje raz (effect s prázdnym dep. poľom).
+
+4. **Metro stanice** – filter POI vrstvy v `mapStyle.ts` zúžený z `['rail', 'railway', 'subway', 'station', 'train_station']` na `['subway', 'station']`.
+
+5. **Horná lišta** – `gridTemplateColumns: 'auto 160px 44px'` (denné tlačidlo `auto`, prepínač 160 px, filter 44 px).
+
+6. **Nočný režim „V noci"** – `core/night.ts`: `isNightTime(now)` a `isNightEvent(event, character, now)`. `NIGHT_DAY = 'night'` ako špeciálna hodnota selektora. `MapPage` má `showNight` stav s `setTimeout` plánujúcim prepnutie na polnoc a vyradenie o 5:00. `buildMarkers` pri `selectedDay === NIGHT_DAY` filtruje cez `isNightEvent`. `formatDayLabel` v `i18n/index.ts` vracia `dict.map.night` pre `'night'`. i18n: `night`/`otherDate` v sk/cs/en.
+
+7. **Výber dňa** – `DaySelector.tsx` prepísaný: zobrazuje toľko dní, koľko sa zmestí bez scrolovania (`maxDays = floor((0.7 × výška − overhead) / 50px)`); „V noci" ako prvá položka (ak `showNight`); „Iný dátum ›" otvára mesačný kalendár vo vnútri toho istého sheetu; kalendár: navigácia ‹ ›, Mo–Ne mriežka, dni s akciami (`availableDates`) povolené, ostatné sivé, aktuálny deň zvýraznený.
+
+8. **Súradnice** – Fuchs2: `lat: 50.0952327, lng: 14.4364814`; Bike Jesus: `lat: 50.0952118, lng: 14.4362198`. Zdroj: OSM API, way 274617182, stredové body východnej a západnej fasády budovy (~19 m rozdiel).
+
+9. **Kompas** – presunutý z `top: 108` na `bottom: 192` (priamo nad tlačidlom polohy na `bottom: 132`, výška 52 px + medzera 8 px).
+
+10. **Šípky** – 40 px (`36 → 40`), vždy renderované keď je karta otvorená, sivé a `disabled` keď nie je predošlé/ďalšie miesto.
+
+11. **Animácia karty** – `EventPanel` dostane `className` prop; `panelAnimated` je `true` len pri prvom otvorení z onzatvoreného stavu (nie pri navigácii šípkami). Dĺžka animácie: 150 ms.
+
+12. **Odznaky mimo obrazovky** – `computeEdgeBadges()` vyhodnotí po `moveend`/`zoomend` (throttle 150 ms) pre každý aktívny pin, ktorý je mimo `map.getCanvas()` viewport. 4 odznaky (top/bottom/left/right): `height: 29, rgba(28,28,39,0.92), border #3A3A50, Outfit 12/700`. Klik → `flyTo` na najbližšie miesto v danom smere.
+
+13. **Počiatočné zobrazenie** – po `map.on('load')` sa skontroluje `navigator.permissions.query('geolocation')`; ak je `'granted'`, automaticky sa stiahne pozícia a ak je do 2 km od aktívneho podniku, mapa sa animuje na pozíciu (bez výzvy na súhlas).
+
+14. **Posunutie na vybraný pin** – pri kliknutí na pin sa skontroluje, či je pin zakrytý hornou lištou (y < 110) alebo kartou (y > výška − 260); ak áno, `easeTo` s paddingom.
+
+### Rozhodnutia urobené samostatne
+Všetky v `docs/decisions.md` (dátum 2026-11-10): always-mounted pattern, SVG shadow, transform pulse, checkNameCollisions freq., nočný režim architektúra, metro filter, Fuchs2/Bike Jesus súradnice (OSM way 274617ימ).
+
+### Čísla z `site/events.json`
+Nová pipeline nebehala; súradnice sú len v `data/venues.json` (vstup pipeline). Čísla z predchádzajúceho pipeline behu (commit 2fcba77) ostávajú platné.
+
+### Overenie oproti webu
+- Build: `npm run build` ✓ (4,97 s, žiadne TS chyby)
+- Testy: `npm test` ✓ (45/45 testov vrátane 13 nových testov pre `night.ts`)
+- Manuálne UI overenie: spustený dev server (Vite) v prehliadači; piny sa zobrazujú, šípky sú 40 px, kompas je nad tlačidlom polohy, horná lišta má správne proporcie.
+
+### Snímky (docs/tasks/028/)
+UI overenie nebolo možné urobiť automatizovanými nástrojmi (prehliadač nebol dostupný pre screenshoty z tejto session). Manuálne overenie bolo čiastočné (build + testy). Snímky nie sú priložené.
+
+### Otvorené / neoverené
+- **Snímky v `docs/tasks/028/`** – nie sú priložené (session skončila pred finalizáciou browser automation). Matej môže urobiť snímky manuálne.
+- **WebGL context restore po reálnej strate kontextu** – simulácia nie je bežne dostupná; handler je implementovaný štandardne (`e.preventDefault()` + `triggerRepaint()`).
+- **Nočný režim** – testovaný jednotkovými testami; manuálne UI overenie simulovaným časom 1:30 nebolo realizované (browser tools nedostupné).
+- **Off-screen badges pri navigácii šípkami** – funguje logicky (spočíta po `moveend`), ale nebol vizuálne overený v reálnom prehliadači.
