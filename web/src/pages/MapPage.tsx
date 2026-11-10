@@ -432,6 +432,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           if (selectedVenueIdRef.current === venueId) {
             el.classList.remove('pin-selected')
             el.style.zIndex = ''
+            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
             closePanelRef.current()
           } else {
             const oldId = selectedVenueIdRef.current
@@ -444,6 +445,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
             }
             el.classList.add('pin-selected')
             el.style.zIndex = '10'
+            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
             openPanelRef.current(venueId)
 
             // Pan to reveal selected pin if behind UI
@@ -748,14 +750,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         map.on('zoom', () => {
           const container = mapContainerRef.current
           if (!container) return
-          const wasAbove13 = container.classList.contains('map-zoom-13')
-          const isAbove13 = map.getZoom() >= 13
-          container.classList.toggle('map-zoom-13', isAbove13)
-          if (!wasAbove13 && isAbove13) {
-            // Names just became visible via CSS — recompute immediately so no
-            // stale visibility: hidden from a previous run causes asymmetric display
-            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-          }
+          container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
+          // Recompute every frame so stale visibility never causes asymmetric display
+          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
         })
 
         map.on('zoomend', () => {
@@ -855,6 +852,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
     const newEntry = markersRef.current.get(venue.id)
     if (newEntry) { newEntry.el.classList.add('pin-selected'); newEntry.el.style.zIndex = '10' }
+    requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
     openPanelRef.current(venue.id)
     mapRef.current?.easeTo({
       center: [venue.lng, venue.lat],
