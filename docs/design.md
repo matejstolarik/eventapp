@@ -124,5 +124,14 @@ Rozdelenie: **Mapa = konkrétny deň a teraz, Akcie = čo sa chystá.**
 - **Zmena 2026-11-10 (Matej):** namiesto „IG miesta“ tlačidlo **Spotify** (logo Spotify, otvorí vyhľadávanie interpreta / názvu akcie na Spotify, `https://open.spotify.com/search/<dopyt>`; presné párovanie s interpretom neskôr) a nové tlačidlo **Navigovať** (Google Maps trasa na miesto). IG miesta je na profile miesta. **Cena alebo rozsah cien** všade, kde ju zdroj dáva (`price_text`).
 - **Popis akcie** pod tým.
 
+## 7b. Filter (`09-filter.png`, Matej 2026-11-10)
+- Panel zdola (výška ~85 % obrazovky, `#1C1C27`, zaoblenie hore 28), nad stmavenou mapou/zoznamom. Nadpis **Filter**, vpravo „Zrušiť všetko“. Obsah sa posúva, tlačidlo dole je stále viditeľné.
+- **Typ akcie:** Koncert, Párty, DJ, Kultúra ako čipy s ikonou typu; zapnutý = plná farba typu, vypnutý = farebný obrys a farebná ikona. **Slúži zároveň ako legenda farieb.**
+- **Žáner:** 12 najčastejších + „Všetky (N) ›“ rozbalí ostatné. **Charakter miesta**, **Veľkosť miesta** (Malé / Stredné / Veľké).
+- Zapnutý neutrálny čip = biely s tmavým textom, vypnutý `#2A2838`.
+- **Počet pri každom čipe** (malý odznak vpravo v čipe): koľko výsledkov by bolo pri aktuálnom dni/období, Všetko | Obľúbené a ostatných zapnutých filtroch, ak by sa pridal tento čip. Na mape = počet **miest** s akciou, v Akciách = počet **akcií**. **Čip s 0 je stlmený, ale dá sa zapnúť** (filter sa pri zmene dňa zachováva a v iný deň môže mať výsledky).
+- **Filter sa zachováva** pri zmene dňa/obdobia a pri prepínaní medzi Mapou a Akciami (jeden spoločný filter).
+- Dole ružové tlačidlo **„Zobraziť N akcií“** (na mape „Zobraziť N miest“). Počet aktívnych filtrov ako odznak na tlačidle Filter v lište.
+
 ## 8. Čo nie je nakreslené (navrhni v rovnakom štýle a ukáž Matejovi)
-Panel filtra, výber dňa (Dnes ▾), kalendár vlastných dní, Môj účet / zoznam Idem, onboarding, prázdne stavy (žiadne akcie v deň, žiadne obľúbené), načítavanie a offline.
+Výber dňa a kalendár (urobené v 028/029 bez kresby), Môj účet / zoznam Idem, onboarding, prázdne stavy (žiadne akcie v deň, žiadne obľúbené), načítavanie a offline.
