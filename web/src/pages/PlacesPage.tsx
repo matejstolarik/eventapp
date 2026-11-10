@@ -4,6 +4,7 @@ import { getDict } from '../i18n'
 import { isFavorite, toggleFavorite } from '../core/store'
 import { IconHeart, EventTypeIcon } from '../icons'
 import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { AllFavsToggle } from '../components/AllFavsToggle'
 
 interface Props {
   data: EventsData
@@ -123,6 +124,7 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false 
           onChange={setShowFavorites}
           allLabel={dict.map.all}
           favLabel={dict.map.favorites}
+          style={{ padding: '0 4px', gap: '2px' } as React.CSSProperties}
         />
       </div>
 
@@ -152,41 +154,7 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false 
   )
 }
 
-interface ToggleProps {
-  showFavorites: boolean
-  onChange: (v: boolean) => void
-  allLabel: string
-  favLabel: string
-}
-export function AllFavsToggle({ showFavorites, onChange, allLabel, favLabel }: ToggleProps) {
-  return (
-    <div style={{
-      display: 'inline-flex', height: 44, borderRadius: 22,
-      background: '#23232F', padding: 4, gap: 2
-    }}>
-      {[false, true].map(isFav => (
-        <button
-          key={String(isFav)}
-          onClick={() => onChange(isFav)}
-          style={{
-            height: 36, borderRadius: 18, border: 'none', cursor: 'pointer',
-            padding: '0 20px',
-            background: showFavorites === isFav ? '#F4F2FF' : 'transparent',
-            color: showFavorites === isFav ? '#111118' : '#B9B6CC',
-            fontSize: 14, fontWeight: 600, fontFamily: "'Outfit', sans-serif",
-            transition: 'background 160ms, color 160ms',
-            display: 'flex', alignItems: 'center', gap: 6
-          }}
-        >
-          {isFav && (
-            <IconHeart size={14} color={showFavorites ? '#FF4D8D' : '#B9B6CC'} filled={showFavorites} />
-          )}
-          {isFav ? favLabel : allLabel}
-        </button>
-      ))}
-    </div>
-  )
-}
+export { AllFavsToggle } from '../components/AllFavsToggle'
 
 interface RowProps {
   venue: Venue

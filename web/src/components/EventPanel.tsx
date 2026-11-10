@@ -3,6 +3,7 @@ import type { Event, Venue, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
 import { EventTypeIcon } from '../icons'
+import { getDict } from '../i18n'
 
 interface Props {
   events: Event[]
@@ -66,6 +67,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   // venue is used for distance; character tags are shown only on the venue profile page
   const [currentIdx, setCurrentIdx] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const dict = getDict(lang)
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
   const eventType = getEventType(event.formats)
@@ -78,6 +80,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
 
   const timeStr = event.start_time ? ` · ${event.start_time}` : ''
   const subtitle = `${venue.name}${timeStr}${distStr}`
+  const priceStr = event.price_text ?? (event.free ? dict.event.free : null)
 
   function handleTouchStart(e: React.TouchEvent) {
     setTouchStartX(e.touches[0]?.clientX ?? null)
@@ -165,6 +168,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
             {event.title}
           </p>
           <p style={{ margin: 0, fontSize: 14, color: '#B9B6CC' }}>{subtitle}</p>
+          {priceStr && <p style={{ margin: 0, fontSize: 13, color: '#8B8AA0' }}>{priceStr}</p>}
         </div>
       </button>
 

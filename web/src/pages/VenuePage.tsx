@@ -204,51 +204,49 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
           </div>
         )}
 
-        {/* Action buttons: Web · Instagram · Navigovať */}
-        {(venue.web || venue.instagram || true) && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            {venue.web && (
-              <a href={venue.web} target="_blank" rel="noopener noreferrer" style={{
-                height: 44, borderRadius: 18, background: '#1C1C27',
-                color: '#F4F2FF', fontSize: 14, fontWeight: 600,
-                padding: '0 16px', textDecoration: 'none',
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: "'Outfit', sans-serif",
-                WebkitTapHighlightColor: 'transparent',
-              }}>
-                <IconGlobe size={18} color="#F4F2FF" />
-                {dict.venue.web}
-              </a>
-            )}
-            {venue.instagram && (
-              <a href={`https://instagram.com/${venue.instagram}`} target="_blank" rel="noopener noreferrer" style={{
-                height: 44, borderRadius: 18, background: '#1C1C27',
-                color: '#F4F2FF', fontSize: 14, fontWeight: 600,
-                padding: '0 16px', textDecoration: 'none',
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: "'Outfit', sans-serif",
-                WebkitTapHighlightColor: 'transparent',
-              }}>
-                <IconInstagram size={18} color="#F4F2FF" />
-                {dict.venue.instagram}
-              </a>
-            )}
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{
-                height: 44, borderRadius: 18, background: '#1C1C27',
-                color: '#F4F2FF', fontSize: 14, fontWeight: 600,
-                padding: '0 16px', textDecoration: 'none',
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: "'Outfit', sans-serif",
-                WebkitTapHighlightColor: 'transparent',
-              }}>
-              <IconNavigate size={18} color="#F4F2FF" />
-              {dict.venue.navigate}
+        {/* Action buttons: Web · Instagram · Navigovať — vertical style matching EventPage */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          {venue.web && (
+            <a href={venue.web} target="_blank" rel="noopener noreferrer" style={{
+              flex: 1, height: 64, borderRadius: 18, background: '#1C1C27',
+              color: '#F4F2FF', fontSize: 11, fontWeight: 600, textDecoration: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 4,
+              fontFamily: "'Outfit', sans-serif",
+              WebkitTapHighlightColor: 'transparent',
+            }}>
+              <IconGlobe size={18} color="#F4F2FF" />
+              {dict.venue.web}
             </a>
-          </div>
-        )}
+          )}
+          {venue.instagram && (
+            <a href={`https://instagram.com/${venue.instagram}`} target="_blank" rel="noopener noreferrer" style={{
+              flex: 1, height: 64, borderRadius: 18, background: '#1C1C27',
+              color: '#F4F2FF', fontSize: 11, fontWeight: 600, textDecoration: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 4,
+              fontFamily: "'Outfit', sans-serif",
+              WebkitTapHighlightColor: 'transparent',
+            }}>
+              <IconInstagram size={18} color="#F4F2FF" />
+              {dict.venue.instagram}
+            </a>
+          )}
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}`}
+            target="_blank" rel="noopener noreferrer"
+            style={{
+              flex: 1, height: 64, borderRadius: 18, background: '#1C1C27',
+              color: '#F4F2FF', fontSize: 11, fontWeight: 600, textDecoration: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 4,
+              fontFamily: "'Outfit', sans-serif",
+              WebkitTapHighlightColor: 'transparent',
+            }}>
+            <IconNavigate size={18} color="#F4F2FF" />
+            {dict.venue.navigate}
+          </a>
+        </div>
 
         {/* Character tags */}
         {venue.character.length > 0 && (
@@ -364,6 +362,11 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                                 ))}
                               </div>
                             </div>
+                          )}
+                          {(ev.price_text || ev.free) && (
+                            <p style={{ margin: '3px 0 0', fontSize: 12, color: '#8B8AA0', fontWeight: 500 }}>
+                              {ev.price_text ?? dict.event.free}
+                            </p>
                           )}
                         </div>
                         {/* Thumbnail */}

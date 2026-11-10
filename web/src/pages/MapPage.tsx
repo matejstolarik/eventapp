@@ -13,10 +13,11 @@ import { createPinElement, updatePinElement, initPinShadows } from '../map/marke
 import type { MarkerData } from '../map/markers'
 import { isNightTime, isNightEvent, NIGHT_DAY } from '../core/night'
 import {
-  IconChevronDown, IconFilter, IconHeart, IconLocation
+  IconChevronDown, IconFilter, IconLocation
 } from '../icons'
 import { EventPanel } from '../components/EventPanel'
 import { DaySelector } from '../components/DaySelector'
+import { AllFavsToggle } from '../components/AllFavsToggle'
 
 const PIN_CSS = `
 @keyframes pinpulse {
@@ -161,24 +162,9 @@ const PIN_CSS = `
   display: block;
 }
 
-/* Pair label alignment */
-.pin-pair-west .pin-name {
-  left: auto !important;
-  right: 50% !important;
-  transform: none !important;
-  text-align: right !important;
-}
-.pin-pair-east .pin-name {
-  left: 50% !important;
-  transform: none !important;
-  text-align: left !important;
-}
-
-/* Combined pair label */
+/* Combined pair label — positioned dynamically in JS via style.left/top */
 .pin-combined-name {
   position: absolute;
-  top: 68px;
-  left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
   font-family: 'Outfit', sans-serif;
@@ -189,10 +175,7 @@ const PIN_CSS = `
   letter-spacing: 0.01em;
   pointer-events: none;
   display: none;
-  z-index: 4;
-}
-.map-zoom-13 .pin-combined-name {
-  display: block;
+  z-index: 10;
 }
 
 .pin-new .pin-inner {
@@ -258,6 +241,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [toggleWidth, setToggleWidth] = useState(999)
   const pendingPanelOpenRef = useRef<string | null>(null)
   const pairsRef = useRef<Map<string, string>>(new Map())
+  const combinedLabelRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
@@ -518,14 +502,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const map = mapRef.current
     if (!map || map.getZoom() < 13) return
 
+    // Hide shared combined label
+    if (combinedLabelRef.current) combinedLabelRef.current.style.display = 'none'
+
     type PinEntry = { venueId: string; el: HTMLElement; nameEl: HTMLElement; priority: number }
     const entries: PinEntry[] = []
-
-    // Reset combined names
-    for (const [, { el }] of markersRef.current) {
-      const combined = el.querySelector('.pin-combined-name') as HTMLElement | null
-      if (combined) combined.style.display = 'none'
-    }
 
     for (const [venueId, { el }] of markersRef.current) {
       const nameEl = el.querySelector('.pin-name') as HTMLElement | null
@@ -538,7 +519,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
     entries.sort((a, b) => b.priority - a.priority)
 
-    // Track processed pair IDs (avoid double-processing)
     const processedPairs = new Set<string>()
     const occupied: DOMRect[] = []
 
@@ -555,11 +535,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const thisSelected = el.classList.contains('pin-selected')
         const partnerSelected = partnerEntry.el.classList.contains('pin-selected')
 
-        // When one of the pair is selected: show only its own name centered under its pin
+        // When one of the pair is selected: show only its own name, centered under its pin
         if (thisSelected || partnerSelected) {
           const selectedEntry = thisSelected ? { venueId, el, nameEl } : partnerEntry
           const otherEntry = thisSelected ? partnerEntry : { venueId, el, nameEl }
-          // Hide other, show selected centered (CSS .pin-selected .pin-name already handles centering)
           otherEntry.nameEl.style.visibility = 'hidden'
           selectedEntry.nameEl.style.visibility = ''
           const r = selectedEntry.nameEl.getBoundingClientRect()
@@ -567,7 +546,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           continue
         }
 
-        // Both pair members: show directional names, check if they overlap
+        // Both unselected: show centered names and check if they overlap
         nameEl.style.visibility = 'visible'
         partnerEntry.nameEl.style.visibility = 'visible'
 
@@ -576,35 +555,33 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const namesOverlap = rA.width > 0 && rB.width > 0 &&
           !(rA.right < rB.left || rA.left > rB.right || rA.bottom < rB.top || rA.top > rB.bottom)
 
-        if (namesOverlap) {
-          // Show combined name on the east pin
+        if (namesOverlap && combinedLabelRef.current) {
           nameEl.style.visibility = 'hidden'
           partnerEntry.nameEl.style.visibility = 'hidden'
 
-          // Determine which is west/east
-          const westEntry = el.classList.contains('pin-pair-west') ? { venueId, el, nameEl } : partnerEntry
-          const eastEntry = el.classList.contains('pin-pair-east') ? { venueId, el, nameEl } : { ...partnerEntry }
-          const westName = dataRef.current.venues.find(v => v.id === westEntry.venueId)?.name ?? westEntry.venueId
-          const eastName = dataRef.current.venues.find(v => v.id === eastEntry.venueId)?.name ?? eastEntry.venueId
+          // Determine west/east by screen X from map.project()
+          const markerA = markersRef.current.get(venueId)
+          const markerB = markersRef.current.get(partnerId)
+          if (markerA && markerB) {
+            const ptA = map.project(markerA.marker.getLngLat())
+            const ptB = map.project(markerB.marker.getLngLat())
+            const [westId, eastId] = ptA.x <= ptB.x ? [venueId, partnerId] : [partnerId, venueId]
+            const westName = dataRef.current.venues.find(v => v.id === westId)?.name ?? westId
+            const eastName = dataRef.current.venues.find(v => v.id === eastId)?.name ?? eastId
 
-          // Show combined on the east pin
-          const eastEl = eastEntry === partnerEntry ? partnerEntry.el : el
-          let combinedEl = eastEl.querySelector('.pin-combined-name') as HTMLElement | null
-          if (!combinedEl) {
-            combinedEl = document.createElement('span')
-            combinedEl.className = 'pin-combined-name'
-            eastEl.querySelector('.pin-inner')?.appendChild(combinedEl)
+            const lbl = combinedLabelRef.current
+            lbl.textContent = `${westName} · ${eastName}`
+            lbl.style.left = `${(ptA.x + ptB.x) / 2}px`
+            lbl.style.top = `${Math.min(ptA.y, ptB.y) + 4}px`
+            lbl.style.display = 'block'
+
+            const rC = lbl.getBoundingClientRect()
+            if (rC.width > 0) occupied.push(rC)
           }
-
-          combinedEl.textContent = `${westName} · ${eastName}`
-          combinedEl.style.display = 'block'
-
-          const rC = combinedEl.getBoundingClientRect()
-          if (rC.width > 0) occupied.push(rC)
         } else {
-          // Check each against existing occupied
-          for (const nameElPair of [nameEl, partnerEntry.nameEl]) {
-            const r = nameElPair.getBoundingClientRect()
+          // No overlap: check each against existing occupied
+          for (const ne of [nameEl, partnerEntry.nameEl]) {
+            const r = ne.getBoundingClientRect()
             if (r.width === 0) continue
             if (priority === 4) { occupied.push(r); continue }
             let overlaps = false
@@ -613,7 +590,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
                 overlaps = true; break
               }
             }
-            if (overlaps) nameElPair.style.visibility = 'hidden'
+            if (overlaps) ne.style.visibility = 'hidden'
             else occupied.push(r)
           }
         }
@@ -659,12 +636,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     pairsRef.current.clear()
     for (const { el } of pins) {
       el.style.removeProperty('--pin-dx')
-      el.classList.remove('pin-pair-west', 'pin-pair-east')
     }
 
-    // Detect and handle pairs within 40px.
-    // Only apply name-pair classes (pin-pair-west/east) when pins are primarily HORIZONTAL
-    // (|dx| > |dy|): avoids displacing names for vertically-offset pairs like Roxy+EPIC.
     for (let i = 0; i < pins.length; i++) {
       for (let j = i + 1; j < pins.length; j++) {
         const a = pins[i], b = pins[j]
@@ -676,11 +649,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           const east = a.lng <= b.lng ? b : a
           pairsRef.current.set(west.venueId, east.venueId)
           pairsRef.current.set(east.venueId, west.venueId)
-          // Name pair classes only when mostly horizontal (names would actually overlap)
-          if (Math.abs(dx) >= Math.abs(dy)) {
-            west.el.classList.add('pin-pair-west')
-            east.el.classList.add('pin-pair-east')
-          }
           if (dist < 20) {
             const off = west === a ? -8 : 8
             a.el.style.setProperty('--pin-dx', `${off}px`)
@@ -712,6 +680,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           attributionControl: false,
         })
         mapRef.current = map
+
+        // Overlay div for combined pair label (positioned by checkNameCollisions via map.project())
+        const combinedLabel = document.createElement('div')
+        combinedLabel.className = 'pin-combined-name'
+        map.getContainer().appendChild(combinedLabel)
+        combinedLabelRef.current = combinedLabel
 
         // WebGL context loss recovery
         const canvas = map.getCanvas()
@@ -869,9 +843,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     })
   }
 
-  // Responsive toggle: shrink padding → hide heart (when off) → smaller font
+  // Responsive toggle: shrink padding → smaller font
   const togglePad = toggleWidth < 160 ? '0 6px' : toggleWidth < 200 ? '0 8px' : '0 14px'
-  const showOffHeart = toggleWidth >= 155
   const toggleFontSize = toggleWidth < 140 ? 13 : 14
 
   const days = getUpcomingDays(14, curNow)
@@ -924,43 +897,16 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           <IconChevronDown size={16} color="#111118" />
         </button>
 
-        <div
-          ref={toggleRef}
-          style={{ height: 44, borderRadius: 22, background: '#23232F', display: 'flex', alignItems: 'center', minWidth: 0 }}
-          role="group" aria-label={dict.map.all + ' / ' + dict.map.favorites}
-        >
-          <button
-            style={{
-              flex: 1, height: 44, borderRadius: 22,
-              background: !showFavorites ? '#F4F2FF' : 'transparent',
-              color: !showFavorites ? '#111118' : '#B9B6CC',
-              fontSize: toggleFontSize, fontWeight: !showFavorites ? 600 : 500,
-              padding: togglePad,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: 'none', cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-            onClick={() => setShowFavorites(false)}
-          >{dict.map.all}</button>
-          <button
-            style={{
-              flex: 1, height: 44, borderRadius: 22,
-              background: showFavorites ? '#FF4D8D' : 'transparent',
-              color: showFavorites ? '#1A0710' : '#B9B6CC',
-              fontSize: toggleFontSize, fontWeight: showFavorites ? 600 : 500,
-              padding: togglePad,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-              border: 'none', cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-            onClick={() => setShowFavorites(true)}
-          >
-            {(showFavorites || showOffHeart) && (
-              <IconHeart size={14} color={showFavorites ? '#1A0710' : '#B9B6CC'} filled={showFavorites} />
-            )}
-            {dict.map.favorites}
-          </button>
-        </div>
+        <AllFavsToggle
+          containerRef={toggleRef}
+          showFavorites={showFavorites}
+          onChange={setShowFavorites}
+          allLabel={dict.map.all}
+          favLabel={dict.map.favorites}
+          fontSize={toggleFontSize}
+          padding={togglePad}
+          style={{ flex: 1, minWidth: 0 }}
+        />
 
         <button
           style={{

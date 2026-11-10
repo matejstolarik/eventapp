@@ -18,7 +18,7 @@ type Route =
   | { page: 'event'; eventId: string }
   | { page: 'venue'; venueId: string }
 
-function parseHash(hash: string): Route {
+export function parseHash(hash: string): Route {
   const path = hash.replace(/^#\//, '')
   if (path.startsWith('akcia/')) {
     return { page: 'event', eventId: path.slice(6) }
@@ -183,8 +183,8 @@ export default function App() {
     <div style={{ position: 'fixed', inset: 0, background: '#111118', display: 'flex', flexDirection: 'column' }}>
       {isOffline && !isOverlay && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
 
-      {/* Page content */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      {/* Page content — no overflow:hidden so nested scroll containers work on mobile */}
+      <div style={{ flex: 1, position: 'relative' }}>
         {/* Map — always mounted once data loads, hidden when not active tab.
             Never unmounted so the WebGL context survives tab switches and overlay navigation. */}
         {mapMountedRef.current && (
