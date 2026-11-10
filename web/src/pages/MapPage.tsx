@@ -651,7 +651,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const dx = a.pt.x - b.pt.x
         const dy = a.pt.y - b.pt.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 40) {
+        if (dist < 200) {
           const west = a.lng <= b.lng ? a : b
           const east = a.lng <= b.lng ? b : a
           pairsRef.current.set(west.venueId, east.venueId)
