@@ -62,6 +62,7 @@ function TagRow({ children, 'aria-label': ariaLabel }: { children: React.ReactNo
 }
 
 export function EventPanel({ events, venue, lang, userLocation, onClose: _onClose, onEventOpen }: Props) {
+  // venue is used for distance; character tags are shown only on the venue profile page
   const [currentIdx, setCurrentIdx] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
@@ -111,27 +112,14 @@ export function EventPanel({ events, venue, lang, userLocation, onClose: _onClos
     }}>{g}</span>
   ))
 
-  // Row 2: venue character tags
-  const characterTags = venue.character.map(c => (
-    <span key={c} style={{
-      height: 32, padding: '0 14px', borderRadius: 16,
-      background: 'transparent', color: '#F4F2FF',
-      border: '1.5px solid #5D5677',
-      fontSize: 14, fontWeight: 500,
-      display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-    }}>{c}</span>
-  ))
-
-  const hasRow2 = characterTags.length > 0
-
   return (
     <section
+      className="event-panel-enter"
       style={{
         position: 'absolute', left: 12, right: 12, bottom: 112,
         borderRadius: 28, background: '#1C1C27',
         padding: 16, border: '1px solid #2E2D3C',
         zIndex: 20,
-        // Prevent pinch-zoom on card from zooming the page
         touchAction: 'pan-y',
       }}
       aria-label="Vybraná akcia"
@@ -179,22 +167,15 @@ export function EventPanel({ events, venue, lang, userLocation, onClose: _onClos
         </div>
       </button>
 
-      {/* Tag rows */}
-      <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {/* Row 1: formats + genres */}
-        {(formatTags.length > 0 || genreTags.length > 0) && (
+      {/* Tag row: event formats + genres only (venue character tags belong on venue profile) */}
+      {(formatTags.length > 0 || genreTags.length > 0) && (
+        <div style={{ marginTop: 12 }}>
           <TagRow aria-label="Štítky akcie">
             {formatTags}
             {genreTags}
           </TagRow>
-        )}
-        {/* Row 2: venue character */}
-        {hasRow2 && (
-          <TagRow aria-label="Štítky miesta">
-            {characterTags}
-          </TagRow>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Dots for multiple events */}
       {events.length > 1 && (

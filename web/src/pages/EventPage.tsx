@@ -233,42 +233,28 @@ export function EventPage({ eventId, data, lang, userLocation, onBack }: Props) 
           )}
         </p>
 
-        {/* Tags – Row 1: event formats + genres; Row 2: venue character tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
-          {(ev.formats.length > 0 || ev.genres.length > 0) && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {ev.formats.map(f => {
-                const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
-                return (
-                  <span key={f} style={{
-                    height: 24, padding: '0 10px', borderRadius: 12,
-                    background: bg, color: fg, fontSize: 12, fontWeight: 600,
-                    display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                  }}>{f}</span>
-                )
-              })}
-              {ev.genres.map(g => (
-                <span key={g} style={{
+        {/* Tags: event formats + genres only (venue character tags are on venue profile) */}
+        {(ev.formats.length > 0 || ev.genres.length > 0) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
+            {ev.formats.map(f => {
+              const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
+              return (
+                <span key={f} style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
-                  background: '#2A2838', color: '#E4DEFF', fontSize: 12, fontWeight: 600,
+                  background: bg, color: fg, fontSize: 12, fontWeight: 600,
                   display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{g}</span>
-              ))}
-            </div>
-          )}
-          {venue && venue.character.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {venue.character.map(c => (
-                <span key={c} style={{
-                  height: 24, padding: '0 10px', borderRadius: 12,
-                  background: 'transparent', color: '#F4F2FF',
-                  border: '1.5px solid #5D5677', fontSize: 12, fontWeight: 600,
-                  display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{c}</span>
-              ))}
-            </div>
-          )}
-        </div>
+                }}>{f}</span>
+              )
+            })}
+            {ev.genres.map(g => (
+              <span key={g} style={{
+                height: 24, padding: '0 10px', borderRadius: 12,
+                background: '#2A2838', color: '#E4DEFF', fontSize: 12, fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
+              }}>{g}</span>
+            ))}
+          </div>
+        )}
 
         {/* Main CTA */}
         <button
