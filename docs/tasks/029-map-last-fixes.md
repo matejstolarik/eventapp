@@ -42,7 +42,7 @@ Dve príčiny:
 ## Report
 
 **Dátum:** 2026-11-10  
-**Commit:** TBD (doplnený nižšie po commite)
+**Commit:** `3c4e3e7`
 
 ### Čo bolo urobené
 
