@@ -25,9 +25,49 @@ const PIN_CSS = `
   from { opacity: 0; transform: scale(0.82); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes card-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Pin structural styles */
+.pin-inner {
+  position: relative;
+  width: 50px;
+  height: 64px;
+  transform: scale(1);
+  transform-origin: 50% 100%;
+  transition: transform 220ms ease-out;
+}
+.pin-selected .pin-inner {
+  transform: scale(1.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin-inner { transition: none; }
+}
+
+.pin-glow {
+  position: absolute;
+  left: -8px; top: -8px;
+  width: 66px; height: 66px;
+  border-radius: 33px;
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+.pin-selected .pin-glow { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .pin-glow { transition: none; }
+}
+
 .pin-live-ring {
   position: absolute;
+  left: 3px; top: 3px;
+  width: 44px; height: 44px;
+  border-radius: 22px;
   animation: pinpulse 1.6s ease-out infinite;
+  z-index: 0;
 }
 @media (prefers-reduced-motion: reduce) {
   .pin-live-ring {
@@ -36,16 +76,91 @@ const PIN_CSS = `
     opacity: .5;
   }
 }
+
+.pin-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pin-circle {
+  position: absolute;
+  left: 7px; top: 7px;
+  width: 36px; height: 36px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pin-badge-heart {
+  position: absolute;
+  top: -2px; right: -4px;
+  width: 20px; height: 20px;
+  border-radius: 10px;
+  background: #F4F2FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  z-index: 3;
+}
+
+.pin-badge-count {
+  position: absolute;
+  top: -2px; left: -6px;
+  height: 20px; min-width: 20px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: #111118;
+  color: #F4F2FF;
+  border: 1.5px solid #F4F2FF;
+  font-size: 11px; font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Outfit, sans-serif;
+  z-index: 3;
+}
+
+.pin-name {
+  position: absolute;
+  left: 50%;
+  top: 68px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #E4E2EE;
+  text-shadow: 0 0 3px #111118, 0 0 3px #111118, 0 1px 2px #111118;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  display: none;
+  z-index: 4;
+}
+.pin-selected .pin-name {
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+}
+.map-zoom-13 .pin-name {
+  display: block;
+}
+
+/* New pin appearance animation */
 .pin-new .pin-inner {
   animation: pin-appear 180ms ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
   .pin-new .pin-inner { animation: none; }
 }
-@keyframes card-slide-up {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
+
+/* Event panel slide-up */
 .event-panel-enter {
   animation: card-slide-up 200ms ease-out both;
 }
@@ -78,7 +193,10 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
   const [locationLoading, setLocationLoading] = useState(false)
   const [showAttribution, setShowAttribution] = useState(false)
   const [panelKey, setPanelKey] = useState(0)
+  const [bearing, setBearing] = useState(0)
+  const [showFilterMsg, setShowFilterMsg] = useState(false)
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
+  const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const selectedVenueIdRef = useRef<string | null>(null)
   const dataRef = useRef(data)
@@ -174,8 +292,22 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         const venueId = md.venueId
         el.addEventListener('click', () => {
           if (selectedVenueIdRef.current === venueId) {
+            // Deselect immediately (don't wait for React re-render)
+            el.classList.remove('pin-selected')
+            el.style.zIndex = ''
             closePanelRef.current()
           } else {
+            // Deselect old, select new immediately
+            const oldId = selectedVenueIdRef.current
+            if (oldId) {
+              const oldEntry = markersRef.current.get(oldId)
+              if (oldEntry) {
+                oldEntry.el.classList.remove('pin-selected')
+                oldEntry.el.style.zIndex = ''
+              }
+            }
+            el.classList.add('pin-selected')
+            el.style.zIndex = '999'
             openPanelRef.current(venueId)
           }
         })
@@ -190,7 +322,60 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         markersRef.current.set(venueId, { marker, el })
       }
     }
+
+    // Check name collisions after DOM settles
+    requestAnimationFrame(() => checkNameCollisions())
   }, [buildMarkers, selectedVenueId])
+
+  // Name collision detection: hide lower-priority names that overlap higher-priority ones
+  function checkNameCollisions() {
+    const map = mapRef.current
+    if (!map || map.getZoom() < 13) return
+
+    type PinEntry = { el: HTMLElement; nameEl: HTMLElement; priority: number }
+    const entries: PinEntry[] = []
+
+    for (const [, { el }] of markersRef.current) {
+      const nameEl = el.querySelector('.pin-name') as HTMLElement | null
+      if (!nameEl) continue
+      const isSelected = el.classList.contains('pin-selected')
+      const isLive = el.querySelector('.pin-live-ring') !== null
+      const isFav = el.querySelector('.pin-badge-heart') !== null
+      entries.push({
+        el, nameEl,
+        priority: isSelected ? 4 : isLive ? 3 : isFav ? 2 : 1,
+      })
+    }
+
+    entries.sort((a, b) => b.priority - a.priority)
+
+    const occupied: DOMRect[] = []
+    for (const { nameEl, priority } of entries) {
+      if (priority === 4) {
+        // Selected pin name is always shown via CSS .pin-selected .pin-name
+        nameEl.style.visibility = ''
+        const r = nameEl.getBoundingClientRect()
+        if (r.width > 0) occupied.push(r)
+        continue
+      }
+      nameEl.style.visibility = 'visible'
+      const r = nameEl.getBoundingClientRect()
+      if (r.width === 0) continue
+
+      let overlaps = false
+      for (const occ of occupied) {
+        if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
+          overlaps = true
+          break
+        }
+      }
+      if (overlaps) {
+        nameEl.style.visibility = 'hidden'
+      } else {
+        occupied.push(r)
+      }
+    }
+  }
 
   // Init map
   useEffect(() => {
@@ -220,7 +405,24 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
         })
 
         map.on('load', () => {
-          if (mounted) updateMarkers()
+          if (!mounted) return
+          const container = mapContainerRef.current
+          if (container) container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
+          updateMarkers()
+        })
+
+        map.on('zoom', () => {
+          const container = mapContainerRef.current
+          if (container) container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
+          requestAnimationFrame(() => checkNameCollisions())
+        })
+
+        map.on('moveend', () => {
+          requestAnimationFrame(() => checkNameCollisions())
+        })
+
+        map.on('rotate', () => {
+          setBearing(map.getBearing())
         })
       } catch (err) {
         console.error('Map init failed', err)
@@ -273,6 +475,12 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
     )
   }
 
+  function handleFilterClick() {
+    if (filterMsgTimerRef.current) clearTimeout(filterMsgTimerRef.current)
+    setShowFilterMsg(true)
+    filterMsgTimerRef.current = setTimeout(() => setShowFilterMsg(false), 2500)
+  }
+
   // Sorted venues for ‹ › navigation (by longitude: west → east)
   const curNow = new Date()
   const venueMap = Object.fromEntries(data.venues.map(v => [v.id, v]))
@@ -289,6 +497,21 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
   const nextVenue = selIdx >= 0 && selIdx < sortedVenues.length - 1 ? sortedVenues[selIdx + 1] : null
 
   function handleArrow(venue: { id: string; lng: number; lat: number }) {
+    // Immediately update marker visuals (don't wait for React re-render)
+    const oldId = selectedVenueIdRef.current
+    if (oldId) {
+      const oldEntry = markersRef.current.get(oldId)
+      if (oldEntry) {
+        oldEntry.el.classList.remove('pin-selected')
+        oldEntry.el.style.zIndex = ''
+      }
+    }
+    const newEntry = markersRef.current.get(venue.id)
+    if (newEntry) {
+      newEntry.el.classList.add('pin-selected')
+      newEntry.el.style.zIndex = '999'
+    }
+
     openPanelRef.current(venue.id)
     mapRef.current?.easeTo({
       center: [venue.lng, venue.lat],
@@ -325,8 +548,10 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
           <IconChevronDown size={16} color="#111118" />
         </button>
 
-        <div style={{ height: 44, borderRadius: 22, background: '#23232F', display: 'flex', alignItems: 'center' }}
-          role="group" aria-label={dict.map.all + ' / ' + dict.map.favorites}>
+        <div
+          style={{ height: 44, borderRadius: 22, background: '#23232F', display: 'flex', alignItems: 'center' }}
+          role="group" aria-label={dict.map.all + ' / ' + dict.map.favorites}
+        >
           <button
             style={{
               flex: 1, height: 44, borderRadius: 22,
@@ -352,19 +577,66 @@ export function MapPage({ data, lang, onEventOpen }: Props) {
           </button>
         </div>
 
+        {/* Filter — active pink, panel not yet implemented */}
         <button
           style={{
             width: 44, height: 44, borderRadius: 22,
-            background: '#23232F', color: '#6A6680',
+            background: '#FF4D8D', color: '#1A0710',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: 0.6,
           }}
           aria-label={dict.map.filter}
-          disabled
+          onClick={handleFilterClick}
         >
-          <IconFilter size={20} color="#6A6680" />
+          <IconFilter size={20} color="#1A0710" />
         </button>
       </div>
+
+      {/* Compass — shown when map is rotated */}
+      {bearing !== 0 && (
+        <button
+          style={{
+            position: 'absolute', right: 16, top: 108,
+            width: 44, height: 44, borderRadius: 22,
+            background: '#F4F2FF',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.4)', zIndex: 10,
+            border: 0,
+          }}
+          onClick={() => mapRef.current?.easeTo({ bearing: 0, duration: 400 })}
+          aria-label={dict.map.compassLabel}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"
+            style={{ transform: `rotate(${-bearing}deg)`, transition: 'transform 100ms' }}>
+            <path d="M12 2l4 10h-8z" fill="#FF4D8D" />
+            <path d="M12 22l-4-10h8z" fill="#5D5677" />
+            <circle cx="12" cy="12" r="1.6" fill="#111118" />
+          </svg>
+        </button>
+      )}
+
+      {/* Filter coming soon toast */}
+      {showFilterMsg && (
+        <div style={{
+          position: 'absolute',
+          bottom: panelOpen ? 230 : 112,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#1C1C27',
+          color: '#F4F2FF',
+          padding: '10px 20px',
+          borderRadius: 20,
+          fontSize: 14,
+          fontWeight: 500,
+          zIndex: 30,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          border: '1px solid #2E2D3C',
+          whiteSpace: 'nowrap',
+          fontFamily: "'Outfit', sans-serif",
+          pointerEvents: 'none',
+        }}>
+          {dict.map.filterComingSoon}
+        </div>
+      )}
 
       {/* My location button */}
       <button

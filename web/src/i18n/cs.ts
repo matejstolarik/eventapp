@@ -7,7 +7,9 @@ export const cs = {
     favorites: 'Oblíbené',
     filter: 'Filtr',
     myLocation: 'Moje poloha',
-    daySelector: 'Výběr dne'
+    daySelector: 'Výběr dne',
+    filterComingSoon: 'Filtr připravujeme',
+    compassLabel: 'Otočit na sever'
   },
   panel: {
     noTime: '',

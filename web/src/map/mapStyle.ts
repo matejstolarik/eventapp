@@ -176,13 +176,17 @@ function buildLayers(src: string): MapLayer[] {
       },
       paint: { 'text-color': p.text, 'text-halo-color': halo, 'text-halo-width': 1.5 } },
 
-    // === Metro/rail stations: icon (from sprite) + label, from zoom 13 ===
+    // === Metro/rail/subway stations: from zoom 13 ===
+    // Liberty sprite uses underscore names (railway_metro, railway) without size suffix.
     { id: 'poi-metro', type: 'symbol', source: src, 'source-layer': 'poi',
-      filter: ['==', ['get', 'class'], 'rail'],
+      filter: ['match', ['get', 'class'],
+        ['rail', 'railway', 'subway', 'station', 'train_station'], true, false],
       minzoom: 13,
       layout: {
         'icon-image': ['coalesce',
-          ['image', 'rail-15'], ['image', 'rail-11'], ['image', 'rail']
+          ['image', 'railway_metro'], ['image', 'railway_metro_11'],
+          ['image', 'railway'],       ['image', 'railway_11'],
+          ['image', 'railway_light'], ['image', 'railway_light_11'],
         ],
         'icon-size': 0.75,
         'icon-allow-overlap': false,
@@ -202,15 +206,18 @@ function buildLayers(src: string): MapLayer[] {
       } },
 
     // === Culture POIs: theatre, museum, attraction (from sprite), from zoom 14 ===
+    // Liberty sprite uses underscore names without size suffix (theatre, museum_11).
     { id: 'poi-culture', type: 'symbol', source: src, 'source-layer': 'poi',
-      filter: ['match', ['get', 'class'], ['theatre', 'museum', 'attraction'], true, false],
+      filter: ['match', ['get', 'class'], ['theatre', 'theater', 'museum', 'attraction', 'monument'], true, false],
       minzoom: 14,
       layout: {
         'icon-image': [
           'match', ['get', 'class'],
-          'theatre',    ['coalesce', ['image', 'theatre-15'],    ['image', 'theatre-11']    ],
-          'museum',     ['coalesce', ['image', 'museum-15'],     ['image', 'museum-11']     ],
-          /* attraction */ ['coalesce', ['image', 'attraction-15'], ['image', 'attraction-11'] ],
+          'theatre',    ['coalesce', ['image', 'theatre'],    ['image', 'theatre_11']    ],
+          'theater',    ['coalesce', ['image', 'theatre'],    ['image', 'theatre_11']    ],
+          'museum',     ['coalesce', ['image', 'museum'],     ['image', 'museum_11']     ],
+          'monument',   ['coalesce', ['image', 'monument'],   ['image', 'monument_11'],  ['image', 'attraction'], ['image', 'attraction_11'] ],
+          /* attraction */ ['coalesce', ['image', 'attraction'], ['image', 'attraction_11'], ['image', 'monument'] ],
         ],
         'icon-size': 0.7,
         'icon-allow-overlap': false,

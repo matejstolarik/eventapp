@@ -24,122 +24,87 @@ export interface MarkerData {
   lng: number
 }
 
-function buildContent(el: HTMLElement, data: MarkerData, isSelected: boolean, animate: boolean): void {
-  const color = EVENT_TYPE_COLOR[data.eventType]
-  const dark = EVENT_TYPE_DARK[data.eventType]
-
-  el.innerHTML = ''
-
-  const inner = document.createElement('div')
-  inner.className = 'pin-inner'
-
-  if (isSelected) {
-    const wrap = document.createElement('div')
-    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;'
-
-    const body = document.createElement('div')
-    body.className = 'pin-pill-body'
-    body.style.cssText = `display:flex;align-items:center;gap:8px;height:48px;padding:0 16px 0 6px;border-radius:24px;background:${color};white-space:nowrap;position:relative;overflow:hidden;max-width:300px;`
-
-    const circle = document.createElement('span')
-    circle.style.cssText = `width:36px;height:36px;border-radius:18px;background:${dark};display:flex;align-items:center;justify-content:center;flex-shrink:0;`
-    circle.innerHTML = ICON_SVG[data.eventType](color)
-    body.appendChild(circle)
-
-    const nameEl = document.createElement('span')
-    nameEl.className = 'pin-pill-name'
-    nameEl.style.cssText = `color:${dark};font-size:16px;font-weight:700;font-family:'Outfit',sans-serif;padding-right:4px;flex-shrink:0;`
-    nameEl.textContent = data.name
-    body.appendChild(nameEl)
-
-    if (data.isFavorite) {
-      const badge = document.createElement('span')
-      badge.style.cssText = 'position:absolute;top:-2px;right:-4px;width:20px;height:20px;border-radius:10px;background:#F4F2FF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.4);flex-shrink:0;'
-      badge.innerHTML = HEART_SVG
-      body.appendChild(badge)
-    }
-
-    wrap.appendChild(body)
-
-    const tailDiv = document.createElement('div')
-    tailDiv.style.cssText = 'margin-top:-1px;line-height:0;'
-    tailDiv.innerHTML = `<svg width="22" height="18" viewBox="0 0 22 18" aria-hidden="true"><path d="M0 0 H22 L11 18 Z" fill="${color}"/></svg>`
-    wrap.appendChild(tailDiv)
-
-    inner.appendChild(wrap)
-
-    if (animate) {
-      body.style.maxWidth = '50px'
-      nameEl.style.opacity = '0'
-      body.style.transition = 'max-width 220ms ease-out'
-      nameEl.style.transition = 'opacity 180ms ease-out 80ms'
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          body.style.maxWidth = '300px'
-          nameEl.style.opacity = '1'
-        })
-      })
-    }
-  } else {
-    const wrap = document.createElement('div')
-    wrap.style.cssText = 'position:relative;width:50px;height:64px;'
-
-    if (data.isLive) {
-      const ring = document.createElement('span')
-      ring.className = 'pin-live-ring'
-      ring.style.setProperty('--pc', color)
-      ring.style.cssText += 'position:absolute;left:3px;top:3px;width:44px;height:44px;border-radius:22px;'
-      ring.style.setProperty('--pc', color)
-      wrap.appendChild(ring)
-    }
-
-    const pinSvgWrap = document.createElement('div')
-    pinSvgWrap.style.cssText = 'position:absolute;inset:0;'
-    pinSvgWrap.innerHTML = `<svg width="50" height="64" viewBox="0 0 50 64" aria-hidden="true"><path d="${PIN_PATH}" fill="${color}"/></svg>`
-    wrap.appendChild(pinSvgWrap)
-
-    const circle = document.createElement('span')
-    circle.style.cssText = `position:absolute;left:7px;top:7px;width:36px;height:36px;border-radius:18px;background:${dark};display:flex;align-items:center;justify-content:center;`
-    circle.innerHTML = ICON_SVG[data.eventType](color)
-    wrap.appendChild(circle)
-
-    if (data.isFavorite) {
-      const badge = document.createElement('span')
-      badge.style.cssText = 'position:absolute;top:-2px;right:-4px;width:20px;height:20px;border-radius:10px;background:#F4F2FF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.4);'
-      badge.innerHTML = HEART_SVG
-      wrap.appendChild(badge)
-    }
-
-    if (data.extraCount > 0) {
-      const badge = document.createElement('span')
-      badge.style.cssText = 'position:absolute;top:-2px;left:-6px;height:20px;min-width:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:#111118;color:#F4F2FF;border:1.5px solid #F4F2FF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Outfit,sans-serif;'
-      badge.textContent = `+${data.extraCount}`
-      wrap.appendChild(badge)
-    }
-
-    inner.appendChild(wrap)
-  }
-
-  el.appendChild(inner)
-}
-
+/**
+ * Creates a pin element for a MapLibre marker.
+ * DOM is built once; state changes are via CSS class toggles (no innerHTML rebuilds).
+ * .pin-selected triggers scale(1.22), glow opacity, and bold white name.
+ */
 export function createPinElement(data: MarkerData, isSelected: boolean): HTMLElement {
   const el = document.createElement('div')
   el.className = 'map-pin'
-  el.dataset.eventType = data.eventType
-  el.dataset.selected = String(isSelected)
+  el.dataset.venueId = data.venueId
   el.style.cssText = 'filter:drop-shadow(0 8px 6px rgba(0,0,0,0.55)) drop-shadow(0 2px 2px rgba(0,0,0,0.35));cursor:pointer;'
-  buildContent(el, data, isSelected, false)
+
+  const color = EVENT_TYPE_COLOR[data.eventType]
+  const dark = EVENT_TYPE_DARK[data.eventType]
+
+  // pin-inner: scale transform anchor = bottom center (pin tip)
+  const inner = document.createElement('div')
+  inner.className = 'pin-inner'
+
+  // Glow — always in DOM, opacity 0→1 via .pin-selected .pin-glow
+  const glow = document.createElement('span')
+  glow.className = 'pin-glow'
+  glow.style.background = `radial-gradient(circle, ${color}88 0%, ${color}33 45%, transparent 70%)`
+  inner.appendChild(glow)
+
+  // Live pulse ring
+  if (data.isLive) {
+    const ring = document.createElement('span')
+    ring.className = 'pin-live-ring'
+    ring.style.setProperty('--pc', color)
+    inner.appendChild(ring)
+  }
+
+  // Pin SVG shape
+  const pinSvg = document.createElement('div')
+  pinSvg.className = 'pin-svg'
+  pinSvg.innerHTML = `<svg width="50" height="64" viewBox="0 0 50 64" aria-hidden="true"><path d="${PIN_PATH}" fill="${color}"/></svg>`
+  inner.appendChild(pinSvg)
+
+  // Icon circle
+  const circle = document.createElement('span')
+  circle.className = 'pin-circle'
+  circle.style.background = dark
+  circle.innerHTML = ICON_SVG[data.eventType](color)
+  inner.appendChild(circle)
+
+  // Favorite badge
+  if (data.isFavorite) {
+    const badge = document.createElement('span')
+    badge.className = 'pin-badge-heart'
+    badge.innerHTML = HEART_SVG
+    inner.appendChild(badge)
+  }
+
+  // Extra count badge
+  if (data.extraCount > 0) {
+    const badge = document.createElement('span')
+    badge.className = 'pin-badge-count'
+    badge.textContent = `+${data.extraCount}`
+    inner.appendChild(badge)
+  }
+
+  // Name label — hidden by default; shown at zoom ≥13 via .map-zoom-13 .pin-name
+  const name = document.createElement('span')
+  name.className = 'pin-name'
+  name.textContent = data.name
+  inner.appendChild(name)
+
+  el.appendChild(inner)
+
+  if (isSelected) {
+    el.classList.add('pin-selected')
+    el.style.zIndex = '999'
+  }
+
   return el
 }
 
-/** Updates an existing pin element in-place. Uses dataset so MapLibre classes are never removed. */
-export function updatePinElement(el: HTMLElement, data: MarkerData, isSelected: boolean): void {
-  const wasSelected = el.dataset.selected === 'true'
-  const switchingToSelected = isSelected && !wasSelected
-
-  el.dataset.selected = String(isSelected)
-  el.dataset.eventType = data.eventType
-
-  buildContent(el, data, isSelected, switchingToSelected)
+/** Toggles selected state in-place via CSS class — transitions are in PIN_CSS. */
+export function updatePinElement(el: HTMLElement, _data: MarkerData, isSelected: boolean): void {
+  const wasSelected = el.classList.contains('pin-selected')
+  if (isSelected === wasSelected) return
+  el.classList.toggle('pin-selected', isSelected)
+  el.style.zIndex = isSelected ? '999' : ''
 }

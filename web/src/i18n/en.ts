@@ -7,7 +7,9 @@ export const en = {
     favorites: 'Favorites',
     filter: 'Filter',
     myLocation: 'My location',
-    daySelector: 'Select day'
+    daySelector: 'Select day',
+    filterComingSoon: 'Filter coming soon',
+    compassLabel: 'Rotate to north'
   },
   panel: {
     noTime: '',
