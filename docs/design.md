@@ -132,7 +132,9 @@ Rozdelenie: **Mapa = konkrétny deň a teraz, Akcie = čo sa chystá.**
 - **Počet pri každom čipe** (malý odznak vpravo v čipe): koľko výsledkov by bolo pri aktuálnom dni/období, Všetko | Obľúbené a ostatných zapnutých filtroch, ak by sa pridal tento čip. Na mape = počet **miest** s akciou, v Akciách = počet **akcií**. **Čip s 0 je stlmený, ale dá sa zapnúť** (filter sa pri zmene dňa zachováva a v iný deň môže mať výsledky).
 - **Filter sa zachováva** pri zmene dňa/obdobia a pri prepínaní medzi Mapou a Akciami (jeden spoločný filter). **Nikdy sa sám nevypína.**
 - **Prázdny výsledok** (napr. zapnuté `latin` a zajtra žiadne): mapa/zoznam ukáže nenápadnú kartu nad spodnou lištou: „Pre tento filter zajtra nič.“ a dve tlačidlá: **„Najbližšie: Pi 14. 11. ›“** (prepne na najbližší deň s výsledkom, ak je v rozsahu dát) a **„Zrušiť filter“**.
-- **Zapnutý filter je vždy vidieť:** pod hornou lištou úzky riadok zapnutých štítkov (`latin ✕`, `techno ✕`, posúvateľný), ťuk na ✕ štítok vypne. Bez zapnutého filtra riadok nie je.
+- **Zapnutý filter je vidieť len odznakom s počtom** zapnutých štítkov na tlačidle Filter (Matej 2026-11-10; riadok štítkov pod lištou nie je).
+- **Zapnutý štítok s 0 výsledkami ostáva zapnutý** (napr. `latin` po prepnutí na zajtra): v paneli je biely (zapnutý) s počtom 0 a stlmený, ťukom sa dá vypnúť. Filter ho nikdy sám neodstráni.
+- **Kombinovanie:** v rámci jednej skupiny (typ, žáner, charakter, veľkosť) = **ALEBO** (techno alebo latin), medzi skupinami = **A** (párty a techno a underground). Preto štítok s 0 nevyprázdni výsledok, ak sú v skupine aj iné zapnuté so zhodou. Počet pri čipe sa počíta podľa tohto pravidla.
 - **Poradie čipov:** Typ akcie má pevné poradie (legenda). **Žáner a Charakter** zoradené podľa počtu výsledkov (najviac prvé, 0 na koniec). Poradie sa určí **pri otvorení panela** a počas klikania sa nemení (čipy neskáču pod prstom); zapnuté čipy ostávajú tam, kde sú. Do 12 viditeľných žánrov sa berú tie s najväčším počtom.
 - Dole ružové tlačidlo **„Zobraziť N akcií“** (na mape „Zobraziť N miest“). Počet aktívnych filtrov ako odznak na tlačidle Filter v lište.
 
