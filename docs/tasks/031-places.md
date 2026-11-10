@@ -77,7 +77,7 @@ Sprav obsah `docs/tasks/030-pair-labels.md` (pravidlo v `design.md` časť 2, �
 ## Report
 
 **Dátum:** 2026-11-10  
-**Commit:** (pozri po pushi)
+**Commit:** c4dc919
 
 ### Čo je hotové
 
