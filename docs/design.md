@@ -69,10 +69,10 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Moja poloha:** biely kruh 52 px vpravo nad spodnou lištou. Poloha len so súhlasom; bez súhlasu mapa funguje, iba bez vzdialeností.
 - **Úvodný pohľad** (Matej 2026-11-10): appka o polohu sama nežiada (len po stlačení tlačidla polohy). Ak je poloha už povolená a používateľ je do ~2 km od miesta s akciou vo zvolenom dni, mapa ukáže jeho polohu spolu s najbližšími akciami; inak centrum Prahy so všetkými akciami dňa.
 - **Stav mapy sa zachováva:** pri prechode na stránku akcie, inú záložku alebo do pozadia a späť ostane mapa presne ako bola (poloha, priblíženie, otočenie, deň, filter, vybraný pin a karta).
-- **Akcie mimo obrazovky** (`03-mapa-odznaky-mimo-obrazovky.png`): na každom okraji (hore, dole, vľavo, vpravo), kde sú mimo výrezu miesta s akciou, najviac **jeden tmavý odznak so šípkou a počtom** (výška 29, `rgba(28,28,39,0.92)`, obrys `#3A3A50`, Outfit 12/700). Odznak sa **posúva pozdĺž okraja** podľa toho, kde za okrajom miesta sú (stred ich priemetu na okraj), a **počet sa mení živo** pri posúvaní a približovaní. Ťuk posunie mapu k najbližšiemu takému miestu. Odznaky sa vyhýbajú hornej lište, spodnej lište, karte a tlačidlám.
+- ~~**Akcie mimo obrazovky** (odznaky na okrajoch)~~ **zrušené 2026-11-10** (Matej: prekrývali sa so šípkami). Náhrada: počty pri šípkach karty (časť 3).
 - **Vrstvy:** piny (aj vybraný) sú vždy **pod** ovládaním appky (horná lišta, karta, šípky, tlačidlá, spodná lišta, odznaky).
 - **Vybraný pin pod ovládaním:** ak je vybraný pin (alebo jeho meno) zakrytý kartou, hornou lištou alebo tlačidlami, mapa sa plynule posunie len o toľko, aby bol vo voľnej časti (ako Google Maps). Inak sa mapa pri výbere nehýbe.
-- **Miesta tesne pri sebe:** polohy sú skutočné (Fuchs2 a Bike Jesus z obrysu budovy v OSM). Ak sú dva piny na obrazovke bližšie ako ~20 px, zobrazia sa vodorovne mierne od seba (prekrytie asi do polovice, ako Google Maps), hroty pri ich bodoch. **Mená takejto dvojice sa navzájom neskrývajú:** meno západného pinu sa zarovná doprava (text ide od pinu na západ), meno východného doľava (text ide na východ), takže stoja vedľa seba pod pinmi. Ak ani tak nie je miesto (veľké oddialenie), ukáže sa spoločné meno „Bike Jesus · Fuchs2“ pod dvojicou. Pravidlá kolízií s ostatnými menami platia ďalej. (Matej 2026-11-10: skryť jedno z mien dvojice nie je riešenie.)
+- **Miesta tesne pri sebe:** polohy sú skutočné (Fuchs2 a Bike Jesus z obrysu budovy v OSM). Ak sú dva piny na obrazovke bližšie ako ~20 px, zobrazia sa vodorovne mierne od seba (prekrytie asi do polovice, ako Google Maps), hroty pri ich bodoch. **Rozostúpenie mien len ak sa mená naozaj prekrývajú** (napr. Roxy a EPIC majú iný zvislý rozostup, tam nič). **Dvojica s prekrývajúcimi sa menami** (Fuchs2 + Bike Jesus) má **jedno spoločné meno** „Bike Jesus · Fuchs2“ (západ · východ) vycentrované pod dvojicou. **Po výbere** jedného z nich sa ukáže **len meno vybraného, rovno pod jeho pinom** (bez posunu). (Matej 2026-11-10) Pravidlá kolízií s ostatnými menami platia ďalej. (Matej 2026-11-10: skryť jedno z mien dvojice nie je riešenie.)
 - **Karta sa zachováva aj pri návrate zo stránky akcie** (rovnaké miesto a akcia).
 
 ## 3. Panel akcie na mape (`02-mapa-vybrany-pin-karta.png`)
@@ -80,7 +80,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Otvorí sa ťuknutím na pin** (nie potiahnutím). Je to **malá karta, ktorá pláva nad spodnou lištou** (12 px od okrajov, 112 px od spodku, `#1C1C27`, zaoblenie 28, obrys `#2E2D3C`). **Prvé ťuknutie mapu nepresúva ani necentruje.**
 - Obsah: vľavo obrázok 88 × 88 (zaoblenie 18), vpravo názov akcie (Bricolage 21/700) a riadok „miesto · čas · vzdialenosť“; pod tým **jeden riadok štítkov akcie** (formáty vo farbe typu, potom žánre; výška 32, zaoblenie 16), vodorovne posúvateľný, pri pravom okraji sa rozplynie. **Štítky miesta (charakter) sa v karte neukazujú** (Matej 2026-11-09).
 - **Viac akcií na mieste v ten deň:** potiahnutie karty doľava/doprava, bodky pod štítkami.
-- **Šípky ‹ › na prechod na ďalšie miesto:** biele kruhy **40 px** nad kartou (vľavo a vpravo). **Poradie podľa polohy, aby mapa neskákala: ‹ = najbližšie miesto na západ, › = najbližšie na východ** (zoradenie podľa zemepisnej dĺžky miest s akciou vo zvolenom dni a podľa filtra). Šípka vyberie pin ďalšieho miesta, otvorí jeho kartu a **plynulo posunie mapu** tak, aby bol pin vidieť. **Na krajoch je šípka sivá a neaktívna** (ťuk nič neurobí, karta sa nezavrie).
+- **Šípky ‹ › na prechod na ďalšie miesto:** biele kruhy **40 px** nad kartou (vľavo a vpravo). **Poradie podľa polohy, aby mapa neskákala: ‹ = najbližšie miesto na západ, › = najbližšie na východ** (zoradenie podľa zemepisnej dĺžky miest s akciou vo zvolenom dni a podľa filtra). Šípka vyberie pin ďalšieho miesta, otvorí jeho kartu a **plynulo posunie mapu** tak, aby bol pin vidieť. **Na krajoch je šípka sivá a neaktívna** (ťuk nič neurobí, karta sa nezavrie). **Pri každej šípke jemný odznak s počtom miest** s akciou ďalej tým smerom (malý tmavý krúžok `#111118` s bielym číslom 11/700 v rohu šípky; pri 0 šípka sivá bez odznaku). (Matej 2026-11-10)
 - **Pri otvorenej karte ostáva mapa plne ovládateľná** (posun, priblíženie, ťuk na iný pin prepne kartu); otvorenie ani zatvorenie karty nemení polohu mapy. **Späť** (systémové/prehliadač) kartu zavrie. Priblíženie dvoma prstami nikdy nezväčšuje celú appku.
 - **Ťuknutie na kartu otvorí stránku akcie.**
 - Chýba obrázok → ikona typu akcie na farebnom pozadí typu.
@@ -109,9 +109,11 @@ Rozdelenie: **Mapa = konkrétny deň a teraz, Akcie = čo sa chystá.**
 - Hore fotka miesta (výška 200) so stmavnutím do pozadia, tlačidlo Späť a ružové srdiečko.
 - Názov (Bricolage 34/700), „adresa · vzdialenosť“.
 - **Popis miesta: 2 riadky hneď pod adresou, končí „…“, pod ním odkaz „Viac o mieste“**, ktorý popis rozbalí. (Miesta dnes popis v dátach nemajú, treba pole vo `venues.json`.)
+- Pod názvom, adresou a popisom rad tlačidiel v štýle stránky akcie (tmavé `#1C1C27`, zaoblenie 18, ikona + popis): **Web**, **Instagram**, **Navigovať** (Google Maps trasa na miesto). Tlačidlo bez údaja sa neukáže. „Na mape“ sa ruší. (Matej 2026-11-10)
 - Štítky charakteru (obrys).
-- **Program** hneď pod tým: dátum v stĺpci (deň v týždni, číslo, mesiac), názov, čas vo farbe typu, štítky, vpravo malý obrázok.
-- Dole tlačidlá **Web**, **Instagram**, **Na mape**.
+- **Srdiečko vpravo hore:** nezapnuté = biely kruh s tmavým obrysom srdiečka, zapnuté = ružový kruh s vyplneným tmavým srdiečkom.
+- **Program** hneď pod tým: dátum v stĺpci (deň v týždni, číslo, mesiac), názov, čas vo farbe typu, štítky, vpravo malý obrázok. **Viac akcií v ten istý deň:** dátumový stĺpec sa ukáže raz, **zvislo vycentrovaný na celú skupinu** akcií toho dňa. **Štítky akcie:** v jednom riadku koľko sa zmestí, posledný sa rozplynie v rovnakom bode (zarovnane s koncom názvu), bez posúvania. **Rozsah:** najprv ~20 akcií, potom tlačidlo „Zobraziť viac“ (ďalších 20).
+- ~~Dole tlačidlá Web, Instagram, Na mape~~ (presunuté hore, 2026-11-10).
 - Cieľ: nahradiť chodenie na web a IG miesta, takže program je najdôležitejší.
 
 ## 7. Stránka akcie (`07-stranka-akcie.png`)
@@ -119,6 +121,7 @@ Rozdelenie: **Mapa = konkrétny deň a teraz, Akcie = čo sa chystá.**
 - Názov (Bricolage 28/700), **miesto s odkazom na profil**, „deň dátum · čas · cena“ (cena a vypredané len ak ich zdroj dáva), **len štítky akcie** (formáty, žánre). Štítky miesta tu nie sú (Matej 2026-11-09), patria do profilu miesta.
 - **Hlavné tlačidlo (ružové, výška 54): Lístky**, ak má akcia `ticket_url`; inak **Stránka akcie** (pôvodný zdroj). Zdroj musí byť dostupný vždy.
 - Pod tým štyri menšie tlačidlá: **Idem** (CZ „Jdu“; zoznam v Môj účet), **Kalendár** (`.ics`), **Zdieľať**, **IG miesta**.
+- **Zmena 2026-11-10 (Matej):** namiesto „IG miesta“ tlačidlo **Spotify** (logo Spotify, otvorí vyhľadávanie interpreta / názvu akcie na Spotify, `https://open.spotify.com/search/<dopyt>`; presné párovanie s interpretom neskôr) a nové tlačidlo **Navigovať** (Google Maps trasa na miesto). IG miesta je na profile miesta. **Cena alebo rozsah cien** všade, kde ju zdroj dáva (`price_text`).
 - **Popis akcie** pod tým.
 
 ## 8. Čo nie je nakreslené (navrhni v rovnakom štýle a ukáž Matejovi)
