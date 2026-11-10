@@ -37,12 +37,12 @@ const PIN_CSS = `
   position: relative;
   width: 50px;
   height: 64px;
-  transform: scale(1);
+  transform: translateX(var(--pin-dx, 0px)) scale(1);
   transform-origin: 50% 100%;
   transition: transform 220ms ease-out;
 }
 .pin-selected .pin-inner {
-  transform: scale(1.22);
+  transform: translateX(var(--pin-dx, 0px)) scale(1.22);
 }
 @media (prefers-reduced-motion: reduce) {
   .pin-inner { transition: none; }
@@ -219,12 +219,24 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
   const panelOpenRef = useRef(false)
   const openPanelRef = useRef<(venueId: string) => void>(() => {})
   const closePanelRef = useRef<() => void>(() => {})
+  const toggleRef = useRef<HTMLDivElement>(null)
+  const [toggleWidth, setToggleWidth] = useState(999)
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
   useEffect(() => { selectedDayRef.current = selectedDay }, [selectedDay])
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])
   useEffect(() => { isVisibleRef.current = isVisible }, [isVisible])
+
+  useEffect(() => {
+    const el = toggleRef.current
+    if (!el) return
+    const obs = new ResizeObserver(entries => {
+      setToggleWidth(entries[0]?.contentRect.width ?? 999)
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   // Resize map when it becomes visible again (was display:none)
   useEffect(() => {
@@ -290,8 +302,14 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
   }
 
   useEffect(() => {
-    function onPopState() {
-      if (panelOpenRef.current) {
+    function onPopState(event: PopStateEvent) {
+      if (event.state?.panel === 'open') {
+        // Returned from event page back to the card state — keep panel open
+        panelOpenRef.current = true
+      } else if (panelOpenRef.current && !window.location.hash.includes('/akcia/')) {
+        // Left the card state (pressed Back from card).
+        // Guard: Chrome fires popstate for hash navigation TO event page (state=null,
+        // hash=#/akcia/...) — in that case the hash already changed, so ignore it.
         panelOpenRef.current = false
         setSelectedVenueId(null)
         setPanelAnimated(false)
@@ -423,7 +441,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
       }
     }
 
-    requestAnimationFrame(() => checkNameCollisions())
+    requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
   }, [buildMarkers, selectedVenueId])
 
   function checkNameCollisions() {
@@ -462,6 +480,37 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
       }
       if (overlaps) nameEl.style.visibility = 'hidden'
       else occupied.push(r)
+    }
+  }
+
+  function checkPinOverlaps() {
+    const map = mapRef.current
+    if (!map) return
+
+    type PinInfo = { el: HTMLElement; pt: { x: number; y: number }; lng: number }
+    const pins: PinInfo[] = []
+    for (const [, { el, marker }] of markersRef.current) {
+      const ll = marker.getLngLat()
+      const pt = map.project([ll.lng, ll.lat])
+      pins.push({ el, pt, lng: ll.lng })
+    }
+
+    // Reset horizontal offsets on all pins
+    for (const { el } of pins) el.style.removeProperty('--pin-dx')
+
+    // Shift overlapping pairs horizontally
+    for (let i = 0; i < pins.length; i++) {
+      for (let j = i + 1; j < pins.length; j++) {
+        const a = pins[i], b = pins[j]
+        const dx = a.pt.x - b.pt.x
+        const dy = a.pt.y - b.pt.y
+        if (Math.sqrt(dx * dx + dy * dy) < 20) {
+          // West pin shifts left, east pin shifts right
+          const off = a.lng < b.lng ? -8 : 8
+          a.el.style.setProperty('--pin-dx', `${off}px`)
+          b.el.style.setProperty('--pin-dx', `${-off}px`)
+        }
+      }
     }
   }
 
@@ -580,12 +629,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
         })
 
         map.on('zoomend', () => {
-          requestAnimationFrame(() => checkNameCollisions())
+          requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
           scheduleEdgeBadges()
         })
 
         map.on('moveend', () => {
-          requestAnimationFrame(() => checkNameCollisions())
+          requestAnimationFrame(() => { checkNameCollisions(); checkPinOverlaps() })
           scheduleEdgeBadges()
         })
 
@@ -686,6 +735,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
     })
   }
 
+  // Responsive toggle: shrink padding → hide heart (when off) → smaller font
+  const togglePad = toggleWidth < 160 ? '0 6px' : toggleWidth < 200 ? '0 8px' : '0 14px'
+  const showOffHeart = toggleWidth >= 155
+  const toggleFontSize = toggleWidth < 140 ? 13 : 14
+
   const days = getUpcomingDays(14, curNow)
   const selectedDayLabel = formatDayLabel(selectedDay, lang, curNow)
   const panelOpen = panelVenue && panelEvents.length > 0
@@ -739,7 +793,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
       {/* Top bar */}
       <div style={{
         position: 'absolute', top: 56, left: 16, right: 16,
-        display: 'grid', gridTemplateColumns: 'auto 160px 44px',
+        display: 'grid', gridTemplateColumns: 'auto 1fr 44px',
         alignItems: 'center', gap: 8, zIndex: 20,
       }}>
         <button
@@ -759,7 +813,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
         </button>
 
         <div
-          style={{ height: 44, borderRadius: 22, background: '#23232F', display: 'flex', alignItems: 'center' }}
+          ref={toggleRef}
+          style={{ height: 44, borderRadius: 22, background: '#23232F', display: 'flex', alignItems: 'center', minWidth: 0 }}
           role="group" aria-label={dict.map.all + ' / ' + dict.map.favorites}
         >
           <button
@@ -767,9 +822,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
               flex: 1, height: 44, borderRadius: 22,
               background: !showFavorites ? '#F4F2FF' : 'transparent',
               color: !showFavorites ? '#111118' : '#B9B6CC',
-              fontSize: 14, fontWeight: !showFavorites ? 600 : 500,
+              fontSize: toggleFontSize, fontWeight: !showFavorites ? 600 : 500,
+              padding: togglePad,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: 'none', cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
             onClick={() => setShowFavorites(false)}
           >{dict.map.all}</button>
@@ -778,13 +835,17 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen }: Props) {
               flex: 1, height: 44, borderRadius: 22,
               background: showFavorites ? '#FF4D8D' : 'transparent',
               color: showFavorites ? '#1A0710' : '#B9B6CC',
-              fontSize: 14, fontWeight: showFavorites ? 600 : 500,
+              fontSize: toggleFontSize, fontWeight: showFavorites ? 600 : 500,
+              padding: togglePad,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
               border: 'none', cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
             onClick={() => setShowFavorites(true)}
           >
-            <IconHeart size={14} color={showFavorites ? '#1A0710' : '#B9B6CC'} filled={showFavorites} />
+            {(showFavorites || showOffHeart) && (
+              <IconHeart size={14} color={showFavorites ? '#1A0710' : '#B9B6CC'} filled={showFavorites} />
+            )}
             {dict.map.favorites}
           </button>
         </div>

@@ -36,10 +36,8 @@ export function DaySelector({ days, selectedDay, lang, now, showNight, available
 
   const cells = useMemo(() => buildMonthGrid(calYear, calMonth), [calYear, calMonth])
 
-  // How many day rows fit without scrolling: estimate based on viewport height
-  // Sheet max is 70vh; handle+padding ≈ 56px; night ≈ 50px; otherDate ≈ 50px; each day ≈ 50px
-  const maxDays = Math.max(3, Math.floor((window.innerHeight * 0.7 - 56 - (showNight ? 50 : 0) - 50) / 50))
-  const visibleDays = days.slice(0, maxDays)
+  // Always exactly 5 options: night counts as one (replacing a day slot)
+  const visibleDays = days.slice(0, showNight ? 4 : 5)
 
   const monthLabel = new Intl.DateTimeFormat(lang === 'en' ? 'en' : lang, {
     month: 'long', year: 'numeric',
@@ -79,7 +77,7 @@ export function DaySelector({ days, selectedDay, lang, now, showNight, available
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,
         background: '#1C1C27', borderRadius: '28px 28px 0 0',
-        zIndex: 30, paddingBottom: 'max(28px, env(safe-area-inset-bottom))',
+        zIndex: 30, paddingBottom: 100,
         overflow: 'hidden',
       }}>
         {/* Handle */}

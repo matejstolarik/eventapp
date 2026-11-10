@@ -40,3 +40,62 @@ Dve príčiny:
   V 028 snímky chýbali úplne. Ak prehliadač v session nejde, spusti Playwright z `web/` (`npx playwright install chromium` a skript), nie cez nástroje session.
 
 ## Report
+
+**Dátum:** 2026-11-10  
+**Commit:** TBD (doplnený nižšie po commite)
+
+### Čo bolo urobené
+
+Všetky 4 opravy implementované a otestované:
+
+**1. Karta sa zachová po návrate zo stránky akcie**  
+Príčina: Chrome štandardne vyvolá `popstate` aj pri zmene `window.location.hash` (nielen pri Späť/Vpred). Tento `popstate` má `state: null` a hash už obsahuje `/akcia/...`. Pôvodný handler zatvárala kartu vždy pri `panelOpenRef.current && state !== {panel:'open'}`. Opravené pridaním stráže: `else if (panelOpenRef.current && !window.location.hash.includes('/akcia/'))` — ak hash smeruje na stránku akcie, popstate sa ignoruje. Reťazec mapa → karta → akcia → Späť → karta (otvorená) → Späť → mapa funguje správne.
+
+**2. Výber dňa: presne 5 dní + Iný dátum**  
+`visibleDays = days.slice(0, showNight ? 4 : 5)` — vždy 5 dní (4 keď je noc). Šiesta položka je vždy „Iný dátum ›". Pridaný `paddingBottom: 100` aby obsah neprekrývala spodná lišta. Funguje na 390 × 844 aj 360 × 740.
+
+**3. Horná lišta — flexibilná šírka tlačidla dňa**  
+Grid `auto 1fr 44px`. Tlačidlo dňa má `width: auto; white-space: nowrap` — mení šírku podľa textu. Filter má pevnú šírku 44 px. Stred (Všetko | Obľúbené) zaberie zvyšok. Text sa neoreže. Na 360 px s najdlhším textom v sk/cs/en funguje.
+
+**4. Fuchs2 a Bike Jesus — kolízia pinov**  
+Implementovaná funkcia `checkPinOverlaps()` volaná po `zoomend`/`moveend`. Ak sú dva piny bližšie ako 20 px na obrazovke, posunú sa vodorovne ±8 px v smere ich skutočnej polohy (cez CSS vlastnosť `--pin-dx`). Hrot ostáva pri skutočnom bode. Pri oddialení (>20 px) sa `--pin-dx` vráti na 0.
+
+> Poznámka k súradniciam: denný beh prebehol **pred** commitom z task 028, preto `events.json` stále ukazuje rovnaké súradnice pre Fuchs2 aj Bike Jesus (oba `50.0952223, 14.4363506`). Po ručnom spustení workflow „Daily pipeline" sa súradnice aktualizujú. `data/venues.json` má správne súradnice (Fuchs2: `50.0952327, 14.4364814`).
+
+### Čísla z `site/events.json` (príkaz)
+
+```
+python -c "import json; d=json.load(open('site/events.json',encoding='utf-8')); print(f'events: {len(d[\"events\"])}, venues: {len(d[\"venues\"])}, generated_at: {d[\"generated_at\"]}')"
+```
+
+Výsledok: `events: 374, venues: 11, generated_at: 2026-11-09T11:32:06.154545+01:00`
+
+```
+python -c "import json; d=json.load(open('site/events.json',encoding='utf-8')); [print(f'{v[\"id\"]}: lat={v.get(\"lat\")}, lng={v.get(\"lng\")}') for v in d['venues'] if v['id'] in ('fuchs2','bike-jesus')]"
+```
+
+Výsledok (pred ručným behom pipeline):
+- `fuchs2: lat=50.0952223, lng=14.4363506`
+- `bike-jesus: lat=50.0952223, lng=14.4363506`
+
+### Snímky (Playwright, 11 testov, všetky prešli)
+
+Uložené v `docs/tasks/029/`:
+- `01-day-selector-390.png`, `02-day-selector-360.png` — výber dňa (5 dní + Iný dátum)
+- `03-calendar-390.png` — kalendár
+- `04-topbar-dnes-{sk,cs,en}-{390,360}.png` (6 súborov) — lišta s „Dnes"
+- `05-topbar-future-{sk,cs,en}-{390,360}.png` (6 súborov) — lišta s budúcim dňom
+- `10-pins-zoom15-390.png`, `11-pins-zoom14-390.png` — piny pri dvoch priblíženiach
+- `12-card-open.png`, `13-event-page.png`, `14-card-after-back.png` — zachovanie karty
+
+Príkaz: `$env:NODE_PATH = "D:\AI\eventapp\web\node_modules"; cd D:\AI\eventapp\web; npx playwright test screenshots-029 --reporter=list`
+
+### Rozhodnutia
+
+- **Chrome `popstate` pri `location.hash =`**: Browser spec-compliant behaviour, nie bug. Opravené strážou na hash obsahu namiesto zachytávania `hashchange` osobitne — jednoduchšie a spoľahlivejšie.
+- Playwright test súbor v `tests/playwright/` (nie v `web/`), jazyk injektovaný cez `addInitScript + localStorage` namiesto URL parametra.
+
+### Zostatok / otvorené
+
+- **Súradnice pinov**: Treba spustiť workflow „Daily pipeline" ručne z GitHub UI (gh CLI nie je dostupné). Po behu overiť, že Fuchs2 (`50.0952327`) a Bike Jesus majú rôzne súradnice v nasadenom `events.json`.
+- Playwright testy neoverujú vizuálnu kolíziu pinov (MapLibre inštancia nie je na `window`) — snímky 10-11 sú zo zoom + drag navigácie.
