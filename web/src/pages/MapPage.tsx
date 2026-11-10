@@ -747,7 +747,15 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
         map.on('zoom', () => {
           const container = mapContainerRef.current
-          if (container) container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
+          if (!container) return
+          const wasAbove13 = container.classList.contains('map-zoom-13')
+          const isAbove13 = map.getZoom() >= 13
+          container.classList.toggle('map-zoom-13', isAbove13)
+          if (!wasAbove13 && isAbove13) {
+            // Names just became visible via CSS — recompute immediately so no
+            // stale visibility: hidden from a previous run causes asymmetric display
+            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
+          }
         })
 
         map.on('zoomend', () => {
