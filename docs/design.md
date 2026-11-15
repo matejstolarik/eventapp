@@ -94,7 +94,12 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - Nadpis **Akcie** (Bricolage 32/700) a vpravo okrúhle tlačidlo **lupy** 44 px (`#23232F`, ikona `#F4F2FF`).
 - **Hľadanie:** ťuk na lupu → biele pole 44 px (zaoblenie 22, ikona lupy, text 15/500, kurzor `#FF4D8D`) sa roztiahne od lupy doľava cez nadpis, lupa sa zmení na krížik. Animácia 200 ms (šírka + priehľadnosť nadpisu), oboma smermi; **nič pod hlavičkou sa neposúva**. Klávesnica sa otvorí hneď. Hľadá sa v názve akcie, mene miesta a štítkoch (bez diakritiky, bez ohľadu na veľkosť písmen). Počas hľadania sa obdobie samo prepne na **Kedykoľvek** (vidno v lište); po zavretí hľadania sa vráti predošlé obdobie a text sa vymaže. Pre teba, Nové a Filter platia aj pri hľadaní.
 - **Lišta:** biele tlačidlo **obdobia** 44 px s šípkou (rovnaké ako „Dnes ▾“ na mape), čipy **Pre teba** (ikona iskier, nie srdiečko) a **Nové** (40 px, vypnuté `#23232F` / `#B9B6CC`, zapnuté ružové `#FF4D8D` / `#1A0710`), vpravo ružový **Filter** 44 px (rovnaký ako na mape, s odznakom počtu). Filter je vždy na mieste; ak sa čipy nezmestia, ich pás sa posúva vodorovne a na pravom okraji sa stráca (len keď pretekajú).
-- **Riadok pod lištou** (13 px, `#8E8AA6`): vľavo počet („12 akcií · 3 pre teba“; pri zapnutom Pre teba „9 akcií pre teba“), vpravo **Zoradiť: dátum ▾** (hodnota `#F4F2FF` 600).
+- **Riadok pod lištou** (13 px, `#8E8AA6`): vľavo počet („12 akcií · 3 pre teba“; pri zapnutom Pre teba „9 akcií pre teba“), vpravo **Zoradiť: dátum ▾** (hodnota `#F4F2FF` 600). Pri **Kedykoľvek** sa počet nezobrazuje (vľavo nič, vpravo len Zoradiť).
+- **Pri scrolle (`13-akcie-zbalene.png`, Matej 2026-11-15):** nadpis a riadok s počtom/zoradením odídu so zoznamom; hore ostane prilepená **kompaktná lišta** (pozadie `#111118`, tieň nadol): obdobie, Pre teba, Nové, **lupa** (okrúhla 44 px `#23232F`, presunie sa sem z hlavičky) a Filter. Pri scrolle naspäť navrch sa hlavička rozbalí. Ťuk na lupu v kompaktnej lište: zoznam sa vyroluje navrch, hlavička sa rozbalí a otvorí sa hľadanie.
+- **Zmena = navrch:** po akejkoľvek zmene (obdobie, Pre teba, Nové, filter, zoradenie, text hľadania) sa zoznam plynulo vyroluje navrch a hlavička sa rozbalí.
+- **Šípka navrch:** okrúhle tlačidlo 44 px (`#23232F`, biela šípka nahor, tieň) vpravo 16 px, nad spodnou lištou (spodok 116 px); objaví sa po odscrollovaní ~2 výšok obrazovky (prelínanie 150 ms), ťuk → plynulý scroll navrch, potom zmizne. Rovnako v Miestach (časť 5).
+- **Ťuk na aktívnu záložku** v spodnej lište (Akcie, Miesta) vyroluje zoznam navrch.
+- **Štítok `alternative` sa zobrazuje ako `alt`** všade v appke (len zobrazenie, v dátach ostáva `alternative`).
 
 **Obdobie** (panel zdola ako výber dňa na mape, `11`): nadpis „Obdobie“, prvá položka **Kedykoľvek** s ikonou nekonečna a textom „všetky akcie“, oddelená čiarou od ostatných; potom **Dnes**, **Zajtra**, **Tento víkend**, **Najbližších 7 dní**, **Najbližších 30 dní** (vpravo sivý rozsah dátumov), **Iný dátum** (ikona kalendára → mesačný kalendár ako na mape, výber intervalu: prvý ťuk začiatok, druhý koniec; dvakrát ten istý deň = jeden deň). Vybraná položka = biela pilulka. Rovnaký štýl panelu má od 2026-11-15 aj výber dňa na mape (časť 2). Na tlačidle krátky text: „Dnes“, „Zajtra“, „Víkend“, „7 dní“, „30 dní“, „Kedykoľvek“, „20.–24. 11.“
 - Hranica dňa je 5:00 (ako všade). **Tento víkend** = piatok až nedeľa; po–št najbližší víkend, pi–ne zvyšok aktuálneho. **7 a 30 dní** sú posuvné od dneška vrátane.
@@ -115,6 +120,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 **Prázdny stav:** „Na dnes nič nemáme.“ + tlačidlo „Pozrieť 7 dní“ (pri inom období „Skúsiť Kedykoľvek“); pri zapnutom Pre teba / Nové / filtri tlačidlo „Zrušiť filtre“.
 
 ## 5. Miesta (`05-miesta.png`)
+- Šípka navrch a ťuk na aktívnu záložku ako v Akciách (časť 4).
 - Nadpis **Miesta**. **Hlavný prvok je vyhľadávanie:** biele pole výšky 52 „Hľadať miesto“.
 - Pod ním **Všetko | Obľúbené** (rovnaký prepínač ako na mape).
 - Zoznam **abecedne**: okrúhla fotka 56, názov (Bricolage 17/700), 2 štítky charakteru, vpravo srdiečko (ružové vyplnené = obľúbené, inak obrys). Ťuk na srdiečko pridá/odoberie z obľúbených.

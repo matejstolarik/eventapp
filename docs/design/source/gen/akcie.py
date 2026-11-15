@@ -87,3 +87,14 @@ page('11-akcie-obdobie',b,sheet)
 # 12 search
 b=header('Kedykoľvek',search='techno',count='3 akcie')+'<div style="padding:14px 16px 0">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([3],'Dnes')+cards([5,10],'Pi 20. 11.'))+'</div>'
 page('12-akcie-hladanie',b)
+# 13 collapsed header while scrolled + scroll-to-top button
+chip2=lambda lab,on,ic='': f'<button style="height:40px;padding:0 14px;border-radius:20px;border:0;background:{"#FF4D8D" if on else "#23232F"};color:{"#1A0710" if on else "#B9B6CC"};font-family:Outfit,sans-serif;font-size:14px;font-weight:{600 if on else 500};display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none">{ic}{lab}</button>'
+bar=f'''<div style="position:absolute;top:0;left:0;right:0;z-index:4;background:#111118;padding:44px 16px 10px;display:flex;gap:8px;align-items:center;box-shadow:0 8px 16px rgba(17,17,24,.9)">
+<button style="height:44px;padding:0 14px;border-radius:22px;border:0;background:#F4F2FF;color:#111118;font-family:Outfit,sans-serif;font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none">Dnes{svg(I["chev"],16)}</button>
+<div class="tg" style="flex:1;min-width:0;display:flex;gap:8px;overflow:hidden">{chip2("Pre teba",False,svg(I["spark"],16,2.2))}{chip2("Nové",False)}</div>
+<button style="width:44px;height:44px;border-radius:22px;border:0;background:#23232F;color:#F4F2FF;display:flex;align-items:center;justify-content:center;flex:none" aria-label="Hľadať">{svg(I["search"],20)}</button>
+<button style="width:44px;height:44px;border-radius:22px;border:0;background:#FF4D8D;color:#1A0710;display:flex;align-items:center;justify-content:center;flex:none" aria-label="Filter">{svg(I["filt"],20)}</button></div>'''
+UP='<path d="M12 19V5M6 11l6-6 6 6"></path>'
+up=f'<button style="position:absolute;right:16px;bottom:116px;z-index:9;width:44px;height:44px;border-radius:22px;border:0;background:#23232F;color:#F4F2FF;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.5)" aria-label="Navrch">{svg(UP,20)}</button>'
+b=bar+'<div style="padding:60px 16px 0;margin-top:0">'+grid(cards([3,4,5,6,7,8,9,10,11,0,1,2],'Dnes'))+'</div>'
+page('13-akcie-zbalene',b,up)
