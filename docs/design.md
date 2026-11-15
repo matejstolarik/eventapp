@@ -85,20 +85,33 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Ťuknutie na kartu otvorí stránku akcie.**
 - Chýba obrázok → ikona typu akcie na farebnom pozadí typu.
 
-## 4. Akcie (`03-akcie-riadky.png`, `04-akcie-zoznam.png`)
+## 4. Akcie (`10-akcie-mriezka.png`, `11-akcie-obdobie.png`, `12-akcie-hladanie.png`; prepracované 2026-11-15, staré `03-akcie-riadky.png` a `04-akcie-zoznam.png` už neplatia)
 
-Rozdelenie: **Mapa = konkrétny deň a teraz, Akcie = čo sa chystá.**
-- Hore nadpis **Akcie** (Bricolage 32/700) a ružový **Filter** (rovnaký ako na mape).
-- **Obdobie:** čipy **Dnes | Tento týždeň | Víkend | Mesiac** + ikona kalendára (vlastné dni). Zapnutý čip biely, ostatné `#23232F`. Predvolene Tento týždeň.
-- **Bez prepínača Všetko | Obľúbené** (nahrádza ho riadok Pre teba).
-- **Predvolene riadky ako Netflix**: nadpis riadku (Bricolage 22/700) + sivý podnadpis + šípka; pod ním vodorovne posúvateľné karty (148 px): štvorcový obrázok, „deň dátum · čas“ vo farbe typu, názov (2 riadky), **miesto tučne**. Riadky:
-  - **Pre teba** (obľúbené miesta + žánre z onboardingu),
-  - **Novo pridané** (akcie, ktoré pribudli za posledných 7 dní; treba dátum prvého výskytu akcie),
-  - **Tento víkend**, **Zadarmo**, **Vypredáva sa** (len ak je dosť akcií),
-  - podľa formátu/žánru: Koncerty, Párty, DJ, …
-  - Riadok s menej ako 3 akciami sa neukazuje.
-- **Ťuknutie na nadpis riadku alebo zapnutie filtra** prepne na **kompaktný zoznam** (`04`): hore aktívny štítok (napr. `party ✕`) a počet akcií, zoznam s nadpismi dní („STREDA 11. 11.“, veľké písmená, `#8E8AA6`), riadok = obrázok 72 × 72, čas vo farbe typu, názov, **miesto tučne**, max 3 štítky. Zrušenie štítku vráti riadky.
-- Čo práve beží sa tu nezvýrazňuje.
+Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne kombinovať: **kedy** (práve jedno obdobie) a **čo** (Pre teba, Nové, Filter, hľadanie). Riadky ako Netflix nie sú.
+
+**Hlavička** (odsadenie 52 px zhora, 16 px zo strán, medzery 14 px):
+- Nadpis **Akcie** (Bricolage 32/700) a vpravo okrúhle tlačidlo **lupy** 44 px (`#23232F`, ikona `#F4F2FF`).
+- **Hľadanie:** ťuk na lupu → biele pole 44 px (zaoblenie 22, ikona lupy, text 15/500, kurzor `#FF4D8D`) sa roztiahne od lupy doľava cez nadpis, lupa sa zmení na krížik. Animácia 200 ms (šírka + priehľadnosť nadpisu), oboma smermi; **nič pod hlavičkou sa neposúva**. Klávesnica sa otvorí hneď. Hľadá sa v názve akcie, mene miesta a štítkoch (bez diakritiky, bez ohľadu na veľkosť písmen). Počas hľadania sa obdobie samo prepne na **Kedykoľvek** (vidno v lište); po zavretí hľadania sa vráti predošlé obdobie a text sa vymaže. Pre teba, Nové a Filter platia aj pri hľadaní.
+- **Lišta:** biele tlačidlo **obdobia** 44 px s šípkou (rovnaké ako „Dnes ▾“ na mape), čipy **Pre teba** (ikona iskier, nie srdiečko) a **Nové** (40 px, vypnuté `#23232F` / `#B9B6CC`, zapnuté ružové `#FF4D8D` / `#1A0710`), vpravo ružový **Filter** 44 px (rovnaký ako na mape, s odznakom počtu). Filter je vždy na mieste; ak sa čipy nezmestia, ich pás sa posúva vodorovne a na pravom okraji sa stráca (len keď pretekajú).
+- **Riadok pod lištou** (13 px, `#8E8AA6`): vľavo počet („12 akcií · 3 pre teba“; pri zapnutom Pre teba „9 akcií pre teba“), vpravo **Zoradiť: dátum ▾** (hodnota `#F4F2FF` 600).
+
+**Obdobie** (panel zdola ako výber dňa na mape, `11`): nadpis „Obdobie“, prvá položka **Kedykoľvek** s ikonou nekonečna a textom „všetky akcie“, oddelená čiarou od ostatných; potom **Dnes**, **Zajtra**, **Tento víkend**, **Najbližších 7 dní**, **Najbližších 30 dní** (vpravo sivý rozsah dátumov), **Vlastný interval** (ikona kalendára → mesačný kalendár ako na mape, výber intervalu: prvý ťuk začiatok, druhý koniec; dvakrát ten istý deň = jeden deň). Vybraná položka = biela pilulka. Na tlačidle krátky text: „Dnes“, „Zajtra“, „Víkend“, „7 dní“, „30 dní“, „Kedykoľvek“, „20.–24. 11.“
+- Hranica dňa je 5:00 (ako všade). **Tento víkend** = piatok až nedeľa; po–št najbližší víkend, pi–ne zvyšok aktuálneho. **7 a 30 dní** sú posuvné od dneška vrátane.
+- **Predvolene Dnes**; appka si pamätá naposledy vybrané obdobie (lokálne).
+
+**Pre teba:** akcia v obľúbenom mieste alebo so žánrom/štítkom z preferencií používateľa (preferencie zatiaľ nie sú, dovtedy len obľúbené miesta). Vypnuté = všetky akcie, akcie pre teba majú na obrázku odznak **pre teba**. Zapnuté = len akcie pre teba.
+**Nové:** akcia s `first_seen` za posledných 7 dní. Na obrázku biely odznak **nové**; zapnutý čip ukáže len nové.
+
+**Zoradenie:** **dátum** (predvolené; zoskupené pod nadpismi dní „DNES · NEDEĽA 15. 11.“, „PIATOK 20. 11.“ – 12/600, veľké písmená, `#8E8AA6`) a **vzdialenosť** (len s povolenou polohou; bez nadpisov dní). Cena príde po doplnení cien v dátach.
+
+**Mriežka:** 3 stĺpce, medzera 8 px vodorovne, 16 px zvisle, karty zarovnané hore (výška podľa obsahu, žiadna prázdna medzera pod krátkym názvom). Karta:
+- štvorcový **obrázok** (zaoblenie 12) – náhľad obrázka akcie; bez obrázka plocha vo farbe typu s ikonou typu. Odznaky: vľavo hore **pre teba** (tmavý `#111118`, iskry + text 10/600), vpravo hore **nové** (biely).
+- **dátum · čas** (12/600): dátum sivý `#8E8AA6` 500, čas vo farbe typu. Dátum vždy, pri dnešku a zajtrajšku slovom: „Dnes · 20:00“, „Zajtra · 22:00“, inak „Pi 20. 11. · 23:00“.
+- **názov** (13/500, max. 2 riadky, potom „…“), **miesto** (12/700 `#B9B6CC`, 1 riadok s „…“).
+- **štítky** v jednom riadku (výška 18, 10/500): typ, žánre, potom charakter miesta (obrys); toľko, koľko sa zmestí, na pravom okraji sa strácajú.
+- Ťuk na kartu → stránka akcie. Čo práve beží, sa tu nezvýrazňuje.
+
+**Prázdny stav:** „Na dnes nič nemáme.“ + tlačidlo „Pozrieť 7 dní“ (pri inom období „Skúsiť Kedykoľvek“); pri zapnutom Pre teba / Nové / filtri tlačidlo „Zrušiť filtre“.
 
 ## 5. Miesta (`05-miesta.png`)
 - Nadpis **Miesta**. **Hlavný prvok je vyhľadávanie:** biele pole výšky 52 „Hľadať miesto“.
