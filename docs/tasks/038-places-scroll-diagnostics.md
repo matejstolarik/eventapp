@@ -12,6 +12,7 @@ Prepínač = parameter v URL pred `#`, napr. `https://matejstolarik.github.io/ev
 - `noimg` – v zozname Miest žiadne `<img>`, vždy ikona typu.
 - `layer` – scroll kontajner `PlacesPage` dostane `transform: translateZ(0)` a `will-change: scroll-position`; každý riadok `contain: layout paint`.
 - `nonav` – `BottomNav` sa nevykreslí (overí, či plávajúca lišta nad zoznamom nespôsobuje prekresľovanie).
+- `clip` – obsahový kontajner v `App.tsx` (`flex: 1, position: relative`) dostane späť `overflow: hidden`, ktoré úloha 033 odstránila (`e68664c`). Matej datuje začiatok problému približne do tohto obdobia.
 - `static` – `PlacesPage` sa vykreslí ako bežný blok bez `position: absolute` (scroll kontajner `height: 100%` vnútri rodiča s `overflow-y: auto`), aby sa vylúčil problém s absolútne umiestneným scrollerom.
 
 Ak je aktívny akýkoľvek prepínač, v pravom hornom rohu Miest malý text `dbg: <hodnoty>` (12 px, `#7A78A0`), aby Matej videl, že sa načítal.
