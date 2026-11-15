@@ -243,6 +243,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isVisibleRef = useRef(isVisible)
+  const watchIdRef = useRef<number | null>(null)
+  const lastKnownLocationRef = useRef<{ lat: number; lng: number } | null>(null)
 
   const selectedVenueIdRef = useRef<string | null>(null)
   const dataRef = useRef(data)
@@ -823,7 +825,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
               )
               if (haversine(lat, lng, nearest.lat, nearest.lng) <= 2) {
                 map.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 })
+                lastKnownLocationRef.current = { lat, lng }
                 setUserLocation({ lat, lng })
+                startWatch()
               }
             }, () => {}, { timeout: 5000 })
           }).catch(() => {})
@@ -856,6 +860,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     void initMap()
     return () => {
       mounted = false
+      stopWatch()
       // Keep map alive — MapPage is never truly unmounted in normal app flow.
       // Only clean up if something went wrong (map never finished init).
       if (mapRef.current && !mapRef.current.loaded()) {
@@ -865,6 +870,28 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // watchPosition: start/stop based on tab visibility
+  useEffect(() => {
+    if (isVisible && document.visibilityState === 'visible') {
+      if (lastKnownLocationRef.current) startWatch()
+    } else {
+      stopWatch()
+    }
+    const handleVisChange = () => {
+      if (!isVisibleRef.current) return
+      if (document.visibilityState === 'visible') {
+        if (lastKnownLocationRef.current) startWatch()
+      } else {
+        stopWatch()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisChange)
+      stopWatch()
+    }
+  }, [isVisible]) // eslint-disable-line react-hooks/exhaustive-deps
 
   updateMarkersRef.current = updateMarkers
 
@@ -899,17 +926,47 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
   }, [userLocation])
 
+  function startWatch() {
+    if (!navigator.geolocation || watchIdRef.current !== null) return
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      pos => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        lastKnownLocationRef.current = loc
+        setUserLocation(loc)
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    )
+  }
+
+  function stopWatch() {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation?.clearWatch(watchIdRef.current)
+      watchIdRef.current = null
+    }
+  }
+
   function handleLocationClick() {
     if (!navigator.geolocation) return
+    // If we already have a known location, fly there immediately
+    if (lastKnownLocationRef.current) {
+      const { lat, lng } = lastKnownLocationRef.current
+      mapRef.current?.flyTo({ center: [lng, lat], zoom: 14 })
+      return
+    }
+    // First time: request position with generous maximumAge, then start watch
     setLocationLoading(true)
     navigator.geolocation.getCurrentPosition(
       pos => {
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        lastKnownLocationRef.current = loc
+        setUserLocation(loc)
         setLocationLoading(false)
         mapRef.current?.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14 })
+        startWatch()
       },
       () => setLocationLoading(false),
-      { timeout: 8000 }
+      { timeout: 8000, maximumAge: 60000 }
     )
   }
 
