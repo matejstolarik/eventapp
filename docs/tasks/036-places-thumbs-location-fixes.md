@@ -38,3 +38,44 @@ Príčina: `handleLocationClick` volá `getCurrentPosition` bez `maximumAge`, ta
 - Žiadne ďalšie snímky; časť 1, 2 a 4 overí Matej v telefóne.
 
 ## Report
+
+**Dátum:** 2026-11-15
+**Commity:** ba4f51e, 28eb3dd, 124fd4b, 86235ff
+
+### Čo je hotové
+
+**Časť 1 – Oprava stratenia pinu po rýchlom návrate (ba4f51e)**
+- `leavingMarkersRef` rozšírený o `timerId` a `cancelled` flag.
+- Pri rýchlom návrate miesta: `clearTimeout(timerId)`, `cancelled = true` → `cleanup` nikdy nezavolá `marker.remove()`.
+- Plynulý návrat: `inner.getAnimations().forEach(a => { a.playbackRate = -1 })` – animácia odchodu sa plynule zrevertuje; fallback na okamžité odstránenie triedy ak animácia ešte nezačala.
+- Test: `tests/playwright/screenshots-036.spec.ts` – exit → return do 100 ms → po 400 ms sú na mape ≥2 markery.
+
+**Časť 2 – Zastaraný deň po návrate z pozadia (ba4f51e)**
+- Extrahovaná čistá funkcia `resolveSelectedDay(selectedDay, now)` v `night.ts`.
+- `checkNight()` ju volá vo vetve bez polnoci → opravuje zastaraný dátum aj bez nočného okna.
+- 6 nových vitest testov v `night.test.ts`; všetkých 86 testov prechádza.
+
+**Časť 3 – Náhľady obrázkov miest (28eb3dd)**
+- `pipeline/thumbs.py`: stiahnutie `image_url`, orezanie na štvorec 160×160 (cover, stred), uloženie ako JPEG q80 do `site/img/venues/<id>.jpg`. Preskočenie ak hash URL nezmenil. Warning + pokračovanie pri chybe.
+- `pipeline/main.py`: volá `generate_thumbs()` po pipeline; každé venue dostane `image_thumb` v `events.json`.
+- `daily.yml`: cache `site/img/venues` kľúč = `hashFiles('data/venues.json')`.
+- `PlacesPage`: použije `image_thumb ?? image_url`; `<img>` s `width`/`height` a `decoding="async"`.
+- `types.ts`, `data-model.md`: zdokumentované nové pole `image_thumb`.
+- Snímka `docs/tasks/036/01-miesta.jpg` (syntetické dáta, placeholder obrázok pre Cross Club).
+- Náhľady z produkčného pipeline: nevyrobené v tomto reporte — pipeline musí bežať s reálnymi URL v CI. Čísla (počet vyrobených náhľadov, veľkosti) budú v logu Actions po spustení.
+
+**Časť 4 – Rýchla poloha (124fd4b)**
+- `startWatch()` / `stopWatch()`: `watchPosition` (enableHighAccuracy, maximumAge 10 s) beží len keď tab je viditeľný; zastaví sa pri skrytí, znova sa spustí pri zobrazení.
+- `handleLocationClick()`: ak je `lastKnownLocationRef` nastavená, okamžite `flyTo` bez čakania; inak `getCurrentPosition` s `maximumAge: 60000`.
+- Sledovanie sa nikdy nespustí bez predošlého udeleného povolenia.
+
+### Rozhodnutia urobené samostatne
+
+- Použitie `getAnimations().reverse()` cez `playbackRate = -1` (jednoduchšie ako CSS transition; funguje v Chrome na Androide od verzie 84+).
+- `resolveSelectedDay` nemenní stav pri noci (wasNight/isNight obaja true) – počas noci môže používateľ manuálne zvoliť starší dátum.
+- `image_thumb` je `null` ak `image_url` je `null` alebo stiahnutie zlyhalo – pipeline pokračuje bez prerušenia.
+
+### Zostatok
+
+- Čísla náhľadov (počet, veľkosti) budú až po prvom behu CI s Pillow nainštalovaným.
+- Časti 1, 2 a 4 overí Matej v telefóne.
