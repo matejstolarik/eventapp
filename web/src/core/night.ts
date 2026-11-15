@@ -1,7 +1,19 @@
 import type { Event } from './types'
-import { toDateString } from './day'
+import { getToday, toDateString } from './day'
 
 export const NIGHT_DAY = 'night' as const
+
+/**
+ * Returns the correct selected day after the app returns from background.
+ * Handles all transitions: midnight cross, 5:00 cross, and overnight background.
+ */
+export function resolveSelectedDay(selectedDay: string, now: Date): string {
+  const isNight = isNightTime(now)
+  if (isNight) return selectedDay
+  if (selectedDay === NIGHT_DAY) return getToday(now)
+  if (selectedDay < getToday(now)) return getToday(now)
+  return selectedDay
+}
 
 /** Returns true if current time is in the night window: 00:00–04:59. */
 export function isNightTime(now: Date): boolean {

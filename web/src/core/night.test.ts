@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isNightTime, isNightEvent } from './night'
+import { isNightTime, isNightEvent, resolveSelectedDay, NIGHT_DAY } from './night'
 
 describe('isNightTime', () => {
   it('true at 1:30 AM', () => expect(isNightTime(new Date('2026-11-10T01:30:00'))).toBe(true))
@@ -83,5 +83,34 @@ describe('isNightEvent', () => {
       ['late-night'],
       now500
     )).toBe(false)
+  })
+})
+
+describe('resolveSelectedDay', () => {
+  it('keeps correct day during daytime', () => {
+    expect(resolveSelectedDay('2026-11-15', new Date('2026-11-15T14:00:00'))).toBe('2026-11-15')
+  })
+
+  it('advances stale day after overnight background (no night window crossed)', () => {
+    // App was closed at 23:00 on Nov 14, reopened at 09:00 on Nov 15
+    // wasNight=false, isNight=false, but selectedDay='2026-11-14' is in the past
+    expect(resolveSelectedDay('2026-11-14', new Date('2026-11-15T09:00:00'))).toBe('2026-11-15')
+  })
+
+  it('converts NIGHT_DAY to today when not night anymore', () => {
+    expect(resolveSelectedDay(NIGHT_DAY, new Date('2026-11-15T09:00:00'))).toBe('2026-11-15')
+  })
+
+  it('keeps NIGHT_DAY during night hours', () => {
+    expect(resolveSelectedDay(NIGHT_DAY, new Date('2026-11-15T02:00:00'))).toBe(NIGHT_DAY)
+  })
+
+  it('keeps past day if currently night (was selected on purpose)', () => {
+    // At 02:00, user may have manually picked a past day — keep it
+    expect(resolveSelectedDay('2026-11-14', new Date('2026-11-15T02:00:00'))).toBe('2026-11-14')
+  })
+
+  it('advances day that is 2 days in the past during daytime', () => {
+    expect(resolveSelectedDay('2026-11-13', new Date('2026-11-15T10:00:00'))).toBe('2026-11-15')
   })
 })

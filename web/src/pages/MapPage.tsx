@@ -12,7 +12,7 @@ import { getDict, formatDayLabel } from '../i18n'
 import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
 import { createPinElement, updatePinElement, initPinShadows } from '../map/markers'
 import type { MarkerData } from '../map/markers'
-import { isNightTime, isNightEvent, NIGHT_DAY } from '../core/night'
+import { isNightTime, isNightEvent, NIGHT_DAY, resolveSelectedDay } from '../core/night'
 import { decidePairLabel } from '../map/pairLabel'
 import {
   IconChevronDown, IconFilter, IconLocation
@@ -238,7 +238,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [showFilterMsg, setShowFilterMsg] = useState(false)
   const [showNight, setShowNight] = useState(() => isNightTime(new Date()))
 
-  const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
+  const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement; timerId: ReturnType<typeof setTimeout>; cancelled: boolean }>>(new Map())
   const updateMarkersRef = useRef<() => void>(() => {})
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -311,9 +311,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         if (selectedDayRef.current === getToday(n)) {
           setSelectedDay(NIGHT_DAY)
         }
-      }
-      if (!isNight && selectedDayRef.current === NIGHT_DAY) {
-        setSelectedDay(getToday(n))
+      } else {
+        // Covers: 5:00 cross, overnight background (wasNight=false→isNight=false but day is stale)
+        const corrected = resolveSelectedDay(selectedDayRef.current, n)
+        if (corrected !== selectedDayRef.current) setSelectedDay(corrected)
       }
       wasNight = isNight
     }
@@ -454,17 +455,18 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         } else {
           el.classList.add('pin-leaving')
           el.style.pointerEvents = 'none'
-          leavingMarkersRef.current.set(id, { marker, el })
+          const leavingEntry = { marker, el, timerId: 0 as ReturnType<typeof setTimeout>, cancelled: false }
+          leavingMarkersRef.current.set(id, leavingEntry)
           let cleaned = false
           const cleanup = () => {
-            if (cleaned) return
+            if (cleaned || leavingEntry.cancelled) return
             cleaned = true
             marker.remove()
             leavingMarkersRef.current.delete(id)
           }
           const inner = el.querySelector('.pin-inner')
           if (inner) inner.addEventListener('animationend', cleanup, { once: true })
-          setTimeout(cleanup, 250)
+          leavingEntry.timerId = setTimeout(cleanup, 250)
         }
       }
     }
@@ -482,10 +484,23 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       if (existing) {
         updatePinElement(existing.el, md, isSelected)
       } else if (leaving) {
-        // Cancel exit animation and reuse
+        // Cancel exit: prevent cleanup timer from removing the marker
+        leaving.cancelled = true
+        clearTimeout(leaving.timerId)
         leavingMarkersRef.current.delete(md.venueId)
-        leaving.el.classList.remove('pin-leaving')
-        leaving.el.style.pointerEvents = ''
+        // Smooth return: reverse the leaving animation from its current state
+        const inner = leaving.el.querySelector('.pin-inner')
+        const anims = inner ? inner.getAnimations() : []
+        if (anims.length > 0) {
+          anims.forEach(a => { a.playbackRate = -1 })
+          anims[0].addEventListener('finish', () => {
+            leaving.el.classList.remove('pin-leaving')
+            leaving.el.style.pointerEvents = ''
+          }, { once: true })
+        } else {
+          leaving.el.classList.remove('pin-leaving')
+          leaving.el.style.pointerEvents = ''
+        }
         updatePinElement(leaving.el, md, isSelected)
         markersRef.current.set(md.venueId, leaving)
       } else {
