@@ -23,7 +23,7 @@ Pravidlá:
 ### 2. Náhľady zmiznú po nasadení appky (chyba z 036)
 Príčina (hlavný chat z kódu): `deploy-app.yml` pri pushi do `web/**` zostaví `site/` z buildu a z Pages si zachová len `events.json`. Priečinok `img/venues/` z denného behu sa nezachová, takže po každej UI úlohe `image_thumb` v `events.json` ukazuje na neexistujúce súbory až do ďalšieho denného behu (v Miestach potom ikony namiesto obrázkov).
 - V `deploy-app.yml` po stiahnutí `events.json` stiahni z live Pages aj všetky súbory uvedené v `venues[].image_thumb` (napr. krátky Python alebo `jq` + `curl -sf`; chýbajúci súbor = len výpis, nie chyba behu).
-- `PlacesPage`: ak náhľad zlyhá pri načítaní (`onError`), skús raz `image_url`, až potom ikonu typu.
+- `PlacesPage`: v zozname nikdy nepoužívaj `image_url` (plné obrázky pravdepodobne spôsobovali čierny scroll, viď 038). Bez náhľadu alebo pri chybe náhľadu (`onError`) ikona typu. Odstráň `?? venue.image_url`.
 
 ### 3. User-Agent
 `pipeline/thumbs.py` a `pipeline/main.py` (~r. 54) používajú vlastný User-Agent bez kontaktu. Použi `USER_AGENT` z `pipeline/fetch.py` (pravidlo: rovnaký, identifikovateľný User-Agent pre všetky požiadavky).
