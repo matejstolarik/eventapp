@@ -81,7 +81,7 @@ sheet=f'''<div style="position:absolute;inset:0;background:rgba(11,11,16,.6);z-i
 {row("Kedykoľvek",False,svg(I["inf"],20,2.2),"všetky akcie")}
 <div style="height:1px;background:#2E2D3C;margin:6px 16px"></div>
 {row("Dnes",False,'','Ne 15. 11.')}{row("Zajtra",False,'','Po 16. 11.')}{row("Tento víkend",False,'','Pi 20.–Ne 22. 11.')}{row("Najbližších 7 dní",True,'','15.–21. 11.')}{row("Najbližších 30 dní",False,'','15. 11.–14. 12.')}
-{row("Vlastný interval",False,svg(I["cal"],20,2.2),'')}
+{row("Iný dátum",False,svg(I["cal"],20,2.2),'')}
 </div>'''
 page('11-akcie-obdobie',b,sheet)
 # 12 search
