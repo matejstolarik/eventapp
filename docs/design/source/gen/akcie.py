@@ -73,14 +73,15 @@ b=header('Dnes',count='12 akcií · 3 pre teba')+'<div style="padding:14px 16px 
 page('10-akcie-mriezka',b)
 # 11 period sheet
 b=header('7 dní',count='31 akcií · 9 pre teba')+'<div style="padding:14px 16px 0">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([0,3,5],'Dnes')+cards([7,8,1],'Zajtra'))+'</div>'
-row=lambda lab,on=False,ic='',sub='': f'<div style="padding:14px 24px;display:flex;align-items:center;gap:10px;font-size:17px;letter-spacing:-0.01em;font-weight:{700 if on else 400};color:{"#F4F2FF" if on else "#B9B6CC"}">{ic}<span>{lab}</span>{f'<span style="font-size:13px;color:#7A78A0;font-weight:400">{sub}</span>' if sub else ''}</div>'
-sheet=f'''<div style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:5"></div>
-<div style="position:absolute;left:0;right:0;bottom:0;z-index:6;background:#1C1C27;border-radius:28px 28px 0 0;padding:12px 0 100px">
-<div style="width:40px;height:4px;border-radius:2px;background:#3A3A50;margin:0 auto 8px"></div>
-{row("Kedykoľvek",False,svg(I["inf"],20,2.2))}
-<div style="height:1px;background:#2E2D3C;margin:0 24px"></div>
-{row("Dnes")}{row("Zajtra")}{row("Tento víkend",False,'','20.–22. 11.')}{row("Najbližších 7 dní",True,'','do 21. 11.')}{row("Najbližších 30 dní",False,'','do 14. 12.')}
-<div style="padding:10px 24px;font-size:15px;color:#7A78A0">Vlastný interval ›</div>
+row=lambda lab,on=False,ic='',sub='': f'<div style="height:48px;border-radius:24px;padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:{600 if on else 500};background:{"#F4F2FF" if on else "transparent"};color:{"#111118" if on else "#F4F2FF"}">{ic}<span>{lab}</span><span style="margin-left:auto;font-size:13px;color:{"#4A4760" if on else "#8E8AA6"};font-weight:500">{sub}</span></div>'
+sheet=f'''<div style="position:absolute;inset:0;background:rgba(11,11,16,.6);z-index:5"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;z-index:6;background:#1C1C27;border-radius:28px 28px 0 0;padding:10px 12px 124px">
+<div style="width:40px;height:4px;border-radius:2px;background:#3A3848;margin:0 auto 12px"></div>
+<div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;padding:0 16px 8px">Obdobie</div>
+{row("Kedykoľvek",False,svg(I["inf"],20,2.2),"všetky akcie")}
+<div style="height:1px;background:#2E2D3C;margin:6px 16px"></div>
+{row("Dnes",False,'','Ne 15. 11.')}{row("Zajtra",False,'','Po 16. 11.')}{row("Tento víkend",False,'','Pi 20.–Ne 22. 11.')}{row("Najbližších 7 dní",True,'','15.–21. 11.')}{row("Najbližších 30 dní",False,'','15. 11.–14. 12.')}
+{row("Vlastný interval",False,svg(I["cal"],20,2.2),'')}
 </div>'''
 page('11-akcie-obdobie',b,sheet)
 # 12 search
