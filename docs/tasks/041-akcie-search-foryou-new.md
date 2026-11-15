@@ -26,8 +26,11 @@ Podľa `design.md` 4 a snímky `12`:
 - Stav Pre teba a Nové sa pamätá lokálne (`store.ts`).
 - Prázdny stav pri zapnutom Pre teba/Nové: tlačidlo „Zrušiť filtre“ (vypne oba čipy).
 
+### 3. Text zoradenia „čas“ (Matej 2026-11-15, `design.md` 4 „Zoradenie“)
+Pri jednodňovom období (Dnes, Zajtra, Iný dátum s jedným dňom) sa možnosť zoradenia volá **„čas“** (v ponuke aj v „Zoradiť: čas“), pri ostatných obdobiach **„dátum“**. Radí sa vždy rovnako (dátum + čas začiatku). Predvolené ostáva toto zoradenie; vzdialenosť sa na karte nezobrazuje.
+
 ### Testy
-- Vitest: normalizácia textu bez diakritiky, zhoda hľadania (názov, miesto, štítky), Pre teba, Nové (hranica 7 dní), počty.
+- Vitest: normalizácia textu bez diakritiky, zhoda hľadania (názov, miesto, štítky), Pre teba, Nové (hranica 7 dní), počty, text zoradenia čas/dátum podľa obdobia.
 
 ### Overenie
 - `npm test`, `npm run build`, číslo nasadenia.
