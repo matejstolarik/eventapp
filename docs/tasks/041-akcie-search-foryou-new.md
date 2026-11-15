@@ -38,7 +38,8 @@ Pri jednodňovom období (Dnes, Zajtra, Iný dátum s jedným dňom) sa možnos�
 
 ## Report
 
-Dátum: 2026-11-15
+Dátum: 2026-11-15  
+Commit: f13788e
 
 ### Čo je hotové
 
