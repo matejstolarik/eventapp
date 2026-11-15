@@ -85,7 +85,7 @@ MapPage.tsx je 460 riadkov (cieľ ~400; všetky nové súbory sú pod 300).
 - `pytest -q`: 227 passed ✓  
 - Nasadenie appky: po commite a push sa spustí `deploy-app.yml`; v logu kroku "Fetch venue thumbnails" bude počet stiahnutých obrázkov.
 
-### Oprava po úlohe — deselect pinu (commit doplnený neskôr)
+### Oprava po úlohe — deselect pinu (commit be68ea0)
 
 **Chyba:** Po kliknutí na prázdnu plochu mapy alebo na tlačidlo Späť ostal pin vizuálne označený (zväčšený, žiaril, názov viditeľný).
 
