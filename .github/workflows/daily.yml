@@ -59,6 +59,13 @@ jobs:
           key: venue-thumbs-${{ hashFiles('data/venues.json') }}
           restore-keys: venue-thumbs-
 
+      - name: Cache event thumbnails
+        uses: actions/cache@v4
+        with:
+          path: site/img/events
+          key: event-thumbs-${{ github.run_id }}
+          restore-keys: event-thumbs-
+
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json

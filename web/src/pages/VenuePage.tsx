@@ -71,7 +71,7 @@ function EventThumbnail({ event }: { event: Event }) {
   const et = getEventType(event.formats)
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
-  if (!event.image_url || err) {
+  if (!event.image_thumb || err) {
     return (
       <div style={{
         width: 56, height: 56, borderRadius: 12, background: bg, flexShrink: 0,
@@ -83,8 +83,11 @@ function EventThumbnail({ event }: { event: Event }) {
   }
   return (
     <img
-      src={event.image_url}
+      src={event.image_thumb}
       alt={event.title}
+      width={56}
+      height={56}
+      decoding="async"
       onError={() => setErr(true)}
       style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }}
     />

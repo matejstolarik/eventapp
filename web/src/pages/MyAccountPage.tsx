@@ -72,8 +72,8 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
                     }}
                     onClick={() => onEventOpen(event.id)}
                   >
-                    {event.image_url ? (
-                      <img src={event.image_url} alt="" style={{
+                    {event.image_thumb ? (
+                      <img src={event.image_thumb} alt="" width={56} height={56} decoding="async" style={{
                         width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0
                       }} />
                     ) : (

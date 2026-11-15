@@ -51,6 +51,7 @@ export interface Event {
   room: string | null
   ticket_url: string | null
   image_url: string | null
+  image_thumb: string | null
   description: string | null
   description_source: string | null
   sources: EventSource[]

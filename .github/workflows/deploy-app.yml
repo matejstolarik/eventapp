@@ -50,7 +50,7 @@ jobs:
         # Missing files are skipped with a warning; failures never abort the deploy.
         run: |
           if [ ! -f site/events.json ]; then
-            echo "No events.json — skipping thumbnail fetch"
+            echo "No events.json — skipping venue thumbnail fetch"
             exit 0
           fi
           THUMBS=$(python3 -c "
@@ -60,7 +60,7 @@ jobs:
           print('\n'.join(paths))
           " 2>/dev/null || true)
           if [ -z "$THUMBS" ]; then
-            echo "No thumbnails listed in events.json"
+            echo "No venue thumbnails listed in events.json"
             exit 0
           fi
           BASE="https://matejstolarik.github.io/eventapp"
@@ -74,7 +74,38 @@ jobs:
               echo "Warning: could not fetch $thumb"
             fi
           done <<< "$THUMBS"
-          echo "Thumbnails fetched: $COUNT"
+          echo "Venue thumbnails fetched: $COUNT"
+
+      - name: Fetch event thumbnails (preserve pipeline images)
+        # Download each image_thumb from events[] so the UI has them after a UI-only deploy.
+        # Missing files are skipped with a warning; failures never abort the deploy.
+        run: |
+          if [ ! -f site/events.json ]; then
+            echo "No events.json — skipping event thumbnail fetch"
+            exit 0
+          fi
+          THUMBS=$(python3 -c "
+          import json, sys
+          data = json.load(open('site/events.json'))
+          paths = [e['image_thumb'] for e in data.get('events', []) if e.get('image_thumb')]
+          print('\n'.join(paths))
+          " 2>/dev/null || true)
+          if [ -z "$THUMBS" ]; then
+            echo "No event thumbnails listed in events.json"
+            exit 0
+          fi
+          BASE="https://matejstolarik.github.io/eventapp"
+          COUNT=0
+          while IFS= read -r thumb; do
+            dir="site/$(dirname "$thumb")"
+            mkdir -p "$dir"
+            if curl -sf "$BASE/$thumb" -o "site/$thumb"; then
+              COUNT=$((COUNT + 1))
+            else
+              echo "Warning: could not fetch $thumb"
+            fi
+          done <<< "$THUMBS"
+          echo "Event thumbnails fetched: $COUNT"
 
       - name: Copy web app into site/
         # web/dist/ was built with base=/eventapp/, its index.html and assets go into site/.

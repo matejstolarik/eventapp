@@ -24,6 +24,7 @@ function makeEvent(overrides: Partial<Event> = {}): Event {
     room: null,
     ticket_url: null,
     image_url: null,
+    image_thumb: null,
     description: null,
     description_source: null,
     sources: [{ type: 'rss', url: 'https://example.com' }],

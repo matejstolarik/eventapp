@@ -16,7 +16,7 @@ from pipeline.checks import run_checks
 from pipeline.classify import classify_events
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
-from pipeline.thumbs import generate_thumbs
+from pipeline.thumbs import generate_thumbs, generate_event_thumbs
 from pipeline.fetch import USER_AGENT
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -142,19 +142,27 @@ def main():
         ve["image_thumb"] = thumb_map.get(v.get("id", ""))
         venues_out.append(ve)
 
+    # Generate event thumbnails; annotate each event with image_thumb
+    event_thumb_map = generate_event_thumbs(events)
+    events_out = []
+    for ev in events:
+        ev2 = dict(ev)
+        ev2["image_thumb"] = event_thumb_map.get(ev.get("id", ""))
+        events_out.append(ev2)
+
     generated_at = datetime.datetime.now(PRAGUE_TZ).isoformat()
     output = {
         "schema_version": 1,
         "generated_at": generated_at,
         "venues": venues_out,
-        "events": events,
+        "events": events_out,
     }
     with EVENTS_OUT.open("w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    log.info("Wrote %d events to %s", len(events), EVENTS_OUT)
+    log.info("Wrote %d events to %s", len(events_out), EVENTS_OUT)
 
-    _write_job_summary(source_results, events, generated_at, capture.messages, ai_stats,
+    _write_job_summary(source_results, events_out, generated_at, capture.messages, ai_stats,
                       enrich_stats)
 
 

@@ -145,8 +145,8 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
           background: color, flexShrink: 0,
           overflow: 'hidden', position: 'relative',
         }}>
-          {event.image_url ? (
-            <img src={event.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {event.image_thumb ? (
+            <img src={event.image_thumb} alt="" width={88} height={88} decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{
               position: 'absolute', inset: 0,

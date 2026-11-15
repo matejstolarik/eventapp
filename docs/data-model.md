@@ -107,6 +107,7 @@ Definície nových štítkov:
   "free": false,
   "ticket_url": "https://ra.co/events/...",
   "image_url": null,
+  "image_thumb": null,
   "description": "Popisný text akcie z webu podniku, čistý text, max 1 000 znakov.",
   "description_source": "source",
   "sources": [
@@ -134,6 +135,8 @@ Polia:
 - `sold_out`: `true` len ak zdroj výslovne uvádza vypredané; `false` len ak zdroj výslovne ponúka lístky; inak `null`. Nie je to `status`.
 - `room`: nepovinné, sála alebo priestor v rámci podniku tak, ako ho uvádza zdroj (napr. Akropolis: Velký sál, Malá scéna, Jazz Bar); `null` ak zdroj ho neuvádza.
 - `ticket_url`: odkaz priamo na predaj lístkov (napr. GoOut, RA, Ticketmaster). Stránka akcie na webe podniku patrí len do `sources[].url`, nie sem. Ak zdroj neposkytuje predajný odkaz, pole je `null`.
+- `image_url`: URL obrázka akcie z webu podniku. `null` ak zdroj obrázok neposkytuje.
+- `image_thumb`: relatívna cesta k náhľadu (`img/events/<id>.jpg`, 240×240 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null`, stiahnutie zlyhalo, alebo bolo odložené (limit 150 za beh). Generuje pipeline automaticky; Matej ho nenastavuje ručne.
 - `description`: popis akcie z webu podniku. Čistý text bez HTML, max 1 000 znakov, skrátený na koniec vety (`. `, `! `, `? `), ak je dlhší — `null` ak zdroj popis neposkytuje alebo je prázdny. Adaptéry ho extrahujú priamo (RSS, JSON-LD, API). Detail enrichment (`pipeline/detail_enrich.py`) ho dograbí z detailnej stránky akcie po normalizácii (raz na akciu, cache, limit 40 fetchov na podnik a beh). Venue-špecifický CSS selektor `detail_desc_selector` v source config (venues.json) určuje, z ktorého elementu brať popis. Popis rovnajúci sa názvu akcie sa zahodí.
 - `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"ai"` ak ho vygeneruje AI vrstva 2 (neskôr), `null` ak `description` je `null`.
 - `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
