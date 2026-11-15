@@ -55,6 +55,7 @@ function makeVenue(id: string, character: string[] = []): Venue {
     description_url: null,
     image_url: null,
     image_source: null,
+    image_thumb: null,
     sources: [],
     active: true,
   }

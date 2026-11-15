@@ -16,6 +16,7 @@ from pipeline.checks import run_checks
 from pipeline.classify import classify_events
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
+from pipeline.thumbs import generate_thumbs
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -131,11 +132,20 @@ def main():
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
+
+    # Generate venue thumbnails; annotate each venue with image_thumb
+    thumb_map = generate_thumbs(venues)
+    venues_out = []
+    for v in venues:
+        ve = dict(v)
+        ve["image_thumb"] = thumb_map.get(v.get("id", ""))
+        venues_out.append(ve)
+
     generated_at = datetime.datetime.now(PRAGUE_TZ).isoformat()
     output = {
         "schema_version": 1,
         "generated_at": generated_at,
-        "venues": venues,
+        "venues": venues_out,
         "events": events,
     }
     with EVENTS_OUT.open("w", encoding="utf-8") as f:

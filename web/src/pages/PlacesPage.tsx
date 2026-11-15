@@ -32,7 +32,8 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
 
-  if (!venue.image_url || err) {
+  const src = venue.image_thumb ?? venue.image_url
+  if (!src || err) {
     return (
       <div style={{
         width: size, height: size, borderRadius: radius, background: bg,
@@ -44,11 +45,14 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   }
   return (
     <img
-      src={venue.image_url}
+      src={src}
       alt={venue.name}
+      width={size}
+      height={size}
+      decoding="async"
       onError={() => setErr(true)}
       style={{
-        width: size, height: size, borderRadius: radius,
+        borderRadius: radius,
         objectFit: 'cover', flexShrink: 0, display: 'block'
       }}
     />

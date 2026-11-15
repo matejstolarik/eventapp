@@ -53,6 +53,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `description_url`: URL stránky, z ktorej popis pochádza. `null` ak `description` je `null`.
 - `image_url`: URL fotky podniku (`og:image` domovskej stránky alebo stránky „O nás"), len URL, nekopírovať. `null` ak sa vhodný obrázok nenašiel. Nastavuje Matej ručne alebo podľa reportu.
 - `image_source`: URL stránky, z ktorej `image_url` pochádza. `null` ak `image_url` je `null`.
+- `image_thumb`: relatívna cesta k náhľadu (`img/venues/<id>.jpg`, 160×160 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null` alebo stiahnutie zlyhalo. Generuje pipeline automaticky; Matej ho nenastavuje ručne.
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.

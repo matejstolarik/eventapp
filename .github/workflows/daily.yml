@@ -52,6 +52,13 @@ jobs:
         run: python -m pytest
         # If tests fail, the job stops here and nothing is published.
 
+      - name: Cache venue thumbnails
+        uses: actions/cache@v4
+        with:
+          path: site/img/venues
+          key: venue-thumbs-${{ hashFiles('data/venues.json') }}
+          restore-keys: venue-thumbs-
+
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
