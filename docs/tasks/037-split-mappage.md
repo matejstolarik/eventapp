@@ -38,7 +38,7 @@ Príčina (hlavný chat z kódu): `deploy-app.yml` pri pushi do `web/**` zostav�
 ## Report
 
 **Dátum:** 2026-11-15  
-**Commit:** (pozri nižšie)
+**Commit:** 74c906c
 
 ### Čo je hotové
 
