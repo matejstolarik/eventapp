@@ -36,7 +36,7 @@ def card(i,t,date,time,poster,name,venue,tags,me=False,new=False):
 <div style="font-size:12px;font-weight:700;color:#B9B6CC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">{venue}</div>
 <div class="tg" style="display:flex;gap:4px;margin-top:5px;overflow:hidden">{tg}</div></div>'''
 def grid(cards): return '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px;align-items:start">'+''.join(cards)+'</div>'
-def day(t): return f'<div style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#8E8AA6;margin:16px 0 8px">{t}</div>'
+def day(t): return ''
 def header(period,search=None,me=False,new=False,count='',sort='dátum'):
     if search is None:
         top=f'''<div style="display:flex;align-items:center;height:44px"><h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:700;letter-spacing:-0.02em">Akcie</h1>
@@ -69,10 +69,10 @@ END='</div></body></html>'
 def page(name,body,overlay=''):
     open(f'{OUT}/{name}.html','w').write(HEAD.format(t=name)+body+NAV+overlay+END)
 # 10 default Dnes
-b=header('Dnes',count='12 akcií · 3 pre teba')+'<div style="padding:0 16px">'+day('DNES · NEDEĽA 15. 11.')+grid(cards(range(12),'Dnes'))+'</div>'
+b=header('Dnes',count='12 akcií · 3 pre teba')+'<div style="padding:14px 16px 0">'+day('DNES · NEDEĽA 15. 11.')+grid(cards(range(12),'Dnes'))+'</div>'
 page('10-akcie-mriezka',b)
 # 11 period sheet
-b=header('7 dní',count='31 akcií · 9 pre teba')+'<div style="padding:0 16px">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([0,3,5],'Dnes'))+day('PONDELOK 16. 11.')+grid(cards([7,8,1],'Po 16. 11.'))+'</div>'
+b=header('7 dní',count='31 akcií · 9 pre teba')+'<div style="padding:14px 16px 0">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([0,3,5],'Dnes')+cards([7,8,1],'Zajtra'))+'</div>'
 row=lambda lab,on=False,ic='',sub='': f'<div style="height:48px;border-radius:24px;padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:{600 if on else 500};background:{"#F4F2FF" if on else "transparent"};color:{"#111118" if on else "#F4F2FF"}">{ic}<span>{lab}</span><span style="margin-left:auto;font-size:13px;color:{"#4A4760" if on else "#8E8AA6"};font-weight:500">{sub}</span></div>'
 sheet=f'''<div style="position:absolute;inset:0;background:rgba(11,11,16,.6);z-index:5"></div>
 <div style="position:absolute;left:0;right:0;bottom:0;z-index:6;background:#1C1C27;border-radius:28px 28px 0 0;padding:10px 12px 124px">
@@ -85,5 +85,5 @@ sheet=f'''<div style="position:absolute;inset:0;background:rgba(11,11,16,.6);z-i
 </div>'''
 page('11-akcie-obdobie',b,sheet)
 # 12 search
-b=header('Kedykoľvek',search='techno',count='3 akcie')+'<div style="padding:0 16px">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([3],'Dnes'))+day('PIATOK 20. 11.')+grid(cards([5,10],'Pi 20. 11.'))+'</div>'
+b=header('Kedykoľvek',search='techno',count='3 akcie')+'<div style="padding:14px 16px 0">'+day('DNES · NEDEĽA 15. 11.')+grid(cards([3],'Dnes')+cards([5,10],'Pi 20. 11.'))+'</div>'
 page('12-akcie-hladanie',b)

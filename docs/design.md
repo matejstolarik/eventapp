@@ -102,7 +102,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 **Pre teba:** akcia v obľúbenom mieste alebo so žánrom/štítkom z preferencií používateľa (preferencie zatiaľ nie sú, dovtedy len obľúbené miesta). Vypnuté = všetky akcie, akcie pre teba majú na obrázku odznak **pre teba**. Zapnuté = len akcie pre teba.
 **Nové:** akcia s `first_seen` za posledných 7 dní. Na obrázku biely odznak **nové**; zapnutý čip ukáže len nové.
 
-**Zoradenie:** **dátum** (predvolené; zoskupené pod nadpismi dní „DNES · NEDEĽA 15. 11.“, „PIATOK 20. 11.“ – 12/600, veľké písmená, `#8E8AA6`) a **vzdialenosť** (len s povolenou polohou; bez nadpisov dní). Cena príde po doplnení cien v dátach.
+**Zoradenie:** **dátum** (predvolené) a **vzdialenosť** (len s povolenou polohou). **Bez nadpisov dní** pri akomkoľvek období a zoradení: mriežka ide súvisle bez medzier v riadkoch, dátum nesie každá karta (Matej 2026-11-15). Cena príde po doplnení cien v dátach.
 
 **Mriežka:** 3 stĺpce, medzera 8 px vodorovne, 16 px zvisle, karty zarovnané hore (výška podľa obsahu, žiadna prázdna medzera pod krátkym názvom). Karta:
 - štvorcový **obrázok** (zaoblenie 12) – náhľad obrázka akcie; bez obrázka plocha vo farbe typu s ikonou typu. Odznaky: vľavo hore **pre teba** (tmavý `#111118`, iskry + text 10/600), vpravo hore **nové** (biely).
