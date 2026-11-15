@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import { visibleEvents } from '../core/visible'
 import { haversine } from '../core/distance'
-import { isFavorite } from '../core/store'
+import { isFavorite, setLastKnownLocation } from '../core/store'
 import type { EventsData } from '../core/types'
 
 interface UseUserLocationOptions {
@@ -29,6 +29,7 @@ export function useUserLocation({
       pos => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         lastKnownLocationRef.current = loc
+        setLastKnownLocation(loc)
         setUserLocation(loc)
       },
       () => {},
@@ -96,6 +97,7 @@ export function useUserLocation({
       pos => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         lastKnownLocationRef.current = loc
+        setLastKnownLocation(loc)
         setUserLocation(loc)
         setLocationLoading(false)
         mapRef.current?.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14 })
@@ -122,6 +124,7 @@ export function useUserLocation({
         if (haversine(lat, lng, nearest.lat, nearest.lng) <= 2) {
           map.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 })
           lastKnownLocationRef.current = { lat, lng }
+          setLastKnownLocation({ lat, lng })
           setUserLocation({ lat, lng })
           startWatch()
         }

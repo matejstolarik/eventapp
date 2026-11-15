@@ -5,7 +5,7 @@ import { setLastFetched, getLastFetched } from './core/store'
 import { BottomNav } from './components/BottomNav'
 import type { Tab } from './components/BottomNav'
 import { OfflineBanner } from './components/OfflineBanner'
-import { ComingSoon } from './components/ComingSoon'
+import { EventsPage } from './pages/EventsPage'
 import { MapPage } from './pages/MapPage'
 import { EventPage } from './pages/EventPage'
 import { VenuePage } from './pages/VenuePage'
@@ -205,7 +205,11 @@ export default function App() {
           </div>
         )}
         {activeTab === 'events' && !isOverlay && (
-          <ComingSoon lang={lang} title={dict.nav.events} />
+          <EventsPage
+            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+            lang={lang}
+            onEventOpen={openEvent}
+          />
         )}
         {activeTab === 'places' && !isOverlay && (
           <PlacesPage

@@ -74,6 +74,38 @@ export function detectLanguage(): Language {
   return 'en'
 }
 
+// ── Events period ─────────────────────────────────────────────────────────
+
+import type { Period } from './period'
+
+export function getStoredPeriod(): Period | null {
+  const raw = safeGet('eventsPeriod')
+  if (!raw) return null
+  try {
+    const p = JSON.parse(raw) as Period
+    if (p.type === 'custom') return null
+    if (!p.type) return null
+    return p
+  } catch { return null }
+}
+
+export function setStoredPeriod(period: Period): void {
+  if (period.type === 'custom') return
+  safeSet('eventsPeriod', JSON.stringify(period))
+}
+
+// ── Shared user location (map → events) ───────────────────────────────────
+
+let _lastKnownLocation: { lat: number; lng: number } | null = null
+
+export function setLastKnownLocation(loc: { lat: number; lng: number } | null): void {
+  _lastKnownLocation = loc
+}
+
+export function getLastKnownLocation(): { lat: number; lng: number } | null {
+  return _lastKnownLocation
+}
+
 // ── Last fetched ───────────────────────────────────────────────────────────
 
 export function setLastFetched(): void {

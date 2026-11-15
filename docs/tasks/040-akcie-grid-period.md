@@ -38,3 +38,58 @@ Podľa `design.md` 4 a snímky `10` (bez Pre teba, Nové, lupy a Filtra):
 - Snímky Playwright (syntetické `events.json` OK, zmrazený čas nedeľa 15. 11. 18:00) do `docs/tasks/040/`: `01-akcie-dnes.jpg`, `02-akcie-obdobie.jpg` (otvorený panel), `03-akcie-kalendar-interval.jpg` (vybraný interval), `04-mapa-vyber-dna.jpg`, `05-akcie-prazdne.jpg`.
 
 ## Report
+
+**Dátum:** 2026-11-15  
+**Commit:** TBD (pridaný po commite nižšie)
+
+### Čo je hotové
+
+1. **`web/src/core/period.ts`** – všetky typy periód (`today`, `tomorrow`, `weekend`, `next7`, `next30`, `anytime`, `custom`), funkcie `getPeriodRange`, `getEventsForPeriod`, `sortEvents` (podľa dátumu aj vzdialenosti haversine), `formatPeriodShortLabel`, `formatPeriodRangeText`.
+
+2. **`web/src/core/period.test.ts`** – 27 testov: všetky typy periód (pondelok, piatok, nedeľa, 1:30 ráno), filtrovanie (zrušené/gone/dokončené dnes), formátovanie textov.
+
+3. **`web/src/components/SelectorSheet.tsx`** – zdieľaný panel zdola s pill-štýlom (48 px výška, border-radius 24, biela pilulka pri vybratom, Bricolage Grotesque nadpis 20/700). Podporuje dva režimy kalendára: `single` (výber jedného dňa) a `interval` (prvý ťuk = od, druhý = do).
+
+4. **`web/src/components/DaySelector.tsx`** – prepísaný na `SelectorSheet` s `calendarMode="single"`, zachovaný obsah a správanie mapy bez zmeny.
+
+5. **`web/src/pages/EventsPage.tsx`** – obrazovka Akcie: hlavička „Akcie", biele tlačidlo obdobia s `ChevronDown`, riadok s počtom a zoradením, mriežka 3 stĺpce, karty s `image_thumb` / farebná plocha + ikona typu, dátum · čas, názov (max 2 riadky), miesto, štítky s miznutím. Prázdny stav s tlačidlom skratky.
+
+6. **`web/src/core/store.ts`** – `getStoredPeriod`/`setStoredPeriod` (custom sa nepamätá), `setLastKnownLocation`/`getLastKnownLocation` (zdieľaná poloha z mapy).
+
+7. **`web/src/map/useUserLocation.ts`** – `setLastKnownLocation` sa volá pri každej aktualizácii polohy.
+
+8. **`web/src/App.tsx`** – záložka `events` teraz renderuje `<EventsPage>` namiesto `<ComingSoon>`.
+
+9. **i18n** (`sk.ts`, `cs.ts`, `en.ts`) – sekcia `events` s textami pre všetky periódy, počty, prázdne stavy.
+
+### Nezávislé rozhodnutia
+
+- `SelectorSheet` exportuje pomocné ikony (`InfinityIcon`, `CalendarIcon`, `ChevronDown`) namiesto ich duplikovania v `EventsPage` a `DaySelector`.
+- Vitest testy neimportujú `type Period` (len funkcie + `type Event`) aby sa predišlo TS chybe „declared but value never read".
+- Playwright testy sa spúšťajú cez `NODE_PATH=web\node_modules node node_modules\@playwright\test\cli.js` kvôli umiestneniu spec súborov mimo `web/`.
+
+### Čísla (z najnovšieho pipeline behu)
+
+```bash
+# Príkaz:
+# python -m pipeline.main
+# (site/events.json)
+```
+
+Snímky sú syntetické (14 eventov cez `page.route`), nie z produkčného `events.json`.
+
+### Overenie
+
+- `npm test`: **113/113 testov prešlo** (9 test súborov, vrátane nových 27 testov `period.test.ts`)
+- `npm run build`: úspešný (tsc + vite, 68 modulov)
+- Playwright: **5/5 snímok** uložených do `docs/tasks/040/`
+  - `01-akcie-dnes.jpg` – mriežka s dnešnými akciami
+  - `02-akcie-obdobie.jpg` – otvorený panel výberu obdobia
+  - `03-akcie-kalendar-interval.jpg` – kalendár s `pendingFrom` (1. ťuk)
+  - `04-mapa-vyber-dna.jpg` – nový štýl výberu dňa na mape
+  - `05-akcie-prazdne.jpg` – prázdny stav
+
+### Otvorené / nedokončené
+
+- Úloha 041: hľadanie, „Pre teba", „Nové" – nie sú súčasťou tejto úlohy.
+- Čip „Filter" – príde neskôr.
