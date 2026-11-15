@@ -17,7 +17,7 @@ Matej po teste v telefóne (2026-11-15). Hlavný chat našiel v kóde tieto kore
 
 **A. Jedna funkcia viditeľnosti (core, s testami).** Nová čistá funkcia v `web/src/core/` (napr. `visibleEvents(data, day, now, { favoritesOnly, isFavorite })` → mapa `venueId → Event[]` zoradená ako dnes v `getVenueEvents`). Z nej sa berie všetko: ktoré piny existujú, `primary`, `+N`, pulz, udalosti v karte, poradie a počty šípok ‹ ›. Žiadne iné miesto v `MapPage` už viditeľnosť nepočíta samo.
 - Bežný deň: ako dnes (zrušené/zmiznuté a skončené so známym koncom preč).
-- `NIGHT_DAY`: akcie predošlého dňa (`getToday(now)`), ktoré spĺňajú `isNightEvent`, **plus** akcie s dátumom kalendárneho dneška, ktoré začínajú pred 5:00 a neskončili (afterparty od 0:30 a pod.). Nič iné (žiadny koncert z večera bez konca).
+- `NIGHT_DAY`: presne dohodnuté pravidlo z `design.md` 2 a `decisions.md` r. 110, bez zmeny: akcie predošlého dňa (`getToday(now)`), ktoré spĺňajú existujúce `isNightEvent` (známy koniec po teraz; bez konca len `party`/`dj` alebo miesto `late-night`, začiatok od 20:00). Nič iné (žiadny koncert z večera bez konca). `isNightEvent` nemeň, len ho použi všade.
 - `favoritesOnly`: platí rovnako vo všetkých režimoch vrátane „V noci“.
 
 **B. Pulz (Matej 2026-11-15).** Akcia „prebieha“:
@@ -46,7 +46,7 @@ Matej po teste v telefóne (2026-11-15). Hlavný chat našiel v kóde tieto kore
 - Objavovanie (`pin-new`) a miznutie bežia súčasne pri tom istom prepnutí (staré miznú, nové sa objavujú), bez posunu ostatných pinov.
 
 ### Testy
-- Vitest pre funkciu z A a pre B, so zmrazeným `now`: 01:30 – koncert predošlého dňa 19:00 bez konca skrytý; párty predošlého dňa 23:00 bez konca viditeľná a pulzuje; akcia s koncom 02:00 viditeľná, o 02:30 skrytá; akcia kalendárneho dneška od 00:30 vo „V noci“ viditeľná; `favoritesOnly` vo „V noci“; 21:00 – koncert od 19:00 bez konca pulzuje, o 22:30 nie; akcia o 3 dni neskôr (EPIC 22:00–05:00) nikdy nepulzuje.
+- Vitest pre funkciu z A a pre B, so zmrazeným `now`: 01:30 – koncert predošlého dňa 19:00 bez konca skrytý; párty predošlého dňa 23:00 bez konca viditeľná a pulzuje; akcia s koncom 02:00 viditeľná, o 02:30 skrytá; `favoritesOnly` vo „V noci“; 21:00 – koncert od 19:00 bez konca pulzuje, o 22:30 nie; akcia o 3 dni neskôr (EPIC 22:00–05:00) nikdy nepulzuje.
 - Test zoznamu dní v noci (E) a predvoleného dňa (D) – čisté funkcie, nie komponent.
 
 ### Overenie
