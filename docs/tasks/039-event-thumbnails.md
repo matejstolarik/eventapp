@@ -33,3 +33,38 @@ Nová obrazovka Akcie (`design.md` 4, ďalšia úloha) bude mriežka s veľkými
 - Žiadne snímky.
 
 ## Report
+
+**Dátum:** 2026-11-15  
+**Commit:** e8b724a
+
+### Čo je hotové
+
+**Pipeline:**
+- `pipeline/thumbs.py`: nová funkcia `generate_event_thumbs()` – 240×240 JPEG kvalita 75, `site/img/events/<id>.jpg`, URL-hash cache (`.url_hash` vedľa thumbnailov), limit 150 stiahnutí za beh, upratovanie stale thumbnailov, log (new/cache/errors/deferred + veľkosť priečinka).
+- `pipeline/main.py`: importuje a volá `generate_event_thumbs(events)`, anotuje každú akciu poľom `image_thumb`.
+- `TIMEOUT` skrátený z 15 s na 10 s pre oba adaptery (venues aj events).
+
+**GitHub Actions:**
+- `daily.yml`: nový krok „Cache event thumbnails" – `path: site/img/events`, `key: event-thumbs-${{ github.run_id }}`, `restore-keys: event-thumbs-`.
+- `deploy-app.yml`: nový krok „Fetch event thumbnails (preserve pipeline images)" stiahne `events[].image_thumb` z live Pages po vzore existujúceho kroku pre venue thumbnaily.
+
+**Frontend:**
+- `web/src/core/types.ts`: `image_thumb: string | null` pridané do `Event` interface.
+- `EventPanel.tsx`, `MyAccountPage.tsx`, `VenuePage.tsx` (`EventThumbnail`): používajú `image_thumb` namiesto `image_url`, pridané `width`/`height` a `decoding="async"`. `EventPage` zostáva s plným `image_url`.
+
+**Dokumentácia:**
+- `docs/data-model.md`: `image_thumb` v JSON príklade akcie a v zozname polí (s popisom 240×240 a limitu 150/beh).
+
+### Testy
+- `tests/test_event_thumbs.py`: 5 testov – rozmery 240×240, cache (rovnaká URL = žiadny nový request), zmenená URL = nové stiahnutie, upratovanie (zmiznutá akcia), limit 150 (200 akcií → 150 stiahnutých, 50 odložených). Všetky prešli.
+- `pytest -q`: 232 passed.
+- `npm test --run`: 86 passed.
+- `npm run build`: OK.
+
+### Overenie denného behu
+Denný beh treba spustiť ručne na GitHub Actions (workflow_dispatch na `daily.yml`). Po behu doplniť čísla: nové/cache/errors/deferred, veľkosť `site/img/events`, číslo behu.
+
+Po nasadení appky: skontrolovať log kroku „Fetch event thumbnails" v `deploy-app.yml` – počet stiahnutých thumbnailov akcií.
+
+### Otvorené
+- Čísla z prvého behu (nové/cache/errors/deferred, veľkosť priečinka) – doplniť po ručnom spustení denného behu.
