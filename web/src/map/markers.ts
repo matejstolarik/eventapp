@@ -44,31 +44,22 @@ export interface MarkerData {
   lng: number
 }
 
-/**
- * Creates a pin element for a MapLibre marker.
- * DOM is built once; state changes are via CSS class toggles.
- * Shadow is baked into the SVG (no CSS filter on the element).
- * Pulse uses transform/opacity (no box-shadow).
- */
-export function createPinElement(data: MarkerData, isSelected: boolean): HTMLElement {
-  const el = document.createElement('div')
-  el.className = 'map-pin'
-  el.dataset.venueId = data.venueId
-  el.style.cssText = 'cursor:pointer;'
+function pinDataKey(data: MarkerData): string {
+  return `${data.eventType}|${data.isLive ? 1 : 0}|${data.isFavorite ? 1 : 0}|${data.extraCount}|${data.name}`
+}
 
+function buildPinInner(data: MarkerData): HTMLElement {
   const color = EVENT_TYPE_COLOR[data.eventType]
   const dark = EVENT_TYPE_DARK[data.eventType]
 
   const inner = document.createElement('div')
   inner.className = 'pin-inner'
 
-  // Glow — opacity 0→1 via .pin-selected .pin-glow
   const glow = document.createElement('span')
   glow.className = 'pin-glow'
   glow.style.background = `radial-gradient(circle, ${color}88 0%, ${color}33 45%, transparent 70%)`
   inner.appendChild(glow)
 
-  // Live pulse ring (transform + opacity animation, no box-shadow)
   if (data.isLive) {
     const ring = document.createElement('span')
     ring.className = 'pin-live-ring'
@@ -77,20 +68,17 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
     inner.appendChild(ring)
   }
 
-  // Pin SVG with shadow baked in (no CSS filter)
   const pinSvg = document.createElement('div')
   pinSvg.className = 'pin-svg'
   pinSvg.innerHTML = `<svg width="50" height="64" viewBox="0 0 50 64" aria-hidden="true"><path d="${PIN_PATH}" fill="${color}" filter="url(#pin-drop-shadow)"/></svg>`
   inner.appendChild(pinSvg)
 
-  // Icon circle
   const circle = document.createElement('span')
   circle.className = 'pin-circle'
   circle.style.background = dark
   circle.innerHTML = ICON_SVG[data.eventType](color)
   inner.appendChild(circle)
 
-  // Favorite badge
   if (data.isFavorite) {
     const badge = document.createElement('span')
     badge.className = 'pin-badge-heart'
@@ -98,7 +86,6 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
     inner.appendChild(badge)
   }
 
-  // Extra count badge
   if (data.extraCount > 0) {
     const badge = document.createElement('span')
     badge.className = 'pin-badge-count'
@@ -106,13 +93,25 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
     inner.appendChild(badge)
   }
 
-  // Name label
   const name = document.createElement('span')
   name.className = 'pin-name'
   name.textContent = data.name
   inner.appendChild(name)
 
-  el.appendChild(inner)
+  return inner
+}
+
+/**
+ * Creates a pin element for a MapLibre marker.
+ * Inner content is rebuilt by updatePinElement when data changes.
+ */
+export function createPinElement(data: MarkerData, isSelected: boolean): HTMLElement {
+  const el = document.createElement('div')
+  el.className = 'map-pin'
+  el.dataset.venueId = data.venueId
+  el.dataset.pinKey = pinDataKey(data)
+  el.style.cssText = 'cursor:pointer;'
+  el.appendChild(buildPinInner(data))
 
   if (isSelected) {
     el.classList.add('pin-selected')
@@ -122,10 +121,19 @@ export function createPinElement(data: MarkerData, isSelected: boolean): HTMLEle
   return el
 }
 
-/** Toggles selected state in-place via CSS class. */
-export function updatePinElement(el: HTMLElement, _data: MarkerData, isSelected: boolean): void {
+/** Updates pin content and selected state in-place. Rebuilds inner DOM only when data changes. */
+export function updatePinElement(el: HTMLElement, data: MarkerData, isSelected: boolean): void {
+  const key = pinDataKey(data)
+  if (el.dataset.pinKey !== key) {
+    el.dataset.pinKey = key
+    const old = el.querySelector('.pin-inner')
+    const newInner = buildPinInner(data)
+    if (old) el.replaceChild(newInner, old)
+    else el.appendChild(newInner)
+  }
   const wasSelected = el.classList.contains('pin-selected')
-  if (isSelected === wasSelected) return
-  el.classList.toggle('pin-selected', isSelected)
-  el.style.zIndex = isSelected ? '10' : ''
+  if (isSelected !== wasSelected) {
+    el.classList.toggle('pin-selected', isSelected)
+    el.style.zIndex = isSelected ? '10' : ''
+  }
 }

@@ -55,3 +55,57 @@ Matej po teste v telefóne (2026-11-15). Hlavný chat našiel v kóde tieto kore
 - V reporte zoznam situácií, kde beží miznutie (F), aby ich Matej prešiel v telefóne.
 
 ## Report
+
+**Dátum:** 2026-11-15  
+**Commit:** (pozri nižšie po commite)
+
+### Čo je hotové
+
+**A. `visibleEvents` (core, single source of truth)**  
+Nová funkcia `web/src/core/visible.ts` → `visibleEvents(data, day, now, {favoritesOnly, isFavorite})` vracia `Map<venueId, Event[]>`. Použitá na všetkých miestach v `MapPage.tsx`: ktoré piny existujú, `primary`, `+N`, `panelEvents`, `sortedVenues`, šípky ‹ ›, geolocation view. `favoritesOnly` platí aj vo `NIGHT_DAY`.
+
+**B. Pulz (`isEventPulsing`)**  
+Nová funkcia `web/src/core/events.ts`. So známym koncom: od začiatku do konca. Bez konca + `party`/`dj` alebo `late-night`: od začiatku do 5:00 nasledujúceho rána. Ostatné: max 3 h od začiatku. Iný deň = nikdy. Zaznamenané v `docs/decisions.md` (2026-11-15). `getVenueEvents` radí pulsujúce akcie na začiatok. `getPrimaryEvent` zjednodušená na `events[0] ?? null`.
+
+**C. Piny sa aktualizujú**  
+`pinDataKey()` + `buildPinInner()` v `markers.ts`. `updatePinElement` porovnáva kľúč a prestavuje `.pin-inner` pri zmene. Mapa sa prepočíta každých 60 s, pri `visibilitychange`/`focus`, pri zmene dňa/Obľúbených. `updateMarkersRef` drží referenčnú funkciu.
+
+**D. „V noci" sa vyberá samo**  
+Počiatočný stav: `isNightTime(now) ? NIGHT_DAY : getToday(now)`. O polnoci/5:00 (aj po návrate z pozadia): `visibilitychange` + `focus` listener prepína stav. `pendingSelect` nočná vetva: `isNightEvent` → `NIGHT_DAY`, inak dátum akcie. Zatvorenie karty ak vybrané miesto zmizne z `visibleEvents`.
+
+**E. Zoznam dní v noci**  
+`showNight ? getUpcomingDays(4, noonToday) : getUpcomingDays(5, curNow)` kde `noonToday = new Date(toDateString(curNow) + 'T12:00:00')`. V noci: V noci + 4 dni od kalendárneho dneška. Bez zmeny mimo noci.
+
+**F. Animácia miznutia pinov**  
+CSS `@keyframes pin-disappear` (opacity 1→0, scale 1→0.82, 180 ms, ease-in). `leavingMarkersRef` drží odchádzajúce piny. `animationend` / záloha 250 ms ich odstráni. Rýchle prepnutie späť: zruší animáciu, pin sa vráti do `markersRef`. `prefers-reduced-motion`: okamžité odstránenie. Vybraný pin: stráca `pin-selected` pred odchodom (karta sa zatvára).
+
+### Testy
+
+```
+npm test  →  80/80 passed (8 súborov)
+npm run build  →  success, žiadne TS chyby
+```
+
+Nové testy: `web/src/core/visible.test.ts` (16 testov) — pokrýva A, B, D, E.
+
+### Snímky Playwright
+
+`docs/tasks/035/` (syntetické events.json, `page.clock.setFixedTime` na 2026-11-21 01:30 sobota):
+- `01-noc-predvolene.jpg` — mapa po štarte, auto-vybrané NIGHT_DAY
+- `02-noc-dni.jpg` — otvorený výber dňa (V noci + 4 kalendárne dni)
+- `03-noc-oblubene.jpg` — V noci + Obľúbené (len Cross Club)
+- `04-den-o-3-dni.jpg` — deň +3 (utorok), žiadny pulzový prsteň
+
+### Situácie kde beží animácia miznutia (F) – otestovať v telefóne
+
+1. Prepnutie dňa: staré piny miznú (pin-disappear), nové sa objavujú (pin-appear) súčasne
+2. Zapnutie/vypnutie Obľúbených: piny bez obľúbenia miznú
+3. Prechod cez 5:00: NIGHT_DAY zmizne, zvyšok dňa ostáva
+4. Rýchle prepnutie späť na ten istý deň počas miznutia: animácia sa zruší, pin sa použije znova
+5. Vybraný pin pri zmene dňa: pin-selected sa odoberie, karta sa zavrie, pin zmizne animáciou
+6. Koniec akcie (60-sekundový interval): pin zmizne ak mu vypršali všetky akcie
+
+### Čo ostáva otvorené
+
+- Nasadenie (GitHub Actions) – číslo behu bude doplnené po push
+- Animácia F (body 1–6) je treba overiť na reálnom telefóne (Matej)

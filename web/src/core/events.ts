@@ -1,4 +1,5 @@
 import type { Event } from './types'
+import { getToday } from './day'
 
 /** An event is "finished" only when end_time is known and has passed.
  * If end_time is unknown, the event stays visible until 05:00 day switch. */
@@ -27,9 +28,36 @@ export function isEventLive(event: Event, now: Date): boolean {
   return !isEventFinished(event, now)
 }
 
+/**
+ * Whether an event shows a live/pulse indicator right now.
+ * - Known end_time: started and not finished (same as isEventLive).
+ * - No end_time + party/dj format or late-night venue: from start until 5:00 next morning.
+ * - No end_time, other: at most 3 hours from start.
+ * - Event in a different day (by 5:00 rule) never pulses.
+ */
+export function isEventPulsing(event: Event, venueCharacter: string[], now: Date): boolean {
+  if (!event.start_time) return false
+  if (event.date !== getToday(now)) return false
+  const startDt = new Date(`${event.date}T${event.start_time}:00`)
+  if (now < startDt) return false
+  if (event.end_time) return !isEventFinished(event, now)
+
+  const isPartyOrDj = event.formats.includes('party') || event.formats.includes('dj')
+  const isLateNight = venueCharacter.includes('late-night')
+  if (isPartyOrDj || isLateNight) {
+    const nextDay = new Date(event.date + 'T12:00:00')
+    nextDay.setDate(nextDay.getDate() + 1)
+    nextDay.setHours(5, 0, 0, 0)
+    return now < nextDay
+  }
+  const threeHoursAfterStart = new Date(startDt.getTime() + 3 * 60 * 60 * 1000)
+  return now < threeHoursAfterStart
+}
+
 /** Returns events for a venue on a specific day, filtered and sorted.
- * Cancelled/gone events are excluded. Finished events are excluded. */
-export function getVenueEvents(events: Event[], venueId: string, day: string, now: Date): Event[] {
+ * Cancelled/gone events are excluded. Finished events are excluded.
+ * venueCharacter is used to sort pulsing events first. */
+export function getVenueEvents(events: Event[], venueId: string, day: string, now: Date, venueCharacter: string[] = []): Event[] {
   return events
     .filter(e =>
       e.venue_id === venueId &&
@@ -39,10 +67,9 @@ export function getVenueEvents(events: Event[], venueId: string, day: string, no
       !isEventFinished(e, now)
     )
     .sort((a, b) => {
-      // Live events first, then by start_time
-      const aLive = isEventLive(a, now) ? 0 : 1
-      const bLive = isEventLive(b, now) ? 0 : 1
-      if (aLive !== bLive) return aLive - bLive
+      const aPulse = isEventPulsing(a, venueCharacter, now) ? 0 : 1
+      const bPulse = isEventPulsing(b, venueCharacter, now) ? 0 : 1
+      if (aPulse !== bPulse) return aPulse - bPulse
       if (!a.start_time && !b.start_time) return 0
       if (!a.start_time) return 1
       if (!b.start_time) return -1
@@ -61,10 +88,8 @@ export function getActiveVenueIds(events: Event[], day: string, now: Date): Set<
   return ids
 }
 
-/** Picks the "primary" event to show in the map panel:
- * prefer live event, otherwise the nearest upcoming by start_time. */
-export function getPrimaryEvent(events: Event[], now: Date): Event | null {
-  if (events.length === 0) return null
-  const live = events.find(e => isEventLive(e, now))
-  return live ?? events[0] ?? null
+/** Picks the "primary" event to show in the map panel.
+ * Expects events pre-sorted by getVenueEvents (pulsing first). */
+export function getPrimaryEvent(events: Event[]): Event | null {
+  return events[0] ?? null
 }

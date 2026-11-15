@@ -101,13 +101,13 @@ describe('getVenueEvents', () => {
 
 describe('getPrimaryEvent', () => {
   it('returns null for empty list', () => {
-    expect(getPrimaryEvent([], new Date())).toBeNull()
+    expect(getPrimaryEvent([])).toBeNull()
   })
 
-  it('prefers live event', () => {
+  it('returns first event (relies on pre-sorted input from getVenueEvents)', () => {
     const live = makeEvent({ id: 'live', start_time: '20:00' })
     const upcoming = makeEvent({ id: 'upcoming', start_time: '22:00' })
-    const now = new Date('2026-11-09T21:00:00')
-    expect(getPrimaryEvent([upcoming, live], now)?.id).toBe('live')
+    // getVenueEvents sorts pulsing events first; getPrimaryEvent just returns events[0]
+    expect(getPrimaryEvent([live, upcoming])?.id).toBe('live')
   })
 })

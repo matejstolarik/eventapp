@@ -3,9 +3,10 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { EventsData, Language } from '../core/types'
 import { getEventType } from '../core/eventType'
-import { getVenueEvents, getActiveVenueIds, getPrimaryEvent, isEventLive } from '../core/events'
-import { getToday, getUpcomingDays } from '../core/day'
+import { getVenueEvents, getPrimaryEvent, isEventPulsing } from '../core/events'
+import { getToday, toDateString, getUpcomingDays } from '../core/day'
 import { isFavorite } from '../core/store'
+import { visibleEvents } from '../core/visible'
 import { haversine } from '../core/distance'
 import { getDict, formatDayLabel } from '../i18n'
 import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
@@ -30,6 +31,10 @@ const PIN_CSS = `
   from { opacity: 0; transform: scale(0.82); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes pin-disappear {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.82); }
+}
 @keyframes card-slide-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
@@ -41,7 +46,7 @@ const PIN_CSS = `
   height: 64px;
   transform: translateX(var(--pin-dx, 0px)) scale(1);
   transform-origin: 50% 100%;
-  transition: transform 220ms ease-out;
+  transition: transform 220ms ease-out, opacity 220ms ease-out;
 }
 .pin-selected .pin-inner {
   transform: translateX(var(--pin-dx, 0px)) scale(1.22);
@@ -183,8 +188,13 @@ const PIN_CSS = `
 .pin-new .pin-inner {
   animation: pin-appear 180ms ease-out both;
 }
+.pin-leaving .pin-inner {
+  animation: pin-disappear 180ms ease-in both;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .pin-new .pin-inner { animation: none; }
+  .pin-leaving .pin-inner { animation: none; opacity: 0; }
 }
 
 .event-panel-enter {
@@ -215,7 +225,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const currentMarkerDataRef = useRef<MarkerData[]>([])
 
   const now = new Date()
-  const [selectedDay, setSelectedDay] = useState(() => getToday(now))
+  const [selectedDay, setSelectedDay] = useState(() => isNightTime(now) ? NIGHT_DAY : getToday(now))
   const [showFavorites, setShowFavorites] = useState(false)
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
   const [showDaySelector, setShowDaySelector] = useState(false)
@@ -228,6 +238,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [showFilterMsg, setShowFilterMsg] = useState(false)
   const [showNight, setShowNight] = useState(() => isNightTime(new Date()))
 
+  const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
+  const updateMarkersRef = useRef<() => void>(() => {})
   const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isVisibleRef = useRef(isVisible)
@@ -252,13 +264,22 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])
   useEffect(() => { isVisibleRef.current = isVisible }, [isVisible])
 
-  // External "Na mape" selection: set day and queue panel open after markers update
+  // External "Na mape" selection: set day (NIGHT_DAY if applicable) and queue panel open
   useEffect(() => {
     if (!pendingSelect) return
-    setSelectedDay(pendingSelect.date)
+    const n = new Date()
+    let dayToSelect = pendingSelect.date
+    if (isNightTime(n) && pendingSelect.date === getToday(n)) {
+      const venue = data.venues.find(v => v.id === pendingSelect.venueId)
+      if (venue) {
+        const evs = data.events.filter(e => e.venue_id === pendingSelect.venueId && e.date === pendingSelect.date)
+        if (evs.some(e => isNightEvent(e, venue.character, n))) dayToSelect = NIGHT_DAY
+      }
+    }
+    setSelectedDay(dayToSelect)
     pendingPanelOpenRef.current = pendingSelect.venueId
     onPendingSelectHandled?.()
-  }, [pendingSelect, onPendingSelectHandled])
+  }, [pendingSelect, onPendingSelectHandled, data])
 
   useEffect(() => {
     const el = toggleRef.current
@@ -277,30 +298,41 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
   }, [isVisible])
 
-  // Night mode: auto-switch at midnight, auto-disable at 5:00
+  // Night mode: auto-switch at midnight and 5:00, also on visibility/focus restore
   useEffect(() => {
+    let wasNight = isNightTime(new Date())
+
     const checkNight = () => {
-      const isNight = isNightTime(new Date())
+      const n = new Date()
+      const isNight = isNightTime(n)
       setShowNight(isNight)
-      // If selected day is 'night' but night mode ended, revert to today
-      if (!isNight && selectedDayRef.current === NIGHT_DAY) {
-        setSelectedDay(getToday(new Date()))
+      if (isNight && !wasNight) {
+        // Crossed midnight: if selected day was the now-former "today", switch to NIGHT_DAY
+        if (selectedDayRef.current === getToday(n)) {
+          setSelectedDay(NIGHT_DAY)
+        }
       }
+      if (!isNight && selectedDayRef.current === NIGHT_DAY) {
+        setSelectedDay(getToday(n))
+      }
+      wasNight = isNight
     }
 
-    // Schedule next check at midnight or 5:00
+    const handleVisChange = () => { if (document.visibilityState === 'visible') checkNight() }
+    const handleFocus = () => checkNight()
+    document.addEventListener('visibilitychange', handleVisChange)
+    window.addEventListener('focus', handleFocus)
+
     const scheduleNext = () => {
       const n = new Date()
       const h = n.getHours()
       let targetMs: number
       if (h >= 5) {
-        // Schedule at midnight
         const midnight = new Date(n)
         midnight.setDate(midnight.getDate() + 1)
         midnight.setHours(0, 0, 10, 0)
         targetMs = midnight.getTime() - n.getTime()
       } else {
-        // Schedule at 5:00
         const five = new Date(n)
         five.setHours(5, 0, 10, 0)
         targetMs = five.getTime() - n.getTime()
@@ -309,7 +341,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
 
     const timer = scheduleNext()
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', handleVisChange)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [])
 
   openPanelRef.current = (venueId: string) => {
@@ -368,38 +404,32 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const curNow = new Date()
     const venueById = Object.fromEntries(data.venues.map(v => [v.id, v]))
 
-    let venues
     if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('debugPair')) {
-      venues = data.venues
-    } else if (selectedDay === NIGHT_DAY) {
-      const nightDate = getToday(curNow)
-      venues = data.venues.filter(v => {
-        const events = getVenueEvents(data.events, v.id, nightDate, curNow)
-        return events.some(e => isNightEvent(e, v.character, curNow))
+      return data.venues.map(venue => {
+        const events = getVenueEvents(data.events, venue.id, getToday(curNow), curNow, venue.character)
+        const primary = getPrimaryEvent(events)
+        const eventType = primary ? getEventType(primary.formats) : 'other'
+        return {
+          venueId: venue.id, name: venue.name, eventType,
+          isFavorite: isFavorite(venue.id),
+          isLive: primary ? isEventPulsing(primary, venue.character, curNow) : false,
+          extraCount: Math.max(0, events.length - 1),
+          lat: venue.lat, lng: venue.lng,
+        }
       })
-    } else {
-      const activeIds = getActiveVenueIds(data.events, selectedDay, curNow)
-      venues = showFavorites
-        ? data.venues.filter(v => activeIds.has(v.id) && isFavorite(v.id))
-        : data.venues.filter(v => activeIds.has(v.id))
     }
 
-    return venues.map(venue => {
-      const dateKey = selectedDay === NIGHT_DAY ? getToday(curNow) : selectedDay
-      const events = getVenueEvents(data.events, venue.id, dateKey, curNow)
-      const primary = getPrimaryEvent(events, curNow)
+    const vm = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite })
+    return [...vm.entries()].map(([venueId, events]) => {
+      const venue = venueById[venueId]!
+      const primary = getPrimaryEvent(events)
       const eventType = primary ? getEventType(primary.formats) : 'other'
-      const isLive = primary ? isEventLive(primary, curNow) : false
-      void venueById
       return {
-        venueId: venue.id,
-        name: venue.name,
-        eventType,
-        isFavorite: isFavorite(venue.id),
-        isLive,
+        venueId, name: venue.name, eventType,
+        isFavorite: isFavorite(venueId),
+        isLive: primary ? isEventPulsing(primary, venue.character, curNow) : false,
         extraCount: Math.max(0, events.length - 1),
-        lat: venue.lat,
-        lng: venue.lng,
+        lat: venue.lat, lng: venue.lng,
       }
     })
   }, [data, selectedDay, showFavorites])
@@ -411,19 +441,53 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     currentMarkerDataRef.current = markerData
     const newIds = new Set(markerData.map(m => m.venueId))
 
-    for (const [id, { marker }] of markersRef.current) {
+    for (const [id, { marker, el }] of markersRef.current) {
       if (!newIds.has(id)) {
-        marker.remove()
+        if (id === selectedVenueIdRef.current) {
+          el.classList.remove('pin-selected')
+          el.style.zIndex = ''
+        }
         markersRef.current.delete(id)
+        const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+        if (prefersReduced) {
+          marker.remove()
+        } else {
+          el.classList.add('pin-leaving')
+          el.style.pointerEvents = 'none'
+          leavingMarkersRef.current.set(id, { marker, el })
+          let cleaned = false
+          const cleanup = () => {
+            if (cleaned) return
+            cleaned = true
+            marker.remove()
+            leavingMarkersRef.current.delete(id)
+          }
+          const inner = el.querySelector('.pin-inner')
+          if (inner) inner.addEventListener('animationend', cleanup, { once: true })
+          setTimeout(cleanup, 250)
+        }
       }
+    }
+
+    // Close card if selected venue is no longer visible
+    if (selectedVenueIdRef.current && !newIds.has(selectedVenueIdRef.current)) {
+      closePanelRef.current()
     }
 
     for (const md of markerData) {
       const isSelected = md.venueId === selectedVenueId
       const existing = markersRef.current.get(md.venueId)
+      const leaving = leavingMarkersRef.current.get(md.venueId)
 
       if (existing) {
         updatePinElement(existing.el, md, isSelected)
+      } else if (leaving) {
+        // Cancel exit animation and reuse
+        leavingMarkersRef.current.delete(md.venueId)
+        leaving.el.classList.remove('pin-leaving')
+        leaving.el.style.pointerEvents = ''
+        updatePinElement(leaving.el, md, isSelected)
+        markersRef.current.set(md.venueId, leaving)
       } else {
         const el = createPinElement(md, isSelected)
         const venueId = md.venueId
@@ -706,11 +770,14 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault() })
         canvas.addEventListener('webglcontextrestored', () => { map.triggerRepaint() })
 
-        // Repaint on tab visibility restore
+        // Repaint and refresh markers on tab visibility restore
         function handleVisChange() {
           if (document.visibilityState === 'visible') {
             map.triggerRepaint()
-            if (isVisibleRef.current) map.resize()
+            if (isVisibleRef.current) {
+              map.resize()
+              updateMarkersRef.current()
+            }
           }
         }
         document.addEventListener('visibilitychange', handleVisChange)
@@ -733,8 +800,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
             navigator.geolocation.getCurrentPosition(pos => {
               const { latitude: lat, longitude: lng } = pos.coords
               const curNow = new Date()
-              const activeIds = getActiveVenueIds(dataRef.current.events, selectedDayRef.current, curNow)
-              const activeVenues = dataRef.current.venues.filter(v => activeIds.has(v.id))
+              const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite })
+              const activeVenues = dataRef.current.venues.filter(v => vm.has(v.id))
               if (activeVenues.length === 0) return
               const nearest = activeVenues.reduce((best, v) =>
                 haversine(lat, lng, v.lat, v.lng) < haversine(lat, lng, best.lat, best.lng) ? v : best
@@ -784,9 +851,19 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  updateMarkersRef.current = updateMarkers
+
   useEffect(() => {
     if (mapRef.current?.loaded()) updateMarkers()
   }, [updateMarkers])
+
+  // Refresh every 60 s when map is visible (pulse state, event ends)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (mapRef.current?.loaded() && isVisibleRef.current) updateMarkersRef.current()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   // User location marker
   useEffect(() => {
@@ -831,13 +908,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const curNow = new Date()
   const venueMap = Object.fromEntries(data.venues.map(v => [v.id, v]))
   const panelVenue = selectedVenueId ? venueMap[selectedVenueId] : null
-  const panelEvents = panelVenue
-    ? getVenueEvents(data.events, panelVenue.id, selectedDay === NIGHT_DAY ? getToday(curNow) : selectedDay, curNow)
-    : []
-
-  const activeIds = getActiveVenueIds(data.events, selectedDay === NIGHT_DAY ? getToday(curNow) : selectedDay, curNow)
+  const visibleMapForPanel = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite })
+  const panelEvents = panelVenue ? (visibleMapForPanel.get(panelVenue.id) ?? []) : []
   const sortedVenues = [...data.venues
-    .filter(v => activeIds.has(v.id) && (!showFavorites || isFavorite(v.id)))
+    .filter(v => visibleMapForPanel.has(v.id))
   ].sort((a, b) => a.lng - b.lng)
 
   const selIdx = selectedVenueId ? sortedVenues.findIndex(v => v.id === selectedVenueId) : -1
@@ -865,7 +939,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const togglePad = toggleWidth < 160 ? '0 6px' : toggleWidth < 200 ? '0 8px' : '0 14px'
   const toggleFontSize = toggleWidth < 140 ? 13 : 14
 
-  const days = getUpcomingDays(14, curNow)
+  const calendarToday = toDateString(curNow)
+  const noonToday = new Date(calendarToday + 'T12:00:00')
+  const days = showNight ? getUpcomingDays(4, noonToday) : getUpcomingDays(5, curNow)
   const selectedDayLabel = formatDayLabel(selectedDay, lang, curNow)
   const panelOpen = panelVenue && panelEvents.length > 0
 
