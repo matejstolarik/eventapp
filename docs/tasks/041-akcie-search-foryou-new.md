@@ -37,3 +37,70 @@ Pri jednodňovom období (Dnes, Zajtra, Iný dátum s jedným dňom) sa možnos�
 - Snímky Playwright (syntetické dáta, aspoň 2 obľúbené miesta, akcie bez obrázka aj s obrázkom, zmrazený čas nedeľa 15. 11. 18:00) do `docs/tasks/041/`: `01-akcie-odznaky.jpg` (vypnuté čipy, viditeľné odznaky a ikony v plochách), `02-akcie-pre-teba.jpg`, `03-hladanie.jpg` (napísané „techno“), `04-hladanie-nic.jpg`.
 
 ## Report
+
+Dátum: 2026-11-15
+
+### Čo je hotové
+
+**0. Oprava ikony v mriežke (bug z 040)**
+- `EventsPage.tsx`: odstranil lokálnu `TypeIcon` komponentu, nahradil `EventTypeIcon` z `../icons` s farbou `EVENT_TYPE_DARK[type]` (40 px, v strede plochy)
+- `EventPanel.tsx`, `VenuePage.tsx`, `EventPage.tsx`: tieto stránky už používali `EventTypeIcon` s `color={dark}` / `color={fg}` kde `fg = EVENT_TYPE_DARK[type]` → správne, nič nemenené
+
+**1. Hľadanie**
+- Lupa 44 px vpravo od nadpisu (`#23232F`, ikona `#F4F2FF`)
+- Animácia 200 ms: `scaleX(0→1)` + `opacity(0→1)` s `transformOrigin: right` → pole sa roztiahne od lupy doľava
+- Nadpis `opacity` 1→0 počas animácie, `pointerEvents: none` keď hľadanie otvorené
+- `caretColor: #FF4D8D` (ružový kurzor)
+- Debounce 150 ms (`debouncedQuery`)
+- Hľadá v: `event.title`, `venue.name`, `event.formats`, `event.genres`, `venue.character`
+- Normalizácia: lowercase + decompose NFD + remove combining chars → „cajovna" nájde „Čajovňa"
+- Pri otvorení: uloží predošlé obdobie, prepne na Kedykoľvek; pri zatvorení: obnoví
+- Zmena obdobia počas hľadania: platí, `searchPreviousPeriod` sa aktualizuje
+
+**2. Pre teba a Nové**
+- Čipy v lište za tlačidlom obdobia (40 px, iskry ikona pre Pre teba)
+- Vypnuté: `#23232F`/`#B9B6CC`, zapnuté: `#FF4D8D`/`#1A0710`
+- Pás čipov: `flex:1`, `overflow:hidden`, gradient fadeout vpravo (len keď pretekajú)
+- **Pre teba**: `isForYou(event, favorites)` = `favorites.has(event.venue_id)`
+- **Nové**: `isNew(event, now)` = `first_seen ≥ (now - 6 dní)` (7 dní vrátane dneška)
+- Odznaky na kartách: „pre teba" (tmavý, iskry, top-left), „nové" (biely, top-right), `position:absolute; zIndex:2`
+- Riadok s počtom: „12 akcií · 3 pre teba" (Pre teba OFF) / „9 akcií pre teba" (Pre teba ON) / bez „· N pre teba" ak žiadne obľúbené
+- Stav sa pamätá: `store.ts` → `getStoredEventsFilters` / `setStoredEventsFilters`
+- Prázdny stav + Pre teba bez obľúbených: „Pridaj si obľúbené miesta v záložke Miesta."
+- Prázdny stav + filter aktívny: tlačidlo „Zrušiť filtre"
+
+**3. Text zoradenia „čas" vs „dátum"**
+- `isSingleDayPeriod(period)` exportovaná z `core/period.ts`: true pre `today`, `tomorrow`, `custom from===to`
+- Pri jednodňovom období: sortDateLabel = `dict.events.sortTime` = „čas" / „čas" / „time"
+- Radí sa rovnako (dátum + čas začiatku)
+
+### Nové súbory
+- `web/src/core/search.ts`: `normalizeText`, `matchesSearch`, `isForYou`, `isNew`
+- `web/src/core/search.test.ts`: 29 testov (normalizácia, hľadanie, Pre teba, Nové, isSingleDayPeriod)
+
+### Testy
+```
+npm test -- --reporter=dot
+# Test Files  10 passed (10), Tests  142 passed (142)
+```
+
+### Build
+```
+npm run build
+# ✓ built in 4.10s
+# dist/assets/index-DalvfQ0g.js 1,062.73 kB
+```
+
+### Snímky
+Vytvorené: `docs/tasks/041/01-akcie-odznaky.jpg` (106 KB), `02-akcie-pre-teba.jpg` (119 KB), `03-hladanie.jpg` (120 KB), `04-hladanie-nic.jpg` (38 KB)
+
+### Rozhodnutia
+- Filter button zatiaľ nezobrazovaný (task 041 hovorí „ostáva prázdne")
+- Badges sa zobrazujú na všetkých kartách (aj keď čip je vypnutý) podľa dizajnu
+- `first_seen` ≥ `now - 6 dní` = 7 dní vrátane dneška (nediskutabilné – task spec)
+- `searchPreviousPeriod` sa aktualizuje aj počas otvoreného hľadania ak používateľ zmení obdobie
+- Ikony Pre teba/Nové badge sú inline (nie z `icons/index.tsx`) – sú len 2 riadky SVG
+
+### Čo ostáva otvorené
+- Filter panel (príde v samostatnej úlohe)
+- Ikona v ploche: ikona je v strede plochy (nie vľavo dole ako v design HTML kde bolo `alignItems:flex-end`) – toto bolo zámerné rozhodnutie pre lepšiu viditeľnosť ikony veľkosťou 40 px

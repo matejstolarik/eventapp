@@ -119,6 +119,12 @@ export function sortEvents(
   return sorted
 }
 
+export function isSingleDayPeriod(period: Period): boolean {
+  if (period.type === 'today' || period.type === 'tomorrow') return true
+  if (period.type === 'custom' && period.from === period.to) return true
+  return false
+}
+
 /** Short button label for the period (e.g. "Dnes", "7 dní", "20.–24. 11.") */
 export function formatPeriodShortLabel(period: Period, lang: string): string {
   const labels: Record<string, Record<Period['type'], string>> = {

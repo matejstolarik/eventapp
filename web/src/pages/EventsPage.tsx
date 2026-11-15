@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language, Event } from '../core/types'
 import { getDict, formatDayLabel } from '../i18n'
-import { getEventType, EVENT_TYPE_COLOR } from '../core/eventType'
-import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, type Period, type SortMode } from '../core/period'
-import { getStoredPeriod, setStoredPeriod, getLastKnownLocation } from '../core/store'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
+import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
+import { matchesSearch, isForYou, isNew } from '../core/search'
+import { EventTypeIcon } from '../icons'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 
 interface Props {
@@ -19,30 +21,28 @@ function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
   return `${n} ${eventCountPl}`
 }
 
-function TypeIcon({ type }: { type: string }) {
-  const color = EVENT_TYPE_COLOR[type as keyof typeof EVENT_TYPE_COLOR] ?? '#C6F432'
-  if (type === 'concert') return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>
-    </svg>
-  )
-  if (type === 'party') return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 22h8M12 2l1.5 4L18 7.5l-4.5 1.5L12 14l-1.5-5L6 7.5l4.5-1.5z"/>
-    </svg>
-  )
-  if (type === 'dj') return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <circle cx="12" cy="12" r="8"/>
-      <path d="M12 4v2M12 18v2M4 12h2M18 12h2"/>
-    </svg>
-  )
-  // culture / other
+function SparkleIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 10s3-3 6-3 5 2 8 2 6-3 6-3v10s-3 3-6 3-5-2-8-2-6 3-6 3V10z"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
+      <path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+    </svg>
+  )
+}
+
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   )
 }
@@ -54,12 +54,15 @@ interface EventCardProps {
   now: Date
   eager: boolean
   baseUrl: string
+  forYouFlag: boolean
+  isNewFlag: boolean
   onClick: () => void
 }
 
-function EventCard({ event, venue, lang, now, eager, baseUrl, onClick }: EventCardProps) {
+function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewFlag, onClick }: EventCardProps) {
   const type = getEventType(event.formats)
   const color = EVENT_TYPE_COLOR[type]
+  const dark = EVENT_TYPE_DARK[type]
   const dateLabel = formatDayLabel(event.date, lang, now)
   const timeLabel = event.start_time ?? ''
   const allTags = [...event.formats, ...event.genres]
@@ -68,7 +71,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, onClick }: EventCa
   return (
     <div style={{ minWidth: 0, cursor: 'pointer' }} onClick={onClick} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onClick()}>
       {/* Image / placeholder */}
-      <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', position: 'relative', background: color, display: 'flex', alignItems: 'flex-end', padding: 7, boxSizing: 'border-box' }}>
+      <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', position: 'relative', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
         {event.image_thumb ? (
           <img
             src={`${baseUrl}${event.image_thumb}`}
@@ -79,8 +82,19 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, onClick }: EventCa
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', paddingBottom: 8 }}>
-            <TypeIcon type={type} />
+          <EventTypeIcon type={type} size={40} color={dark} />
+        )}
+        {/* pre teba badge – top left */}
+        {forYouFlag && (
+          <span style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#111118', color: '#F4F2FF', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+            <SparkleIcon size={11} color="#F4F2FF" />
+            {lang === 'en' ? 'for you' : lang === 'cs' ? 'pro tebe' : 'pre teba'}
+          </span>
+        )}
+        {/* nové badge – top right */}
+        {isNewFlag && (
+          <span style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#F4F2FF', color: '#111118', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+            {lang === 'en' ? 'new' : 'nové'}
           </span>
         )}
       </div>
@@ -135,7 +149,22 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
   const [showSortMenu, setShowSortMenu] = useState(false)
   const sortMenuRef = useRef<HTMLDivElement>(null)
 
+  // Search state
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [searchPreviousPeriod, setSearchPreviousPeriod] = useState<Period | null>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>(0 as unknown as ReturnType<typeof setTimeout>)
+
+  // Chip filters
+  const [forYouActive, setForYouActive] = useState(() => getStoredEventsFilters().forYou)
+  const [isNewActive, setIsNewActive] = useState(() => getStoredEventsFilters().isNew)
+
   const userLocation = getLastKnownLocation()
+
+  const favorites = useMemo(() => getFavorites(), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const hasFavorites = favorites.size > 0
 
   // Build venue map for fast lookup
   const venueMap = useMemo(() => {
@@ -150,13 +179,34 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
     return m
   }, [data.venues])
 
+  // Events filtered by period + search (before forYou/isNew chips)
+  const periodSearchEvents = useMemo(() => {
+    let evts = getEventsForPeriod(data.events, period, now)
+    if (debouncedQuery.trim()) {
+      evts = evts.filter(e => matchesSearch(debouncedQuery, e, venueMap.get(e.venue_id)))
+    }
+    return evts
+  }, [data.events, period, debouncedQuery, now.getTime(), venueMap]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Final events after all filters + sort
   const events = useMemo(() => {
-    const filtered = getEventsForPeriod(data.events, period, now)
-    return sortEvents(filtered, venueLocations, sort, userLocation)
-  }, [data.events, period, sort, now.getTime(), venueLocations, userLocation]) // eslint-disable-line react-hooks/exhaustive-deps
+    let evts = periodSearchEvents
+    if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
+    if (isNewActive) evts = evts.filter(e => isNew(e, now))
+    return sortEvents(evts, venueLocations, sort, userLocation)
+  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocation]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Count of "for you" events in the current display (used when forYou chip is OFF)
+  const forYouCountInDisplay = useMemo(() => {
+    if (forYouActive || !hasFavorites) return 0
+    return events.filter(e => isForYou(e, favorites)).length
+  }, [events, forYouActive, hasFavorites, favorites])
 
   // Persist period (not custom)
   useEffect(() => { setStoredPeriod(period) }, [period])
+
+  // Persist chip filters
+  useEffect(() => { setStoredEventsFilters({ forYou: forYouActive, isNew: isNewActive }) }, [forYouActive, isNewActive])
 
   // Close sort menu on outside click
   useEffect(() => {
@@ -169,6 +219,39 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [showSortMenu])
+
+  function openSearch() {
+    setSearchPreviousPeriod(period)
+    setPeriod({ type: 'anytime' })
+    setSearchOpen(true)
+    // Focus input after animation starts
+    setTimeout(() => searchInputRef.current?.focus(), 50)
+  }
+
+  function closeSearch() {
+    setSearchOpen(false)
+    setSearchQuery('')
+    setDebouncedQuery('')
+    clearTimeout(searchDebounceRef.current)
+    if (searchPreviousPeriod) {
+      setPeriod(searchPreviousPeriod)
+      setSearchPreviousPeriod(null)
+    }
+  }
+
+  function handleSearchInput(value: string) {
+    setSearchQuery(value)
+    clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = setTimeout(() => setDebouncedQuery(value), 150)
+  }
+
+  function toggleForYou() {
+    setForYouActive(v => !v)
+  }
+
+  function toggleIsNew() {
+    setIsNewActive(v => !v)
+  }
 
   // Period sheet items
   const periodItems: SheetItem[] = useMemo(() => {
@@ -214,31 +297,87 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
       : id === 'next30' ? { type: 'next30' }
       : { type: 'anytime' }
     setPeriod(p)
+    if (searchOpen) setSearchPreviousPeriod(p)
     setShowPeriodSheet(false)
   }
 
   function handleCalendarSelect(from: string, to: string) {
-    setPeriod({ type: 'custom', from, to })
+    const p: Period = { type: 'custom', from, to }
+    setPeriod(p)
+    if (searchOpen) setSearchPreviousPeriod(p)
     setShowPeriodSheet(false)
   }
 
   const periodLabel = formatPeriodShortLabel(period, lang)
+  const isSingleDay = isSingleDayPeriod(period)
+  const sortDateLabel = isSingleDay ? dict.events.sortTime : dict.events.sortDate
 
-  const isEmptyToday = events.length === 0 && period.type === 'today'
+  const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== ''
+  const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
+
+  // Count row text
+  function countRowText(): string {
+    const base = eventCount(events.length, dict)
+    if (forYouActive) return `${base} ${dict.events.forYouInCount}`
+    if (hasFavorites && forYouCountInDisplay > 0) {
+      return `${base} · ${forYouCountInDisplay} ${dict.events.forYouInCount}`
+    }
+    return base
+  }
 
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Outfit', sans-serif", color: '#F4F2FF' }}>
       {/* Header */}
       <div style={{ padding: '52px 16px 0', display: 'flex', flexDirection: 'column', gap: 14, flexShrink: 0 }}>
         {/* Title row */}
-        <div style={{ display: 'flex', alignItems: 'center', height: 44 }}>
-          <h1 style={{ margin: 0, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#F4F2FF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: 44, position: 'relative' }}>
+          {/* Title */}
+          <h1 style={{
+            margin: 0, flex: 1, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 700, letterSpacing: '-0.02em', color: '#F4F2FF',
+            opacity: searchOpen ? 0 : 1,
+            transition: 'opacity 200ms',
+            pointerEvents: searchOpen ? 'none' : 'auto',
+          }}>
             {dict.events.title}
           </h1>
+
+          {/* Search input – expands from right to left */}
+          <div style={{
+            position: 'absolute',
+            left: 0,
+            right: 52, // 44px button + 8px gap
+            opacity: searchOpen ? 1 : 0,
+            transform: searchOpen ? 'scaleX(1)' : 'scaleX(0)',
+            transformOrigin: 'right',
+            transition: 'transform 200ms, opacity 200ms',
+            pointerEvents: searchOpen ? 'auto' : 'none',
+          }}>
+            <div style={{ height: 44, borderRadius: 22, background: '#F4F2FF', color: '#111118', display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none', color: '#8E8AA6' }}>
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={e => handleSearchInput(e.target.value)}
+                style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 15, fontWeight: 500, color: '#111118', fontFamily: "'Outfit', sans-serif", caretColor: '#FF4D8D', minWidth: 0 }}
+              />
+            </div>
+          </div>
+
+          {/* Lupa / X button */}
+          <button
+            style={{ marginLeft: 'auto', flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            onClick={searchOpen ? closeSearch : openSearch}
+            aria-label={searchOpen ? 'Zavrieť hľadanie' : 'Hľadať'}
+          >
+            {searchOpen ? <CloseIcon /> : <SearchIcon />}
+          </button>
         </div>
 
-        {/* Bar: period button */}
+        {/* Bar: period button + chips */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
@@ -247,24 +386,44 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
             {periodLabel}
             <ChevronDown />
           </button>
+
+          {/* Chips area – scrollable with right fade */}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
+            {/* Pre teba chip */}
+            <button
+              style={{ height: 40, padding: '0 14px', borderRadius: 20, border: 0, background: forYouActive ? '#FF4D8D' : '#23232F', color: forYouActive ? '#1A0710' : '#B9B6CC', fontFamily: 'Outfit,sans-serif', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
+              onClick={toggleForYou}
+            >
+              <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />
+              {dict.events.forYou}
+            </button>
+
+            {/* Nové chip */}
+            <button
+              style={{ height: 40, padding: '0 14px', borderRadius: 20, border: 0, background: isNewActive ? '#FF4D8D' : '#23232F', color: isNewActive ? '#1A0710' : '#B9B6CC', fontFamily: 'Outfit,sans-serif', fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
+              onClick={toggleIsNew}
+            >
+              {dict.events.newLabel}
+            </button>
+          </div>
         </div>
 
         {/* Count + sort row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2 }}>
-          <span>{eventCount(events.length, dict)}</span>
+          <span>{countRowText()}</span>
           <div style={{ position: 'relative' }} ref={sortMenuRef}>
             <button
               style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }}
               onClick={() => setShowSortMenu(s => !s)}
             >
-              {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? dict.events.sortDate : dict.events.sortDistance}</b>
+              {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
               <ChevronDown size={14} />
             </button>
             {showSortMenu && (
               <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 4, background: '#1C1C27', borderRadius: 12, padding: '4px 0', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', zIndex: 10, minWidth: 140 }}>
                 {(['date', ...(userLocation ? ['distance'] : [])] as SortMode[]).map(s => (
                   <button key={s} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', background: 'none', border: 'none', fontSize: 15, color: s === sort ? '#F4F2FF' : '#B9B6CC', fontWeight: s === sort ? 600 : 400, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setSort(s); setShowSortMenu(false) }}>
-                    {s === 'date' ? dict.events.sortDate : dict.events.sortDistance}
+                    {s === 'date' ? sortDateLabel : dict.events.sortDistance}
                   </button>
                 ))}
               </div>
@@ -277,14 +436,27 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
       {isEmpty ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '0 32px' }}>
           <p style={{ margin: 0, fontSize: 16, color: '#B9B6CC', textAlign: 'center' }}>
-            {isEmptyToday ? dict.events.emptyToday : dict.events.emptyOther}
+            {isForYouNoFavs
+              ? dict.events.noFavoriteVenues
+              : (isEmpty && period.type === 'today' && !isFilterActive)
+                ? dict.events.emptyToday
+                : dict.events.emptyOther}
           </p>
-          <button
-            style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
-            onClick={() => { setPeriod(isEmptyToday ? { type: 'next7' } : { type: 'anytime' }) }}
-          >
-            {isEmptyToday ? dict.events.tryWeek : dict.events.tryAnytime}
-          </button>
+          {isForYouNoFavs ? null : isFilterActive ? (
+            <button
+              style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
+              onClick={() => { setForYouActive(false); setIsNewActive(false); if (searchOpen) closeSearch() }}
+            >
+              {dict.events.clearFilters}
+            </button>
+          ) : (
+            <button
+              style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}
+              onClick={() => { setPeriod(period.type === 'today' ? { type: 'next7' } : { type: 'anytime' }) }}
+            >
+              {period.type === 'today' ? dict.events.tryWeek : dict.events.tryAnytime}
+            </button>
+          )}
         </div>
       ) : (
         <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 100px' }}>
@@ -298,6 +470,8 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
                 now={now}
                 eager={idx < 9}
                 baseUrl={baseUrl}
+                forYouFlag={isForYou(event, favorites)}
+                isNewFlag={isNew(event, now)}
                 onClick={() => onEventOpen(event.id)}
               />
             ))}

@@ -106,6 +106,21 @@ export function getLastKnownLocation(): { lat: number; lng: number } | null {
   return _lastKnownLocation
 }
 
+// ── Events chip filters ───────────────────────────────────────────────────
+
+export function getStoredEventsFilters(): { forYou: boolean; isNew: boolean } {
+  const raw = safeGet('eventsFilters')
+  if (!raw) return { forYou: false, isNew: false }
+  try {
+    const f = JSON.parse(raw) as { forYou?: boolean; isNew?: boolean }
+    return { forYou: Boolean(f.forYou), isNew: Boolean(f.isNew) }
+  } catch { return { forYou: false, isNew: false } }
+}
+
+export function setStoredEventsFilters(filters: { forYou: boolean; isNew: boolean }): void {
+  safeSet('eventsFilters', JSON.stringify(filters))
+}
+
 // ── Last fetched ───────────────────────────────────────────────────────────
 
 export function setLastFetched(): void {
