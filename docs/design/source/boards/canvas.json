@@ -1,0 +1,203 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – priblížené (variant B)",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Sheet.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – panel po ťuknutí",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "Pills.dc.html": {
+      "h": 560,
+      "title": "Varianty značky na mape",
+      "w": 1040,
+      "x": 0,
+      "y": 964
+    },
+    "MapC.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Celá mapa – variant C",
+      "w": 390,
+      "x": 0,
+      "y": 1644
+    },
+    "Controls.dc.html": {
+      "h": 560,
+      "title": "Ovládanie – varianty farieb",
+      "w": 1736,
+      "x": 950,
+      "y": 0
+    },
+    "Brand.dc.html": {
+      "h": 640,
+      "title": "Farby appky – porovnanie",
+      "w": 1314,
+      "x": 950,
+      "y": 640
+    },
+    "White.dc.html": {
+      "h": 560,
+      "title": "Biela – varianty",
+      "w": 1736,
+      "x": 950,
+      "y": 1360
+    },
+    "AkcieRows.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Akcie – riadky (predvolené)",
+      "w": 390,
+      "x": 0,
+      "y": 2700
+    },
+    "AkcieList.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Akcie – po ťuknutí na riadok / filter",
+      "w": 390,
+      "x": 470,
+      "y": 2700
+    },
+    "AkcieChips.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Akcie – variant lišta kategórií (zamietnuté, alternatíva k 1+2)",
+      "w": 390,
+      "x": 940,
+      "y": 2700
+    },
+    "Podniky.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Miesta",
+      "w": 390,
+      "x": 1410,
+      "y": 2700
+    },
+    "Podnik.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Profil miesta",
+      "w": 390,
+      "x": 1880,
+      "y": 2700
+    },
+    "Akcia.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Stránka akcie",
+      "w": 390,
+      "x": 2350,
+      "y": 2700
+    },
+    "PinsMap.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – piny (návrh 2)",
+      "w": 390,
+      "x": 0,
+      "y": 3700
+    },
+    "PinsSelected.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – vybraný pin, karta so šípkami (návrh 2)",
+      "w": 390,
+      "x": 470,
+      "y": 3700
+    },
+    "PinsLabels.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – piny s menami (návrh 3)",
+      "w": 390,
+      "x": 940,
+      "y": 3700
+    },
+    "PinsLabelsSelected.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Mapa – vybraný pin bez pilulky (návrh 3)",
+      "w": 390,
+      "x": 1410,
+      "y": 3700
+    },
+    "PinSelVariants.dc.html": {
+      "h": 680,
+      "title": "Vybraný pin – varianty",
+      "w": 1340,
+      "x": 1880,
+      "y": 3700
+    },
+    "EdgePeek.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Akcie mimo obrazovky – A vykukujúce piny",
+      "w": 390,
+      "x": 0,
+      "y": 4700
+    },
+    "EdgeChips.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Akcie mimo obrazovky – B odznaky s počtom",
+      "w": 390,
+      "x": 470,
+      "y": 4700
+    },
+    "FilterSheet.dc.html": {
+      "h": 844,
+      "radius": 40,
+      "title": "Filter – panel (návrh)",
+      "w": 390,
+      "x": 940,
+      "y": 4700
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-08T21:20:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {},
+  "order": [
+    "Main.dc.html",
+    "Sheet.dc.html",
+    "Controls.dc.html",
+    "Brand.dc.html",
+    "White.dc.html",
+    "Pills.dc.html",
+    "MapC.dc.html",
+    "AkcieRows.dc.html",
+    "AkcieList.dc.html",
+    "AkcieChips.dc.html",
+    "Podniky.dc.html",
+    "Podnik.dc.html",
+    "Akcia.dc.html",
+    "PinsMap.dc.html",
+    "PinsSelected.dc.html",
+    "PinsLabels.dc.html",
+    "PinsLabelsSelected.dc.html",
+    "PinSelVariants.dc.html",
+    "EdgePeek.dc.html",
+    "EdgeChips.dc.html",
+    "FilterSheet.dc.html"
+  ],
+  "pages": [],
+  "title": "EventApp – mapa"
+}
