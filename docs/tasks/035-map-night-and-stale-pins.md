@@ -57,7 +57,7 @@ Matej po teste v telefóne (2026-11-15). Hlavný chat našiel v kóde tieto kore
 ## Report
 
 **Dátum:** 2026-11-15  
-**Commit:** (pozri nižšie po commite)
+**Commit:** `7dd5e0e`
 
 ### Čo je hotové
 
