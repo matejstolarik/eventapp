@@ -29,6 +29,14 @@ Po akejkoľvek zmene obdobia, Pre teba, Nové, zoradenia alebo textu hľadania (
 ### 6. `alternative` → `alt`
 Štítok `alternative` sa všade v UI (karty Akcií, profil miesta, karta na mape, filter) zobrazuje ako `alt`. Len zobrazenie (jedna mapovacia funkcia pre popisky štítkov), dáta sa nemenia.
 
+### 7. Plynulé animácie (Matej 2026-11-15)
+Všetko z bodov 3–5 a zmeny obsahu mriežky majú ísť plynulo, nič nesmie skočiť:
+- **Lupa** sa pri zbalení hlavičky presunie z hlavičky do kompaktnej lišty plynulo (napr. prelínanie + posun, ~200 ms), pri rozbalení naspäť. Nadpis a riadok s počtom pri odchode stmavnú/vyblednú spolu so scrollom, nie naraz.
+- **Karty pri zmene filtra** (obdobie, Pre teba, Nové, hľadanie, zoradenie): odchádzajúce karty krátko vyblednú (opacity + scale 1 → 0,96, ~120 ms), nové sa objavia (opacity 0 → 1, scale 0,96 → 1, ~180 ms, `ease-out`), v štýle objavovania pinov na mape. Animuj len karty vo viditeľnej časti (prvé ~12), ostatné bez animácie. Súčasne s plynulým scrollom navrch (bod 4), bez trhania.
+- **Šípka navrch** sa objaví/zmizne prelínaním (~150 ms).
+- Len `opacity` a `transform` (žiadne animácie výšky/šírky v zozname), `prefers-reduced-motion` = bez animácií.
+- Over na pomalšom zariadení: v DevTools CPU 4× spomalenie, scroll a zmena filtra bez viditeľného trhania; v reporte jedna veta, ako to dopadlo.
+
 ### Overenie
 - `npm test`, `npm run build`, číslo nasadenia.
 - Snímky Playwright do `docs/tasks/042/`: `01-akcie-kedykolvek.jpg` (bez počtu), `02-akcie-zbalene.jpg` (odscrollované, kompaktná lišta + šípka), `03-miesta-sipka.jpg`.
