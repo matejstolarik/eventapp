@@ -70,6 +70,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const combinedMarkerRef = useRef<maplibregl.Marker | null>(null)
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
+  // Sync pin visual state whenever selection changes (e.g. deselect on back/map-click)
+  useEffect(() => {
+    if (mapRef.current?.loaded()) updateMarkersRef.current()
+  }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
   useEffect(() => { selectedDayRef.current = selectedDay }, [selectedDay])
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])

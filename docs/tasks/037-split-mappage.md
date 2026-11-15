@@ -85,7 +85,15 @@ MapPage.tsx je 460 riadkov (cieľ ~400; všetky nové súbory sú pod 300).
 - `pytest -q`: 227 passed ✓  
 - Nasadenie appky: po commite a push sa spustí `deploy-app.yml`; v logu kroku "Fetch venue thumbnails" bude počet stiahnutých obrázkov.
 
+### Oprava po úlohe — deselect pinu (commit doplnený neskôr)
+
+**Chyba:** Po kliknutí na prázdnu plochu mapy alebo na tlačidlo Späť ostal pin vizuálne označený (zväčšený, žiaril, názov viditeľný).
+
+**Príčina:** V pôvodnom kóde mal `updateMarkers` závislosť `[buildMarkers, selectedVenueId]`; pri zmene výberu sa znova spustil a cez `updatePinElement` pin odznačil. Pri refaktore do refs sme `selectedVenueId` z deps vypustili — `updateMarkers` sa pri deselekte nespustil. Klik na iný pin fungoval, lebo tam click handler odstraňoval CSS triedu explicitne.
+
+**Oprava:** Jeden `useEffect` v `MapPage.tsx` (hneď po aktualizácii `selectedVenueIdRef`) volá `updateMarkersRef.current()` pri každej zmene `selectedVenueId`. React zaručuje poradie effects, takže ref je aktualizovaný skôr ako `updateMarkers` beží.
+
 ### Otvorené
 
-- MapPage.tsx má 460 riadkov (cieľ ~400) — zvyšok tvorí init mapy a stav, ktorý je obtiažne ďalej rozdeliť bez zmeny správania.
+- MapPage.tsx má 462 riadkov (cieľ ~400) — zvyšok tvorí init mapy a stav, ktorý je obtiažne ďalej rozdeliť bez zmeny správania.
 - Pixelmatch nebol dostupný (nemohol som nainštalovať); použité porovnanie veľkostí súborov (3/5 identické, 2/5 JPEG re-encoding variance).
