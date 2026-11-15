@@ -17,6 +17,7 @@ from pipeline.classify import classify_events
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.thumbs import generate_thumbs
+from pipeline.fetch import USER_AGENT
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ def load_previous_events() -> dict:
     url = os.getenv("PREVIOUS_EVENTS_URL")
     if url:
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "eventapp-pipeline/0.1"})
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read())
             events = data.get("events", [])

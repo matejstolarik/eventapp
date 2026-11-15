@@ -43,7 +43,38 @@ jobs:
           mkdir -p site
           curl -sf https://matejstolarik.github.io/eventapp/events.json -o site/events.json \
             && echo "events.json fetched" \
-            || echo "events.json not available yet, skipping"
+            || { echo "events.json not available yet, skipping"; exit 0; }
+
+      - name: Fetch venue thumbnails (preserve pipeline images)
+        # Download each image_thumb listed in events.json venues so the UI has them after a UI-only deploy.
+        # Missing files are skipped with a warning; failures never abort the deploy.
+        run: |
+          if [ ! -f site/events.json ]; then
+            echo "No events.json — skipping thumbnail fetch"
+            exit 0
+          fi
+          THUMBS=$(python3 -c "
+          import json, sys
+          data = json.load(open('site/events.json'))
+          paths = [v['image_thumb'] for v in data.get('venues', []) if v.get('image_thumb')]
+          print('\n'.join(paths))
+          " 2>/dev/null || true)
+          if [ -z "$THUMBS" ]; then
+            echo "No thumbnails listed in events.json"
+            exit 0
+          fi
+          BASE="https://matejstolarik.github.io/eventapp"
+          COUNT=0
+          while IFS= read -r thumb; do
+            dir="site/$(dirname "$thumb")"
+            mkdir -p "$dir"
+            if curl -sf "$BASE/$thumb" -o "site/$thumb"; then
+              COUNT=$((COUNT + 1))
+            else
+              echo "Warning: could not fetch $thumb"
+            fi
+          done <<< "$THUMBS"
+          echo "Thumbnails fetched: $COUNT"
 
       - name: Copy web app into site/
         # web/dist/ was built with base=/eventapp/, its index.html and assets go into site/.
@@ -67,4 +98,5 @@ jobs:
           echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **URL:** ${{ steps.deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
           echo "- events.json: preserved from live Pages (or absent on first deploy)" >> $GITHUB_STEP_SUMMARY
+          echo "- thumbnails: fetched from live Pages (img/venues/*.jpg)" >> $GITHUB_STEP_SUMMARY
           echo "- web app: built from web/ and deployed to site root" >> $GITHUB_STEP_SUMMARY

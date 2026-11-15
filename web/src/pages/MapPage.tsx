@@ -7,203 +7,21 @@ import { getVenueEvents, getPrimaryEvent, isEventPulsing } from '../core/events'
 import { getToday, toDateString, getUpcomingDays } from '../core/day'
 import { isFavorite } from '../core/store'
 import { visibleEvents } from '../core/visible'
-import { haversine } from '../core/distance'
-import { getDict, formatDayLabel } from '../i18n'
+import { formatDayLabel } from '../i18n'
 import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
-import { createPinElement, updatePinElement, initPinShadows } from '../map/markers'
+import { initPinShadows } from '../map/markers'
 import type { MarkerData } from '../map/markers'
-import { isNightTime, isNightEvent, NIGHT_DAY, resolveSelectedDay } from '../core/night'
-import { decidePairLabel } from '../map/pairLabel'
+import { isNightTime, NIGHT_DAY } from '../core/night'
+import { PIN_CSS } from '../map/pinCss'
+import { checkPinOverlaps, checkNameCollisions } from '../map/collisions'
+import { syncMarkers } from '../map/markerSync'
+import { useNightMode, usePendingSelect } from '../map/useNightMode'
+import { useUserLocation } from '../map/useUserLocation'
 import {
-  IconChevronDown, IconFilter, IconLocation
-} from '../icons'
+  MapTopBar, MapCompass, MapFilterToast, MapLocationButton, MapAttribution, MapArrowButtons,
+} from '../map/MapControls'
 import { EventPanel } from '../components/EventPanel'
 import { DaySelector } from '../components/DaySelector'
-import { AllFavsToggle } from '../components/AllFavsToggle'
-
-const PIN_CSS = `
-@keyframes pinpulse {
-  0%   { transform: scale(1); opacity: 0.9; }
-  70%  { transform: scale(1.9); opacity: 0; }
-  100% { transform: scale(1.9); opacity: 0; }
-}
-@keyframes pin-appear {
-  from { opacity: 0; transform: scale(0.82); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes pin-disappear {
-  from { opacity: 1; transform: scale(1); }
-  to   { opacity: 0; transform: scale(0.82); }
-}
-@keyframes card-slide-up {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-
-.pin-inner {
-  position: relative;
-  width: 50px;
-  height: 64px;
-  transform: translateX(var(--pin-dx, 0px)) scale(1);
-  transform-origin: 50% 100%;
-  transition: transform 220ms ease-out, opacity 220ms ease-out;
-}
-.pin-selected .pin-inner {
-  transform: translateX(var(--pin-dx, 0px)) scale(1.22);
-}
-@media (prefers-reduced-motion: reduce) {
-  .pin-inner { transition: none; }
-}
-
-.pin-glow {
-  position: absolute;
-  left: -8px; top: -8px;
-  width: 66px; height: 66px;
-  border-radius: 33px;
-  opacity: 0;
-  transition: opacity 220ms ease-out;
-  pointer-events: none;
-  z-index: 0;
-}
-.pin-selected .pin-glow { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .pin-glow { transition: none; }
-}
-
-.pin-live-ring {
-  position: absolute;
-  left: 3px; top: 3px;
-  width: 44px; height: 44px;
-  border-radius: 22px;
-  border: 2px solid var(--pc, #fff);
-  animation: pinpulse 1.6s ease-out infinite;
-  transform-origin: center;
-  z-index: 0;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pin-live-ring {
-    animation: none;
-    opacity: 0.5;
-    border-width: 4px;
-  }
-}
-
-.pin-svg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.pin-circle {
-  position: absolute;
-  left: 7px; top: 7px;
-  width: 36px; height: 36px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-
-.pin-badge-heart {
-  position: absolute;
-  top: -2px; right: -4px;
-  width: 20px; height: 20px;
-  border-radius: 10px;
-  background: #F4F2FF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  z-index: 3;
-}
-
-.pin-badge-count {
-  position: absolute;
-  top: -2px; left: -6px;
-  height: 20px; min-width: 20px;
-  padding: 0 5px;
-  box-sizing: border-box;
-  border-radius: 10px;
-  background: #111118;
-  color: #F4F2FF;
-  border: 1.5px solid #F4F2FF;
-  font-size: 11px; font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Outfit, sans-serif;
-  z-index: 3;
-}
-
-.pin-name {
-  position: absolute;
-  left: 50%;
-  top: 68px;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #E4E2EE;
-  text-shadow: 0 0 3px #111118, 0 0 3px #111118, 0 1px 2px #111118;
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  display: none;
-  z-index: 4;
-}
-.pin-selected .pin-name {
-  display: block !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  color: #FFFFFF !important;
-  left: 50% !important;
-  right: auto !important;
-  transform: translateX(-50%) !important;
-  text-align: center !important;
-}
-.map-zoom-13 .pin-name {
-  display: block;
-}
-
-/* Combined pair label — maplibregl.Marker element, moves with the map */
-.pin-combined-name {
-  white-space: nowrap;
-  font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #E4E2EE;
-  text-shadow: 0 0 3px #111118, 0 0 3px #111118, 0 1px 2px #111118;
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  display: none;
-  z-index: 10;
-}
-.map-zoom-13 .pin-combined-name.is-active {
-  display: block;
-}
-
-.pin-new .pin-inner {
-  animation: pin-appear 180ms ease-out both;
-}
-.pin-leaving .pin-inner {
-  animation: pin-disappear 180ms ease-in both;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .pin-new .pin-inner { animation: none; }
-  .pin-leaving .pin-inner { animation: none; opacity: 0; }
-}
-
-.event-panel-enter {
-  animation: card-slide-up 150ms ease-out both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .event-panel-enter { animation: none; }
-}
-`
 
 const PRAGUE_CENTER: [number, number] = [14.4208, 50.0880]
 const PRAGUE_BOUNDS: maplibregl.LngLatBoundsLike = [[13.90, 49.90], [14.90, 50.26]]
@@ -218,34 +36,25 @@ interface Props {
 }
 
 export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled }: Props) {
-  const dict = getDict(lang)
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
-  const currentMarkerDataRef = useRef<MarkerData[]>([])
 
   const now = new Date()
   const [selectedDay, setSelectedDay] = useState(() => isNightTime(now) ? NIGHT_DAY : getToday(now))
   const [showFavorites, setShowFavorites] = useState(false)
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
   const [showDaySelector, setShowDaySelector] = useState(false)
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [locationLoading, setLocationLoading] = useState(false)
   const [showAttribution, setShowAttribution] = useState(false)
   const [panelKey, setPanelKey] = useState(0)
   const [panelAnimated, setPanelAnimated] = useState(false)
   const [bearing, setBearing] = useState(0)
   const [showFilterMsg, setShowFilterMsg] = useState(false)
-  const [showNight, setShowNight] = useState(() => isNightTime(new Date()))
 
   const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement; timerId: ReturnType<typeof setTimeout>; cancelled: boolean }>>(new Map())
   const updateMarkersRef = useRef<() => void>(() => {})
-  const userMarkerRef = useRef<maplibregl.Marker | null>(null)
   const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isVisibleRef = useRef(isVisible)
-  const watchIdRef = useRef<number | null>(null)
-  const lastKnownLocationRef = useRef<{ lat: number; lng: number } | null>(null)
-
   const selectedVenueIdRef = useRef<string | null>(null)
   const dataRef = useRef(data)
   const selectedDayRef = useRef(selectedDay)
@@ -266,22 +75,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])
   useEffect(() => { isVisibleRef.current = isVisible }, [isVisible])
 
-  // External "Na mape" selection: set day (NIGHT_DAY if applicable) and queue panel open
-  useEffect(() => {
-    if (!pendingSelect) return
-    const n = new Date()
-    let dayToSelect = pendingSelect.date
-    if (isNightTime(n) && pendingSelect.date === getToday(n)) {
-      const venue = data.venues.find(v => v.id === pendingSelect.venueId)
-      if (venue) {
-        const evs = data.events.filter(e => e.venue_id === pendingSelect.venueId && e.date === pendingSelect.date)
-        if (evs.some(e => isNightEvent(e, venue.character, n))) dayToSelect = NIGHT_DAY
-      }
-    }
-    setSelectedDay(dayToSelect)
-    pendingPanelOpenRef.current = pendingSelect.venueId
-    onPendingSelectHandled?.()
-  }, [pendingSelect, onPendingSelectHandled, data])
+  // Night mode hook
+  const showNight = useNightMode({ data, selectedDayRef, pendingPanelOpenRef, setSelectedDay })
+
+  // Handle external "Na mape" selection
+  usePendingSelect(pendingSelect, data, pendingPanelOpenRef, setSelectedDay, onPendingSelectHandled)
 
   useEffect(() => {
     const el = toggleRef.current
@@ -293,63 +91,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     return () => obs.disconnect()
   }, [])
 
-  // Resize map when it becomes visible again (was display:none)
+  // Resize map when it becomes visible again
   useEffect(() => {
     if (isVisible && mapRef.current?.loaded()) {
       mapRef.current.resize()
     }
   }, [isVisible])
-
-  // Night mode: auto-switch at midnight and 5:00, also on visibility/focus restore
-  useEffect(() => {
-    let wasNight = isNightTime(new Date())
-
-    const checkNight = () => {
-      const n = new Date()
-      const isNight = isNightTime(n)
-      setShowNight(isNight)
-      if (isNight && !wasNight) {
-        // Crossed midnight: if selected day was the now-former "today", switch to NIGHT_DAY
-        if (selectedDayRef.current === getToday(n)) {
-          setSelectedDay(NIGHT_DAY)
-        }
-      } else {
-        // Covers: 5:00 cross, overnight background (wasNight=false→isNight=false but day is stale)
-        const corrected = resolveSelectedDay(selectedDayRef.current, n)
-        if (corrected !== selectedDayRef.current) setSelectedDay(corrected)
-      }
-      wasNight = isNight
-    }
-
-    const handleVisChange = () => { if (document.visibilityState === 'visible') checkNight() }
-    const handleFocus = () => checkNight()
-    document.addEventListener('visibilitychange', handleVisChange)
-    window.addEventListener('focus', handleFocus)
-
-    const scheduleNext = () => {
-      const n = new Date()
-      const h = n.getHours()
-      let targetMs: number
-      if (h >= 5) {
-        const midnight = new Date(n)
-        midnight.setDate(midnight.getDate() + 1)
-        midnight.setHours(0, 0, 10, 0)
-        targetMs = midnight.getTime() - n.getTime()
-      } else {
-        const five = new Date(n)
-        five.setHours(5, 0, 10, 0)
-        targetMs = five.getTime() - n.getTime()
-      }
-      return setTimeout(() => { checkNight(); scheduleNext() }, Math.max(targetMs, 1000))
-    }
-
-    const timer = scheduleNext()
-    return () => {
-      clearTimeout(timer)
-      document.removeEventListener('visibilitychange', handleVisChange)
-      window.removeEventListener('focus', handleFocus)
-    }
-  }, [])
 
   openPanelRef.current = (venueId: string) => {
     const isNew = venueId !== selectedVenueIdRef.current
@@ -360,7 +107,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
     if (isNew) {
       setPanelKey(k => k + 1)
-      setPanelAnimated(!wasOpen) // animate only on first open from closed
+      setPanelAnimated(!wasOpen)
     }
     setSelectedVenueId(venueId)
   }
@@ -375,12 +122,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   useEffect(() => {
     function onPopState(event: PopStateEvent) {
       if (event.state?.panel === 'open') {
-        // Returned from event page back to the card state — keep panel open
         panelOpenRef.current = true
       } else if (panelOpenRef.current && !window.location.hash.includes('/akcia/')) {
-        // Left the card state (pressed Back from card).
-        // Guard: Chrome fires popstate for hash navigation TO event page (state=null,
-        // hash=#/akcia/...) — in that case the hash already changed, so ignore it.
         panelOpenRef.current = false
         setSelectedVenueId(null)
         setPanelAnimated(false)
@@ -441,311 +184,37 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const map = mapRef.current
     if (!map) return
     const markerData = buildMarkers()
-    currentMarkerDataRef.current = markerData
-    const newIds = new Set(markerData.map(m => m.venueId))
+    syncMarkers({
+      map, markerData,
+      markers: markersRef.current,
+      leavingMarkers: leavingMarkersRef.current,
+      selectedVenueIdRef,
+      pendingPanelOpenRef,
+      pairsRef,
+      combinedLabelRef,
+      combinedMarkerRef,
+      dataRef,
+      openPanel: (id) => openPanelRef.current(id),
+      closePanel: () => closePanelRef.current(),
+    })
+  }, [buildMarkers])
 
-    for (const [id, { marker, el }] of markersRef.current) {
-      if (!newIds.has(id)) {
-        if (id === selectedVenueIdRef.current) {
-          el.classList.remove('pin-selected')
-          el.style.zIndex = ''
-        }
-        markersRef.current.delete(id)
-        const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-        if (prefersReduced) {
-          marker.remove()
-        } else {
-          el.classList.add('pin-leaving')
-          el.style.pointerEvents = 'none'
-          const leavingEntry = { marker, el, timerId: 0 as ReturnType<typeof setTimeout>, cancelled: false }
-          leavingMarkersRef.current.set(id, leavingEntry)
-          let cleaned = false
-          const cleanup = () => {
-            if (cleaned || leavingEntry.cancelled) return
-            cleaned = true
-            marker.remove()
-            leavingMarkersRef.current.delete(id)
-          }
-          const inner = el.querySelector('.pin-inner')
-          if (inner) inner.addEventListener('animationend', cleanup, { once: true })
-          leavingEntry.timerId = setTimeout(cleanup, 250)
-        }
-      }
-    }
-
-    // Close card if selected venue is no longer visible
-    if (selectedVenueIdRef.current && !newIds.has(selectedVenueIdRef.current)) {
-      closePanelRef.current()
-    }
-
-    for (const md of markerData) {
-      const isSelected = md.venueId === selectedVenueId
-      const existing = markersRef.current.get(md.venueId)
-      const leaving = leavingMarkersRef.current.get(md.venueId)
-
-      if (existing) {
-        updatePinElement(existing.el, md, isSelected)
-      } else if (leaving) {
-        // Cancel exit: prevent cleanup timer from removing the marker
-        leaving.cancelled = true
-        clearTimeout(leaving.timerId)
-        leavingMarkersRef.current.delete(md.venueId)
-        // Smooth return: reverse the leaving animation from its current state
-        const inner = leaving.el.querySelector('.pin-inner')
-        const anims = inner ? inner.getAnimations() : []
-        if (anims.length > 0) {
-          anims.forEach(a => { a.playbackRate = -1 })
-          anims[0].addEventListener('finish', () => {
-            leaving.el.classList.remove('pin-leaving')
-            leaving.el.style.pointerEvents = ''
-          }, { once: true })
-        } else {
-          leaving.el.classList.remove('pin-leaving')
-          leaving.el.style.pointerEvents = ''
-        }
-        updatePinElement(leaving.el, md, isSelected)
-        markersRef.current.set(md.venueId, leaving)
-      } else {
-        const el = createPinElement(md, isSelected)
-        const venueId = md.venueId
-        el.addEventListener('click', () => {
-          const map = mapRef.current
-          if (selectedVenueIdRef.current === venueId) {
-            el.classList.remove('pin-selected')
-            el.style.zIndex = ''
-            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-            closePanelRef.current()
-          } else {
-            const oldId = selectedVenueIdRef.current
-            if (oldId) {
-              const oldEntry = markersRef.current.get(oldId)
-              if (oldEntry) {
-                oldEntry.el.classList.remove('pin-selected')
-                oldEntry.el.style.zIndex = ''
-              }
-            }
-            el.classList.add('pin-selected')
-            el.style.zIndex = '10'
-            requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-            openPanelRef.current(venueId)
-
-            // Pan to reveal selected pin if behind UI
-            if (map) {
-              const venue = dataRef.current.venues.find(v => v.id === venueId)
-              if (venue) {
-                const pt = map.project([venue.lng, venue.lat])
-                const cv = map.getCanvas().getBoundingClientRect()
-                const isCovered = pt.y < 110 || pt.y > cv.height - 260 || pt.x < 50 || pt.x > cv.width - 50
-                if (isCovered) {
-                  map.easeTo({
-                    center: [venue.lng, venue.lat],
-                    padding: { top: 100, bottom: 240, left: 60, right: 60 },
-                    duration: 320,
-                  })
-                }
-              }
-            }
-          }
-        })
-        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom', offset: [0, 0] })
-          .setLngLat([md.lng, md.lat])
-          .addTo(map)
-
-        el.classList.add('pin-new')
-        setTimeout(() => el.classList.remove('pin-new'), 300)
-
-        markersRef.current.set(venueId, { marker, el })
-      }
-    }
-
-    // Handle external "Na mape" navigation
-    if (pendingPanelOpenRef.current) {
-      const vid = pendingPanelOpenRef.current
-      pendingPanelOpenRef.current = null
-      const entry = markersRef.current.get(vid)
-      if (entry) {
-        const oldId = selectedVenueIdRef.current
-        if (oldId && oldId !== vid) {
-          const oldEntry = markersRef.current.get(oldId)
-          if (oldEntry) { oldEntry.el.classList.remove('pin-selected'); oldEntry.el.style.zIndex = '' }
-        }
-        entry.el.classList.add('pin-selected')
-        entry.el.style.zIndex = '10'
-        openPanelRef.current(vid)
-        const venue = dataRef.current.venues.find(v => v.id === vid)
-        if (venue && map) {
-          map.easeTo({
-            center: [venue.lng, venue.lat],
-            padding: { top: 100, bottom: 240, left: 60, right: 60 },
-            duration: 320,
-          })
-        }
-      }
-    }
-
-    requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
-  }, [buildMarkers, selectedVenueId])
-
-  function checkNameCollisions() {
-    const map = mapRef.current
-    if (!map || map.getZoom() < 13) return
-
-    // Reset combined label for this pass — re-activated below if a pair combines
-    if (combinedLabelRef.current) combinedLabelRef.current.classList.remove('is-active')
-
-    type PinEntry = { venueId: string; el: HTMLElement; nameEl: HTMLElement; priority: number }
-    const entries: PinEntry[] = []
-
-    for (const [venueId, { el }] of markersRef.current) {
-      const nameEl = el.querySelector('.pin-name') as HTMLElement | null
-      if (!nameEl) continue
-      const isSelected = el.classList.contains('pin-selected')
-      const isLive = el.querySelector('.pin-live-ring') !== null
-      const isFav = el.querySelector('.pin-badge-heart') !== null
-      entries.push({ venueId, el, nameEl, priority: isSelected ? 4 : isLive ? 3 : isFav ? 2 : 1 })
-    }
-
-    entries.sort((a, b) => b.priority - a.priority)
-
-    const processedPairs = new Set<string>()
-    const occupied: DOMRect[] = []
-
-    for (const { venueId, el, nameEl, priority } of entries) {
-      const partnerId = pairsRef.current.get(venueId)
-
-      if (partnerId && !processedPairs.has(venueId)) {
-        processedPairs.add(venueId)
-        processedPairs.add(partnerId)
-
-        const partnerEntry = entries.find(e => e.venueId === partnerId)
-        if (!partnerEntry) continue
-
-        const thisSelected = el.classList.contains('pin-selected')
-        const partnerSelected = partnerEntry.el.classList.contains('pin-selected')
-
-        // When one of the pair is selected: show only its own name, centered under its pin
-        if (thisSelected || partnerSelected) {
-          const selectedEntry = thisSelected ? { venueId, el, nameEl } : partnerEntry
-          const otherEntry = thisSelected ? partnerEntry : { venueId, el, nameEl }
-          otherEntry.nameEl.style.visibility = 'hidden'
-          selectedEntry.nameEl.style.visibility = ''
-          const r = selectedEntry.nameEl.getBoundingClientRect()
-          if (r.width > 0) occupied.push(r)
-          continue
-        }
-
-        // Both unselected: show centered names and check for significant overlap
-        nameEl.style.visibility = 'visible'
-        partnerEntry.nameEl.style.visibility = 'visible'
-
-        const rA = nameEl.getBoundingClientRect()
-        const rB = partnerEntry.nameEl.getBoundingClientRect()
-        const markerA = markersRef.current.get(venueId)
-        const markerB = markersRef.current.get(partnerId)
-
-        if (rA.width > 0 && rB.width > 0 && markerA && markerB) {
-          const ptA = map.project(markerA.marker.getLngLat())
-          const ptB = map.project(markerB.marker.getLngLat())
-          const llA = markerA.marker.getLngLat()
-          const llB = markerB.marker.getLngLat()
-          const decision = decidePairLabel(rA, rB, ptA, ptB, llA, llB)
-
-          if (decision.action === 'combine' && combinedLabelRef.current && combinedMarkerRef.current) {
-            nameEl.style.visibility = 'hidden'
-            partnerEntry.nameEl.style.visibility = 'hidden'
-
-            const { order, midLng, lowerLat } = decision
-            let firstName: string, secondName: string
-            if (order === 'west-east') {
-              const [westId, eastId] = ptA.x <= ptB.x ? [venueId, partnerId] : [partnerId, venueId]
-              firstName = dataRef.current.venues.find(v => v.id === westId)?.name ?? westId
-              secondName = dataRef.current.venues.find(v => v.id === eastId)?.name ?? eastId
-            } else {
-              const [northId, southId] = ptA.y <= ptB.y ? [venueId, partnerId] : [partnerId, venueId]
-              firstName = dataRef.current.venues.find(v => v.id === northId)?.name ?? northId
-              secondName = dataRef.current.venues.find(v => v.id === southId)?.name ?? southId
-            }
-
-            const lbl = combinedLabelRef.current
-            lbl.textContent = `${firstName} · ${secondName}`
-            lbl.classList.add('is-active')
-            combinedMarkerRef.current.setLngLat([midLng, lowerLat])
-
-            const rC = lbl.getBoundingClientRect()
-            if (rC.width > 0) occupied.push(rC)
-          } else {
-            // No significant overlap: pair members never hide each other — both always show
-            for (const ne of [nameEl, partnerEntry.nameEl]) {
-              ne.style.visibility = 'visible'
-              const r = ne.getBoundingClientRect()
-              if (r.width > 0) occupied.push(r)
-            }
-          }
-        }
-        continue
-      }
-
-      if (processedPairs.has(venueId)) continue
-
-      // Non-pair pin: standard logic
-      if (priority === 4) {
-        nameEl.style.visibility = ''
-        const r = nameEl.getBoundingClientRect()
-        if (r.width > 0) occupied.push(r)
-        continue
-      }
-      nameEl.style.visibility = 'visible'
-      const r = nameEl.getBoundingClientRect()
-      if (r.width === 0) continue
-      let overlaps = false
-      for (const occ of occupied) {
-        if (!(r.right < occ.left || r.left > occ.right || r.bottom < occ.top || r.top > occ.bottom)) {
-          overlaps = true; break
-        }
-      }
-      if (overlaps) nameEl.style.visibility = 'hidden'
-      else occupied.push(r)
-    }
-  }
-
-  function checkPinOverlaps() {
+  const runCollisions = useCallback(() => {
     const map = mapRef.current
     if (!map) return
+    requestAnimationFrame(() => {
+      checkPinOverlaps(map, markersRef.current, pairsRef.current)
+      checkNameCollisions(
+        map, markersRef.current, pairsRef.current,
+        combinedLabelRef.current, combinedMarkerRef.current,
+        (id) => dataRef.current.venues.find(v => v.id === id)?.name ?? id,
+      )
+    })
+  }, [])
 
-    type PinInfo = { venueId: string; el: HTMLElement; pt: { x: number; y: number }; lng: number }
-    const pins: PinInfo[] = []
-    for (const [venueId, { el, marker }] of markersRef.current) {
-      const ll = marker.getLngLat()
-      const pt = map.project([ll.lng, ll.lat])
-      pins.push({ venueId, el, pt, lng: ll.lng })
-    }
-
-    // Reset
-    pairsRef.current.clear()
-    for (const { el } of pins) {
-      el.style.removeProperty('--pin-dx')
-    }
-
-    for (let i = 0; i < pins.length; i++) {
-      for (let j = i + 1; j < pins.length; j++) {
-        const a = pins[i], b = pins[j]
-        const dx = a.pt.x - b.pt.x
-        const dy = a.pt.y - b.pt.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 200) {
-          const west = a.lng <= b.lng ? a : b
-          const east = a.lng <= b.lng ? b : a
-          pairsRef.current.set(west.venueId, east.venueId)
-          pairsRef.current.set(east.venueId, west.venueId)
-          if (dist < 20) {
-            const off = west === a ? -8 : 8
-            a.el.style.setProperty('--pin-dx', `${off}px`)
-            b.el.style.setProperty('--pin-dx', `${-off}px`)
-          }
-        }
-      }
-    }
-  }
+  // User location hook
+  const { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch } =
+    useUserLocation({ mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible })
 
   // Init map
   useEffect(() => {
@@ -769,7 +238,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         })
         mapRef.current = map
 
-        // Combined pair label as a maplibregl.Marker — moves with the map during panning
         const combinedLabelEl = document.createElement('div')
         combinedLabelEl.className = 'pin-combined-name'
         const combinedMarker = new maplibregl.Marker({
@@ -782,12 +250,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         combinedLabelRef.current = combinedLabelEl
         combinedMarkerRef.current = combinedMarker
 
-        // WebGL context loss recovery
         const canvas = map.getCanvas()
         canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault() })
         canvas.addEventListener('webglcontextrestored', () => { map.triggerRepaint() })
 
-        // Repaint and refresh markers on tab visibility restore
         function handleVisChange() {
           if (document.visibilityState === 'visible') {
             map.triggerRepaint()
@@ -810,43 +276,37 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           const container = mapContainerRef.current
           if (container) container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
           updateMarkers()
-
-          // Initial view: check if geolocation is already granted, flyTo if near Prague
-          navigator.permissions?.query({ name: 'geolocation' }).then(perm => {
-            if (perm.state !== 'granted') return
-            navigator.geolocation.getCurrentPosition(pos => {
-              const { latitude: lat, longitude: lng } = pos.coords
-              const curNow = new Date()
-              const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite })
-              const activeVenues = dataRef.current.venues.filter(v => vm.has(v.id))
-              if (activeVenues.length === 0) return
-              const nearest = activeVenues.reduce((best, v) =>
-                haversine(lat, lng, v.lat, v.lng) < haversine(lat, lng, best.lat, best.lng) ? v : best
-              )
-              if (haversine(lat, lng, nearest.lat, nearest.lng) <= 2) {
-                map.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 })
-                lastKnownLocationRef.current = { lat, lng }
-                setUserLocation({ lat, lng })
-                startWatch()
-              }
-            }, () => {}, { timeout: 5000 })
-          }).catch(() => {})
+          tryInitialLocation(map)
         })
 
         map.on('zoom', () => {
           const container = mapContainerRef.current
           if (!container) return
           container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
-          // Recompute every frame so stale visibility never causes asymmetric display
-          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
+          requestAnimationFrame(() => {
+            checkPinOverlaps(map, markersRef.current, pairsRef.current)
+            checkNameCollisions(map, markersRef.current, pairsRef.current,
+              combinedLabelRef.current, combinedMarkerRef.current,
+              (id) => dataRef.current.venues.find(v => v.id === id)?.name ?? id)
+          })
         })
 
         map.on('zoomend', () => {
-          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
+          requestAnimationFrame(() => {
+            checkPinOverlaps(map, markersRef.current, pairsRef.current)
+            checkNameCollisions(map, markersRef.current, pairsRef.current,
+              combinedLabelRef.current, combinedMarkerRef.current,
+              (id) => dataRef.current.venues.find(v => v.id === id)?.name ?? id)
+          })
         })
 
         map.on('moveend', () => {
-          requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
+          requestAnimationFrame(() => {
+            checkPinOverlaps(map, markersRef.current, pairsRef.current)
+            checkNameCollisions(map, markersRef.current, pairsRef.current,
+              combinedLabelRef.current, combinedMarkerRef.current,
+              (id) => dataRef.current.venues.find(v => v.id === id)?.name ?? id)
+          })
         })
 
         map.on('rotate', () => setBearing(map.getBearing()))
@@ -861,8 +321,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     return () => {
       mounted = false
       stopWatch()
-      // Keep map alive — MapPage is never truly unmounted in normal app flow.
-      // Only clean up if something went wrong (map never finished init).
       if (mapRef.current && !mapRef.current.loaded()) {
         mapRef.current.remove()
         mapRef.current = null
@@ -871,104 +329,19 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // watchPosition: start/stop based on tab visibility
-  useEffect(() => {
-    if (isVisible && document.visibilityState === 'visible') {
-      if (lastKnownLocationRef.current) startWatch()
-    } else {
-      stopWatch()
-    }
-    const handleVisChange = () => {
-      if (!isVisibleRef.current) return
-      if (document.visibilityState === 'visible') {
-        if (lastKnownLocationRef.current) startWatch()
-      } else {
-        stopWatch()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisChange)
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisChange)
-      stopWatch()
-    }
-  }, [isVisible]) // eslint-disable-line react-hooks/exhaustive-deps
-
   updateMarkersRef.current = updateMarkers
 
   useEffect(() => {
     if (mapRef.current?.loaded()) updateMarkers()
   }, [updateMarkers])
 
-  // Refresh every 60 s when map is visible (pulse state, event ends)
+  // Refresh every 60s when map is visible
   useEffect(() => {
     const interval = setInterval(() => {
       if (mapRef.current?.loaded() && isVisibleRef.current) updateMarkersRef.current()
     }, 60000)
     return () => clearInterval(interval)
   }, [])
-
-  // User location marker
-  useEffect(() => {
-    const map = mapRef.current
-    if (!map || !userLocation) return
-    if (userMarkerRef.current) {
-      userMarkerRef.current.setLngLat([userLocation.lng, userLocation.lat])
-      return
-    }
-    const dot = document.createElement('div')
-    dot.style.cssText = 'width:14px;height:14px;border-radius:7px;background:#4A90E2;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)'
-    userMarkerRef.current = new maplibregl.Marker({ element: dot })
-      .setLngLat([userLocation.lng, userLocation.lat])
-      .addTo(map)
-    return () => {
-      userMarkerRef.current?.remove()
-      userMarkerRef.current = null
-    }
-  }, [userLocation])
-
-  function startWatch() {
-    if (!navigator.geolocation || watchIdRef.current !== null) return
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      pos => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        lastKnownLocationRef.current = loc
-        setUserLocation(loc)
-      },
-      () => {},
-      { enableHighAccuracy: true, maximumAge: 10000 }
-    )
-  }
-
-  function stopWatch() {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation?.clearWatch(watchIdRef.current)
-      watchIdRef.current = null
-    }
-  }
-
-  function handleLocationClick() {
-    if (!navigator.geolocation) return
-    // If we already have a known location, fly there immediately
-    if (lastKnownLocationRef.current) {
-      const { lat, lng } = lastKnownLocationRef.current
-      mapRef.current?.flyTo({ center: [lng, lat], zoom: 14 })
-      return
-    }
-    // First time: request position with generous maximumAge, then start watch
-    setLocationLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        lastKnownLocationRef.current = loc
-        setUserLocation(loc)
-        setLocationLoading(false)
-        mapRef.current?.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14 })
-        startWatch()
-      },
-      () => setLocationLoading(false),
-      { timeout: 8000, maximumAge: 60000 }
-    )
-  }
 
   function handleFilterClick() {
     if (filterMsgTimerRef.current) clearTimeout(filterMsgTimerRef.current)
@@ -998,7 +371,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     }
     const newEntry = markersRef.current.get(venue.id)
     if (newEntry) { newEntry.el.classList.add('pin-selected'); newEntry.el.style.zIndex = '10' }
-    requestAnimationFrame(() => { checkPinOverlaps(); checkNameCollisions() })
+    runCollisions()
     openPanelRef.current(venue.id)
     mapRef.current?.easeTo({
       center: [venue.lng, venue.lat],
@@ -1007,33 +380,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     })
   }
 
-  // Responsive toggle: shrink padding → smaller font
-  const togglePad = toggleWidth < 160 ? '0 6px' : toggleWidth < 200 ? '0 8px' : '0 14px'
-  const toggleFontSize = toggleWidth < 140 ? 13 : 14
-
   const calendarToday = toDateString(curNow)
   const noonToday = new Date(calendarToday + 'T12:00:00')
   const days = showNight ? getUpcomingDays(4, noonToday) : getUpcomingDays(5, curNow)
   const selectedDayLabel = formatDayLabel(selectedDay, lang, curNow)
   const panelOpen = panelVenue && panelEvents.length > 0
 
-  // Arrow button style (40px, grey when disabled/at edge)
-  function arrowBtnStyle(enabled: boolean): React.CSSProperties {
-    return {
-      position: 'absolute', bottom: 310,
-      width: 40, height: 40, borderRadius: 20,
-      background: enabled ? '#F4F2FF' : '#2A2838',
-      color: enabled ? '#111118' : '#5D5677',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      boxShadow: enabled ? '0 4px 12px rgba(0,0,0,0.45)' : 'none',
-      zIndex: 25,
-      border: 'none',
-      cursor: enabled ? 'pointer' : 'default',
-      opacity: enabled ? 1 : 0.5,
-    }
-  }
-
-  // Count badge on arrow buttons: how many venues are in each direction
   const leftCount = selIdx > 0 ? selIdx : 0
   const rightCount = selIdx >= 0 && selIdx < sortedVenues.length - 1 ? sortedVenues.length - 1 - selIdx : 0
 
@@ -1041,178 +393,43 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     <div style={{ position: 'absolute', inset: 0 }}>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-      {/* Top bar */}
-      <div style={{
-        position: 'absolute', top: 56, left: 16, right: 16,
-        display: 'grid', gridTemplateColumns: 'auto 1fr 44px',
-        alignItems: 'center', gap: 8, zIndex: 20,
-      }}>
-        <button
-          style={{
-            height: 44, padding: '0 14px', borderRadius: 22,
-            background: '#F4F2FF', color: '#111118',
-            fontSize: 15, fontWeight: 600,
-            display: 'flex', alignItems: 'center', gap: 6,
-            border: 'none', cursor: 'pointer',
-            whiteSpace: 'nowrap',
-          }}
-          onClick={() => setShowDaySelector(true)}
-          aria-label={dict.map.daySelector}
-        >
-          {selectedDayLabel}
-          <IconChevronDown size={16} color="#111118" />
-        </button>
+      <MapTopBar
+        lang={lang}
+        selectedDayLabel={selectedDayLabel}
+        showFavorites={showFavorites}
+        toggleRef={toggleRef}
+        toggleWidth={toggleWidth}
+        onDaySelectorOpen={() => setShowDaySelector(true)}
+        onFavoritesChange={setShowFavorites}
+        onFilterClick={handleFilterClick}
+      />
 
-        <AllFavsToggle
-          containerRef={toggleRef}
-          showFavorites={showFavorites}
-          onChange={setShowFavorites}
-          allLabel={dict.map.all}
-          favLabel={dict.map.favorites}
-          fontSize={toggleFontSize}
-          padding={togglePad}
-          style={{ flex: 1, minWidth: 0 }}
-        />
+      <MapCompass bearing={bearing} lang={lang} mapRef={mapRef} />
 
-        <button
-          style={{
-            width: 44, height: 44, borderRadius: 22,
-            background: '#FF4D8D', color: '#1A0710',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: 'none', cursor: 'pointer',
-          }}
-          aria-label={dict.map.filter}
-          onClick={handleFilterClick}
-        >
-          <IconFilter size={20} color="#1A0710" />
-        </button>
-      </div>
+      <MapFilterToast visible={showFilterMsg} panelOpen={!!panelOpen} lang={lang} />
 
-      {/* Compass — above location button (bottom: 132+52+8 = 192) */}
-      {bearing !== 0 && (
-        <button
-          style={{
-            position: 'absolute', right: 16, bottom: 192,
-            width: 44, height: 44, borderRadius: 22,
-            background: '#F4F2FF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4)', zIndex: 20,
-            border: 0,
-          }}
-          onClick={() => mapRef.current?.easeTo({ bearing: 0, duration: 400 })}
-          aria-label={dict.map.compassLabel}
-        >
-          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"
-            style={{ transform: `rotate(${-bearing}deg)`, transition: 'transform 100ms' }}>
-            <path d="M12 2l4 10h-8z" fill="#FF4D8D" />
-            <path d="M12 22l-4-10h8z" fill="#5D5677" />
-            <circle cx="12" cy="12" r="1.6" fill="#111118" />
-          </svg>
-        </button>
-      )}
-
-      {/* Filter coming soon toast */}
-      {showFilterMsg && (
-        <div style={{
-          position: 'absolute',
-          bottom: panelOpen ? 230 : 112,
-          left: '50%', transform: 'translateX(-50%)',
-          background: '#1C1C27', color: '#F4F2FF',
-          padding: '10px 20px', borderRadius: 20,
-          fontSize: 14, fontWeight: 500, zIndex: 30,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-          border: '1px solid #2E2D3C',
-          whiteSpace: 'nowrap',
-          fontFamily: "'Outfit', sans-serif",
-          pointerEvents: 'none',
-        }}>
-          {dict.map.filterComingSoon}
-        </div>
-      )}
-
-      {/* My location button */}
-      <button
-        style={{
-          position: 'absolute', right: 16, bottom: 132,
-          width: 52, height: 52, borderRadius: 26,
-          background: '#F4F2FF', color: '#111118',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.4)', zIndex: 20,
-          border: 'none', cursor: 'pointer',
-          opacity: locationLoading ? 0.6 : 1,
-        }}
+      <MapLocationButton
+        lang={lang}
+        locationLoading={locationLoading}
         onClick={handleLocationClick}
-        aria-label={dict.map.myLocation}
-      >
-        <IconLocation size={22} color="#111118" />
-      </button>
+      />
 
-      {/* Attribution */}
-      <button
-        style={{
-          position: 'absolute', left: 16, bottom: 108,
-          height: 28, padding: '0 10px', borderRadius: 14,
-          background: 'rgba(28,28,39,0.90)', color: '#B9B6CC',
-          border: '1px solid #2E2D3C',
-          fontSize: 12, fontWeight: showAttribution ? 400 : 700,
-          display: 'flex', alignItems: 'center', gap: 6, zIndex: 20,
-          whiteSpace: 'nowrap', cursor: 'pointer',
-        }}
-        onClick={() => setShowAttribution(a => !a)}
-        aria-label="Autorstvo mapy"
-      >
-        {showAttribution ? '© OpenStreetMap prispievatelia | OpenFreeMap' : 'i'}
-      </button>
+      <MapAttribution
+        showAttribution={showAttribution}
+        onToggle={() => setShowAttribution(a => !a)}
+      />
 
-      {/* Navigation arrows — 40px, grey when at edge, with count badge when count > 0 */}
       {panelOpen && (
-        <>
-          <button
-            style={{ ...arrowBtnStyle(!!prevVenue), left: 16 }}
-            onClick={() => prevVenue && handleArrow(prevVenue)}
-            disabled={!prevVenue}
-            aria-label="Predošlé miesto"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M15 6l-6 6 6 6" />
-            </svg>
-            {leftCount > 0 && (
-              <span style={{
-                position: 'absolute', top: -4, right: -4,
-                minWidth: 18, height: 18, borderRadius: 9,
-                background: '#111118', color: '#F4F2FF',
-                fontSize: 11, fontWeight: 700, lineHeight: '18px',
-                textAlign: 'center', padding: '0 4px',
-                pointerEvents: 'none',
-              }}>{leftCount}</span>
-            )}
-          </button>
-          <button
-            style={{ ...arrowBtnStyle(!!nextVenue), right: 16 }}
-            onClick={() => nextVenue && handleArrow(nextVenue)}
-            disabled={!nextVenue}
-            aria-label="Ďalšie miesto"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-            {rightCount > 0 && (
-              <span style={{
-                position: 'absolute', top: -4, left: -4,
-                minWidth: 18, height: 18, borderRadius: 9,
-                background: '#111118', color: '#F4F2FF',
-                fontSize: 11, fontWeight: 700, lineHeight: '18px',
-                textAlign: 'center', padding: '0 4px',
-                pointerEvents: 'none',
-              }}>{rightCount}</span>
-            )}
-          </button>
-        </>
+        <MapArrowButtons
+          prevVenue={prevVenue}
+          nextVenue={nextVenue}
+          leftCount={leftCount}
+          rightCount={rightCount}
+          onPrev={() => prevVenue && handleArrow(prevVenue)}
+          onNext={() => nextVenue && handleArrow(nextVenue)}
+        />
       )}
 
-      {/* Event panel */}
       {panelOpen && (
         <EventPanel
           key={panelKey}
@@ -1226,8 +443,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         />
       )}
 
-
-      {/* Day selector sheet */}
       {showDaySelector && (
         <DaySelector
           days={days}

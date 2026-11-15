@@ -10,7 +10,7 @@ THUMB_DIR = pathlib.Path("site/img/venues")
 THUMB_SIZE = 160
 THUMB_QUALITY = 80
 TIMEOUT = 15
-USER_AGENT = "eventapp-pipeline/0.1 (thumbnail)"
+from .fetch import USER_AGENT
 
 
 def _hash_url(url: str) -> str:

@@ -32,7 +32,7 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
 
-  const src = venue.image_thumb ?? venue.image_url
+  const src = venue.image_thumb
   if (!src || err) {
     return (
       <div style={{

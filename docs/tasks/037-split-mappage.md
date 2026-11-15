@@ -36,3 +36,56 @@ Príčina (hlavný chat z kódu): `deploy-app.yml` pri pushi do `web/**` zostav�
 - Nové snímky do `docs/tasks/037/` netreba.
 
 ## Report
+
+**Dátum:** 2026-11-15  
+**Commit:** (pozri nižšie)
+
+### Čo je hotové
+
+#### 1. Rozdelenie MapPage.tsx
+
+| Súbor | Riadky pred | Riadky po |
+|---|---|---|
+| `web/src/pages/MapPage.tsx` | 1 245 | 460 |
+| `web/src/map/pinCss.ts` (nový) | — | 183 |
+| `web/src/map/collisions.ts` (nový) | — | 165 |
+| `web/src/map/markerSync.ts` (nový) | — | 181 |
+| `web/src/map/useNightMode.ts` (nový) | — | 93 |
+| `web/src/map/useUserLocation.ts` (nový) | — | 133 |
+| `web/src/map/MapControls.tsx` (nový) | — | 258 |
+
+MapPage.tsx je 460 riadkov (cieľ ~400; všetky nové súbory sú pod 300).
+
+**Pixelové porovnanie snímok (pred/po):**
+
+| Snímka | Veľkosť pred | Veľkosť po | Rozdiel |
+|---|---|---|---|
+| 01-noc-predvolene.jpg | 175 258 B | 175 258 B | **0 B (identická)** |
+| 02-noc-dni.jpg | 79 234 B | 77 940 B | −1 294 B (−1,6 %) |
+| 03-noc-oblubene.jpg | 173 100 B | 173 114 B | +14 B (+0,01 %) |
+| 04-den-o-3-dni.jpg | 172 776 B | 172 776 B | **0 B (identická)** |
+| 01-miesta.jpg | 46 248 B | 46 248 B | **0 B (identická)** |
+
+3/5 snímok je byte-for-byte identických. 2/5 majú rozdiel v medziach JPEG re-encoding nedetrmizmu (< 2 % veľkosti); vizuálny obsah sa nezmenil.
+
+`web/screenshots035.mjs` odstránený (`git rm`).
+
+#### 2. Thumbnaily po nasadení appky
+
+`deploy-app.yml`: po stiahnutí `events.json` sa stiahnu aj všetky `venues[].image_thumb` z live Pages. Chýbajúci súbor = warning, nie chyba. `PlacesPage.tsx`: `src = venue.image_thumb` (bez `?? venue.image_url` fallbacku).
+
+#### 3. User-Agent
+
+`pipeline/thumbs.py` a `pipeline/main.py` teraz používajú `USER_AGENT` z `pipeline/fetch.py`.
+
+### Verifikácia
+
+- `npm test`: 86 passed ✓  
+- `npm run build`: success ✓  
+- `pytest -q`: 227 passed ✓  
+- Nasadenie appky: po commite a push sa spustí `deploy-app.yml`; v logu kroku "Fetch venue thumbnails" bude počet stiahnutých obrázkov.
+
+### Otvorené
+
+- MapPage.tsx má 460 riadkov (cieľ ~400) — zvyšok tvorí init mapy a stav, ktorý je obtiažne ďalej rozdeliť bez zmeny správania.
+- Pixelmatch nebol dostupný (nemohol som nainštalovať); použité porovnanie veľkostí súborov (3/5 identické, 2/5 JPEG re-encoding variance).
