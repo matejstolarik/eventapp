@@ -24,3 +24,7 @@ Ak je aktívny akýkoľvek prepínač, v pravom hornom rohu Miest malý text `db
 - Do `docs/decisions.md` nič; prepínače sa po diagnostike odstránia v ďalšej úlohe.
 
 ## Report
+
+**Dátum:** 2026-11-15
+
+Problém s čiernym scrollom v Miestach sa na telefóne Mateja sám vyriešil (overené 2026-11-15). Príčina nebola identifikovaná. Prepínače neboli implementované — úloha sa ruší bez zmeny kódu.
