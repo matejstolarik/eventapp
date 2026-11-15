@@ -40,7 +40,7 @@ Podľa `design.md` 4 a snímky `10` (bez Pre teba, Nové, lupy a Filtra):
 ## Report
 
 **Dátum:** 2026-11-15  
-**Commit:** TBD (pridaný po commite nižšie)
+**Commit:** 1ece906
 
 ### Čo je hotové
 
