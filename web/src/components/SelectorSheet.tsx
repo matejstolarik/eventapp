@@ -137,13 +137,13 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
   return createPortal(
     <>
       <div
-        style={{ position: 'fixed', inset: 0, zIndex: 29, background: 'rgba(0,0,0,0.5)' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 101, background: 'rgba(0,0,0,0.5)' }}
         onClick={handleBackdropClick}
       />
       <div style={{
         position: 'fixed', left: 0, right: 0, bottom: 0,
         background: '#1C1C27', borderRadius: '28px 28px 0 0',
-        zIndex: 30, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', overflow: 'hidden',
+        zIndex: 102, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', overflow: 'hidden',
         overscrollBehavior: 'contain',
       }}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#3A3848', margin: '10px auto 12px' }} />
