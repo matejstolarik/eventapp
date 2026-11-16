@@ -12,14 +12,6 @@ function pad2(n: number): string {
   return String(n).padStart(2, '0')
 }
 
-function formatCalDate(d: Date): string {
-  return `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`
-}
-
-function formatCalDateTime(d: Date): string {
-  return `${formatCalDate(d)}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`
-}
-
 /** Build an Android Chrome intent URL for the system calendar app (ACTION_INSERT). */
 export function buildAndroidCalendarIntent(
   event: Pick<Event, 'title' | 'date' | 'start_time' | 'end_time' | 'formats'>,

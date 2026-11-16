@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildGoogleCalendarUrl } from './calendar'
+import { buildAndroidCalendarIntent } from './calendar'
 
 const venue = {
   name: 'Cross Club',
@@ -8,57 +8,50 @@ const venue = {
   character: [],
 }
 
-describe('buildGoogleCalendarUrl', () => {
-  it('normal event with known end', () => {
-    const url = buildGoogleCalendarUrl(
+describe('buildAndroidCalendarIntent', () => {
+  it('normal event produces valid intent URL', () => {
+    const url = buildAndroidCalendarIntent(
       { title: 'Test Party', date: '2026-11-20', start_time: '20:00', end_time: '23:00', formats: ['party'] },
       venue,
       'https://example.com/event/1'
     )
-    expect(url).toContain('action=TEMPLATE')
-    expect(url).toContain('text=Test+Party')
-    expect(url).toContain('20261120T200000%2F20261120T230000')
-    expect(url).toContain('ctz=Europe%2FPrague')
-    expect(url).toContain('location=Cross+Club')
+    expect(url).toMatch(/^intent:#Intent;action=android\.intent\.action\.INSERT/)
+    expect(url).toContain('type=vnd.android.cursor.item%2Fevent')
+    expect(url).toContain('S.title=Test%20Party')
+    expect(url).toContain('l.beginTime=')
+    expect(url).toContain('l.endTime=')
+    expect(url).toContain('S.eventLocation=Cross%20Club')
+    expect(url).toContain(';end')
   })
 
-  it('event crossing midnight (end < start)', () => {
-    const url = buildGoogleCalendarUrl(
-      { title: 'Night Event', date: '2026-11-20', start_time: '22:00', end_time: '03:00', formats: ['party'] },
+  it('all-day event sets B.allDay=true', () => {
+    const url = buildAndroidCalendarIntent(
+      { title: 'Festival', date: '2026-11-20', start_time: null, end_time: null, formats: [] },
       venue,
       'https://example.com/event/2'
     )
-    // end should be next day: 20261121T030000
-    expect(url).toContain('20261120T220000%2F20261121T030000')
+    expect(url).toContain('B.allDay=true')
   })
 
-  it('all-day event (no start_time)', () => {
-    const url = buildGoogleCalendarUrl(
-      { title: 'Festival', date: '2026-11-20', start_time: null, end_time: null, formats: [] },
-      venue,
-      'https://example.com/event/3'
-    )
-    // all-day: YYYYMMDD/YYYYMMDD+1 (no time component in dates param)
-    expect(url).toContain('20261120%2F20261121')
-    expect(url).not.toMatch(/dates=\d{8}T/)
-  })
-
-  it('no end_time: uses computed end from eventEndsAt', () => {
-    const url = buildGoogleCalendarUrl(
-      { title: 'Concert', date: '2026-11-20', start_time: '20:00', end_time: null, formats: ['concert'] },
-      { ...venue, character: [] },
-      'https://example.com/event/4'
-    )
-    // concert with no end: start + 3h = 23:00
-    expect(url).toContain('20261120T200000%2F20261120T230000')
-  })
-
-  it('no venue: empty location', () => {
-    const url = buildGoogleCalendarUrl(
+  it('no venue: no eventLocation extra', () => {
+    const url = buildAndroidCalendarIntent(
       { title: 'Show', date: '2026-11-20', start_time: '20:00', end_time: '22:00', formats: [] },
       undefined,
-      'https://example.com/event/5'
+      'https://example.com/event/3'
     )
-    expect(url).toContain('location=')
+    expect(url).not.toContain('S.eventLocation')
+  })
+
+  it('end time after midnight yields end > begin', () => {
+    const url = buildAndroidCalendarIntent(
+      { title: 'Night Event', date: '2026-11-20', start_time: '22:00', end_time: '03:00', formats: ['party'] },
+      venue,
+      'https://example.com/event/4'
+    )
+    const beginMatch = url.match(/l\.beginTime=(\d+)/)
+    const endMatch = url.match(/l\.endTime=(\d+)/)
+    expect(beginMatch).not.toBeNull()
+    expect(endMatch).not.toBeNull()
+    expect(Number(endMatch![1])).toBeGreaterThan(Number(beginMatch![1]))
   })
 })
