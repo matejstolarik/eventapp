@@ -155,9 +155,9 @@ export function syncMarkers(opts: SyncMarkersOptions): void {
   // Handle external "Na mape" navigation
   if (pendingPanelOpenRef.current) {
     const vid = pendingPanelOpenRef.current
-    pendingPanelOpenRef.current = null
     const entry = markers.get(vid)
     if (entry) {
+      pendingPanelOpenRef.current = null
       const oldId = selectedVenueIdRef.current
       if (oldId && oldId !== vid) {
         const oldEntry = markers.get(oldId)

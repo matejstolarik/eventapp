@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { isNightMode, isNightEvent, NIGHT_DAY, resolveSelectedDay } from '../core/night'
-import { getToday } from '../core/day'
+import { getToday, getYesterday } from '../core/day'
 import type { EventsData } from '../core/types'
 
 interface NightModeOptions {
@@ -56,20 +56,23 @@ export function usePendingSelect(
   pendingPanelOpenRef: React.MutableRefObject<string | null>,
   setSelectedDay: (day: string) => void,
   onPendingSelectHandled?: () => void,
+  onForceUpdate?: () => void,
 ) {
   useEffect(() => {
     if (!pendingSelect) return
     const n = new Date()
     let dayToSelect = pendingSelect.date
-    if (isNightMode(data, n) && pendingSelect.date === getToday(n)) {
+    // Night events have the previous calendar day's date (they started the night before)
+    if (isNightMode(data, n) && pendingSelect.date === getYesterday(n)) {
       const venue = data.venues.find(v => v.id === pendingSelect.venueId)
       if (venue) {
         const evs = data.events.filter(e => e.venue_id === pendingSelect.venueId && e.date === pendingSelect.date)
         if (evs.some(e => isNightEvent(e, venue.character, venue.closing, n))) dayToSelect = NIGHT_DAY
       }
     }
-    setSelectedDay(dayToSelect)
     pendingPanelOpenRef.current = pendingSelect.venueId
+    setSelectedDay(dayToSelect)
+    onForceUpdate?.()
     onPendingSelectHandled?.()
-  }, [pendingSelect, onPendingSelectHandled, data, pendingPanelOpenRef, setSelectedDay]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pendingSelect]) // eslint-disable-line react-hooks/exhaustive-deps
 }

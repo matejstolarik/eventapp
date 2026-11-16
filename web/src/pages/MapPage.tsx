@@ -83,7 +83,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const showNight = useNightMode({ data, selectedDayRef, pendingPanelOpenRef, setSelectedDay })
 
   // Handle external "Na mape" selection
-  usePendingSelect(pendingSelect, data, pendingPanelOpenRef, setSelectedDay, onPendingSelectHandled)
+  const forcePendingUpdateRef = useRef(() => {})
+  forcePendingUpdateRef.current = () => {
+    if (mapRef.current?.loaded() && isVisibleRef.current) updateMarkersRef.current()
+  }
+  usePendingSelect(pendingSelect, data, pendingPanelOpenRef, setSelectedDay, onPendingSelectHandled,
+    () => forcePendingUpdateRef.current())
 
   useEffect(() => {
     const el = toggleRef.current
@@ -95,10 +100,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     return () => obs.disconnect()
   }, [])
 
-  // Resize map when it becomes visible again
+  // Resize map when it becomes visible again; also process any pending panel open
   useEffect(() => {
     if (isVisible && mapRef.current?.loaded()) {
       mapRef.current.resize()
+      updateMarkersRef.current()
     }
   }, [isVisible])
 
