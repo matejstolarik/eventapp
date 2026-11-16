@@ -9,7 +9,7 @@ import { isNightMode, NIGHT_DAY } from '../core/night'
 import { buildGoogleCalendarUrl, generateICS } from '../core/calendar'
 import {
   IconChevronLeft, IconExpand, IconCalendar,
-  IconShare, IconSpotify, IconNavigate, IconPin, IconPlusCircle, IconCheckCircle, EventTypeIcon
+  IconShare, IconSpotify, IconNavigate, IconPin, IconBookmark, EventTypeIcon
 } from '../icons'
 
 interface Props {
@@ -247,33 +247,51 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           {metaLine}
         </p>
 
-        {/* Tags: event formats + genres only (venue character tags are on venue profile) */}
+        {/* Tags row — with bookmark on right when no price and no sold_out (case c) */}
         {(ev.formats.length > 0 || ev.genres.length > 0) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-            {ev.formats.map(f => {
-              const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
-              return (
-                <span key={f} style={{
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
+            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {ev.formats.map(f => {
+                const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
+                return (
+                  <span key={f} style={{
+                    height: 24, padding: '0 10px', borderRadius: 12,
+                    background: bg, color: fg, fontSize: 12, fontWeight: 600,
+                    display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
+                  }}>{f}</span>
+                )
+              })}
+              {ev.genres.map(g => (
+                <span key={g} style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
-                  background: bg, color: fg, fontSize: 12, fontWeight: 600,
+                  background: '#2A2838', color: '#E4DEFF', fontSize: 12, fontWeight: 600,
                   display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{f}</span>
-              )
-            })}
-            {ev.genres.map(g => (
-              <span key={g} style={{
-                height: 24, padding: '0 10px', borderRadius: 12,
-                background: '#2A2838', color: '#E4DEFF', fontSize: 12, fontWeight: 600,
-                display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-              }}>{g}</span>
-            ))}
+                }}>{g}</span>
+              ))}
+            </div>
+            {/* Case (c): no price, no sold_out → bookmark on tag row */}
+            {!ev.price_text && !ev.sold_out && (
+              <button
+                style={{
+                  width: 40, height: 40, borderRadius: 20, flexShrink: 0, marginTop: -8,
+                  background: going ? '#FF4D8D' : '#1C1C27',
+                  border: going ? 'none' : '1.5px solid #5D5677',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+                onClick={handleGoing}
+                aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
+              >
+                <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
+              </button>
+            )}
           </div>
         )}
 
-        {/* Price + Idem row */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 40 }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-            {ev.price_text && (
+        {/* Case (a): has price → price + bookmark row */}
+        {ev.price_text && (
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 40 }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{
                 fontSize: 17, fontWeight: 600,
                 color: ev.sold_out ? '#5D5677' : '#F4F2FF',
@@ -281,8 +299,36 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
               }}>
                 {ev.price_text}
               </span>
-            )}
-            {ev.sold_out && (
+              {ev.sold_out && (
+                <span style={{
+                  padding: '2px 8px', borderRadius: 10,
+                  background: '#3A1420', color: '#FF8FB0',
+                  fontSize: 12, fontWeight: 600
+                }}>
+                  {dict.event.soldOut}
+                </span>
+              )}
+            </div>
+            <button
+              style={{
+                width: 40, height: 40, borderRadius: 20, flexShrink: 0,
+                background: going ? '#FF4D8D' : '#1C1C27',
+                border: going ? 'none' : '1.5px solid #5D5677',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+              onClick={handleGoing}
+              aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
+            >
+              <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
+            </button>
+          </div>
+        )}
+
+        {/* Case (b): no price, sold_out → sold_out row + bookmark */}
+        {!ev.price_text && ev.sold_out && (
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 32 }}>
+            <div style={{ flex: 1 }}>
               <span style={{
                 padding: '2px 8px', borderRadius: 10,
                 background: '#3A1420', color: '#FF8FB0',
@@ -290,25 +336,22 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
               }}>
                 {dict.event.soldOut}
               </span>
-            )}
+            </div>
+            <button
+              style={{
+                width: 40, height: 40, borderRadius: 20, flexShrink: 0,
+                background: going ? '#FF4D8D' : '#1C1C27',
+                border: going ? 'none' : '1.5px solid #5D5677',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+              onClick={handleGoing}
+              aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
+            >
+              <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
+            </button>
           </div>
-          <button
-            style={{
-              width: 40, height: 40, borderRadius: 20, flexShrink: 0,
-              background: going ? '#FF4D8D' : '#1C1C27',
-              border: going ? 'none' : '1.5px solid #5D5677',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-            onClick={handleGoing}
-            aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
-          >
-            {going
-              ? <IconCheckCircle size={20} color="#1A0710" />
-              : <IconPlusCircle size={20} color="#F4F2FF" />
-            }
-          </button>
-        </div>
+        )}
 
         {/* Main CTA */}
         <button
@@ -323,12 +366,12 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           {ev.ticket_url ? dict.event.tickets : dict.event.website}
         </button>
 
-        {/* Secondary actions: Kalendár · Zdieľať · Spotify · Na mape · Navigovať */}
+        {/* Secondary actions: Spotify · Kalendár · Zdieľať · Na mape · Navigovať */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {([
+            { label: dict.event.spotify, onClick: handleSpotify, icon: <IconSpotify size={18} /> },
             { label: dict.event.calendar, onClick: handleCalendar, icon: <IconCalendar size={18} color="#F4F2FF" /> },
             { label: dict.event.share, onClick: handleShare, icon: <IconShare size={18} color="#F4F2FF" /> },
-            { label: dict.event.spotify, onClick: handleSpotify, icon: <IconSpotify size={18} /> },
             ...(venue && onGoToMap ? [{ label: dict.event.onMap, onClick: handleGoToMap, icon: <IconPin size={18} color="#F4F2FF" /> }] : []),
             ...(venue ? [{ label: dict.event.navigate, onClick: handleNavigate, icon: <IconNavigate size={18} color="#F4F2FF" /> }] : []),
           ] as { label: string; onClick: () => void; icon: React.ReactNode }[]).map(({ label, onClick, icon }) => (

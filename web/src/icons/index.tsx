@@ -265,3 +265,13 @@ export function IconCheckCircle({ size = 20, color = 'currentColor' }: IconProps
     </svg>
   )
 }
+
+export function IconBookmark({ size = 20, color = 'currentColor', filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24"
+      fill={filled ? color : 'none'} stroke={color}
+      strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 3h14a1 1 0 0 1 1 1v17l-8-4-8 4V4a1 1 0 0 1 1-1z" />
+    </svg>
+  )
+}
