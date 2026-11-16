@@ -95,7 +95,7 @@ Všetky rozhodnutia boli odsúhlasené Matejom v zadaní 2026-11-16. Nové zázn
 
 Príkaz: `python -c "import json; d=json.load(open('site/events.json',encoding='utf-8')); print(len(d['events']), 'events', len(d['venues']), 'venues', [v['id'] for v in d['venues'] if v.get('closing')])"` (spustiť po pipeline)
 
-Pipeline výsledok (lokálny beh): _prebieha – doplniť po dokončení_
+Pipeline výsledok (lokálny beh 2026-11-16): **373 events, 11 venues**; `closing` prítomné pre: `['cross-club', 'fuchs2', 'bike-jesus', 'roxy', 'epic']` – všetkých 5 zadaných venues.
 
 ### Overenie
 
