@@ -143,7 +143,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
       <div style={{
         position: 'fixed', left: 0, right: 0, bottom: 0,
         background: '#1C1C27', borderRadius: '28px 28px 0 0',
-        zIndex: 30, paddingBottom: 100, overflow: 'hidden',
+        zIndex: 30, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', overflow: 'hidden',
         overscrollBehavior: 'contain',
       }}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#3A3848', margin: '10px auto 12px' }} />
@@ -161,7 +161,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
             {items.map(item => (
               <div key={item.id}>
                 {item.separator && (
-                  <div style={{ height: 1, background: '#2E2D3C', margin: '4px 0' }} />
+                  <div style={{ height: 1, background: '#2E2D3C', margin: '2px 0' }} />
                 )}
                 <button
                   style={rowStyle(item.selected)}
