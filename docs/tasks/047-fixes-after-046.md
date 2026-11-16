@@ -49,3 +49,60 @@ Príčina: zväčšenie obrázka (tlačidlo „Plagát“ na stránke akcie) nep
 - V reporte postup overenia bodov 1, 7, 8 a 9 v telefóne.
 
 ## Report
+
+**Dátum:** 2026-11-16  
+**Commity (v poradí):**
+1. `6ef3aec` fix(047-1): Na mape niekedy neotvoril podnik (pendingSelect)
+2. `856602b` feat(047-2): stitok typu plnou farbou, new vzdy anglicky
+3. `c0bbec3` feat(047-3): Idem → Uložené/Moje akcie, ikona záložky, rozloženie
+4. `0aa3bb6` feat(047-4): panely bez prázdnych plôch
+5. `39bc210` feat(047-5): zoradenie ako malá ponuka pod Zoradiť
+6. `5cac0bd` feat(047-6): čipy v liste posuvné, skryté scrollbary
+7. `b490236` feat(047-7): obnovenie potiahnutím – kruhová šípka, rotácia, ružová
+8. `17e94bd` feat(047-8): Android kalendár cez Chrome intent, .ics fallback
+9. `fdc47df` feat(047-9): späť zavrie zväčšený plagát (history.pushState)
+10. `1a6e67d` fix(047): odstrán buildGoogleCalendarUrl, nepoužité pomocné funkcie
+
+### Čo je hotové
+
+**1. Na mape niekedy neotvoril podnik** – Opravené dve chyby v `usePendingSelect`:
+- Nočná vetva porovnávala `getToday(n)` namiesto `getYesterday(n)` – nočné akcie sú uložené s dátumom predošlého dňa.
+- Ak bol deň už vybraný, `setSelectedDay` nespustil re-render → `updateMarkers` nezbehol → podnik sa neotvoril. Riešenie: `onForceUpdate` callback priamo spustí `updateMarkersRef.current()`. `pendingPanelOpenRef` sa nulluje až keď sa marker nájde (retry pri ďalšom renderovaní).
+
+**2. Štítok typu plnou farbou** – Prvý štítok karty má plnú farbu `EVENT_TYPE_COLOR` s tmavým textom (`EVENT_TYPE_DARK`). Ostatné štítky majú `rgba(17,17,24,0.9)` s bielym textom. Odznak „new" je hardcoded `'new'` vo všetkých jazykoch.
+
+**3. Idem → Uložené / Moje akcie so záložkou** – Textové zmeny v sk/cs/en i18n. Ikona záložky (`IconBookmark` s `filled` propom). Rozloženie podľa údajov: (a) s cenou: riadok ceny + záložka vpravo; (b) bez ceny, vypredané: kratší riadok „vypredané" + záložka; (c) bez ceny aj vypredania: záložka vpravo na riadku štítkov. Poradie tlačidiel: Spotify, Kalendár, Zdieľať, Na mape, Navigovať.
+
+**4. Panely bez prázdnych plôch** – `SelectorSheet`: `paddingBottom: 'calc(16px + env(safe-area-inset-bottom))'` namiesto 100 px. Medzera deliča `2px 0` namiesto `4px 0`.
+
+**5. Zoradenie späť ako malá ponuka** – `SelectorSheet` nahradený inline dropdown priamo pod tlačidlom „Zoradiť". Ponuka sa zatvára kliknutím mimo (backdrop), tlačidlom Späť (History API). Pravidlo „vzdialenosť len pri jednom dni" ostáva.
+
+**6. Čipy sa dajú posúvať** – `overflowX: 'auto'`, `scrollbarWidth: 'none'`, `.chips-scroll::-webkit-scrollbar { display: none }` v oboch lištách (hlavičke aj kompaktnej).
+
+**7. Obnovenie potiahnutím** – Ikona je `path d="M20 8a8 8 0 1 0 .5 5"` s polyline šípkou (kruhová šípka obnovenia). Počas ťahania sa otáča podľa `pullDist/120*360°`. Po prekročení prahu (70 px) sa sfarbí na `#FF4D8D`. Po pustení sa vráti na pozíciu `translateY(16px)` a točí sa animáciou `ptr-spin`. Po dokončení zmizne.
+
+**8. Kalendár na Androide** – Nová funkcia `buildAndroidCalendarIntent` v `calendar.ts` generuje Chrome intent URL (`intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item%2Fevent;...;end`). Na Androide sa skúsi intent URL cez `window.location.href`; ak stránka nestratí viditeľnosť do 1,5 s, stiahne sa `.ics`. Google Calendar URL kompletne odstránený. Testy aktualizované. **Funkčnosť overí Matej v telefóne** – Chrome intent pre systémový kalendár môže vyžadovať kategóriu BROWSABLE, čo nie je na všetkých zariadeniach garantované.
+
+**9. Späť zavrie zväčšený plagát** – `useEffect` na `showPoster` pridáva `history.pushState({ poster: true })` pri otvorení, `popstate` listener zatvára overlay. Pri unmounte volá `history.back()` ak bol stav pushnutý.
+
+### Testy a build
+
+- `npm test`: **167 testov, všetky zelené** (vrátane 4 nových testov pre `buildAndroidCalendarIntent`)
+- `npm run build`: **úspešný**, bez TS chýb. Upozornenie na chunk >500 kB je preexistujúce.
+
+### Snímky
+
+Uložené v `docs/tasks/047/`:
+- `01-karta-stitok-typu.jpg` – karta s plným farebným štítkom typu
+- `02-akcia-bez-ceny.jpg` – stránka akcie bez ceny (záložka na riadku štítkov)
+- `03-akcia-vypredane-bez-ceny.jpg` – stránka akcie, vypredané, bez ceny
+- `04-panel-obdobia.jpg` – panel výberu obdobia (kompaktný spodný okraj)
+- `05-zoradenie-ponuka.jpg` – inline ponuka zoradenia pod tlačidlom
+
+### Overenie v telefóne (Matej)
+
+Body 1, 7, 8 a 9 vyžadujú overenie na fyzickom Android zariadení:
+- **1:** Otvoriť podnik z karty akcie keď je vybraný rovnaký deň na mape
+- **7:** Pull-to-refresh – potiahnutie, rotácia ikony, farba prahu, animácia načítania
+- **8:** Tlačidlo Kalendár – overí sa, či sa otvorí systémový kalendár alebo stiahne `.ics`
+- **9:** Tlačidlo Plagát → zväčšenie → Android Späť → zostaneme na stránke akcie (nie sa vráti na zoznam)
