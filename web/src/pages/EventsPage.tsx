@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language, Event } from '../core/types'
 import { getDict, formatDayLabel } from '../i18n'
+import { usePullToRefresh } from '../core/usePullToRefresh'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
@@ -15,6 +16,7 @@ interface Props {
   isVisible?: boolean
   onEventOpen: (eventId: string) => void
   registerScrollToTop?: (fn: () => void) => void
+  onRefresh?: () => Promise<void>
 }
 
 export function tagLabel(tag: string): string {
@@ -165,7 +167,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
   )
 }
 
-export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop }: Props) {
+export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh }: Props) {
   const dict = getDict(lang)
   const [now, setNow] = useState(() => new Date())
   const baseUrl = import.meta.env.BASE_URL
@@ -175,6 +177,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const [collapsed, setCollapsed] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [animKey, setAnimKey] = useState(0)
+  const { pullDist, isRefreshing, refreshError } = usePullToRefresh(scrollRef, onRefresh)
 
   useEffect(() => {
     registerScrollToTop?.(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }))
@@ -424,11 +427,49 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   })
 
   return (
-    <div ref={scrollRef} style={{ position: 'absolute', inset: 0, fontFamily: "'Outfit', sans-serif", color: '#F4F2FF', overflowY: 'auto' }}>
+    <div ref={scrollRef} style={{ position: 'absolute', inset: 0, fontFamily: "'Outfit', sans-serif", color: '#F4F2FF', overflowY: 'auto', overscrollBehaviorY: 'contain' }}>
       <style>{`
         @keyframes evCardIn { from { opacity:0; transform:scale(0.96) } to { opacity:1; transform:scale(1) } }
         @media (prefers-reduced-motion:reduce) { @keyframes evCardIn { from { opacity:1 } } }
+        @keyframes ptr-spin { to { transform: rotate(360deg) } }
       `}</style>
+
+      {/* Pull-to-refresh indicator */}
+      {(pullDist > 0 || isRefreshing) && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
+          display: 'flex', justifyContent: 'center', pointerEvents: 'none',
+          transform: pullDist > 0 ? `translateY(${Math.min(pullDist * 0.6, 56) - 44}px)` : 'translateY(12px)',
+          transition: pullDist > 0 ? 'none' : 'transform 200ms',
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 18,
+            background: '#2A2838', border: '1px solid #3A3848',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            animation: isRefreshing ? 'ptr-spin 0.7s linear infinite' : 'none',
+          }}>
+            {isRefreshing ? (
+              <div style={{ width: 20, height: 20, borderRadius: 10, border: '2.5px solid #3A3848', borderTopColor: '#FF4D8D' }} />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={pullDist >= 70 ? '#FF4D8D' : '#B9B6CC'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
+      {refreshError && (
+        <div style={{
+          position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+          background: '#2A2838', color: '#F4F2FF', padding: '10px 20px',
+          borderRadius: 20, fontSize: 14, fontWeight: 600, zIndex: 300,
+          whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          pointerEvents: 'none',
+        }}>
+          {dict.event.refreshError}
+        </div>
+      )}
 
       {/* Compact sticky bar — fixed, only shown when this tab is visible and header scrolled away */}
       {isVisible !== false && <div style={{

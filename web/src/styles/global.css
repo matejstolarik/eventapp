@@ -23,13 +23,17 @@ html, body, #root {
   overflow: hidden;
 }
 
+html {
+  overscroll-behavior-y: contain;
+}
+
 body {
   font-family: 'Outfit', sans-serif;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
   user-select: none;
   -webkit-user-select: none;
 }

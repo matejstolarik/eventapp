@@ -150,23 +150,25 @@ export default function App() {
     }
   }
 
+  async function refreshData(noStore = false) {
+    const url = `${import.meta.env.BASE_URL}events.json`
+    const res = await fetch(url, noStore ? { cache: 'no-store' } : {})
+    const d: EventsData = await res.json()
+    setData(d)
+    setIsOffline(false)
+    setLastFetchedState(d.generated_at ? new Date(d.generated_at) : new Date())
+    setLastFetched()
+  }
+
   // Fetch events data
   useEffect(() => {
-    const url = `${import.meta.env.BASE_URL}events.json`
-    fetch(url)
-      .then(r => r.json())
-      .then((d: EventsData) => {
-        setData(d)
-        setIsOffline(false)
-        setLastFetchedState(d.generated_at ? new Date(d.generated_at) : new Date())
-        setLastFetched()
-      })
+    refreshData()
       .catch(() => {
         setIsOffline(true)
         setLastFetchedState(getLastFetched())
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Network status
   useEffect(() => {
@@ -236,6 +238,7 @@ export default function App() {
               isVisible={activeTab === 'events' && !isOverlay}
               onEventOpen={openEvent}
               registerScrollToTop={fn => { eventsScrollTopRef.current = fn }}
+              onRefresh={() => refreshData(true).catch(() => { throw new Error('refresh failed') })}
             />
           </div>
         )}
@@ -245,6 +248,7 @@ export default function App() {
             lang={lang}
             onVenueOpen={openVenueFromPlaces}
             registerScrollToTop={fn => { placesScrollTopRef.current = fn }}
+            onRefresh={() => refreshData(true).catch(() => { throw new Error('refresh failed') })}
           />
         )}
         {accountMountedRef.current && (
