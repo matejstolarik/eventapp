@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
 import { getDict } from '../i18n'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getToday } from '../core/day'
@@ -315,11 +315,11 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {events.map((ev) => {
                     const evType = getEventType(ev.formats)
-                    const timeColor = EVENT_TYPE_COLOR[evType]
+                    const tagTextColor = EVENT_TYPE_TAG_TEXT[evType]
+                    const evTagList = eventTags(ev.formats, ev.genres)
                     const allTags = [
-                      ...(ev.start_time ? [{ label: ev.start_time, type: 'time' as const, color: timeColor }] : []),
-                      ...ev.formats.map(f => ({ label: f, type: 'format' as const, color: undefined })),
-                      ...ev.genres.map(g => ({ label: g, type: 'genre' as const, color: undefined })),
+                      ...(ev.start_time ? [{ label: ev.start_time, isTime: true }] : []),
+                      ...evTagList.map(t => ({ label: t, isTime: false })),
                     ]
                     return (
                       <div
@@ -352,15 +352,15 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                                 WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
                                 maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
                               }}>
-                                {allTags.map(({ label, type, color }) => (
+                                {allTags.map(({ label, isTime }) => (
                                   <span key={label} style={{
                                     height: 20, padding: '0 8px', borderRadius: 10,
-                                    background: type === 'time' ? 'transparent' : '#1E1D2A',
-                                    color: color ?? '#B9B6CC',
+                                    background: isTime ? 'transparent' : '#1E1D2A',
+                                    color: isTime ? '#8E8AA6' : tagTextColor,
                                     fontSize: 11, fontWeight: 600, flexShrink: 0,
                                     display: 'inline-flex', alignItems: 'center'
                                   }}>
-                                    {label}
+                                    {label === 'alternative' ? 'alt' : label}
                                   </span>
                                 ))}
                               </div>
