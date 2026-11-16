@@ -37,7 +37,7 @@ function makeEvent(overrides: Partial<Event> = {}): Event {
   }
 }
 
-function makeVenue(id: string, character: string[] = []): Venue {
+function makeVenue(id: string, character: string[] = [], closing: Record<string, string> | null = null): Venue {
   return {
     id,
     name: id,
@@ -57,6 +57,7 @@ function makeVenue(id: string, character: string[] = []): Venue {
     image_url: null,
     image_source: null,
     image_thumb: null,
+    closing,
     sources: [],
     active: true,
   }
@@ -66,7 +67,7 @@ function makeData(events: Event[], venues: Venue[]): EventsData {
   return { schema_version: 1, generated_at: '', venues, events }
 }
 
-// now = 01:30 on 2026-11-16 (night window; getToday = 2026-11-15)
+// now = 01:30 on 2026-11-16 (night window; calendar today = 2026-11-16, yesterday = 2026-11-15)
 const now130 = new Date('2026-11-16T01:30:00')
 
 describe('A. visibleEvents – NIGHT_DAY filtering', () => {
@@ -117,42 +118,42 @@ describe('A. visibleEvents – NIGHT_DAY filtering', () => {
 })
 
 describe('B. isEventPulsing', () => {
-  it('party 23:00 no end, at 01:30: pulses', () => {
+  it('party 23:00 no end, at 01:30: pulses (yesterday night window)', () => {
     const party = makeEvent({ date: '2026-11-15', start_time: '23:00', end_time: null, formats: ['party'] })
-    expect(isEventPulsing(party, ['late-night'], now130)).toBe(true)
+    expect(isEventPulsing(party, ['late-night'], null, now130)).toBe(true)
   })
 
-  it('concert 19:00 no end, at 01:30: does not pulse (3h rule: 22:00 < 01:30)', () => {
+  it('concert 19:00 no end, at 01:30: does not pulse (finished at 22:00)', () => {
     const concert = makeEvent({ date: '2026-11-15', start_time: '19:00', end_time: null, formats: ['concert'] })
-    expect(isEventPulsing(concert, ['alternative'], now130)).toBe(false)
+    expect(isEventPulsing(concert, ['alternative'], null, now130)).toBe(false)
   })
 
   it('event with end 02:00: pulses at 01:30', () => {
     const event = makeEvent({ date: '2026-11-15', start_time: '22:00', end_time: '02:00', formats: ['party'] })
-    expect(isEventPulsing(event, ['late-night'], now130)).toBe(true)
+    expect(isEventPulsing(event, ['late-night'], null, now130)).toBe(true)
   })
 
   it('event with end 02:00: does not pulse at 02:30', () => {
     const now230 = new Date('2026-11-16T02:30:00')
     const event = makeEvent({ date: '2026-11-15', start_time: '22:00', end_time: '02:00', formats: ['party'] })
-    expect(isEventPulsing(event, ['late-night'], now230)).toBe(false)
+    expect(isEventPulsing(event, ['late-night'], null, now230)).toBe(false)
   })
 
   it('concert 19:00 no end, at 21:00: pulses (within 3h)', () => {
     const now2100 = new Date('2026-11-15T21:00:00')
     const concert = makeEvent({ date: '2026-11-15', start_time: '19:00', end_time: null, formats: ['concert'] })
-    expect(isEventPulsing(concert, ['alternative'], now2100)).toBe(true)
+    expect(isEventPulsing(concert, ['alternative'], null, now2100)).toBe(true)
   })
 
   it('concert 19:00 no end, at 22:30: does not pulse (3h expired)', () => {
     const now2230 = new Date('2026-11-15T22:30:00')
     const concert = makeEvent({ date: '2026-11-15', start_time: '19:00', end_time: null, formats: ['concert'] })
-    expect(isEventPulsing(concert, ['alternative'], now2230)).toBe(false)
+    expect(isEventPulsing(concert, ['alternative'], null, now2230)).toBe(false)
   })
 
   it('event 3 days later (EPIC 22:00–05:00) never pulses', () => {
     const future = makeEvent({ date: '2026-11-18', start_time: '22:00', end_time: '05:00', formats: ['party', 'dj'] })
-    expect(isEventPulsing(future, ['late-night'], now130)).toBe(false)
+    expect(isEventPulsing(future, ['late-night'], null, now130)).toBe(false)
   })
 })
 

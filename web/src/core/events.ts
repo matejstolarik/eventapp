@@ -1,74 +1,125 @@
 import type { Event } from './types'
-import { getToday } from './day'
+import { getToday, getYesterday, toDateString } from './day'
 
-/** An event is "finished" only when end_time is known and has passed.
- * If end_time is unknown, the event stays visible until 05:00 day switch. */
-export function isEventFinished(event: Event, now: Date): boolean {
-  if (!event.end_time) return false
-  const eventDate = event.date
-  let endDateStr = eventDate
+type Closing = Record<string, string> | null | undefined
 
-  // If end_time < start_time the event spans midnight; end is next day
-  if (event.start_time && event.end_time < event.start_time) {
-    const d = new Date(eventDate + 'T12:00:00')
-    d.setDate(d.getDate() + 1)
-    endDateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  }
+const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
-  const endDt = new Date(`${endDateStr}T${event.end_time}:00`)
-  return now >= endDt
+function defaultClose(eventDate: string): Date {
+  const d = new Date(eventDate + 'T12:00:00')
+  d.setDate(d.getDate() + 1)
+  d.setHours(3, 0, 0, 0)
+  return d
 }
 
-/** An event is "live" (ongoing) when start_time is known and has started
- * but is not yet finished. */
-export function isEventLive(event: Event, now: Date): boolean {
+function closingDatetime(eventDate: string, startTime: string | null, closingTime: string): Date {
+  const nextDay = new Date(eventDate + 'T12:00:00')
+  nextDay.setDate(nextDay.getDate() + 1)
+  const nextDayStr = toDateString(nextDay)
+  if (startTime === null) {
+    // No start: closing < 12:00 → next day, else same day
+    return closingTime < '12:00'
+      ? new Date(`${nextDayStr}T${closingTime}:00`)
+      : new Date(`${eventDate}T${closingTime}:00`)
+  }
+  // closing >= startTime → same day; else next day (e.g. 05:00 < 22:00 → next day)
+  return closingTime >= startTime
+    ? new Date(`${eventDate}T${closingTime}:00`)
+    : new Date(`${nextDayStr}T${closingTime}:00`)
+}
+
+function getVenueClosingDt(eventDate: string, startTime: string | null, closing: Closing): Date | null {
+  if (!closing) return null
+  const d = new Date(eventDate + 'T12:00:00')
+  const closingTime = closing[DAY_NAMES[d.getDay()]]
+  if (!closingTime) return null
+  return closingDatetime(eventDate, startTime, closingTime)
+}
+
+/**
+ * Returns the Date when the event ends (computed from event data and venue closing).
+ * - Known end_time → that time (next day if end < start)
+ * - No end, party/dj or late-night → venue closing time, else 3:00 next day
+ * - No end, other → start + 3 h
+ * - No start_time → 3:00 next day (never pulses)
+ */
+export function eventEndsAt(event: Event, venueClosing: Closing, venueCharacter: string[]): Date {
+  const eventDate = event.date
+
+  if (event.end_time) {
+    let endDateStr = eventDate
+    if (event.start_time && event.end_time < event.start_time) {
+      const d = new Date(eventDate + 'T12:00:00')
+      d.setDate(d.getDate() + 1)
+      endDateStr = toDateString(d)
+    }
+    return new Date(`${endDateStr}T${event.end_time}:00`)
+  }
+
+  const isPartyOrDj = event.formats.includes('party') || event.formats.includes('dj')
+  const isLateNight = venueCharacter.includes('late-night')
+
+  if (isPartyOrDj || isLateNight) {
+    const closingDt = getVenueClosingDt(eventDate, event.start_time, venueClosing)
+    return closingDt ?? defaultClose(eventDate)
+  }
+
+  if (event.start_time) {
+    const startDt = new Date(`${eventDate}T${event.start_time}:00`)
+    return new Date(startDt.getTime() + 3 * 60 * 60 * 1000)
+  }
+
+  return defaultClose(eventDate)
+}
+
+export function isEventFinished(event: Event, now: Date, venueClosing?: Closing, venueCharacter?: string[]): boolean {
+  return now >= eventEndsAt(event, venueClosing ?? null, venueCharacter ?? [])
+}
+
+export function isEventLive(event: Event, now: Date, venueClosing?: Closing, venueCharacter?: string[]): boolean {
   if (!event.start_time) return false
   const startDt = new Date(`${event.date}T${event.start_time}:00`)
   if (now < startDt) return false
-  return !isEventFinished(event, now)
+  return !isEventFinished(event, now, venueClosing, venueCharacter)
 }
 
 /**
  * Whether an event shows a live/pulse indicator right now.
- * - Known end_time: started and not finished (same as isEventLive).
- * - No end_time + party/dj format or late-night venue: from start until 5:00 next morning.
- * - No end_time, other: at most 3 hours from start.
- * - Event in a different day (by 5:00 rule) never pulses.
+ * Also allows yesterday's events to pulse during the 0:00–7:00 night window.
  */
-export function isEventPulsing(event: Event, venueCharacter: string[], now: Date): boolean {
+export function isEventPulsing(event: Event, venueCharacter: string[], venueClosing: Closing, now: Date): boolean {
   if (!event.start_time) return false
-  if (event.date !== getToday(now)) return false
+  const today = getToday(now)
+  const yesterday = getYesterday(now)
+  const isNightWindow = now.getHours() < 7
+  if (event.date !== today && !(isNightWindow && event.date === yesterday)) return false
   const startDt = new Date(`${event.date}T${event.start_time}:00`)
   if (now < startDt) return false
-  if (event.end_time) return !isEventFinished(event, now)
-
-  const isPartyOrDj = event.formats.includes('party') || event.formats.includes('dj')
-  const isLateNight = venueCharacter.includes('late-night')
-  if (isPartyOrDj || isLateNight) {
-    const nextDay = new Date(event.date + 'T12:00:00')
-    nextDay.setDate(nextDay.getDate() + 1)
-    nextDay.setHours(5, 0, 0, 0)
-    return now < nextDay
-  }
-  const threeHoursAfterStart = new Date(startDt.getTime() + 3 * 60 * 60 * 1000)
-  return now < threeHoursAfterStart
+  return !isEventFinished(event, now, venueClosing, venueCharacter)
 }
 
 /** Returns events for a venue on a specific day, filtered and sorted.
  * Cancelled/gone events are excluded. Finished events are excluded.
- * venueCharacter is used to sort pulsing events first. */
-export function getVenueEvents(events: Event[], venueId: string, day: string, now: Date, venueCharacter: string[] = []): Event[] {
+ * venueCharacter and venueClosing are used for finish time and sorting. */
+export function getVenueEvents(
+  events: Event[],
+  venueId: string,
+  day: string,
+  now: Date,
+  venueCharacter: string[] = [],
+  venueClosing: Closing = null,
+): Event[] {
   return events
     .filter(e =>
       e.venue_id === venueId &&
       e.date === day &&
       e.status !== 'cancelled' &&
       e.status !== 'gone' &&
-      !isEventFinished(e, now)
+      !isEventFinished(e, now, venueClosing, venueCharacter)
     )
     .sort((a, b) => {
-      const aPulse = isEventPulsing(a, venueCharacter, now) ? 0 : 1
-      const bPulse = isEventPulsing(b, venueCharacter, now) ? 0 : 1
+      const aPulse = isEventPulsing(a, venueCharacter, venueClosing, now) ? 0 : 1
+      const bPulse = isEventPulsing(b, venueCharacter, venueClosing, now) ? 0 : 1
       if (aPulse !== bPulse) return aPulse - bPulse
       if (!a.start_time && !b.start_time) return 0
       if (!a.start_time) return 1
@@ -78,11 +129,19 @@ export function getVenueEvents(events: Event[], venueId: string, day: string, no
 }
 
 /** Returns all venue IDs that have at least one visible event on the given day. */
-export function getActiveVenueIds(events: Event[], day: string, now: Date): Set<string> {
+export function getActiveVenueIds(
+  events: Event[],
+  day: string,
+  now: Date,
+  venueMap?: Map<string, { closing: Record<string, string> | null; character: string[] }>,
+): Set<string> {
   const ids = new Set<string>()
   for (const e of events) {
-    if (e.date === day && e.status !== 'cancelled' && e.status !== 'gone' && !isEventFinished(e, now)) {
-      ids.add(e.venue_id)
+    if (e.date === day && e.status !== 'cancelled' && e.status !== 'gone') {
+      const v = venueMap?.get(e.venue_id)
+      if (!isEventFinished(e, now, v?.closing, v?.character)) {
+        ids.add(e.venue_id)
+      }
     }
   }
   return ids

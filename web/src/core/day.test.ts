@@ -1,31 +1,36 @@
 import { describe, it, expect } from 'vitest'
-import { getToday, isTomorrow, isToday, getUpcomingDays } from './day'
+import { getToday, getYesterday, isTomorrow, isToday, getUpcomingDays } from './day'
 
 describe('getToday', () => {
-  it('returns current date when hour >= 5', () => {
+  it('returns current calendar date at noon', () => {
     const d = new Date('2026-11-09T10:00:00')
     expect(getToday(d)).toBe('2026-11-09')
   })
 
-  it('returns previous date when hour < 5 (before the 05:00 switch)', () => {
+  it('returns current calendar date at 1:00 AM (midnight boundary, not 05:00)', () => {
+    // Changed 2026-11-16: previously returned 2026-11-08 at 01:00, now returns 2026-11-09
     const d = new Date('2026-11-09T01:00:00')
-    expect(getToday(d)).toBe('2026-11-08')
-  })
-
-  it('returns current date at exactly 05:00', () => {
-    const d = new Date('2026-11-09T05:00:00')
     expect(getToday(d)).toBe('2026-11-09')
   })
 
-  it('still previous day at 04:59', () => {
-    const d = new Date('2026-11-09T04:59:00')
-    expect(getToday(d)).toBe('2026-11-08')
+  it('returns current calendar date at midnight', () => {
+    const d = new Date('2026-11-09T00:00:00')
+    expect(getToday(d)).toBe('2026-11-09')
   })
 
-  it('1:00 AM event belongs to previous day', () => {
-    // An event at 2026-11-09 01:00 is conceptually still "yesterday night"
-    const now = new Date('2026-11-09T01:00:00')
-    expect(getToday(now)).toBe('2026-11-08')
+  it('returns current calendar date at 04:59', () => {
+    const d = new Date('2026-11-09T04:59:00')
+    expect(getToday(d)).toBe('2026-11-09')
+  })
+})
+
+describe('getYesterday', () => {
+  it('returns previous calendar day at noon', () => {
+    expect(getYesterday(new Date('2026-11-09T12:00:00'))).toBe('2026-11-08')
+  })
+
+  it('returns previous calendar day at 1:00 AM', () => {
+    expect(getYesterday(new Date('2026-11-09T01:00:00'))).toBe('2026-11-08')
   })
 })
 

@@ -1,18 +1,14 @@
-/** Returns "today" as YYYY-MM-DD, switching at 05:00 Prague local time.
- * Before 05:00 the previous calendar day is still "today". */
+/** Returns today as YYYY-MM-DD using calendar midnight (Prague local clock).
+ * Changed 2026-11-16: previously switched at 05:00, now switches at midnight. */
 export function getToday(now?: Date): string {
-  const d = now ?? new Date()
-  // Prague time offset: UTC+1 (CET) or UTC+2 (CEST)
-  // We approximate using the browser's local time if already in CZ,
-  // or use a fixed UTC+1/+2 offset. The simplest approach: use the
-  // device clock since the app is used in Prague. Adjust: if hour < 5,
-  // step back one day.
-  const hour = d.getHours()
-  const adjusted = new Date(d)
-  if (hour < 5) {
-    adjusted.setDate(adjusted.getDate() - 1)
-  }
-  return toDateString(adjusted)
+  return toDateString(now ?? new Date())
+}
+
+/** Returns yesterday as YYYY-MM-DD using calendar midnight. */
+export function getYesterday(now?: Date): string {
+  const d = new Date(now ?? new Date())
+  d.setDate(d.getDate() - 1)
+  return toDateString(d)
 }
 
 /** Formats a Date as YYYY-MM-DD using local time. */
@@ -23,8 +19,7 @@ export function toDateString(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-/** Returns the next N calendar days starting from today (including today).
- * "Today" follows the 05:00 rule. */
+/** Returns the next N calendar days starting from today (including today). */
 export function getUpcomingDays(count: number, now?: Date): string[] {
   const today = getToday(now)
   const result: string[] = []
@@ -37,12 +32,12 @@ export function getUpcomingDays(count: number, now?: Date): string[] {
   return result
 }
 
-/** Checks if a YYYY-MM-DD string is "today" per the 05:00 rule. */
+/** Checks if a YYYY-MM-DD string is "today" per calendar midnight. */
 export function isToday(dateStr: string, now?: Date): boolean {
   return dateStr === getToday(now)
 }
 
-/** Checks if a YYYY-MM-DD string is "tomorrow" per the 05:00 rule. */
+/** Checks if a YYYY-MM-DD string is "tomorrow" per calendar midnight. */
 export function isTomorrow(dateStr: string, now?: Date): boolean {
   const today = getToday(now)
   const tomorrowDate = new Date(today + 'T12:00:00')

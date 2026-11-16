@@ -72,11 +72,11 @@ describe('getPeriodRange', () => {
     expect(r).toEqual({ from: '2026-11-20', to: '2026-11-24' })
   })
 
-  it('today at 1:30 night → today = 2026-11-14', () => {
+  it('today at 1:30 night → today = 2026-11-15 (calendar midnight, not 05:00)', () => {
     const r = getPeriodRange({ type: 'today' }, SUN_NIGHT)
-    // Before 5am on Nov 15 → "today" = Nov 14
-    expect(r.from).toBe('2026-11-14')
-    expect(r.to).toBe('2026-11-14')
+    // Calendar midnight boundary: 01:30 on Nov 15 → today = Nov 15
+    expect(r.from).toBe('2026-11-15')
+    expect(r.to).toBe('2026-11-15')
   })
 })
 
