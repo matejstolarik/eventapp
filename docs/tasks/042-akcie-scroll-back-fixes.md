@@ -79,3 +79,5 @@ Príčina: `MyAccountPage` staré akcie len radí na koniec a „dnešok“ poč
 - V reporte postup, ako si Matej overí bod 1 v telefóne.
 
 ## Report
+
+**Zrušené 2026-11-16 (Matej): úloha bola príliš veľká, Code ju zastavil pred začiatkom práce. Rozdelená na `043-running-night-today.md` (časti 8–11) a `044-akcie-scroll-back-anim.md` (časti 1–7 a 12). Táto úloha sa nerobí.**
