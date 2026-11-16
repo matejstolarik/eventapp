@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { EventsData, Language, Venue, EventType } from '../core/types'
 import { getDict } from '../i18n'
 import { isFavorite, toggleFavorite } from '../core/store'
@@ -11,6 +11,7 @@ interface Props {
   lang: Language
   onVenueOpen: (venueId: string) => void
   showFavoritesInit?: boolean
+  registerScrollToTop?: (fn: () => void) => void
 }
 
 function normalize(s: string) {
@@ -59,11 +60,25 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   )
 }
 
-export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false }: Props) {
+export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false, registerScrollToTop }: Props) {
   const dict = getDict(lang)
   const [query, setQuery] = useState('')
   const [showFavorites, setShowFavorites] = useState(showFavoritesInit)
   const [, forceUpdate] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    registerScrollToTop?.(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onScroll = () => setShowScrollTop(el.scrollTop > window.innerHeight * 2)
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [])
 
   const handleToggleFav = useCallback((e: React.MouseEvent, venueId: string) => {
     e.stopPropagation()
@@ -87,7 +102,7 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false 
   const noSearch = q.length > 0 && filtered.length === 0
 
   return (
-    <div style={{
+    <div ref={scrollRef} style={{
       position: 'absolute', inset: 0, overflowY: 'auto',
       background: '#111118', display: 'flex', flexDirection: 'column'
     }}>
@@ -131,6 +146,17 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false 
           style={{ padding: '0 4px', gap: '2px' } as React.CSSProperties}
         />
       </div>
+
+      {/* Scroll-to-top button */}
+      {showScrollTop && (
+        <button
+          onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+          style={{ position: 'fixed', right: 16, bottom: 116, zIndex: 9, width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,.5)', opacity: showScrollTop ? 1 : 0, transition: 'opacity 150ms' }}
+          aria-label="Navrch"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+        </button>
+      )}
 
       {/* List */}
       <div style={{ flex: 1, padding: '4px 0 100px' }}>

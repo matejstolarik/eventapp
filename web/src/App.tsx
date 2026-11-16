@@ -26,9 +26,9 @@ export function parseHash(hash: string): Route {
   if (path.startsWith('miesto/')) {
     return { page: 'venue', venueId: path.slice(7) }
   }
-  if (path === 'miesta') {
-    return { page: 'places' }
-  }
+  if (path === 'miesta') return { page: 'places' }
+  if (path === 'akcie') return { page: 'events' }
+  if (path === 'ucet') return { page: 'account' }
   return { page: 'map' }
 }
 
@@ -44,6 +44,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     const r = parseHash(window.location.hash)
     if (r.page === 'places') return 'places'
+    if (r.page === 'events') return 'events'
+    if (r.page === 'account') return 'account'
     return 'map'
   })
   const [mapPendingSelect, setMapPendingSelect] = useState<MapPendingSelect>(null)
@@ -54,9 +56,13 @@ export default function App() {
     return r
   })
 
-  // Track if MapPage was ever mounted (once true, never unmount it)
+  // Track which pages were ever mounted (once true, never unmount)
   const mapMountedRef = useRef(false)
+  const eventsMountedRef = useRef(false)
+  const accountMountedRef = useRef(false)
   if (data !== null) mapMountedRef.current = true
+  if (activeTab === 'events') eventsMountedRef.current = true
+  if (activeTab === 'account') accountMountedRef.current = true
 
   useEffect(() => {
     function onHashChange() {
@@ -64,6 +70,8 @@ export default function App() {
       setRoute(r)
       // Sync activeTab from hash for tab pages
       if (r.page === 'places') setActiveTab('places')
+      else if (r.page === 'events') setActiveTab('events')
+      else if (r.page === 'account') setActiveTab('account')
       else if (r.page === 'map') setActiveTab('map')
     }
     window.addEventListener('hashchange', onHashChange)
@@ -77,6 +85,10 @@ export default function App() {
       window.location.hash = `/miesto/${(newRoute as { page: 'venue'; venueId: string }).venueId}`
     } else if (newRoute.page === 'places') {
       window.location.hash = '/miesta'
+    } else if (newRoute.page === 'events') {
+      window.location.hash = '/akcie'
+    } else if (newRoute.page === 'account') {
+      window.location.hash = '/ucet'
     } else {
       window.location.hash = '/'
     }
@@ -113,17 +125,29 @@ export default function App() {
     navigate({ page: 'map' })
   }
 
+  // Callbacks for EventsPage/PlacesPage to register their scroll-to-top functions
+  const eventsScrollTopRef = useRef<(() => void) | null>(null)
+  const placesScrollTopRef = useRef<(() => void) | null>(null)
+
   function handleTabChange(tab: Tab) {
+    if (tab === activeTab) {
+      // Tap on active tab → scroll to top
+      if (tab === 'events') eventsScrollTopRef.current?.()
+      if (tab === 'places') placesScrollTopRef.current?.()
+      return
+    }
     setActiveTab(tab)
     if (tab === 'places') {
       window.location.hash = '/miesta'
+    } else if (tab === 'events') {
+      window.location.hash = '/akcie'
+    } else if (tab === 'account') {
+      window.location.hash = '/ucet'
     } else if (tab === 'map') {
-      // Only clear the hash if we were on a named route
       if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
         window.location.hash = '/'
       }
     }
-    // For 'events' and 'account' tabs: leave the hash as-is so we don't trigger onHashChange → setActiveTab('map')
   }
 
   // Fetch events data
@@ -204,27 +228,33 @@ export default function App() {
             <p style={{ color: '#B9B6CC' }}>Žiadne dáta</p>
           </div>
         )}
-        {activeTab === 'events' && !isOverlay && (
-          <EventsPage
-            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
-            lang={lang}
-            onEventOpen={openEvent}
-          />
+        {eventsMountedRef.current && (
+          <div style={{ position: 'absolute', inset: 0, display: activeTab === 'events' && !isOverlay ? undefined : 'none' }}>
+            <EventsPage
+              data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+              lang={lang}
+              onEventOpen={openEvent}
+              registerScrollToTop={fn => { eventsScrollTopRef.current = fn }}
+            />
+          </div>
         )}
         {activeTab === 'places' && !isOverlay && (
           <PlacesPage
             data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
             lang={lang}
             onVenueOpen={openVenueFromPlaces}
+            registerScrollToTop={fn => { placesScrollTopRef.current = fn }}
           />
         )}
-        {activeTab === 'account' && !isOverlay && (
-          <MyAccountPage
-            data={data}
-            lang={lang}
-            onLangChange={newLang => setLang(newLang)}
-            onEventOpen={openEvent}
-          />
+        {accountMountedRef.current && (
+          <div style={{ position: 'absolute', inset: 0, display: activeTab === 'account' && !isOverlay ? undefined : 'none' }}>
+            <MyAccountPage
+              data={data}
+              lang={lang}
+              onLangChange={newLang => setLang(newLang)}
+              onEventOpen={openEvent}
+            />
+          </div>
         )}
       </div>
 

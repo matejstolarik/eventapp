@@ -16,6 +16,14 @@ describe('parseHash — tab navigation', () => {
     expect(parseHash('#/miesta')).toEqual({ page: 'places' })
   })
 
+  it('events tab hash → events', () => {
+    expect(parseHash('#/akcie')).toEqual({ page: 'events' })
+  })
+
+  it('account tab hash → account', () => {
+    expect(parseHash('#/ucet')).toEqual({ page: 'account' })
+  })
+
   it('event overlay hash → event with id', () => {
     expect(parseHash('#/akcia/roxy-123')).toEqual({ page: 'event', eventId: 'roxy-123' })
   })

@@ -13,6 +13,7 @@ interface Props {
   data: EventsData
   lang: Language
   onEventOpen: (eventId: string) => void
+  registerScrollToTop?: (fn: () => void) => void
 }
 
 function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
