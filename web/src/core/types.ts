@@ -20,6 +20,7 @@ export interface Venue {
   image_url: string | null
   image_source: string | null
   image_thumb: string | null
+  closing: Record<string, string> | null
   sources: VenueSource[]
   active: boolean
   notes?: string | null

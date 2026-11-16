@@ -54,6 +54,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `image_url`: URL fotky podniku (`og:image` domovskej stránky alebo stránky „O nás"), len URL, nekopírovať. `null` ak sa vhodný obrázok nenašiel. Nastavuje Matej ručne alebo podľa reportu.
 - `image_source`: URL stránky, z ktorej `image_url` pochádza. `null` ak `image_url` je `null`.
 - `image_thumb`: relatívna cesta k náhľadu (`img/venues/<id>.jpg`, 160×160 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null` alebo stiahnutie zlyhalo. Generuje pipeline automaticky; Matej ho nenastavuje ručne.
+- `closing`: nepovinné. Čas zatvorenia podľa dňa v týždni: `{"fri": "05:00", "sat": "07:00", "mon": "02:00"}`. Deň = deň, keď akcia **začala**. Chýbajúci deň alebo celé pole `null` = neznáme (použije sa 3:00). Ak je `closing` ≥ `start_time` akcie, zatvára sa v ten istý deň; inak nasledujúci deň ráno (`"00:00"` = polnoc po dni začiatku). Akcia bez `start_time`: `closing` < 12:00 → nasledujúci deň, inak ten istý deň. Hodnoty nastavuje Matej ručne. (Matej 2026-11-16)
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
 - `sources[].section`: nepovinné. Sekcia webu, z ktorej akcia pochádza (napr. `hudba`, `divadlo` pre MeetFactory). Pomáha pri kategorizácii.

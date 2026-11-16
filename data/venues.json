@@ -10,9 +10,21 @@
     "ra_url": "https://ra.co/clubs/13354",
     "instagram": "crossclubofficial",
     "facebook": "crossclubprague",
-    "type": ["concert-club", "dance-club"],
-    "character": ["alternative", "underground", "late-night"],
-    "music": ["drum-and-bass", "dubstep", "techno", "reggae"],
+    "type": [
+      "concert-club",
+      "dance-club"
+    ],
+    "character": [
+      "alternative",
+      "underground",
+      "late-night"
+    ],
+    "music": [
+      "drum-and-bass",
+      "dubstep",
+      "techno",
+      "reggae"
+    ],
     "size": "small",
     "capacity": 250,
     "features": [],
@@ -21,10 +33,22 @@
     "image_url": "https://www.crossclub.cz/media/images/logo-fb.png",
     "image_source": "https://www.crossclub.cz",
     "sources": [
-      { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
+      {
+        "type": "rss",
+        "url": "https://www.crossclub.cz/cs/rss/program/"
+      }
     ],
     "active": true,
-    "notes": null
+    "notes": null,
+    "closing": {
+      "mon": "04:00",
+      "tue": "05:00",
+      "wed": "05:00",
+      "thu": "05:00",
+      "fri": "05:00",
+      "sat": "07:00",
+      "sun": "07:00"
+    }
   },
   {
     "id": "meetfactory",
@@ -37,9 +61,23 @@
     "ra_url": null,
     "instagram": "meetfactory",
     "facebook": null,
-    "type": ["culture-center", "concert-club"],
-    "character": ["alternative", "experimental", "art-space"],
-    "music": ["indie", "electronic", "experimental", "metal", "hip-hop", "jazz"],
+    "type": [
+      "culture-center",
+      "concert-club"
+    ],
+    "character": [
+      "alternative",
+      "experimental",
+      "art-space"
+    ],
+    "music": [
+      "indie",
+      "electronic",
+      "experimental",
+      "metal",
+      "hip-hop",
+      "jazz"
+    ],
     "size": "medium",
     "capacity": 750,
     "features": null,
@@ -48,11 +86,22 @@
     "image_url": "https://www.meetfactory.cz/media/images/rescaled/Barak_MeetFactory_2026_Karolina_Mala_fullsize-7-320x426.jpg",
     "image_source": "https://www.meetfactory.cz/cs/o-nas",
     "sources": [
-      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/hudba", "section": "hudba", "detail_desc_selector": "#text_equal p" },
-      { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/divadlo", "section": "divadlo", "detail_desc_selector": "#text_equal p" }
+      {
+        "type": "jsonld",
+        "url": "https://meetfactory.cz/cs/program/hudba",
+        "section": "hudba",
+        "detail_desc_selector": "#text_equal p"
+      },
+      {
+        "type": "jsonld",
+        "url": "https://meetfactory.cz/cs/program/divadlo",
+        "section": "divadlo",
+        "detail_desc_selector": "#text_equal p"
+      }
     ],
     "active": true,
-    "notes": "Kapacita: meetfactory.cz/en/informace-pro-kapely"
+    "notes": "Kapacita: meetfactory.cz/en/informace-pro-kapely",
+    "closing": null
   },
   {
     "id": "kasarna-karlin",
@@ -65,21 +114,41 @@
     "ra_url": null,
     "instagram": "kasarna_karlin",
     "facebook": null,
-    "type": ["culture-center", "bar", "cinema"],
-    "character": ["alternative", "hangout", "community", "family-friendly"],
-    "music": ["indie"],
+    "type": [
+      "culture-center",
+      "bar",
+      "cinema"
+    ],
+    "character": [
+      "alternative",
+      "hangout",
+      "community",
+      "family-friendly"
+    ],
+    "music": [
+      "indie"
+    ],
     "size": null,
     "capacity": null,
-    "features": ["open-air", "seasonal"],
+    "features": [
+      "open-air",
+      "seasonal"
+    ],
     "description": "Kasárny Karlín jsou kulturní centrum v areálu bývalých vojenských kasáren, které se veřejnosti otevřelo v roce 2017. Jedná se o vnitroblok, který skrývá rozlehlé nádvoří s útulnými bary a kavárnou, posezením pod korunami stromů a prostorem pro pohyb, kulturu i dětské skotačení.",
     "description_url": "https://kasarnakarlin.cz/en/page/44",
     "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2022/12/21/10/06/53/kreslena-mapa-kasaren-karlin.jpeg",
     "image_source": "https://kasarnakarlin.cz",
     "sources": [
-      { "type": "jsonld", "url": "https://kasarnakarlin.cz/en/program", "follow_links": true, "detail_lang": "en" }
+      {
+        "type": "jsonld",
+        "url": "https://kasarnakarlin.cz/en/program",
+        "follow_links": true,
+        "detail_lang": "en"
+      }
     ],
     "active": true,
-    "notes": null
+    "notes": null,
+    "closing": null
   },
   {
     "id": "citarna-unijazz",
@@ -92,9 +161,20 @@
     "ra_url": null,
     "instagram": "citarna_unijazz",
     "facebook": null,
-    "type": ["cafe", "culture-center"],
-    "character": ["alternative", "experimental", "community", "cozy"],
-    "music": ["jazz", "experimental"],
+    "type": [
+      "cafe",
+      "culture-center"
+    ],
+    "character": [
+      "alternative",
+      "experimental",
+      "community",
+      "cozy"
+    ],
+    "music": [
+      "jazz",
+      "experimental"
+    ],
     "size": "small",
     "capacity": null,
     "features": null,
@@ -116,7 +196,8 @@
       }
     ],
     "active": true,
-    "notes": null
+    "notes": null,
+    "closing": null
   },
   {
     "id": "fuchs2",
@@ -129,9 +210,23 @@
     "ra_url": "https://ra.co/clubs/162121",
     "instagram": "fuchs2stvanice",
     "facebook": null,
-    "type": ["dance-club", "concert-club"],
-    "character": ["alternative", "underground", "queer-friendly", "late-night"],
-    "music": ["techno", "electro", "ebm", "post-punk", "indie"],
+    "type": [
+      "dance-club",
+      "concert-club"
+    ],
+    "character": [
+      "alternative",
+      "underground",
+      "queer-friendly",
+      "late-night"
+    ],
+    "music": [
+      "techno",
+      "electro",
+      "ebm",
+      "post-punk",
+      "indie"
+    ],
     "size": "medium",
     "capacity": 650,
     "features": [],
@@ -151,7 +246,16 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: selection.cz/en/venues/fuchs2. Queer-friendly: seria FEMXCORE (easterndaze.net/?p=2082) a lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/)."
+    "notes": "Kapacita: selection.cz/en/venues/fuchs2. Queer-friendly: seria FEMXCORE (easterndaze.net/?p=2082) a lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/).",
+    "closing": {
+      "mon": "06:30",
+      "tue": "06:30",
+      "wed": "06:30",
+      "thu": "06:30",
+      "fri": "06:30",
+      "sat": "06:30",
+      "sun": "06:30"
+    }
   },
   {
     "id": "bike-jesus",
@@ -164,9 +268,25 @@
     "ra_url": "https://ra.co/clubs/178137",
     "instagram": "bike.jesus",
     "facebook": null,
-    "type": ["concert-club", "dance-club", "bar"],
-    "character": ["underground", "alternative", "community", "diy", "queer-friendly"],
-    "music": ["techno", "house", "post-punk", "indie", "shoegaze"],
+    "type": [
+      "concert-club",
+      "dance-club",
+      "bar"
+    ],
+    "character": [
+      "underground",
+      "alternative",
+      "community",
+      "diy",
+      "queer-friendly"
+    ],
+    "music": [
+      "techno",
+      "house",
+      "post-punk",
+      "indie",
+      "shoegaze"
+    ],
     "size": "small",
     "capacity": 280,
     "features": [],
@@ -185,7 +305,14 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: kdykam.com/en/venue/bike-jesus-praha-165. Queer-friendly: lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/)."
+    "notes": "Kapacita: kdykam.com/en/venue/bike-jesus-praha-165. Queer-friendly: lokalita Prague Pride Festival (festival.praguepride.com/en/lokace/fuchs2-bike-jesus/).",
+    "closing": {
+      "tue": "00:00",
+      "wed": "00:00",
+      "thu": "00:00",
+      "fri": "06:00",
+      "sat": "06:00"
+    }
   },
   {
     "id": "palac-akropolis",
@@ -198,9 +325,20 @@
     "ra_url": "https://ra.co/clubs/306167",
     "instagram": "palacakropolis",
     "facebook": "Palac.Akropolis.klub",
-    "type": ["concert-club", "culture-center"],
-    "character": ["alternative"],
-    "music": ["indie", "rock", "world", "jazz", "punk"],
+    "type": [
+      "concert-club",
+      "culture-center"
+    ],
+    "character": [
+      "alternative"
+    ],
+    "music": [
+      "indie",
+      "rock",
+      "world",
+      "jazz",
+      "punk"
+    ],
     "size": "medium",
     "capacity": 700,
     "features": null,
@@ -215,11 +353,28 @@
         "base_url": "https://palacakropolis.cz/work/33298",
         "no": "62",
         "genres": [
-          {"genre": "1", "page_id": "38637", "section": "hudba"},
-          {"genre": "2", "page_id": "38638", "section": "divadlo"},
-          {"genre": "17", "page_id": "49735", "section": "off-program", "other": true}
+          {
+            "genre": "1",
+            "page_id": "38637",
+            "section": "hudba"
+          },
+          {
+            "genre": "2",
+            "page_id": "38638",
+            "section": "divadlo"
+          },
+          {
+            "genre": "17",
+            "page_id": "49735",
+            "section": "off-program",
+            "other": true
+          }
         ],
-        "own_rooms": ["Velký sál", "Malá scéna", "Jazz bar"],
+        "own_rooms": [
+          "Velký sál",
+          "Malá scéna",
+          "Jazz bar"
+        ],
         "detail_page_id": "33824",
         "ticket_page_id": "42027",
         "vstupne_url": "https://palacakropolis.cz/pub/vstupne_6",
@@ -228,7 +383,8 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: liveurope.eu/palac-akropolis (700 velky sal, 80 maly)."
+    "notes": "Kapacita: liveurope.eu/palac-akropolis (700 velky sal, 80 maly).",
+    "closing": null
   },
   {
     "id": "archa-plus",
@@ -241,9 +397,22 @@
     "ra_url": "https://ra.co/clubs/266130",
     "instagram": "_archaplus_",
     "facebook": null,
-    "type": ["culture-center", "concert-hall"],
-    "character": ["alternative", "experimental", "queer-friendly", "english-friendly"],
-    "music": ["indie", "electronic", "metal", "experimental"],
+    "type": [
+      "culture-center",
+      "concert-hall"
+    ],
+    "character": [
+      "alternative",
+      "experimental",
+      "queer-friendly",
+      "english-friendly"
+    ],
+    "music": [
+      "indie",
+      "electronic",
+      "metal",
+      "experimental"
+    ],
     "size": "medium",
     "capacity": 1200,
     "features": [],
@@ -261,22 +430,33 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: archatheatre.cz/en/spaces-and-technical.html (200-350 sedenie, do 1200 stanie). Queer-friendly: queer program na webe (debaty Jste queer?, God Save the Drama Queen)."
+    "notes": "Kapacita: archatheatre.cz/en/spaces-and-technical.html (200-350 sedenie, do 1200 stanie). Queer-friendly: queer program na webe (debaty Jste queer?, God Save the Drama Queen).",
+    "closing": null
   },
   {
     "id": "forum-karlin",
     "name": "Forum Karlín",
     "city": "Praha",
     "address": "Pernerova 676/51, Praha 8 - Karlín",
-    "lat": 50.0918460,
+    "lat": 50.091846,
     "lng": 14.4548768,
     "web": "https://www.forumkarlin.cz",
     "ra_url": "https://ra.co/clubs/91332",
     "instagram": "forum_karlin",
     "facebook": null,
-    "type": ["concert-hall"],
-    "character": ["commercial"],
-    "music": ["rock", "pop", "metal", "hip-hop", "electronic"],
+    "type": [
+      "concert-hall"
+    ],
+    "character": [
+      "commercial"
+    ],
+    "music": [
+      "rock",
+      "pop",
+      "metal",
+      "hip-hop",
+      "electronic"
+    ],
     "size": "large",
     "capacity": 3800,
     "features": [],
@@ -294,7 +474,8 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: Cvent (3800 stanie, 1800 sedenie)."
+    "notes": "Kapacita: Cvent (3800 stanie, 1800 sedenie).",
+    "closing": null
   },
   {
     "id": "roxy",
@@ -307,9 +488,20 @@
     "ra_url": "https://ra.co/clubs/5",
     "instagram": "roxyprague",
     "facebook": "ClubRoxyPrague",
-    "type": ["concert-club", "dance-club"],
-    "character": ["alternative", "late-night"],
-    "music": ["techno", "drum-and-bass", "house", "hip-hop"],
+    "type": [
+      "concert-club",
+      "dance-club"
+    ],
+    "character": [
+      "alternative",
+      "late-night"
+    ],
+    "music": [
+      "techno",
+      "drum-and-bass",
+      "house",
+      "hip-hop"
+    ],
     "size": "medium",
     "capacity": 750,
     "features": [],
@@ -327,7 +519,15 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita podľa Mateja 2026-11-04 (750 stánie, 330 sedenie). Adresa z roxy.cz/contact/."
+    "notes": "Kapacita podľa Mateja 2026-11-04 (750 stánie, 330 sedenie). Adresa z roxy.cz/contact/.",
+    "closing": {
+      "mon": "05:00",
+      "tue": "22:00",
+      "wed": "22:00",
+      "thu": "22:00",
+      "fri": "05:00",
+      "sat": "05:00"
+    }
   },
   {
     "id": "epic",
@@ -340,9 +540,23 @@
     "ra_url": null,
     "instagram": "epic_prague",
     "facebook": null,
-    "type": ["dance-club"],
-    "character": ["commercial", "student", "tourist", "late-night"],
-    "music": ["house", "drum-and-bass", "hardstyle", "latin", "techno", "pop"],
+    "type": [
+      "dance-club"
+    ],
+    "character": [
+      "commercial",
+      "student",
+      "tourist",
+      "late-night"
+    ],
+    "music": [
+      "house",
+      "drum-and-bass",
+      "hardstyle",
+      "latin",
+      "techno",
+      "pop"
+    ],
     "size": "medium",
     "capacity": 600,
     "features": [],
@@ -360,6 +574,13 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita podľa Mateja 2026-11-04. Adresa z epicprague.com/contact."
+    "notes": "Kapacita podľa Mateja 2026-11-04. Adresa z epicprague.com/contact.",
+    "closing": {
+      "wed": "05:00",
+      "thu": "05:00",
+      "fri": "05:00",
+      "sat": "05:00",
+      "sun": "05:00"
+    }
   }
 ]
