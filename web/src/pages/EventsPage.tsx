@@ -141,8 +141,22 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
 
 export function EventsPage({ data, lang, onEventOpen }: Props) {
   const dict = getDict(lang)
-  const now = new Date()
+  const [now, setNow] = useState(() => new Date())
   const baseUrl = import.meta.env.BASE_URL
+
+  // Auto-refresh now every 60s; also on visibility/focus restore
+  useEffect(() => {
+    const refresh = () => setNow(new Date())
+    const handleVis = () => { if (document.visibilityState === 'visible') refresh() }
+    document.addEventListener('visibilitychange', handleVis)
+    window.addEventListener('focus', refresh)
+    const timer = setInterval(refresh, 60_000)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', handleVis)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [])
 
   const isNight = isNightMode(data, now)
 
@@ -216,6 +230,11 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
     if (forYouActive || !hasFavorites) return 0
     return events.filter(e => isForYou(e, favorites)).length
   }, [events, forYouActive, hasFavorites, favorites])
+
+  // When night mode ends, fall back from night period to today
+  useEffect(() => {
+    if (!isNight && period.type === 'night') setPeriod({ type: 'today' })
+  }, [isNight]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist period (not custom)
   useEffect(() => { setStoredPeriod(period) }, [period])
