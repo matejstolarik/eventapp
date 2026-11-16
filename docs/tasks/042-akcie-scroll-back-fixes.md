@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Čítaj:** `design.md` časť 4 (riadky „Riadok pod lištou“, „Pri scrolle“, „Zmena = navrch“, „Šípka navrch“, „Ťuk na aktívnu záložku“, „alt“) a časť 5 (prvý riadok); snímka `docs/design/screens/13-akcie-zbalene.png` a HTML `docs/design/html/13-akcie-zbalene.html`. V kóde: `web/src/App.tsx` (`parseHash`, `navigate`, `goBack`, `handleTabChange`, vykreslenie záložiek), `pages/EventsPage.tsx`, `pages/PlacesPage.tsx`, `components/BottomNav.tsx`, miesto, kde sa vykresľujú štítky (`grep -rn "character" web/src --include=*.tsx`).
+**Čítaj:** `design.md` časť 2 riadok „Noc (0:00–5:00)“ a odsek „Kedy akcia beží“, časť 4 (riadky „Riadok pod lištou“, „Pri scrolle“, „Zmena = navrch“, „Šípka navrch“, „Ťuk na aktívnu záložku“, „alt“) a časť 5 (prvý riadok); snímka `docs/design/screens/13-akcie-zbalene.png` a HTML `docs/design/html/13-akcie-zbalene.html`. V kóde: `web/src/App.tsx` (`parseHash`, `navigate`, `goBack`, `handleTabChange`, vykreslenie záložiek), `pages/EventsPage.tsx`, `pages/PlacesPage.tsx`, `components/BottomNav.tsx`, `core/events.ts` (`isEventFinished`, `isEventPulsing`), `core/visible.ts`, `core/night.ts`, `core/period.ts`, `pages/MyAccountPage.tsx` (zoznam Jdu), `docs/data-model.md` (časť o venue), miesto, kde sa vykresľujú štítky (`grep -rn "character" web/src --include=*.tsx`).
 
 Matejove poznámky po teste 041. Malé, samostatné časti; každá s vlastným commitom.
 
@@ -37,9 +37,30 @@ Všetko z bodov 3–5 a zmeny obsahu mriežky majú ísť plynulo, nič nesmie s
 - Len `opacity` a `transform` (žiadne animácie výšky/šírky v zozname), `prefers-reduced-motion` = bez animácií.
 - Over na pomalšom zariadení: v DevTools CPU 4× spomalenie, scroll a zmena filtra bez viditeľného trhania; v reporte jedna veta, ako to dopadlo.
 
+### 8. Kedy akcia beží – skončené akcie zmiznú (Matej 2026-11-16)
+Príčina (hlavný chat z kódu): `isEventFinished` pri akcii bez `end_time` vždy vráti `false`, takže napr. koncert EsDeeKid od 20:00 bol na mape aj o 23:30 (už nepulzoval, lebo pulz má od 035 strop 3 h).
+- Jedna funkcia „do kedy akcia beží“ v `core/events.ts` podľa `design.md` 2 „Kedy akcia beží“: známy koniec → koniec; bez konca `party`/`dj`/miesto `late-night` → zatvorenie miesta v daný deň (`closing`), inak 3:00; bez konca ostatné → začiatok + 3 h; bez času začiatku → 3:00, nepulzuje.
+- `isEventFinished`, `isEventPulsing` a nočné pravidlo (`isNightEvent`) z nej vychádzajú. Platí na mape, v Akciách aj v Jdu.
+- **Nové pole miesta `closing`** (zmena dátového modelu, Matej súhlasil 2026-11-16): nepovinné, čas zatvorenia podľa dňa v týždni, napr. `{"fri": "05:00", "sat": "05:00", "mon": "02:00"}`; deň, ktorý chýba, alebo celé pole `null` = nepoznáme (3:00). Deň = deň, keď akcia začala. Zapíš do `data-model.md` a nechaj prejsť pipeline do `events.json`. Hodnoty doplní Matej (tabuľka nižšie, ak je; inak ostáva prázdne).
+- Testy: koncert 20:00 bez konca o 22:59 beží, o 23:01 nie; párty bez konca v mieste s `closing.sat = "05:00"` o 4:30 beží; bez `closing` o 3:01 nie; akcia so známym koncom podľa konca.
+
+### 9. „Teraz v noci“ na mape aj v Akciách
+- Mapa: v paneli dňa „V noci“ → „Teraz v noci“ (tlačidlo ostáva „V noci“), EN „Late night now“.
+- Akcie: medzi 0:00 a 5:00 prvá a predvolená možnosť obdobia „Teraz v noci“ (tlačidlo „V noci“), obsah rovnaký ako na mape (rovnaká funkcia); Dnes = nový kalendárny deň, Zajtra ďalší. O 5:00 možnosť zmizne, ak bola vybraná → Dnes. Pri zapamätanom období: ak si používateľ pamätá „Dnes“ a otvorí appku v noci, predvolená je „Teraz v noci“.
+- Zoradenie pri „Teraz v noci“ = „čas“.
+
+### 10. Akcie sa obnovujú samy
+Príčina: `EventsPage` berie `now = new Date()` len pri prekreslení, nič ho neobnovuje. Prepočet každých 60 s, kým je záložka na obrazovke, a pri `visibilitychange`/`focus` (rovnako ako mapa v 035). Zmena „dneška“ o polnoci a o 5:00 sa prejaví sama, aj po návrate z pozadia.
+
+### 11. Jdu bez starých akcií
+Príčina: `MyAccountPage` staré akcie len radí na koniec a „dnešok“ počíta z `toISOString()` (UTC). Zobrazuj len akcie, ktoré ešte neskončili (funkcia z bodu 8, pražský čas); skončené odstráň aj z uloženého zoznamu „Idem“ (`store.ts`), aby nerástol.
+
+### 12. Štítky na obrázku (Matej 2026-11-16)
+Štítky karty v Akciách sa presunú zo samostatného riadku pod obrázkom **na spodok obrázka**: 6 px od ľavého a spodného okraja, jeden riadok, štítky s tmavým pozadím `rgba(17,17,24,0.85)` a textom `#F4F2FF` (aj obrysové štítky charakteru dostanú rovnaké tmavé pozadie, obrys rovnakej farby), na pravom okraji obrázka sa strácajú. Pod obrázkom ostáva dátum · čas, názov, miesto. Odznaky hore (pre teba, nové) bez zmeny. Zapíš do `design.md` 4 (odsek Karta) a uprav `docs/design/html/10-akcie-mriezka.html` len ak je to jednoduché; inak stačí text v `design.md`.
+
 ### Overenie
 - `npm test`, `npm run build`, číslo nasadenia.
-- Snímky Playwright do `docs/tasks/042/`: `01-akcie-kedykolvek.jpg` (bez počtu), `02-akcie-zbalene.jpg` (odscrollované, kompaktná lišta + šípka), `03-miesta-sipka.jpg`.
+- Snímky Playwright do `docs/tasks/042/`: `01-akcie-kedykolvek.jpg` (bez počtu), `02-akcie-zbalene.jpg` (odscrollované, kompaktná lišta + šípka), `03-miesta-sipka.jpg`, `04-akcie-v-noci.jpg` (zmrazený čas pondelok 0:45, otvorený panel obdobia), `05-akcie-stitky-na-obrazku.jpg`.
 - V reporte postup, ako si Matej overí bod 1 v telefóne.
 
 ## Report

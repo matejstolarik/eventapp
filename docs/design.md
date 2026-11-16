@@ -62,7 +62,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Horná lišta** (16 px od okrajov, 56 px od vrchu, mriežka na celú šírku, všetky prvky **výška 44**):
   1. **Deň ▾** (biele, **šírka podľa textu**, text vždy krátky: „Dnes“, „Zajtra“, „So 15. 11.“, „V noci“). Výber dňa = panel zdola: **5 možností dní** (v noci „V noci“ + 4 dni), ako šiesta **„Iný dátum“**; všetko viditeľné bez posúvania a nad spodnou lištou → malý mesačný kalendár v štýle appky, aktívne len dni v rozsahu dát (dni bez akcií stlmené).
      **Štýl panelu (Matej 2026-11-15):** rovnaký ako panel obdobia v Akciách (`11-akcie-obdobie.png`, časť 4): nadpis „Deň“ (Bricolage 20/700), riadky 48 px so zaoblením 24, vybraný deň = biela pilulka (`#F4F2FF`, text `#111118` 600), ostatné `#F4F2FF` 500, vpravo sivý dátum 13 px (`#8E8AA6`; pri „V noci“ text „do 5:00“, pri Dnes/Zajtra dátum, pri ďalších dňoch nič), posledná položka **Iný dátum** s ikonou kalendára. Obsah a správanie ostávajú.
-     - **Noc (0:00–5:00):** prvá a **predvolená** možnosť je **„V noci“** (CZ „V noci“, EN „Late night“); po polnoci sa mapa do tohto režimu prepne sama. Obsah: akcie so **známym koncom po teraz**; bez známeho konca len **párty/DJ alebo miesto so štítkom `late-night`**, ktoré začali večer (od ~20:00). Koncerty a kultúra bez známeho konca nie. Pulz len pri akcii so známym koncom alebo pri párty/DJ v noci. Pod „V noci“ nasleduje „Dnes“ (nový deň večer), „Zajtra“… O 5:00 „V noci“ zmizne.
+     - **Noc (0:00–5:00):** prvá a **predvolená** možnosť je **„Teraz v noci“** v paneli (na tlačidle krátko „V noci“; EN „Late night now“ / „Late night“; zmena 2026-11-15); po polnoci sa mapa do tohto režimu prepne sama. Obsah: akcie, ktoré **ešte bežia** podľa pravidla „Kedy akcia beží“ nižšie (koncerty a kultúra bez konca v noci prakticky nie). Pod „V noci“ nasleduje „Dnes“ (nový deň večer), „Zajtra“… O 5:00 „V noci“ zmizne.
   2. Prepínač **Všetko | Obľúbené** zaberá zvyšok lišty (Filter má pevnú šírku 44); text sa nikdy neoreže ani nezalomí – pri nedostatku miesta sa zmenší okraj, potom zmizne srdiečko pri vypnutých Obľúbených, potom písmo najviac na 13 px (Matej 2026-11-10), tmavý kontajner `#23232F`, rovnako široké polovice: zapnuté Všetko = biele; zapnuté Obľúbené = ružové s **vyplneným čiernym srdiečkom**, vypnuté = obrys srdiečka.
   3. **Filter:** ružový kruh len s ikonou (bez textu), počet aktívnych filtrov ako biely odznak v rohu. Filter: formát (vrátane `party`), žáner, typ miesta, charakter, veľkosť; kombinovateľné. **Panel filtra zároveň slúži ako legenda:** typy akcií v ňom majú rovnakú farbu a ikonu ako značky. (Panel filtra ešte nie je nakreslený; navrhni ho v tomto štýle a ukáž Matejovi pred dokončením.)
 - **Autorstvo mapy** (OpenFreeMap / OpenStreetMap) je povinné podľa licencie, nesmie sa odstrániť. Zobrazuje sa ako malá ikonka „i“, ktorá sa rozbalí po ťuknutí, umiestnená tak, aby nič neprekrývala (upravené 2026-11-09).
@@ -75,6 +75,13 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Vybraný pin pod ovládaním:** ak je vybraný pin (alebo jeho meno) zakrytý kartou, hornou lištou alebo tlačidlami, mapa sa plynule posunie len o toľko, aby bol vo voľnej časti (ako Google Maps). Inak sa mapa pri výbere nehýbe.
 - **Miesta tesne pri sebe:** polohy sú skutočné (Fuchs2 a Bike Jesus z obrysu budovy v OSM). Ak sú dva piny na obrazovke bližšie ako ~20 px, zobrazia sa vodorovne mierne od seba (prekrytie asi do polovice, ako Google Maps), hroty pri ich bodoch. **Rozostúpenie mien len ak sa mená naozaj prekrývajú** (napr. Roxy a EPIC majú iný zvislý rozostup, tam nič). **Dvojica s prekrývajúcimi sa menami** (Fuchs2 + Bike Jesus) má **jedno spoločné meno** „Bike Jesus · Fuchs2“ (západ · východ) vycentrované pod dvojicou. **Po výbere** jedného z nich sa ukáže **len meno vybraného, rovno pod jeho pinom** (bez posunu). (Matej 2026-11-10) Pravidlá kolízií s ostatnými menami platia ďalej. (Matej 2026-11-10: skryť jedno z mien dvojice nie je riešenie.)
 - **Karta sa zachováva aj pri návrate zo stránky akcie** (rovnaké miesto a akcia).
+
+**Kedy akcia beží (platí pre pulz aj zobrazenie na mape, v Akciách a v Jdu; Matej 2026-11-16):**
+- so známym koncom: od začiatku do konca;
+- bez konca, `party`/`dj` alebo miesto `late-night`: do **zatvorenia miesta** v daný deň (pole `closing` miesta, `data-model.md`), ak ho nepoznáme, **do 3:00** (radšej akciu nezobraziť, než poslať človeka pred zatvorený podnik);
+- bez konca, ostatné: **3 hodiny** od začiatku;
+- bez času začiatku: beží celý deň do 3:00 (nepulzuje).
+Skončená akcia z mapy aj zo zoznamov zmizne.
 
 ## 3. Panel akcie na mape (`02-mapa-vybrany-pin-karta.png`)
 
@@ -100,6 +107,8 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - **Šípka navrch:** okrúhle tlačidlo 44 px (`#23232F`, biela šípka nahor, tieň) vpravo 16 px, nad spodnou lištou (spodok 116 px); objaví sa po odscrollovaní ~2 výšok obrazovky (prelínanie 150 ms), ťuk → plynulý scroll navrch, potom zmizne. Rovnako v Miestach (časť 5).
 - **Ťuk na aktívnu záložku** v spodnej lište (Akcie, Miesta) vyroluje zoznam navrch.
 - **Štítok `alternative` sa zobrazuje ako `alt`** všade v appke (len zobrazenie, v dátach ostáva `alternative`).
+
+**Noc v Akciách (Matej 2026-11-16):** medzi 0:00 a 5:00 je v paneli obdobia prvá a predvolená možnosť **„Teraz v noci“** (na tlačidle „V noci“) s rovnakým obsahom ako na mape; **Dnes** = nový kalendárny deň (ako na mape). O 5:00 možnosť zmizne a ak bola vybraná, prepne sa na Dnes.
 
 **Obdobie** (panel zdola ako výber dňa na mape, `11`): nadpis „Obdobie“, prvá položka **Kedykoľvek** s ikonou nekonečna a textom „všetky akcie“, oddelená čiarou od ostatných; potom **Dnes**, **Zajtra**, **Tento víkend**, **Najbližších 7 dní**, **Najbližších 30 dní** (vpravo sivý rozsah dátumov), **Iný dátum** (ikona kalendára → mesačný kalendár ako na mape, výber intervalu: prvý ťuk začiatok, druhý koniec; dvakrát ten istý deň = jeden deň). Vybraná položka = biela pilulka. Rovnaký štýl panelu má od 2026-11-15 aj výber dňa na mape (časť 2). Na tlačidle krátky text: „Dnes“, „Zajtra“, „Víkend“, „7 dní“, „30 dní“, „Kedykoľvek“, „20.–24. 11.“
 - Hranica dňa je 5:00 (ako všade). **Tento víkend** = piatok až nedeľa; po–št najbližší víkend, pi–ne zvyšok aktuálneho. **7 a 30 dní** sú posuvné od dneška vrátane.
