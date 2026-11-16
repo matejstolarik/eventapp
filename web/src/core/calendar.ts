@@ -20,42 +20,43 @@ function formatCalDateTime(d: Date): string {
   return `${formatCalDate(d)}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`
 }
 
-/** Build a Google Calendar URL for the event (Android). Times are Prague local (no Z). */
-export function buildGoogleCalendarUrl(
+/** Build an Android Chrome intent URL for the system calendar app (ACTION_INSERT). */
+export function buildAndroidCalendarIntent(
   event: Pick<Event, 'title' | 'date' | 'start_time' | 'end_time' | 'formats'>,
   venue: VenueCalendar | undefined,
   sourceUrl: string
 ): string {
-  const dateNoDash = event.date.replace(/-/g, '')
+  const location = venue ? `${venue.name}, ${venue.address}` : ''
 
-  let dates: string
+  let beginMs: number
+  let endMs: number
+  let allDay = false
+
   if (!event.start_time) {
-    // All-day event
-    const nextDay = new Date(event.date + 'T12:00:00')
-    nextDay.setDate(nextDay.getDate() + 1)
-    dates = `${dateNoDash}/${formatCalDate(nextDay)}`
+    allDay = true
+    beginMs = new Date(event.date + 'T00:00:00').getTime()
+    endMs = beginMs + 86400000
   } else {
-    const startStr = `${dateNoDash}T${event.start_time.replace(':', '')}00`
+    const start = new Date(`${event.date}T${event.start_time}:00`)
+    beginMs = start.getTime()
     const endsAt = eventEndsAt(
       event as Event,
       venue?.closing ?? null,
       venue?.character ?? []
     )
-    dates = `${startStr}/${formatCalDateTime(endsAt)}`
+    endMs = endsAt.getTime()
   }
 
-  const location = venue ? `${venue.name}, ${venue.address}` : ''
+  const extras: string[] = [
+    `S.title=${encodeURIComponent(event.title)}`,
+    `l.beginTime=${beginMs}`,
+    `l.endTime=${endMs}`,
+  ]
+  if (location) extras.push(`S.eventLocation=${encodeURIComponent(location)}`)
+  if (sourceUrl) extras.push(`S.description=${encodeURIComponent(sourceUrl)}`)
+  if (allDay) extras.push('B.allDay=true')
 
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: event.title,
-    dates,
-    ctz: 'Europe/Prague',
-    details: sourceUrl,
-    location,
-  })
-
-  return `https://calendar.google.com/calendar/render?${params}`
+  return `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.item%2Fevent;${extras.join(';')};end`
 }
 
 /** Generate an .ics file content for the event. */

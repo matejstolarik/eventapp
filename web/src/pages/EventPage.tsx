@@ -6,7 +6,7 @@ import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
 import { isEventLive } from '../core/events'
 import { isNightMode, NIGHT_DAY } from '../core/night'
-import { buildGoogleCalendarUrl, generateICS } from '../core/calendar'
+import { buildAndroidCalendarIntent, generateICS } from '../core/calendar'
 import {
   IconChevronLeft, IconExpand, IconCalendar,
   IconShare, IconSpotify, IconNavigate, IconPin, IconBookmark, EventTypeIcon
@@ -94,30 +94,44 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     const isNight = isNightMode(data, now)
     onGoToMap(venue.id, isLive && isNight ? NIGHT_DAY : ev.date)
   }
+  function downloadIcs() {
+    const venueForIcs = venue ? {
+      name: venue.name,
+      address: venue.address,
+      closing: venue.closing,
+      character: venue.character,
+    } : undefined
+    const ics = generateICS(ev, venueForIcs, shareUrl)
+    const blob = new Blob([ics], { type: 'text/calendar' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${ev.title.slice(0, 40).replace(/[^a-z0-9]/gi, '-')}.ics`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function handleCalendar() {
     if (/Android/i.test(navigator.userAgent)) {
-      const gcUrl = buildGoogleCalendarUrl(ev, venue ? {
+      const intentUrl = buildAndroidCalendarIntent(ev, venue ? {
         name: venue.name,
         address: venue.address,
         closing: venue.closing,
         character: venue.character,
       } : undefined, sourceUrl)
-      window.open(gcUrl, '_blank', 'noopener')
+      // Try system calendar via Chrome intent; fall back to .ics after 1.5s if page stays visible
+      let opened = false
+      function onVisChange() {
+        if (document.hidden) { opened = true }
+      }
+      document.addEventListener('visibilitychange', onVisChange)
+      window.location.href = intentUrl
+      setTimeout(() => {
+        document.removeEventListener('visibilitychange', onVisChange)
+        if (!opened) downloadIcs()
+      }, 1500)
     } else {
-      const venueForIcs = venue ? {
-        name: venue.name,
-        address: venue.address,
-        closing: venue.closing,
-        character: venue.character,
-      } : undefined
-      const ics = generateICS(ev, venueForIcs, shareUrl)
-      const blob = new Blob([ics], { type: 'text/calendar' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${ev.title.slice(0, 40).replace(/[^a-z0-9]/gi, '-')}.ics`
-      a.click()
-      URL.revokeObjectURL(url)
+      downloadIcs()
     }
   }
   async function handleShare() {
