@@ -33,8 +33,8 @@ export const sk = {
     navigate: 'Navigovať',
     free: 'Zadarmo',
     soldOut: 'Vypredané',
-    addedToGoing: 'Uložené do Moje akcie',
-    removedFromGoing: 'Odobrané z Moje akcie',
+    addedToGoing: 'Uložené',
+    removedFromGoing: 'Odobrané z uložených',
     onMap: 'Na mape',
     linkCopied: 'Odkaz skopírovaný',
     refreshError: 'Nepodarilo sa obnoviť',
@@ -44,7 +44,7 @@ export const sk = {
   },
   account: {
     title: 'Môj účet',
-    going: 'Moje akcie',
+    going: 'Akcie',
     noGoing: 'Žiadne uložené akcie',
     language: 'Jazyk',
     languages: { sk: 'Slovenčina', cs: 'Čeština', en: 'English' }

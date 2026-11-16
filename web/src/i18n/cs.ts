@@ -33,8 +33,8 @@ export const cs = {
     navigate: 'Navigovat',
     free: 'Zdarma',
     soldOut: 'Vyprodáno',
-    addedToGoing: 'Uloženo do Moje akce',
-    removedFromGoing: 'Odebráno z Moje akce',
+    addedToGoing: 'Uloženo',
+    removedFromGoing: 'Odebráno z uložených',
     onMap: 'Na mapě',
     linkCopied: 'Odkaz zkopírován',
     refreshError: 'Nepodařilo se obnovit',
@@ -44,7 +44,7 @@ export const cs = {
   },
   account: {
     title: 'Můj účet',
-    going: 'Moje akce',
+    going: 'Akce',
     noGoing: 'Žádné uložené akce',
     language: 'Jazyk',
     languages: { sk: 'Slovenčina', cs: 'Čeština', en: 'English' }

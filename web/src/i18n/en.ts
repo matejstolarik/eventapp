@@ -33,8 +33,8 @@ export const en = {
     navigate: 'Navigate',
     free: 'Free',
     soldOut: 'Sold out',
-    addedToGoing: 'Saved to My events',
-    removedFromGoing: 'Removed from My events',
+    addedToGoing: 'Saved',
+    removedFromGoing: 'Removed from saved',
     onMap: 'On map',
     linkCopied: 'Link copied',
     refreshError: 'Could not refresh',
@@ -44,7 +44,7 @@ export const en = {
   },
   account: {
     title: 'My account',
-    going: 'My events',
+    going: 'Events',
     noGoing: 'No saved events',
     language: 'Language',
     languages: { sk: 'Slovenčina', cs: 'Čeština', en: 'English' }
