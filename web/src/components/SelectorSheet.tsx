@@ -163,33 +163,35 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
                 {item.separator && (
                   <div style={{ height: 1, background: '#2E2D3C', margin: '2px 0' }} />
                 )}
-                <button
-                  style={rowStyle(item.selected)}
-                  onClick={() => {
-                    if (item.isCalendarTrigger) {
-                      setCalView(true)
-                    } else {
-                      onItemSelect(item.id)
-                    }
-                  }}
-                >
-                  {item.iconLeft}
-                  <span>{item.label}</span>
-                  {item.rightText !== undefined && (
-                    <span style={{
-                      marginLeft: 'auto',
-                      fontSize: 13, fontWeight: 500,
-                      color: item.selected ? '#4A4760' : '#8E8AA6',
-                    }}>
-                      {item.rightText}
-                    </span>
-                  )}
-                  {item.isCalendarTrigger && (
-                    <span style={{ marginLeft: item.rightText !== undefined ? 0 : 'auto' }}>
-                      {/* calendar icon handled inline */}
-                    </span>
-                  )}
-                </button>
+                {!item.separator && (
+                  <button
+                    style={rowStyle(item.selected)}
+                    onClick={() => {
+                      if (item.isCalendarTrigger) {
+                        setCalView(true)
+                      } else {
+                        onItemSelect(item.id)
+                      }
+                    }}
+                  >
+                    {item.iconLeft}
+                    <span>{item.label}</span>
+                    {item.rightText !== undefined && (
+                      <span style={{
+                        marginLeft: 'auto',
+                        fontSize: 13, fontWeight: 500,
+                        color: item.selected ? '#4A4760' : '#8E8AA6',
+                      }}>
+                        {item.rightText}
+                      </span>
+                    )}
+                    {item.isCalendarTrigger && (
+                      <span style={{ marginLeft: item.rightText !== undefined ? 0 : 'auto' }}>
+                        {/* calendar icon handled inline */}
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
             ))}
           </div>
