@@ -6,6 +6,7 @@ import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
 import { isEventLive } from '../core/events'
 import { isNightMode, NIGHT_DAY } from '../core/night'
+import { buildGoogleCalendarUrl, generateICS } from '../core/calendar'
 import {
   IconChevronLeft, IconExpand, IconCalendar,
   IconShare, IconSpotify, IconNavigate, IconPin, IconPlusCircle, IconCheckCircle, EventTypeIcon
@@ -21,29 +22,6 @@ interface Props {
   onGoToMap?: (venueId: string, date: string) => void
 }
 
-function generateICS(event: { title: string; date: string; start_time: string | null; end_time: string | null }, venueName: string, url: string): string {
-  const dtstart = event.start_time
-    ? `DTSTART;TZID=Europe/Prague:${event.date.replace(/-/g, '')}T${event.start_time.replace(':', '')}00`
-    : `DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`
-  const dtend = event.end_time && event.start_time
-    ? `DTEND;TZID=Europe/Prague:${event.date.replace(/-/g, '')}T${event.end_time.replace(':', '')}00`
-    : ''
-
-  return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//EventApp//Praha//EN',
-    'BEGIN:VEVENT',
-    dtstart,
-    dtend,
-    `SUMMARY:${event.title}`,
-    `LOCATION:${venueName}`,
-    `URL:${url}`,
-    `UID:${event.date}-${event.title.replace(/\s+/g, '-').toLowerCase()}@eventapp`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].filter(Boolean).join('\r\n')
-}
 
 export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOpen, onGoToMap }: Props) {
   const dict = getDict(lang)
@@ -117,14 +95,30 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     onGoToMap(venue.id, isLive && isNight ? NIGHT_DAY : ev.date)
   }
   function handleCalendar() {
-    const ics = generateICS(ev, venue?.name ?? '', shareUrl)
-    const blob = new Blob([ics], { type: 'text/calendar' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${ev.title.slice(0, 40).replace(/[^a-z0-9]/gi, '-')}.ics`
-    a.click()
-    URL.revokeObjectURL(url)
+    if (/Android/i.test(navigator.userAgent)) {
+      const gcUrl = buildGoogleCalendarUrl(ev, venue ? {
+        name: venue.name,
+        address: venue.address,
+        closing: venue.closing,
+        character: venue.character,
+      } : undefined, sourceUrl)
+      window.open(gcUrl, '_blank', 'noopener')
+    } else {
+      const venueForIcs = venue ? {
+        name: venue.name,
+        address: venue.address,
+        closing: venue.closing,
+        character: venue.character,
+      } : undefined
+      const ics = generateICS(ev, venueForIcs, shareUrl)
+      const blob = new Blob([ics], { type: 'text/calendar' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${ev.title.slice(0, 40).replace(/[^a-z0-9]/gi, '-')}.ics`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
   }
   async function handleShare() {
     if (navigator.share) {
