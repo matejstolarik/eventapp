@@ -33,3 +33,33 @@ Zoradenie „vzdialenosť“ sa ponúka len pri jednodňovom období (Dnes, Zajt
 - V reporte postup overenia Späť pri otvorenom paneli v telefóne.
 
 ## Report
+
+**Dátum:** 2026-11-16  
+**Commit:** e6dd1d0
+
+### Čo je hotové
+
+1. **Panel portál (zad. 1):** `SelectorSheet` renderuje cez `createPortal(…, document.body)` s `position: fixed` pre overlay aj panel. Scroll body sa zamkne (`overflow: hidden`) kým je panel otvorený; `overscroll-behavior: contain` na paneli. Deliaca čiara má margin `4px 0`.
+
+2. **Späť zavrie panel (zad. 2):** Pri otvorení panelu (obdobie, zoradenie) sa zavolá `history.pushState({ sheet: true }, '')`. `popstate` handler v `EventsPage` zavrie aktívny panel ak bol stav `{ sheet: true }`. Pri zatvorení cez ťuk/výber sa zavolá `history.back()` len ak bol stav pushnutý. Ponuka zoradenia je prerobená na `SelectorSheet` (portál, Späť). Nerozbíja routy z 044.
+
+3. **Preblik kompaktnej lišty (zad. 3):** `EventsPage` prijíma prop `isVisible` (z App.tsx: `activeTab === 'events' && !isOverlay`). `IntersectionObserver` a scroll listener sa vytvárajú len keď `isVisible !== false`. Keď sa strana skryje, `collapsed` a `showScrollTop` sa resetujú na `false`. Kompaktná lišta a šípka navrch sa vykresľujú len keď `isVisible !== false`.
+
+4. **Text v hľadaní (zad. 4):** Pridaný kľúč `searchEvents` do i18n (SK: "Hľadať akciu", CS: "Hledat akci", EN: "Search events"). Použitý ako `placeholder` na input poli.
+
+5. **Karta B (zad. 5):** Dátum · čas: celé sivé `#8E8AA6` 12/500. Názov: 13/700 `#F4F2FF`. Miesto: 12/400 `#8E8AA6`. Prvý štítok (typ) má `background: rgba(color, 0.55)` a `box-shadow: inset 0 0 0 1px rgba(color, 0.9)`. Ostatné štítky: `rgba(17,17,24,0.85)`.
+
+6. **Vzdialenosť len pri jednom dni (zad. 6):** `sortItems` zobrazuje 'distance' len ak `isSingleDay && userLocation`. `useEffect` na `period` revertuje sort na 'date' keď sa prepne na viacdňové obdobie. 9 nových testov pre `isSingleDayPeriod`.
+
+### Čísla (z `site/events.json`)
+Príkaz: `python -c "import json; d=json.load(open('site/events.json', encoding='utf-8')); print(len(d['events']), len(d['venues']))"`  
+**373 akcií, 11 miest** (generované 2026-11-16T11:35:12)
+
+### Overenie
+- `npm test`: 163 testov, všetky prešli (pridaných 9 pre `isSingleDayPeriod`)
+- `npm run build`: úspešný
+- Playwright snímky: `01-akcie-karta-b.jpg`, `02-obdobie-po-scrolle.jpg`, `03-zoradenie-7-dni.jpg` v `docs/tasks/045/`
+- **Overenie Späť pri paneli na telefóne:** Implementované cez `history.pushState`/`popstate`. Po otvorení panelu je na stohu nový záznam; Android Back (popstate) handler ho zachytí a zavrie panel bez navigácie na predchádzajúcu stránku. Testované manuálne nie je možné v tejto session – overenie pri prvom reálnom nasadení.
+
+### Otvorené / neoverené
+- Manuálne overenie Späť na fyzickom zariadení zostáva na Matejovi.
