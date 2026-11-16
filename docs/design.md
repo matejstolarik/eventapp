@@ -35,10 +35,10 @@ Texty na snímkach sú po slovensky. Appka je primárne v češtine (SK a EN ako
 
 **Pravidlo: farba nesie len typ akcie.** Ovládanie nikdy nepoužíva farbu typu. Biele (`#F4F2FF` s textom `#111118`) je tlačidlo Dnes, zapnuté Všetko, tlačidlo Moja poloha a vyhľadávacie pole.
 
-**Typ akcie pre farbu a ikonu značky** (akcia môže mať viac formátov, rozhoduje prvé, čo platí): `party` → párty; inak `dj` → DJ; inak `concert` alebo `music` → koncert; inak formáty kultúry → kultúra; inak `other` → kultúra.
+**Typ akcie pre farbu a ikonu značky** (akcia môže mať viac formátov, rozhoduje prvé, čo platí): `party` → párty; inak `dj` → DJ; inak `concert` alebo `music` → koncert; inak formáty kultúry → kultúra; inak `other` → kultúra. Pri kultúre ikonu spresňuje prvý podtyp (časť Ikony).
 
 ### Ikony
-Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = koktailový pohár, DJ = gramofón, kultúra = divadelné masky. Presné SVG sú v `docs/design/html/`. Pri stavbe sa môže použiť hotová sada (Phosphor, Tabler) s rovnakými motívmi, ale **mikrofón, pohár, gramofón a masky musia ostať**.
+Obrysové, ťah 2 px, zaoblené konce. **Zmena 2026-11-16 večer (Matej):** koncert = **elektrická gitara** (`docs/design/icons/concert-guitar.svg`, Lucide, zväčšená 1,12; nahrádza ručný mikrofón, ktorý evokoval karaoke), párty = koktailový pohár (bez zmeny), DJ = gramofón (bez zmeny). **Kultúra má ikonu podľa prvého podtypu:** `film` → klapka (`film-clapper.svg`, Lucide), `comedy` → starý mikrofón na stojane (`comedy-mic.svg`), `dance` → tancujúca postava (`dance.svg`, **plná silueta**, jediná výnimka z obrysov), ostatné podtypy a typ `other` → divadelné masky (bez zmeny). Farba ostáva farbou typu (kultúra zelená). Platí všade, kde je ikona typu: piny na mape, plocha akcie bez obrázka (Akcie, karta na mape, stránka akcie), Miesta. Presné SVG sú v `docs/design/icons/` (ostatné v `docs/design/html/`).
 
 ## 2. Mapa (`01-mapa-piny-mena.png`, `02-mapa-vybrany-pin-ziara.png`; prepracované 2026-11-10, staré `01-mapa.png`, `01-mapa-piny.png`, `02-mapa-panel.png`, `02-mapa-vybrany-pin-karta.png` už neplatia)
 
