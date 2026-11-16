@@ -41,8 +41,21 @@ Všetko z bodov 3–5 a zmeny obsahu mriežky majú ísť plynulo, nič nesmie s
 Príčina (hlavný chat z kódu): `isEventFinished` pri akcii bez `end_time` vždy vráti `false`, takže napr. koncert EsDeeKid od 20:00 bol na mape aj o 23:30 (už nepulzoval, lebo pulz má od 035 strop 3 h).
 - Jedna funkcia „do kedy akcia beží“ v `core/events.ts` podľa `design.md` 2 „Kedy akcia beží“: známy koniec → koniec; bez konca `party`/`dj`/miesto `late-night` → zatvorenie miesta v daný deň (`closing`), inak 3:00; bez konca ostatné → začiatok + 3 h; bez času začiatku → 3:00, nepulzuje.
 - `isEventFinished`, `isEventPulsing` a nočné pravidlo (`isNightEvent`) z nej vychádzajú. Platí na mape, v Akciách aj v Jdu.
-- **Nové pole miesta `closing`** (zmena dátového modelu, Matej súhlasil 2026-11-16): nepovinné, čas zatvorenia podľa dňa v týždni, napr. `{"fri": "05:00", "sat": "05:00", "mon": "02:00"}`; deň, ktorý chýba, alebo celé pole `null` = nepoznáme (3:00). Deň = deň, keď akcia začala. Zapíš do `data-model.md` a nechaj prejsť pipeline do `events.json`. Hodnoty doplní Matej (tabuľka nižšie, ak je; inak ostáva prázdne).
+- **Nové pole miesta `closing`** (zmena dátového modelu, Matej súhlasil 2026-11-16): nepovinné, čas zatvorenia podľa dňa v týždni, napr. `{"fri": "05:00", "sat": "05:00", "mon": "02:00"}`; deň, ktorý chýba, alebo celé pole `null` = nepoznáme (3:00). Deň = deň, keď akcia začala. Zapíš do `data-model.md` a nechaj prejsť pipeline do `events.json`. Hodnoty sú v tabuľke nižšie.
 - Testy: koncert 20:00 bez konca o 22:59 beží, o 23:01 nie; párty bez konca v mieste s `closing.sat = "05:00"` o 4:30 beží; bez `closing` o 3:01 nie; akcia so známym koncom podľa konca.
+
+**Hodnoty `closing` od Mateja (2026-11-16)** – zapíš do `data/venues.json` presne takto (deň = deň začiatku akcie; chýbajúci deň = nepoznáme → 3:00):
+
+| `id` | `closing` |
+|---|---|
+| `cross-club` | `{"mon":"04:00","tue":"05:00","wed":"05:00","thu":"05:00","fri":"05:00","sat":"07:00","sun":"07:00"}` |
+| `fuchs2` | `{"mon":"06:30","tue":"06:30","wed":"06:30","thu":"06:30","fri":"06:30","sat":"06:30","sun":"06:30"}` (klubové noci do ~6:30–7:00; koncerty F2 Live sú `concert`, platí pre ne 3 h) |
+| `bike-jesus` | `{"tue":"00:00","wed":"00:00","thu":"00:00","fri":"06:00","sat":"06:00"}` (po a ne zatvorené → chýba) |
+| `roxy` | `{"mon":"05:00","tue":"22:00","wed":"22:00","thu":"22:00","fri":"05:00","sat":"05:00"}` |
+| `epic` | `{"wed":"05:00","thu":"05:00","fri":"05:00","sat":"05:00","sun":"05:00"}` |
+| ostatné | `null` |
+
+Výklad času: ak je `closing` ≥ čas začiatku akcie (napr. Roxy ut 19:00 → 22:00), zatvára sa v ten istý deň; inak nasledujúci deň ráno (`00:00` = polnoc po dni začiatku). Akcia bez času začiatku: `closing` sa berie ako nasledujúci deň, ak je pred 12:00.
 
 ### 9. „Teraz v noci“ na mape aj v Akciách
 - Mapa: v paneli dňa „V noci“ → „Teraz v noci“ (tlačidlo ostáva „V noci“), EN „Late night now“.
