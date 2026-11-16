@@ -4,7 +4,7 @@
 
 Robí sa po 045.
 
-**Čítaj:** `design.md` časť 7 (posledné dva odseky „Zmena 2026-11-16“ a „Kalendár (2026-11-16)“) a v časti 4 riadok „Obnovenie potiahnutím“. V kóde: `web/src/pages/EventPage.tsx`, `core/store.ts` (Idem), `core/events.ts` (`eventEndsAt`), súbor, ktorý dnes robí `.ics` (`grep -rn "ics\|VCALENDAR" web/src`), `App.tsx` (`goToMap`, načítanie `events.json`), `pages/EventsPage.tsx` a `pages/PlacesPage.tsx` (scroll kontajnery), `index.html` / `styles/global.css`.
+**Čítaj:** `design.md` časť 7 (posledné dva odseky „Zmena 2026-11-16“ a „Kalendár (2026-11-16)“) a v časti 4 riadok „Obnovenie potiahnutím“. V kóde: `web/src/pages/EventPage.tsx`, `core/store.ts` (Idem), `core/events.ts` (`eventEndsAt`), súbor, ktorý dnes robí `.ics` (`grep -rn "ics\|VCALENDAR" web/src`), `App.tsx` (`goToMap`, načítanie `events.json`), `pages/EventsPage.tsx` a `pages/PlacesPage.tsx` (scroll kontajnery), `index.html` / `styles/global.css`, `components/SelectorSheet.tsx`, `components/DaySelector.tsx`, v `pages/MapPage.tsx` a `pages/EventsPage.tsx` len `pushState`/`popstate`.
 
 Každá časť s vlastným commitom.
 
@@ -23,6 +23,9 @@ Príčina: Chrome pri potiahnutí načíta celú stránku znova (tenký pásik n
 - Natívne obnovenie vypni (`overscroll-behavior-y: contain` na `html, body` aj na scroll kontajneroch).
 - Vlastné: keď je zoznam navrchu a používateľ ťahá nadol, zobraz koliesko so šípkou (vzhľad podobný Chromu, farby appky), po prekročení ~70 px a pustení: koliesko sa točí, appka znova stiahne `events.json` (`cache: 'no-store'`) a prekreslí; bez načítania stránky. Funguje aj pri krátkom alebo prázdnom zozname. Na mape nie.
 - Chyba siete: koliesko zmizne, krátka správa „Nepodarilo sa obnoviť“.
+
+### 5. Späť zatvorí panel aj na mape (doplnok z 045)
+V 045 je Späť → zatvorenie panelu len v `EventsPage` (`history.pushState({sheet:true})`). Rovnako urob pre výber dňa na mape (`DaySelector`) a kalendár „Iný dátum“ na mape – najlepšie raz priamo v `SelectorSheet` (otvorenie = `pushState`, `popstate` = zatvorenie), aby to platilo všade a `EventsPage` nemal vlastnú kópiu. Nesmie sa biť s existujúcim `pushState({panel:'open'})` pre kartu miesta v `MapPage`.
 
 ### Overenie
 - `npm test`, `npm run build`, číslo nasadenia.
