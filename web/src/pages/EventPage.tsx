@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
@@ -173,21 +173,12 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     }
   }
 
-  const FORMAT_COLORS: Record<string, [string, string]> = {
-    party: ['#FF8A3D', '#2A1200'],
-    dj: ['#2FD4C0', '#002B26'],
-    concert: ['#8B6CFF', '#14063A'],
-    music: ['#8B6CFF', '#14063A'],
-    dance: ['#C6F432', '#1B2600'],
-    theatre: ['#C6F432', '#1B2600'],
-    talk: ['#C6F432', '#1B2600'],
-    comedy: ['#C6F432', '#1B2600'],
-    film: ['#C6F432', '#1B2600'],
-    opening: ['#C6F432', '#1B2600'],
-    workshop: ['#C6F432', '#1B2600'],
-    quiz: ['#C6F432', '#1B2600'],
-    other: ['#C6F432', '#1B2600'],
-  }
+  const primaryTag = primaryTypeTag(ev.formats)
+  // Remaining tags: culture subtypes (excluding primary) + genres
+  const remainingTags = [
+    ...ev.formats.filter(f => ['theatre','dance','talk','comedy','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
+    ...ev.genres,
+  ]
 
   return (
     <div style={{
@@ -283,25 +274,22 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         </p>
 
         {/* Tags row — with bookmark on right when no price and no sold_out (case c) */}
-        {(ev.formats.length > 0 || ev.genres.length > 0) && (
+        {(primaryTag || remainingTags.length > 0) && (
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
             <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {ev.formats.map(f => {
-                const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
-                return (
-                  <span key={f} style={{
-                    height: 24, padding: '0 10px', borderRadius: 12,
-                    background: bg, color: fg, fontSize: 12, fontWeight: 600,
-                    display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                  }}>{f}</span>
-                )
-              })}
-              {ev.genres.map(g => (
-                <span key={g} style={{
+              {primaryTag && (
+                <span style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
-                  background: '#2A2838', color: '#E4DEFF', fontSize: 12, fontWeight: 600,
+                  background: color, color: dark, fontSize: 12, fontWeight: 600,
                   display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{g}</span>
+                }}>{primaryTag}</span>
+              )}
+              {remainingTags.map(tag => (
+                <span key={tag} style={{
+                  height: 24, padding: '0 10px', borderRadius: 12,
+                  background: '#2A2838', color: EVENT_TYPE_TAG_TEXT[eventType], fontSize: 12, fontWeight: 600,
+                  display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
+                }}>{tag === 'alternative' ? 'alt' : tag}</span>
               ))}
             </div>
             {/* Case (c): no price, no sold_out → bookmark on tag row */}
