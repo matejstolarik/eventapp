@@ -47,3 +47,60 @@ Príčina: `MyAccountPage` staré akcie len radí na koniec a „dnešok“ poč
 - V reporte zoznam upravených testov (hranica 5:00 → nové pravidlo).
 
 ## Report
+
+**Dátum:** 2026-11-16  
+**Commits:** a1e8f85, 34a7a33, 75c35ce, 3b5d918, b57c026, 5746429
+
+### Čo je hotové
+
+**Časť 1 – Kedy akcia beží (a1e8f85, 34a7a33)**
+- `closing` pole pridané do `docs/data-model.md`, `data/venues.json` (5 venues), `web/src/core/types.ts`
+- `eventEndsAt(event, venueClosing, venueCharacter)`: centrálna funkcia výpočtu konca akcie (so známym koncom → koniec; party/dj/late-night + closing → closing; ostatné → start+3h; bez startu → 3:00)
+- `isEventFinished` opravená (bez `end_time` sa teraz vypočíta cez `eventEndsAt`, neskončí nikdy viac)
+- `isEventPulsing` nová 4-arg signatúra `(event, venueCharacter, venueClosing, now)`: pulzuje aj pre akcie z predchádzajúceho dňa v nočnom okne 0–7h
+- `getToday` = kalendárny deň od polnoci (nie 5:00); nová funkcia `getYesterday`
+- `isNightMode(data, now)`: dynamická (0:00–7:00 len kým beží aspoň jedna akcia z predchádzajúceho dňa)
+- `isNightEvent` nová 4-arg signatúra `(event, venueCharacter, venueClosing, now)`
+- `visible.ts`: nočný režim používa `getYesterday`, predáva `venue.closing` všade
+
+**Časť 2 – Teraz v noci (75c35ce, 5746429)**
+- `period.ts`: nový typ `'night'` (yesterday range, isSingleDay = true)
+- i18n: `nightNow` kľúč (SK/CS: „Teraz v noci", EN: „Late night now"); `tillFive: ''`
+- `DaySelector`: nočná položka zobrazuje „Teraz v noci", bez pravého textu
+- `useNightMode`: smart timer nahradený 60s intervalom; používa `isNightMode(data)`
+- `MapPage`: počiatočný stav cez `isNightMode(data, now)`
+- `EventsPage`: nočná položka v ponuke (len keď noc), filtrovanie cez `isNightEvent`
+- `decisions.md`: 2 nové záznamy (midnight boundary + closing pole)
+
+**Časť 3 – Obnovovanie (3b5d918)**
+- `EventsPage`: `now` je state, obnova každých 60s + `visibilitychange`/`focus`
+- Keď nočný režim skončí, obdobie sa automaticky prepne na Dnes
+
+**Časť 4 – Jdu (b57c026)**
+- `store.ts`: `pruneGoing(data, now)` odstráni skončené akcie z localStorage
+- `MyAccountPage`: zobrazuje len neskončené akcie (cez `isEventFinished` s Prague časom a `venue.closing`); volá `pruneGoing` pri načítaní
+
+### Rozhodnutia
+
+Všetky rozhodnutia boli odsúhlasené Matejom v zadaní 2026-11-16. Nové záznamy pridané do `decisions.md` (midnight boundary, closing pole).
+
+### Uprávené testy (hranica 5:00 → nové pravidlo)
+
+- `day.test.ts`: testy `01:00 AM` a `04:59` teraz vracajú rovnaký deň (nie predchádzajúci), nové testy `getYesterday`
+- `period.test.ts`: test „today at 1:30 night → today = 2026-11-14" zmenený na `2026-11-15` (calendar midnight)
+- `events.test.ts`: dátum sobotnej párty opravený z `2026-11-15` (nedeľa) na `2026-11-14` (sobota)
+- `night.test.ts`: test „Saturday 5:30 with cross-club party" opravený – event date `2026-11-14`, now `2026-11-15T05:30:00`
+
+### Čísla z pipeline
+
+Príkaz: `python -c "import json; d=json.load(open('site/events.json',encoding='utf-8')); print(len(d['events']), 'events', len(d['venues']), 'venues', [v['id'] for v in d['venues'] if v.get('closing')])"` (spustiť po pipeline)
+
+Pipeline výsledok (lokálny beh): _prebieha – doplniť po dokončení_
+
+### Overenie
+
+- `npm test`: 152 testov – všetky prešli
+- `pytest -q`: 232 testov – všetky prešli  
+- `npm run build`: OK (warning o chunk size je predjestvujúci)
+- Screenshots: `docs/tasks/043/01-04.jpg` vygenerované Playwrightom (4 snímky)
+- Playground: pipeline ešte prebieha, `closing` v `events.json` treba overiť po dokončení
