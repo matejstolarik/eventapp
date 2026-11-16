@@ -1,0 +1,102 @@
+import { test } from '@playwright/test'
+import path from 'path'
+import fs from 'fs'
+
+const OUT_DIR = path.resolve('D:/AI/eventapp/docs/tasks/051')
+fs.mkdirSync(OUT_DIR, { recursive: true })
+
+const FROZEN_ISO = '2026-11-16T18:00:00'
+const TODAY = '2026-11-16'
+
+function ev(
+  id: string,
+  venue_id: string,
+  title: string,
+  date: string,
+  start_time: string,
+  formats: string[],
+  genres: string[],
+  extra: Partial<{ image_thumb: string | null; image_url: string | null }> = {}
+): object {
+  return {
+    id, venue_id, title, date, start_time, end_time: null, doors_time: null,
+    formats, genres, character: [], artists: [],
+    price_text: null, free: null, sold_out: null, room: null,
+    ticket_url: null, image_url: null, image_thumb: null,
+    description: null, description_source: null,
+    sources: [{ type: 'rss', url: 'https://example.com' }],
+    classification: null, first_seen: TODAY, last_seen: TODAY, status: 'scheduled', flags: [],
+    ...extra,
+  }
+}
+
+const VENUES = [
+  { id: 'akropolis', name: 'Palác Akropolis', lat: 50.0787, lng: 14.4592, character: ['alternative'], type: ['concert-club'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: 'palacakropolis', address: 'Kubelíkova 27', city: 'Praha', size: 'medium', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'kino-aero', name: 'Kino Aero', lat: 50.0821, lng: 14.4620, character: ['english-friendly'], type: ['cinema'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: null, address: 'Biskupcova 31', city: 'Praha', size: 'small', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'cross-club', name: 'Cross Club', lat: 50.1082927, lng: 14.4432281, character: ['underground', 'late-night'], type: ['dance-club'], image_url: null, image_thumb: null, active: true, web: '', ra_url: null, instagram: null, address: 'Plynární 23', city: 'Praha', size: 'medium', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'comedy-club', name: 'Comedy Club Praha', lat: 50.0865, lng: 14.4208, character: [], type: ['comedy-club'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: null, address: 'Revoluční 1', city: 'Praha', size: 'small', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'dance-venue', name: 'Taneční Studio', lat: 50.0730, lng: 14.4350, character: [], type: ['culture-center'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: null, address: 'Vinohrady 5', city: 'Praha', size: 'small', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'theatre', name: 'Divadlo v Řeznické', lat: 50.0760, lng: 14.4280, character: [], type: ['theatre'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: null, address: 'Řeznická 12', city: 'Praha', size: 'small', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+  { id: 'party-club', name: 'Club Budoár', lat: 50.0810, lng: 14.4150, character: ['late-night'], type: ['dance-club'], image_url: null, image_thumb: null, active: true, web: 'https://example.com', ra_url: null, instagram: null, address: 'Štěpánská 20', city: 'Praha', size: 'medium', sources: [], description: null, description_url: null, image_source: null, music: [], closing: null },
+]
+
+const EVENTS = [
+  ev('ev-concert', 'akropolis',   'Live: Nová Vlna', TODAY, '20:00', ['concert'], ['indie'], { image_thumb: '/eventapp/test-thumb-concert.jpg' }),
+  ev('ev-party',   'party-club',  'Párty noc', TODAY, '22:00', ['party'], ['pop'], { image_thumb: '/eventapp/test-thumb-party.jpg' }),
+  ev('ev-dj',      'cross-club',  'DJ Nights', TODAY, '23:00', ['dj'], [], {}),
+  ev('ev-film',    'kino-aero',   'Filmová premiéra', TODAY, '19:00', ['film'], ['documentary'], { image_thumb: '/eventapp/test-thumb-film.jpg' }),
+  ev('ev-comedy',  'comedy-club', 'Stand-up večer', TODAY, '20:30', ['comedy'], [], {}),
+  ev('ev-dance',   'dance-venue', 'Taneční predstavenie', TODAY, '19:30', ['dance'], [], {}),
+  ev('ev-theatre', 'theatre',     'Hamlet remix', TODAY, '20:00', ['theatre'], [], {}),
+]
+
+const SYNTHETIC = { schema_version: 1, generated_at: FROZEN_ISO, venues: VENUES, events: EVENTS }
+
+async function setup(page: any) {
+  await page.clock.setFixedTime(FROZEN_ISO)
+  await page.addInitScript(() => {
+    localStorage.setItem('language', 'sk')
+    localStorage.removeItem('eventsPeriod')
+    localStorage.removeItem('eventsSort')
+    localStorage.removeItem('eventsFilters')
+  })
+  await page.route('**/events.json', (route: any) => {
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(SYNTHETIC) })
+  })
+}
+
+async function goToEvents(page: any) {
+  await page.goto('/')
+  await page.waitForSelector('.maplibregl-canvas', { timeout: 15000 })
+  await page.waitForTimeout(1500)
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button')) as HTMLButtonElement[]
+    const tabBtns = buttons.filter(b => {
+      const rect = b.getBoundingClientRect()
+      return rect.bottom > 740 && rect.top > 700
+    })
+    if (tabBtns[1]) tabBtns[1].click()
+  })
+  await page.waitForTimeout(600)
+}
+
+test.describe('051', () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })
+
+  test('mapa-piny', async ({ page }) => {
+    await setup(page)
+    await page.goto('/')
+    await page.waitForSelector('.maplibregl-canvas', { timeout: 15000 })
+    await page.waitForTimeout(2500)
+    await page.screenshot({ path: path.join(OUT_DIR, 'mapa-piny.jpg'), type: 'jpeg', quality: 80 })
+    console.log('✓ mapa-piny.jpg')
+  })
+
+  test('akcie-mriezka', async ({ page }) => {
+    await setup(page)
+    await goToEvents(page)
+    await page.waitForTimeout(500)
+    await page.screenshot({ path: path.join(OUT_DIR, 'akcie-mriezka.jpg'), type: 'jpeg', quality: 80 })
+    console.log('✓ akcie-mriezka.jpg')
+  })
+})
