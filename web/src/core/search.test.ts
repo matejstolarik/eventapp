@@ -27,7 +27,7 @@ function makeVenue(overrides: Partial<Venue> = {}): Venue {
     type: [], character: [], music: [], size: 'medium',
     capacity: null, features: null, description: null, description_url: null,
     image_url: null, image_source: null, image_thumb: null,
-    sources: [], active: true, notes: null,
+    closing: null, sources: [], active: true, notes: null,
     ...overrides,
   }
 }

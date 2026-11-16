@@ -162,7 +162,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         return {
           venueId: venue.id, name: venue.name, eventType,
           isFavorite: isFavorite(venue.id),
-          isLive: primary ? isEventPulsing(primary, venue.character, curNow) : false,
+          isLive: primary ? isEventPulsing(primary, venue.character, venue.closing, curNow) : false,
           extraCount: Math.max(0, events.length - 1),
           lat: venue.lat, lng: venue.lng,
         }
@@ -177,7 +177,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       return {
         venueId, name: venue.name, eventType,
         isFavorite: isFavorite(venueId),
-        isLive: primary ? isEventPulsing(primary, venue.character, curNow) : false,
+        isLive: primary ? isEventPulsing(primary, venue.character, venue.closing, curNow) : false,
         extraCount: Math.max(0, events.length - 1),
         lat: venue.lat, lng: venue.lng,
       }
