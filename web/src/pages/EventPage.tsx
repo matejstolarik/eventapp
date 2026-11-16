@@ -4,9 +4,11 @@ import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventTy
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
+import { isEventLive } from '../core/events'
+import { isNightMode, NIGHT_DAY } from '../core/night'
 import {
-  IconChevronLeft, IconExpand, IconCheck, IconCalendar,
-  IconShare, IconSpotify, IconNavigate, EventTypeIcon
+  IconChevronLeft, IconExpand, IconCalendar,
+  IconShare, IconSpotify, IconNavigate, IconPin, IconPlusCircle, IconCheckCircle, EventTypeIcon
 } from '../icons'
 
 interface Props {
@@ -16,6 +18,7 @@ interface Props {
   userLocation: { lat: number; lng: number } | null
   onBack: () => void
   onVenueOpen?: (venueId: string) => void
+  onGoToMap?: (venueId: string, date: string) => void
 }
 
 function generateICS(event: { title: string; date: string; start_time: string | null; end_time: string | null }, venueName: string, url: string): string {
@@ -42,7 +45,7 @@ function generateICS(event: { title: string; date: string; start_time: string | 
   ].filter(Boolean).join('\r\n')
 }
 
-export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOpen }: Props) {
+export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOpen, onGoToMap }: Props) {
   const dict = getDict(lang)
   const event = data.events.find(e => e.id === eventId)
   const [going, setGoing] = useState(() => isGoing(eventId))
@@ -88,8 +91,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
 
   const dateLabel = formatEventDate(ev.date, lang)
   const timePart = ev.start_time ? ` · ${ev.start_time}` : ''
-  const pricePart = ev.price_text ? ` · ${ev.price_text}` : (ev.free ? ` · ${dict.event.free}` : '')
-  const metaLine = `${dateLabel}${timePart}${pricePart}`
+  const metaLine = `${dateLabel}${timePart}`
 
   const distStr = userLocation && venue
     ? ` · ${formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)}`
@@ -104,6 +106,15 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   function handleGoing() {
     const newState = toggleGoing(eventId)
     setGoing(newState)
+    showToast(newState ? dict.event.addedToGoing : dict.event.removedFromGoing)
+  }
+
+  function handleGoToMap() {
+    if (!venue || !onGoToMap) return
+    const now = new Date()
+    const isLive = isEventLive(ev, now, venue.closing, venue.character)
+    const isNight = isNightMode(data, now)
+    onGoToMap(venue.id, isLive && isNight ? NIGHT_DAY : ev.date)
   }
   function handleCalendar() {
     const ics = generateICS(ev, venue?.name ?? '', shareUrl)
@@ -240,16 +251,11 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         {/* Meta */}
         <p style={{ fontSize: 15, color: '#B9B6CC', marginBottom: 12 }}>
           {metaLine}
-          {ev.sold_out && (
-            <span style={{ color: '#FF4D8D', marginLeft: 8, fontWeight: 600 }}>
-              {dict.event.soldOut}
-            </span>
-          )}
         </p>
 
         {/* Tags: event formats + genres only (venue character tags are on venue profile) */}
         {(ev.formats.length > 0 || ev.genres.length > 0) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
             {ev.formats.map(f => {
               const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
               return (
@@ -270,6 +276,46 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           </div>
         )}
 
+        {/* Price + Idem row */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 40 }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+            {ev.price_text && (
+              <span style={{
+                fontSize: 17, fontWeight: 600,
+                color: ev.sold_out ? '#5D5677' : '#F4F2FF',
+                textDecoration: ev.sold_out ? 'line-through' : 'none'
+              }}>
+                {ev.price_text}
+              </span>
+            )}
+            {ev.sold_out && (
+              <span style={{
+                padding: '2px 8px', borderRadius: 10,
+                background: '#3A1420', color: '#FF8FB0',
+                fontSize: 12, fontWeight: 600
+              }}>
+                {dict.event.soldOut}
+              </span>
+            )}
+          </div>
+          <button
+            style={{
+              width: 40, height: 40, borderRadius: 20, flexShrink: 0,
+              background: going ? '#FF4D8D' : '#1C1C27',
+              border: going ? 'none' : '1.5px solid #5D5677',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+            onClick={handleGoing}
+            aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
+          >
+            {going
+              ? <IconCheckCircle size={20} color="#1A0710" />
+              : <IconPlusCircle size={20} color="#F4F2FF" />
+            }
+          </button>
+        </div>
+
         {/* Main CTA */}
         <button
           style={{
@@ -283,23 +329,20 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           {ev.ticket_url ? dict.event.tickets : dict.event.website}
         </button>
 
-        {/* Secondary actions: Idem · Kalendár · Zdieľať · Spotify · Navigovať
-            At 360px viewport (328px inner): 5 × flex-1 with gap 8 → ~59px each.
-            Labels use font-size 11 to fit "Navigovať" (9 chars) in that width. */}
+        {/* Secondary actions: Kalendár · Zdieľať · Spotify · Na mape · Navigovať */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {([
-            { label: dict.event.going, onClick: handleGoing, active: going, icon: <IconCheck size={18} color={going ? '#FF4D8D' : '#F4F2FF'} /> },
-            { label: dict.event.calendar, onClick: handleCalendar, active: false, icon: <IconCalendar size={18} color="#F4F2FF" /> },
-            { label: dict.event.share, onClick: handleShare, active: false, icon: <IconShare size={18} color="#F4F2FF" /> },
-            { label: dict.event.spotify, onClick: handleSpotify, active: false, icon: <IconSpotify size={18} /> },
-            ...(venue ? [{ label: dict.event.navigate, onClick: handleNavigate, active: false, icon: <IconNavigate size={18} color="#F4F2FF" /> }] : []),
-          ] as { label: string; onClick: () => void; active: boolean; icon: React.ReactNode }[]).map(({ label, onClick, active: isActive, icon }) => (
+            { label: dict.event.calendar, onClick: handleCalendar, icon: <IconCalendar size={18} color="#F4F2FF" /> },
+            { label: dict.event.share, onClick: handleShare, icon: <IconShare size={18} color="#F4F2FF" /> },
+            { label: dict.event.spotify, onClick: handleSpotify, icon: <IconSpotify size={18} /> },
+            ...(venue && onGoToMap ? [{ label: dict.event.onMap, onClick: handleGoToMap, icon: <IconPin size={18} color="#F4F2FF" /> }] : []),
+            ...(venue ? [{ label: dict.event.navigate, onClick: handleNavigate, icon: <IconNavigate size={18} color="#F4F2FF" /> }] : []),
+          ] as { label: string; onClick: () => void; icon: React.ReactNode }[]).map(({ label, onClick, icon }) => (
             <button
               key={label}
               style={{
                 flex: 1, height: 64, borderRadius: 18,
-                background: isActive ? '#2D1A30' : '#1C1C27',
-                color: isActive ? '#FF4D8D' : '#F4F2FF',
+                background: '#1C1C27', color: '#F4F2FF',
                 display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center', gap: 4,
                 fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',

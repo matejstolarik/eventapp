@@ -33,7 +33,11 @@ export const en = {
     navigate: 'Navigate',
     free: 'Free',
     soldOut: 'Sold out',
+    addedToGoing: 'Added to Going',
+    removedFromGoing: 'Removed from Going',
+    onMap: 'On map',
     linkCopied: 'Link copied',
+    refreshError: 'Could not refresh',
     notFound: 'This event has ended',
     backToMap: 'Back to map',
     noDescription: ''

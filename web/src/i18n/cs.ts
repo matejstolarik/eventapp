@@ -33,7 +33,11 @@ export const cs = {
     navigate: 'Navigovat',
     free: 'Zdarma',
     soldOut: 'Vyprodáno',
+    addedToGoing: 'Přidáno do Jdu',
+    removedFromGoing: 'Odebráno z Jdu',
+    onMap: 'Na mapě',
     linkCopied: 'Odkaz zkopírován',
+    refreshError: 'Nepodařilo se obnovit',
     notFound: 'Akce už proběhla',
     backToMap: 'Zpět na mapu',
     noDescription: ''

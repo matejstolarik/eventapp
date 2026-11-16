@@ -274,6 +274,7 @@ export default function App() {
             userLocation={null}
             onBack={goBack}
             onVenueOpen={openVenue}
+            onGoToMap={goToMap}
           />
         </div>
       )}

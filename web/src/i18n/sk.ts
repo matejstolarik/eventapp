@@ -33,7 +33,11 @@ export const sk = {
     navigate: 'Navigovať',
     free: 'Zadarmo',
     soldOut: 'Vypredané',
+    addedToGoing: 'Pridané do Idem',
+    removedFromGoing: 'Odobrané z Idem',
+    onMap: 'Na mape',
     linkCopied: 'Odkaz skopírovaný',
+    refreshError: 'Nepodarilo sa obnoviť',
     notFound: 'Akcia už prebehla',
     backToMap: 'Späť na mapu',
     noDescription: ''
