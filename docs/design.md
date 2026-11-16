@@ -118,12 +118,16 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 **Nové:** akcia s `first_seen` za posledných 7 dní. Na obrázku biely odznak **nové**; zapnutý čip ukáže len nové.
 
 **Zoradenie:** **dátum** (predvolené; pri jednodňovom období – Dnes, Zajtra, Iný dátum s jedným dňom – sa volá **čas**, radí sa rovnako podľa dátumu a času začiatku) a **vzdialenosť** (len s povolenou polohou). **Bez nadpisov dní** pri akomkoľvek období a zoradení: mriežka ide súvisle bez medzier v riadkoch, dátum nesie každá karta (Matej 2026-11-15). Cena príde po doplnení cien v dátach.
+- **Vzdialenosť len pri jednodňovom období** (Dnes, Zajtra, Teraz v noci, Iný dátum s jedným dňom; Matej 2026-11-16). Pri viacdňovom období sa voľba neukáže a ak bola vybraná, zoradenie sa vráti na dátum.
+- **Panely (obdobie, deň na mape, kalendár, zoradenie)** sú vždy nad celou obrazovkou (nie v posúvanom zozname), samy sa neposúvajú a pod nimi sa zoznam nehýbe; **Späť ich zatvorí** (nevracia o stránku). V paneli obdobia má Kedykoľvek rovnakú výšku riadku ako ostatné, deliaca čiara má len malý odstup.
+- **Hľadanie** má v prázdnom poli text „Hľadať akciu“ (CZ „Hledat akci“, EN „Search events“).
+- **Obnovenie potiahnutím (Akcie, Miesta, 2026-11-16):** vlastné v appke – po potiahnutí navrchu zoznamu sa ukáže koliesko so šípkou a appka znova stiahne `events.json` bez načítania stránky (bez pásika prehliadača); natívne obnovenie Chromu vypnuté (`overscroll-behavior-y: contain` na dokumente). Funguje pri akomkoľvek počte akcií.
 
 **Mriežka:** 3 stĺpce, medzera 8 px vodorovne, 16 px zvisle, karty zarovnané hore (výška podľa obsahu, žiadna prázdna medzera pod krátkym názvom). Karta:
 - štvorcový **obrázok** (zaoblenie 12) – náhľad obrázka akcie; bez obrázka plocha vo farbe typu s ikonou typu. Odznaky: vľavo hore **pre teba** (tmavý `#111118`, iskry + text 10/600), vpravo hore **nové** (biely).
-- **dátum · čas** (12/600): dátum sivý `#8E8AA6` 500, čas vo farbe typu. Dátum vždy, pri dnešku a zajtrajšku slovom: „Dnes · 20:00“, „Zajtra · 22:00“, inak „Pi 20. 11. · 23:00“.
-- **názov** (13/500, max. 2 riadky, potom „…“), **miesto** (12/700 `#B9B6CC`, 1 riadok s „…“).
-- **štítky** priamo **na obrázku** (spodok-ľavý roh, 6 px od okraja): výška 18, 10/500, zaoblenie 9, pozadie `rgba(17,17,24,0.85)`, text `#F4F2FF`; štítky charakteru miesta rovnako tmavé pozadie (nie obrys). Toľko, koľko sa zmestí vodorovne, na pravom okraji sa strácajú. Riadok štítkov pod obrázkom bol **odstránený** (Matej 2026-11-16, úloha 044).
+- **dátum · čas** (12/500), celé sivé `#8E8AA6` (zmena 2026-11-16: farbu nesie štítok typu, nie čas). Dátum vždy, pri dnešku a zajtrajšku slovom: „Dnes · 20:00“, „Zajtra · 22:00“, inak „Pi 20. 11. · 23:00“.
+- **názov** (13/700 `#F4F2FF`, normálne písmo, nie veľké písmená, max. 2 riadky, potom „…“), **miesto** (12/400 `#8E8AA6`, 1 riadok s „…“) – názov výrazne, miesto tlmene (Matej 2026-11-16, variant B).
+- **štítky** priamo **na obrázku** (spodok-ľavý roh, 6 px od okraja): výška 18, 10/500, zaoblenie 9, text `#F4F2FF`. **Štítok typu** (prvý) priesvitne vo farbe typu: pozadie farba typu s priehľadnosťou 0,55 + vnútorný obrys 1 px farba typu s priehľadnosťou 0,9; ostatné štítky pozadie `rgba(17,17,24,0.85)`. Na pravom okraji obrázka sa strácajú.
 - Ťuk na kartu → stránka akcie. Čo práve beží, sa tu nezvýrazňuje.
 
 **Prázdny stav:** „Na dnes nič nemáme.“ + tlačidlo „Pozrieť 7 dní“ (pri inom období „Skúsiť Kedykoľvek“); pri zapnutom Pre teba / Nové / filtri tlačidlo „Zrušiť filtre“.
@@ -147,11 +151,14 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 
 ## 7. Stránka akcie (`07-stranka-akcie.png`)
 - Hore **veľký obrázok** (štvorec cez celú šírku) so stmavnutím; tlačidlo **„Plagát“** otvorí obrázok na celú obrazovku (často je to oficiálny plagát).
-- Názov (Bricolage 28/700), **miesto s odkazom na profil**, „deň dátum · čas · cena“ (cena a vypredané len ak ich zdroj dáva), **len štítky akcie** (formáty, žánre). Štítky miesta tu nie sú (Matej 2026-11-09), patria do profilu miesta.
+- Názov (Bricolage 28/700), **miesto s odkazom na profil**, „deň dátum · čas“, **len štítky akcie** (formáty, žánre). Štítky miesta tu nie sú (Matej 2026-11-09), patria do profilu miesta.
 - **Hlavné tlačidlo (ružové, výška 54): Lístky**, ak má akcia `ticket_url`; inak **Stránka akcie** (pôvodný zdroj). Zdroj musí byť dostupný vždy.
 - Pod tým štyri menšie tlačidlá: **Idem** (CZ „Jdu“; zoznam v Môj účet), **Kalendár** (`.ics`), **Zdieľať**, **IG miesta**.
 - **Zmena 2026-11-10 (Matej):** namiesto „IG miesta“ tlačidlo **Spotify** (logo Spotify, otvorí vyhľadávanie interpreta / názvu akcie na Spotify, `https://open.spotify.com/search/<dopyt>`; presné párovanie s interpretom neskôr) a nové tlačidlo **Navigovať** (Google Maps trasa na miesto). IG miesta je na profile miesta. **Cena alebo rozsah cien** všade, kde ju zdroj dáva (`price_text`).
 - **Popis akcie** pod tým.
+- **Zmena 2026-11-16 (Matej):** pod štítkami **riadok s cenou a Idem**: vľavo cena presne podľa zdroja (`price_text`, aj rozsah „250–390 Kč“, „zadarmo“, „dobrovoľné“; bez slova „vstupné“), 17/600 `#F4F2FF`; pri `sold_out` cena prečiarknutá sivou a vedľa štítok **vypredané** (pozadie `#3A1420`, text `#FF8FB0`, 12/600). Bez ceny sa zobrazí len Idem. Vpravo **Idem** = okrúhle tlačidlo 40 px bez textu: vypnuté `#1C1C27` s vnútorným obrysom `#5D5677` a ikonou **plus v kruhu**, zapnuté ružové `#FF4D8D` s ikonou **fajky v kruhu** (`#1A0710`); po ťuknutí krátka správa dole „Pridané do Idem“ / „Odobrané z Idem“ (~2 s); `aria-label`. Pod tým hlavné tlačidlo (Lístky / Stránka akcie, pravidlá bez zmeny) na celú šírku a rad menších tlačidiel: **Kalendár, Zdieľať, Spotify, Na mape, Navigovať** (Idem z radu vypadlo). **Na mape** prepne na záložku Mapa s dňom akcie (alebo „Teraz v noci“, ak akcia práve beží v nočnom režime) a vybraným miestom.
+- **Kalendár (2026-11-16):** na Androide otvorí Google Kalendár s predvyplnenou akciou (`https://calendar.google.com/calendar/render?action=TEMPLATE&text=…&dates=…/…&ctz=Europe/Prague&details=…&location=…`; koniec podľa „Kedy akcia beží“, ak ho zdroj nedáva); na iOS a ostatných ostáva súbor `.ics`.
+
 
 ## 7b. Filter (`09-filter.png`, Matej 2026-11-10)
 - Panel zdola (výška ~85 % obrazovky, `#1C1C27`, zaoblenie hore 28), nad stmavenou mapou/zoznamom. Nadpis **Filter**, vpravo „Zrušiť všetko“. Obsah sa posúva, tlačidlo dole je stále viditeľné.
