@@ -440,7 +440,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
           display: 'flex', justifyContent: 'center', pointerEvents: 'none',
-          transform: pullDist > 0 ? `translateY(${Math.min(pullDist * 0.6, 56) - 44}px)` : 'translateY(12px)',
+          transform: pullDist > 0
+            ? `translateY(${Math.min(pullDist * 0.6, 60) - 44}px)`
+            : 'translateY(16px)',
           transition: pullDist > 0 ? 'none' : 'transform 200ms',
         }}>
           <div style={{
@@ -450,13 +452,15 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
             boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
             animation: isRefreshing ? 'ptr-spin 0.7s linear infinite' : 'none',
           }}>
-            {isRefreshing ? (
-              <div style={{ width: 20, height: 20, borderRadius: 10, border: '2.5px solid #3A3848', borderTopColor: '#FF4D8D' }} />
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={pullDist >= 70 ? '#FF4D8D' : '#B9B6CC'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            )}
+            <svg
+              width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke={pullDist >= 70 || isRefreshing ? '#FF4D8D' : '#B9B6CC'}
+              strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: isRefreshing ? 'none' : `rotate(${Math.round(pullDist / 120 * 360)}deg)` }}
+            >
+              <path d="M20 8a8 8 0 1 0 .5 5" />
+              <polyline points="20 2 20 8 14 8" />
+            </svg>
           </div>
         </div>
       )}
