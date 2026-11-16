@@ -11,7 +11,7 @@ import { formatDayLabel } from '../i18n'
 import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
 import { initPinShadows } from '../map/markers'
 import type { MarkerData } from '../map/markers'
-import { isNightTime, NIGHT_DAY } from '../core/night'
+import { isNightMode, NIGHT_DAY } from '../core/night'
 import { PIN_CSS } from '../map/pinCss'
 import { checkPinOverlaps, checkNameCollisions } from '../map/collisions'
 import { syncMarkers } from '../map/markerSync'
@@ -41,7 +41,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
 
   const now = new Date()
-  const [selectedDay, setSelectedDay] = useState(() => isNightTime(now) ? NIGHT_DAY : getToday(now))
+  const [selectedDay, setSelectedDay] = useState(() => isNightMode(data, now) ? NIGHT_DAY : getToday(now))
   const [showFavorites, setShowFavorites] = useState(false)
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
   const [showDaySelector, setShowDaySelector] = useState(false)
@@ -156,7 +156,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
     if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('debugPair')) {
       return data.venues.map(venue => {
-        const events = getVenueEvents(data.events, venue.id, getToday(curNow), curNow, venue.character)
+        const events = getVenueEvents(data.events, venue.id, getToday(curNow), curNow, venue.character, venue.closing)
         const primary = getPrimaryEvent(events)
         const eventType = primary ? getEventType(primary.formats) : 'other'
         return {

@@ -1,11 +1,12 @@
 import type { Event } from './types'
-import { getToday, toDateString } from './day'
+import { getToday, getYesterday, toDateString } from './day'
 import { isEventFinished } from './events'
 import { haversine } from './distance'
 
 export type Period =
   | { type: 'today' }
   | { type: 'tomorrow' }
+  | { type: 'night' }
   | { type: 'weekend' }
   | { type: 'next7' }
   | { type: 'next30' }
@@ -23,6 +24,9 @@ export function getPeriodRange(period: Period, now: Date): DateRange {
   switch (period.type) {
     case 'today':
       return { from: today, to: today }
+
+    case 'night':
+      return { from: getYesterday(now), to: getYesterday(now) }
 
     case 'tomorrow': {
       const d = new Date(today + 'T12:00:00')
@@ -120,7 +124,7 @@ export function sortEvents(
 }
 
 export function isSingleDayPeriod(period: Period): boolean {
-  if (period.type === 'today' || period.type === 'tomorrow') return true
+  if (period.type === 'today' || period.type === 'tomorrow' || period.type === 'night') return true
   if (period.type === 'custom' && period.from === period.to) return true
   return false
 }
@@ -128,9 +132,9 @@ export function isSingleDayPeriod(period: Period): boolean {
 /** Short button label for the period (e.g. "Dnes", "7 dní", "20.–24. 11.") */
 export function formatPeriodShortLabel(period: Period, lang: string): string {
   const labels: Record<string, Record<Period['type'], string>> = {
-    sk: { today: 'Dnes', tomorrow: 'Zajtra', weekend: 'Víkend', next7: '7 dní', next30: '30 dní', anytime: 'Kedykoľvek', custom: '' },
-    cs: { today: 'Dnes', tomorrow: 'Zítra', weekend: 'Víkend', next7: '7 dní', next30: '30 dní', anytime: 'Kdykoli', custom: '' },
-    en: { today: 'Today', tomorrow: 'Tomorrow', weekend: 'Weekend', next7: '7 days', next30: '30 days', anytime: 'Anytime', custom: '' },
+    sk: { today: 'Dnes', tomorrow: 'Zajtra', night: 'V noci', weekend: 'Víkend', next7: '7 dní', next30: '30 dní', anytime: 'Kedykoľvek', custom: '' },
+    cs: { today: 'Dnes', tomorrow: 'Zítra', night: 'V noci', weekend: 'Víkend', next7: '7 dní', next30: '30 dní', anytime: 'Kdykoli', custom: '' },
+    en: { today: 'Today', tomorrow: 'Tomorrow', night: 'Late night', weekend: 'Weekend', next7: '7 days', next30: '30 days', anytime: 'Anytime', custom: '' },
   }
   const l = labels[lang] ?? labels.cs
   if (period.type === 'custom') {
@@ -155,7 +159,7 @@ function formatCustomShort(from: string, to: string): string {
 
 /** Right-side date range text shown in the period selector panel */
 export function formatPeriodRangeText(period: Period, lang: string, days: readonly string[], now: Date): string {
-  if (period.type === 'anytime') return ''
+  if (period.type === 'anytime' || period.type === 'night') return ''
   if (period.type === 'custom') {
     return formatRangeText(period.from, period.to, lang, days)
   }

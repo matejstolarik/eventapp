@@ -5,6 +5,7 @@ import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventTy
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew } from '../core/search'
+import { isNightMode, isNightEvent } from '../core/night'
 import { EventTypeIcon } from '../icons'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 
@@ -143,7 +144,15 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
   const now = new Date()
   const baseUrl = import.meta.env.BASE_URL
 
-  const [period, setPeriod] = useState<Period>(() => getStoredPeriod() ?? { type: 'today' })
+  const isNight = isNightMode(data, now)
+
+  const [period, setPeriod] = useState<Period>(() => {
+    const stored = getStoredPeriod() ?? { type: 'today' }
+    const night = isNightMode(data, new Date())
+    if (night && (stored.type === 'today' || stored.type === 'night')) return { type: 'night' }
+    if (!night && stored.type === 'night') return { type: 'today' }
+    return stored
+  })
   const [sort, setSort] = useState<SortMode>('date')
   const [showPeriodSheet, setShowPeriodSheet] = useState(false)
   const [showSortMenu, setShowSortMenu] = useState(false)
@@ -182,6 +191,12 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
   // Events filtered by period + search (before forYou/isNew chips)
   const periodSearchEvents = useMemo(() => {
     let evts = getEventsForPeriod(data.events, period, now)
+    if (period.type === 'night') {
+      evts = evts.filter(e => {
+        const venue = venueMap.get(e.venue_id)
+        return isNightEvent(e, venue?.character ?? [], venue?.closing ?? null, now)
+      })
+    }
     if (debouncedQuery.trim()) {
       evts = evts.filter(e => matchesSearch(debouncedQuery, e, venueMap.get(e.venue_id)))
     }
@@ -273,6 +288,9 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
     items.push({
       id: '__sep__', label: '', selected: false, separator: true,
     } as SheetItem)
+    if (isNight) {
+      items.push({ id: 'night', label: dict.events.nightNow, rightText: '', selected: period.type === 'night' })
+    }
     items.push({ id: 'today', label: dict.map.today, rightText: right({ type: 'today' }), selected: period.type === 'today' })
     items.push({ id: 'tomorrow', label: dict.map.tomorrow, rightText: right({ type: 'tomorrow' }), selected: period.type === 'tomorrow' })
     items.push({ id: 'weekend', label: dict.events.weekend, rightText: right({ type: 'weekend' }), selected: period.type === 'weekend' })
@@ -292,6 +310,7 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
     if (id === '__sep__') return
     const p: Period = id === 'today' ? { type: 'today' }
       : id === 'tomorrow' ? { type: 'tomorrow' }
+      : id === 'night' ? { type: 'night' }
       : id === 'weekend' ? { type: 'weekend' }
       : id === 'next7' ? { type: 'next7' }
       : id === 'next30' ? { type: 'next30' }

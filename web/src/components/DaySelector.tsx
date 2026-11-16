@@ -18,7 +18,7 @@ interface Props {
 
 function formatDayRight(dateStr: string, lang: Language, now: Date): string {
   if (dateStr === NIGHT_DAY) {
-    return getDict(lang).events.tillFive
+    return ''
   }
   const today = getToday(now)
   const tomorrowD = new Date(today + 'T12:00:00')
@@ -44,8 +44,8 @@ export function DaySelector({ days, selectedDay, lang, now, showNight, available
     if (showNight) {
       result.push({
         id: NIGHT_DAY,
-        label: dict.map.night,
-        rightText: formatDayRight(NIGHT_DAY, lang, now),
+        label: dict.events.nightNow,
+        rightText: '',
         selected: selectedDay === NIGHT_DAY,
       })
     }
