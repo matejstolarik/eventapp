@@ -261,7 +261,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                 fontSize: 12, fontWeight: 600,
                 display: 'inline-flex', alignItems: 'center'
               }}>
-                {tag}
+                {tag === 'alternative' ? 'alt' : tag}
               </span>
             ))}
           </div>

@@ -220,7 +220,7 @@ function VenueRow({ venue, isFav, onToggleFav, onOpen }: RowProps) {
               fontSize: 12, fontWeight: 600,
               display: 'inline-flex', alignItems: 'center'
             }}>
-              {tag}
+              {tag === 'alternative' ? 'alt' : tag}
             </span>
           ))}
         </div>

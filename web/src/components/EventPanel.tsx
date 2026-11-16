@@ -104,7 +104,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         background: bg, color: fg,
         fontSize: 14, fontWeight: 600,
         display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-      }}>{f}</span>
+      }}>{f === 'alternative' ? 'alt' : f}</span>
     )
   })
   const genreTags = event.genres.map(g => (
@@ -113,7 +113,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
       background: '#2A2838', color: '#E4DEFF',
       fontSize: 14, fontWeight: 600,
       display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-    }}>{g}</span>
+    }}>{g === 'alternative' ? 'alt' : g}</span>
   ))
 
   return (

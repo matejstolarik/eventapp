@@ -16,6 +16,10 @@ interface Props {
   registerScrollToTop?: (fn: () => void) => void
 }
 
+function tagLabel(tag: string): string {
+  return tag === 'alternative' ? 'alt' : tag
+}
+
 function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
   const { eventCountSg, eventCountFw, eventCountPl } = dict.events
   if (n === 1) return `1 ${eventCountSg}`
@@ -127,12 +131,12 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
       <div style={{ display: 'flex', gap: 4, marginTop: 5, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 78%,transparent)', maskImage: 'linear-gradient(90deg,#000 78%,transparent)' }}>
         {allTags.map(tag => (
           <span key={tag} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: '#2A2838', color: '#E4DEFF' }}>
-            {tag}
+            {tagLabel(tag)}
           </span>
         ))}
         {venueTags.map(tag => (
           <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', border: '1.5px solid #5D5677', color: '#F4F2FF', boxSizing: 'border-box' }}>
-            {tag}
+            {tagLabel(tag)}
           </span>
         ))}
       </div>
@@ -355,8 +359,9 @@ export function EventsPage({ data, lang, onEventOpen }: Props) {
   const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
 
-  // Count row text
+  // Count row text (empty for 'anytime' per design)
   function countRowText(): string {
+    if (period.type === 'anytime') return ''
     const base = eventCount(events.length, dict)
     if (forYouActive) return `${base} ${dict.events.forYouInCount}`
     if (hasFavorites && forYouCountInDisplay > 0) {
