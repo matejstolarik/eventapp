@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 
 const THRESHOLD = 70
 const MAX_PULL = 120
+const DIR_THRESHOLD = 8
 
 export function usePullToRefresh(
   scrollRef: React.RefObject<HTMLDivElement | null>,
@@ -11,9 +12,12 @@ export function usePullToRefresh(
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState(false)
   const startYRef = useRef(0)
+  const startXRef = useRef(0)
   const isPullingRef = useRef(false)
   const pullDistRef = useRef(0)
   const isRefreshingRef = useRef(false)
+  const dirRef = useRef<'unknown' | 'vertical' | 'horizontal'>('unknown')
+  const noPtrRef = useRef(false)
 
   useEffect(() => {
     isRefreshingRef.current = isRefreshing
@@ -26,13 +30,24 @@ export function usePullToRefresh(
     function onTouchStart(e: TouchEvent) {
       if (el!.scrollTop > 2) return
       startYRef.current = e.touches[0]!.clientY
+      startXRef.current = e.touches[0]!.clientX
+      dirRef.current = 'unknown'
       isPullingRef.current = false
+      noPtrRef.current = !!(e.target as Element)?.closest?.('[data-no-ptr]')
     }
 
     function onTouchMove(e: TouchEvent) {
       if (isRefreshingRef.current) return
+      if (noPtrRef.current) return
+      if (dirRef.current === 'horizontal') return
       if (el!.scrollTop > 2) { pullDistRef.current = 0; setPullDist(0); return }
       const dy = e.touches[0]!.clientY - startYRef.current
+      const dx = e.touches[0]!.clientX - startXRef.current
+      if (dirRef.current === 'unknown') {
+        if (Math.abs(dx) * Math.abs(dx) + dy * dy < DIR_THRESHOLD * DIR_THRESHOLD) return
+        if (Math.abs(dx) > Math.abs(dy)) { dirRef.current = 'horizontal'; return }
+        dirRef.current = 'vertical'
+      }
       if (dy <= 0) { pullDistRef.current = 0; setPullDist(0); return }
       isPullingRef.current = true
       e.preventDefault()
