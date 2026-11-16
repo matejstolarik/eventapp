@@ -230,7 +230,6 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const [sort, setSort] = useState<SortMode>('date')
   const [showPeriodSheet, setShowPeriodSheet] = useState(false)
   const [showSortSheet, setShowSortSheet] = useState(false)
-  const sheetHistoryRef = useRef(false)
 
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -309,35 +308,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   useEffect(() => { setStoredPeriod(period) }, [period])
   useEffect(() => { setStoredEventsFilters({ forYou: forYouActive, isNew: isNewActive }) }, [forYouActive, isNewActive])
 
-  // Close any open sheet on Android Back
-  useEffect(() => {
-    function onPopState() {
-      if (sheetHistoryRef.current) {
-        sheetHistoryRef.current = false
-        setShowPeriodSheet(false)
-        setShowSortSheet(false)
-      }
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
-  }, [])
-
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  function openSheet(open: (v: boolean) => void) {
-    open(true)
-    history.pushState({ sheet: true }, '')
-    sheetHistoryRef.current = true
-  }
-
-  function closeSheet(close: (v: boolean) => void) {
-    close(false)
-    if (sheetHistoryRef.current) {
-      sheetHistoryRef.current = false
-      history.back()
-    }
   }
 
   function openSearch() {
@@ -389,14 +361,14 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       : id === 'next7' ? { type: 'next7' } : id === 'next30' ? { type: 'next30' } : { type: 'anytime' }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    closeSheet(setShowPeriodSheet)
+    setShowPeriodSheet(false)
   }
 
   function handleCalendarSelect(from: string, to: string) {
     const p: Period = { type: 'custom', from, to }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    closeSheet(setShowPeriodSheet)
+    setShowPeriodSheet(false)
   }
 
   const periodLabel = formatPeriodShortLabel(period, lang)
@@ -482,7 +454,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       }}>
         <button
           style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
-          onClick={() => openSheet(setShowPeriodSheet)}
+          onClick={() => setShowPeriodSheet(true)}
         >
           {periodLabel}<ChevronDown />
         </button>
@@ -525,7 +497,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
 
         {/* Bar: period + chips + filter */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => openSheet(setShowPeriodSheet)}>
+          <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
             {periodLabel}<ChevronDown />
           </button>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
@@ -542,7 +514,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         {/* Count + sort row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2 }}>
           <span>{countRowText()}</span>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={() => openSheet(setShowSortSheet)}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={() => setShowSortSheet(true)}>
             {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
             <ChevronDown size={14} />
           </button>
@@ -612,7 +584,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           lang={lang}
           onItemSelect={handlePeriodItemSelect}
           onCalendarSelect={handleCalendarSelect}
-          onClose={() => closeSheet(setShowPeriodSheet)}
+          onClose={() => setShowPeriodSheet(false)}
         />
       )}
 
@@ -623,9 +595,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           calendarMode="single"
           now={now}
           lang={lang}
-          onItemSelect={id => { setSort(id as SortMode); closeSheet(setShowSortSheet) }}
+          onItemSelect={id => { setSort(id as SortMode); setShowSortSheet(false) }}
           onCalendarSelect={() => {}}
-          onClose={() => closeSheet(setShowSortSheet)}
+          onClose={() => setShowSortSheet(false)}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Language } from '../core/types'
 
@@ -46,12 +46,42 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
   const [calYear, setCalYear] = useState(now.getFullYear())
   const [calMonth, setCalMonth] = useState(now.getMonth())
   const [pendingFrom, setPendingFrom] = useState<string | null>(null)
+  const historyPushedRef = useRef(false)
 
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = prev }
   }, [])
+
+  // Push a history entry when the sheet opens; popstate = close (Android Back)
+  useEffect(() => {
+    history.pushState({ sheet: true }, '')
+    historyPushedRef.current = true
+
+    function onPopState() {
+      if (historyPushedRef.current) {
+        historyPushedRef.current = false
+        onClose()
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => {
+      window.removeEventListener('popstate', onPopState)
+      if (historyPushedRef.current) {
+        historyPushedRef.current = false
+        history.back()
+      }
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleBackdropClick() {
+    if (historyPushedRef.current) {
+      historyPushedRef.current = false
+      history.back()
+    }
+    onClose()
+  }
 
   const cells = useMemo(() => buildMonthGrid(calYear, calMonth), [calYear, calMonth])
 
@@ -108,7 +138,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
     <>
       <div
         style={{ position: 'fixed', inset: 0, zIndex: 29, background: 'rgba(0,0,0,0.5)' }}
-        onClick={onClose}
+        onClick={handleBackdropClick}
       />
       <div style={{
         position: 'fixed', left: 0, right: 0, bottom: 0,
