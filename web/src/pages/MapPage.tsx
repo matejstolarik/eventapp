@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { EventsData, Language } from '../core/types'
-import { getEventType } from '../core/eventType'
+import { getEventType, eventIconKey } from '../core/eventType'
 import { getVenueEvents, getPrimaryEvent, isEventPulsing } from '../core/events'
 import { getToday, toDateString, getUpcomingDays } from '../core/day'
 import { isFavorite } from '../core/store'
@@ -165,8 +165,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const events = getVenueEvents(data.events, venue.id, getToday(curNow), curNow, venue.character, venue.closing)
         const primary = getPrimaryEvent(events)
         const eventType = primary ? getEventType(primary.formats) : 'other'
+        const iconKey = primary ? eventIconKey(primary.formats) : 'culture'
         return {
-          venueId: venue.id, name: venue.name, eventType,
+          venueId: venue.id, name: venue.name, eventType, iconKey,
           isFavorite: isFavorite(venue.id),
           isLive: primary ? isEventPulsing(primary, venue.character, venue.closing, curNow) : false,
           extraCount: Math.max(0, events.length - 1),
@@ -180,8 +181,9 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       const venue = venueById[venueId]!
       const primary = getPrimaryEvent(events)
       const eventType = primary ? getEventType(primary.formats) : 'other'
+      const iconKey = primary ? eventIconKey(primary.formats) : 'culture'
       return {
-        venueId, name: venue.name, eventType,
+        venueId, name: venue.name, eventType, iconKey,
         isFavorite: isFavorite(venueId),
         isLive: primary ? isEventPulsing(primary, venue.character, venue.closing, curNow) : false,
         extraCount: Math.max(0, events.length - 1),
