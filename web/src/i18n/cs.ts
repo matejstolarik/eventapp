@@ -88,7 +88,7 @@ export const cs = {
     tryAnytime: 'Zkusit Kdykoli',
     clearFilters: 'Zrušit filtry',
     forYou: 'Pro tebe',
-    newLabel: 'Nové',
+    newLabel: 'new',
     forYouBadge: 'pro tebe',
     newBadge: 'nové',
     forYouInCount: 'pro tebe',

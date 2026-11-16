@@ -124,7 +124,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
         )}
         {isNewFlag && (
           <span style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#F4F2FF', color: '#111118', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-            {lang === 'en' ? 'new' : 'nové'}
+            new
           </span>
         )}
         {/* Tags overlay at bottom of image — first tag has type color, rest dark */}
@@ -132,17 +132,17 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
           <div style={{ position: 'absolute', bottom: 6, left: 6, right: 0, zIndex: 1, display: 'flex', gap: 4, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
             {allTags.map((tag, idx) => (
               <span key={tag} style={{
-                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', color: '#F4F2FF',
+                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, display: 'flex', alignItems: 'center',
                 ...(idx === 0
-                  ? { background: hexToRgba(color, 0.55), boxShadow: `inset 0 0 0 1px ${hexToRgba(color, 0.9)}` }
-                  : { background: 'rgba(17,17,24,0.85)' }
+                  ? { background: color, color: dark, fontWeight: 600 }
+                  : { background: 'rgba(17,17,24,0.9)', color: '#F4F2FF', fontWeight: 500 }
                 ),
               }}>
                 {tagLabel(tag)}
               </span>
             ))}
             {venueTags.map(tag => (
-              <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.85)', color: '#F4F2FF', boxSizing: 'border-box' }}>
+              <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.9)', color: '#F4F2FF' }}>
                 {tagLabel(tag)}
               </span>
             ))}

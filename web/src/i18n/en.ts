@@ -88,7 +88,7 @@ export const en = {
     tryAnytime: 'Try Anytime',
     clearFilters: 'Clear filters',
     forYou: 'For you',
-    newLabel: 'New',
+    newLabel: 'new',
     forYouBadge: 'for you',
     newBadge: 'new',
     forYouInCount: 'for you',
