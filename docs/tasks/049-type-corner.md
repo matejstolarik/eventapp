@@ -1,5 +1,7 @@
 # 049: Typ akcie ako farebný roh namiesto štítku typu
 
+> **POZASTAVENÉ – NESPÚŠŤAŤ (2026-11-16).** Zapísané predčasne, Matej chcel len nákres, nie rozhodnutie. Zmeny v `design.md` vrátené. Ak sa Matej rozhodne, vznikne nová úloha.
+
 ## Zadanie
 
 **Čítaj:** `design.md` časť 4, odsek Mriežka (bod „Typ akcie = farebný trojuholník…“); časť 3 (riadok štítkov v karte), časť 6 (Program), časť 7 (druhý bod). V kóde: `core/eventType.ts`, miesta, kde sa vykresľujú štítky akcie a obrázok akcie: `pages/EventsPage.tsx` (karta), `components/EventPanel.tsx` (karta na mape), `pages/VenuePage.tsx` (program), `pages/EventPage.tsx` (veľký obrázok, štítky).
