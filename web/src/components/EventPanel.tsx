@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Event, Venue, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
 import { EventTypeIcon } from '../icons'
 import { getDict } from '../i18n'
@@ -15,21 +15,6 @@ interface Props {
   onEventOpen: (eventId: string) => void
 }
 
-const FORMAT_COLORS: Record<string, [string, string]> = {
-  party:    ['#FF8A3D', '#2A1200'],
-  dj:       ['#2FD4C0', '#002B26'],
-  concert:  ['#8B6CFF', '#14063A'],
-  music:    ['#8B6CFF', '#14063A'],
-  dance:    ['#C6F432', '#1B2600'],
-  theatre:  ['#C6F432', '#1B2600'],
-  talk:     ['#C6F432', '#1B2600'],
-  comedy:   ['#C6F432', '#1B2600'],
-  film:     ['#C6F432', '#1B2600'],
-  opening:  ['#C6F432', '#1B2600'],
-  workshop: ['#C6F432', '#1B2600'],
-  quiz:     ['#C6F432', '#1B2600'],
-  other:    ['#C6F432', '#1B2600'],
-}
 
 /** Horizontally scrollable tag row with right-edge fade-out. */
 function TagRow({ children, 'aria-label': ariaLabel }: { children: React.ReactNode; 'aria-label': string }) {
@@ -73,6 +58,8 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const eventType = getEventType(event.formats)
   const color = EVENT_TYPE_COLOR[eventType]
   const dark = EVENT_TYPE_DARK[eventType]
+  const tagTextColor = EVENT_TYPE_TAG_TEXT[eventType]
+  const tags = eventTags(event.formats, event.genres)
 
   const distStr = userLocation
     ? ' · ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
@@ -95,26 +82,6 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
     setTouchStartX(null)
   }
 
-  // Row 1: event formats + genres
-  const formatTags = event.formats.map(f => {
-    const [bg, fg] = FORMAT_COLORS[f] ?? ['#2A2838', '#E4DEFF']
-    return (
-      <span key={f} style={{
-        height: 32, padding: '0 14px', borderRadius: 16,
-        background: bg, color: fg,
-        fontSize: 14, fontWeight: 600,
-        display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-      }}>{f === 'alternative' ? 'alt' : f}</span>
-    )
-  })
-  const genreTags = event.genres.map(g => (
-    <span key={g} style={{
-      height: 32, padding: '0 14px', borderRadius: 16,
-      background: '#2A2838', color: '#E4DEFF',
-      fontSize: 14, fontWeight: 600,
-      display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-    }}>{g === 'alternative' ? 'alt' : g}</span>
-  ))
 
   return (
     <section
@@ -172,12 +139,18 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         </div>
       </button>
 
-      {/* Tag row: event formats + genres only (venue character tags belong on venue profile) */}
-      {(formatTags.length > 0 || genreTags.length > 0) && (
+      {/* Tag row: culture subtypes + genres, dark pills, type text color; no type tag */}
+      {tags.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <TagRow aria-label="Štítky akcie">
-            {formatTags}
-            {genreTags}
+            {tags.map(tag => (
+              <span key={tag} style={{
+                height: 32, padding: '0 14px', borderRadius: 16,
+                background: '#2A2838', color: tagTextColor,
+                fontSize: 14, fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
+              }}>{tag === 'alternative' ? 'alt' : tag}</span>
+            ))}
           </TagRow>
         </div>
       )}
