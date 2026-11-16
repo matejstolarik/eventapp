@@ -88,7 +88,7 @@ export const sk = {
     tryAnytime: 'Skúsiť Kedykoľvek',
     clearFilters: 'Zrušiť filtre',
     forYou: 'Pre teba',
-    newLabel: 'new',
+    newLabel: 'Nové',
     forYouBadge: 'pre teba',
     newBadge: 'nové',
     forYouInCount: 'pre teba',

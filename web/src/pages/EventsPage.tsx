@@ -229,6 +229,11 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const sortBtnRef = useRef<HTMLButtonElement>(null)
   const sortHistoryRef = useRef(false)
 
+  const chipsScrollRef = useRef<HTMLDivElement>(null)
+  const chipsCompactScrollRef = useRef<HTMLDivElement>(null)
+  const [chipsScrollLeft, setChipsScrollLeft] = useState(0)
+  const [chipsCompactScrollLeft, setChipsCompactScrollLeft] = useState(0)
+
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
@@ -451,17 +456,31 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         pointerEvents: collapsed ? 'auto' : 'none',
         transition: 'opacity 200ms',
       }}>
-        <button
-          style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
-          onClick={() => setShowPeriodSheet(true)}
-        >
-          {periodLabel}<ChevronDown />
-        </button>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflowX: 'auto', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)', scrollbarWidth: 'none' }} className="chips-scroll">
-          <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
-            <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
-          </button>
-          <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+        {/* Scrollable section: period + chips */}
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+          {chipsCompactScrollLeft > 0 && (
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, background: 'linear-gradient(90deg,#111118,transparent)', pointerEvents: 'none', zIndex: 1 }} />
+          )}
+          <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 40, background: 'linear-gradient(to left,#111118,transparent)', pointerEvents: 'none', zIndex: 1 }} />
+          <div
+            ref={chipsCompactScrollRef}
+            data-no-ptr
+            className="chips-scroll"
+            style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}
+            onScroll={e => setChipsCompactScrollLeft((e.currentTarget as HTMLDivElement).scrollLeft)}
+          >
+            <button
+              style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
+              onClick={() => setShowPeriodSheet(true)}
+            >
+              {periodLabel}<ChevronDown />
+            </button>
+            <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
+              <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
+            </button>
+            <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+            <div style={{ width: 40, flex: 'none' }} />
+          </div>
         </div>
         <button
           style={{ flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
@@ -494,18 +513,31 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           </button>
         </div>
 
-        {/* Bar: period + chips + filter */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
-            {periodLabel}<ChevronDown />
-          </button>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflowX: 'auto', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)', scrollbarWidth: 'none' }} className="chips-scroll">
-            <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
-              <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
-            </button>
-            <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+        {/* Bar: period + chips (scrollable) | filter (fixed) */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+            {chipsScrollLeft > 0 && (
+              <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, background: 'linear-gradient(90deg,#111118,transparent)', pointerEvents: 'none', zIndex: 1 }} />
+            )}
+            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 40, background: 'linear-gradient(to left,#111118,transparent)', pointerEvents: 'none', zIndex: 1 }} />
+            <div
+              ref={chipsScrollRef}
+              data-no-ptr
+              className="chips-scroll"
+              style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}
+              onScroll={e => setChipsScrollLeft((e.currentTarget as HTMLDivElement).scrollLeft)}
+            >
+              <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
+                {periodLabel}<ChevronDown />
+              </button>
+              <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
+                <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
+              </button>
+              <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+              <div style={{ width: 40, flex: 'none' }} />
+            </div>
           </div>
-          <button style={{ flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#FF4D8D', color: '#1A0710', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Filter">
+          <button style={{ marginLeft: 8, flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#FF4D8D', color: '#1A0710', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Filter">
             <FilterIcon />
           </button>
         </div>
