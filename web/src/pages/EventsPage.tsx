@@ -229,7 +229,10 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   })
   const [sort, setSort] = useState<SortMode>('date')
   const [showPeriodSheet, setShowPeriodSheet] = useState(false)
-  const [showSortSheet, setShowSortSheet] = useState(false)
+  const [showSortMenu, setShowSortMenu] = useState(false)
+  const [sortMenuPos, setSortMenuPos] = useState({ top: 0, right: 0 })
+  const sortBtnRef = useRef<HTMLButtonElement>(null)
+  const sortHistoryRef = useRef(false)
 
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -308,8 +311,33 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   useEffect(() => { setStoredPeriod(period) }, [period])
   useEffect(() => { setStoredEventsFilters({ forYou: forYouActive, isNew: isNewActive }) }, [forYouActive, isNewActive])
 
+  useEffect(() => {
+    function onPopState() {
+      if (sortHistoryRef.current) { sortHistoryRef.current = false; setShowSortMenu(false) }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function openSortMenu() {
+    const rect = sortBtnRef.current?.getBoundingClientRect()
+    if (rect) setSortMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    history.pushState({ sortMenu: true }, '')
+    sortHistoryRef.current = true
+    setShowSortMenu(true)
+  }
+
+  function closeSortMenu() {
+    if (sortHistoryRef.current) {
+      sortHistoryRef.current = false
+      history.back()
+    } else {
+      setShowSortMenu(false)
+    }
   }
 
   function openSearch() {
@@ -512,9 +540,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         </div>
 
         {/* Count + sort row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2, position: 'relative' }}>
           <span>{countRowText()}</span>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={() => setShowSortSheet(true)}>
+          <button ref={sortBtnRef} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={openSortMenu}>
             {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
             <ChevronDown size={14} />
           </button>
@@ -588,17 +616,30 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         />
       )}
 
-      {showSortSheet && (
-        <SelectorSheet
-          title={dict.events.sort}
-          items={sortItems}
-          calendarMode="single"
-          now={now}
-          lang={lang}
-          onItemSelect={id => { setSort(id as SortMode); setShowSortSheet(false) }}
-          onCalendarSelect={() => {}}
-          onClose={() => setShowSortSheet(false)}
-        />
+      {showSortMenu && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 25 }} onClick={closeSortMenu} />
+          <div style={{
+            position: 'fixed', right: sortMenuPos.right, top: sortMenuPos.top,
+            zIndex: 26, background: '#1C1C27', borderRadius: 16,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.6)', minWidth: 160, overflow: 'hidden',
+          }}>
+            {sortItems.map(item => (
+              <button key={item.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 16px', background: 'none', border: 'none',
+                color: item.selected ? '#F4F2FF' : '#B9B6CC',
+                fontWeight: item.selected ? 600 : 400, fontFamily: "'Outfit', sans-serif",
+                fontSize: 15, width: '100%', cursor: 'pointer', textAlign: 'left',
+              }} onClick={() => { setSort(item.id as SortMode); closeSortMenu() }}>
+                {item.label}
+                {item.selected && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF4D8D" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
