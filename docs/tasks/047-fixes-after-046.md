@@ -13,7 +13,7 @@ Príčina (hlavný chat z kódu): `usePendingSelect` nastaví `selectedDay` a `p
 - Test: `pendingSelect` s rovnakým dňom, aký je vybraný → karta miesta sa otvorí hneď.
 
 ### 2. Štítok typu plnou farbou
-Na karte v Akciách: štítok typu plnou farbou typu (`EVENT_TYPE_COLOR`, nepriehľadná) s **bielym textom** `#F4F2FF` 10/600 – konzistentne s tmavými štítkami, ktoré majú tiež biely text (Matej 2026-11-16). Ostatné štítky `rgba(17,17,24,0.9)`. Pri svetlých farbách typu (limetková kultúra, oranžová párty) pridaj jemný tieň textu (`text-shadow: 0 0 2px rgba(0,0,0,.45)`), aby bol biely text čitateľný.
+Na karte v Akciách: štítok typu plnou farbou typu (`EVENT_TYPE_COLOR`, nepriehľadná) s **tmavým textom** (`EVENT_TYPE_DARK`, 10/600) – čitateľný na každej fotke aj pri svetlých farbách typu (Matej 2026-11-16, po zvážení bieleho textu). Ostatné štítky `rgba(17,17,24,0.9)` s bielym textom.
 
 ### 3. „Idem“ → „Uložené / Moje akcie“ so záložkou
 Podľa `design.md` 7 „Zmena 2026-11-16 večer“:
