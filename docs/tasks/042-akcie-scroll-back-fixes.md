@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Čítaj:** `design.md` časť 2 riadok „Noc (0:00–5:00)“ a odsek „Kedy akcia beží“, časť 4 (riadky „Riadok pod lištou“, „Pri scrolle“, „Zmena = navrch“, „Šípka navrch“, „Ťuk na aktívnu záložku“, „alt“) a časť 5 (prvý riadok); snímka `docs/design/screens/13-akcie-zbalene.png` a HTML `docs/design/html/13-akcie-zbalene.html`. V kóde: `web/src/App.tsx` (`parseHash`, `navigate`, `goBack`, `handleTabChange`, vykreslenie záložiek), `pages/EventsPage.tsx`, `pages/PlacesPage.tsx`, `components/BottomNav.tsx`, `core/events.ts` (`isEventFinished`, `isEventPulsing`), `core/visible.ts`, `core/night.ts`, `core/period.ts`, `pages/MyAccountPage.tsx` (zoznam Jdu), `docs/data-model.md` (časť o venue), miesto, kde sa vykresľujú štítky (`grep -rn "character" web/src --include=*.tsx`).
+**Čítaj:** `design.md` časť 2 riadok „Noc (nočný režim…)“ a odsek „Kedy akcia beží“, časť 4 (riadky „Riadok pod lištou“, „Pri scrolle“, „Zmena = navrch“, „Šípka navrch“, „Ťuk na aktívnu záložku“, „alt“) a časť 5 (prvý riadok); snímka `docs/design/screens/13-akcie-zbalene.png` a HTML `docs/design/html/13-akcie-zbalene.html`. V kóde: `web/src/App.tsx` (`parseHash`, `navigate`, `goBack`, `handleTabChange`, vykreslenie záložiek), `pages/EventsPage.tsx`, `pages/PlacesPage.tsx`, `components/BottomNav.tsx`, `core/events.ts` (`isEventFinished`, `isEventPulsing`), `core/visible.ts`, `core/night.ts`, `core/period.ts`, `pages/MyAccountPage.tsx` (zoznam Jdu), `docs/data-model.md` (časť o venue), miesto, kde sa vykresľujú štítky (`grep -rn "character" web/src --include=*.tsx`).
 
 Matejove poznámky po teste 041. Malé, samostatné časti; každá s vlastným commitom.
 
@@ -59,7 +59,9 @@ Výklad času: ak je `closing` ≥ čas začiatku akcie (napr. Roxy ut 19:00 →
 
 ### 9. „Teraz v noci“ na mape aj v Akciách
 - Mapa: v paneli dňa „V noci“ → „Teraz v noci“ (tlačidlo ostáva „V noci“), EN „Late night now“.
-- Akcie: medzi 0:00 a 5:00 prvá a predvolená možnosť obdobia „Teraz v noci“ (tlačidlo „V noci“), obsah rovnaký ako na mape (rovnaká funkcia); Dnes = nový kalendárny deň, Zajtra ďalší. O 5:00 možnosť zmizne, ak bola vybraná → Dnes. Pri zapamätanom období: ak si používateľ pamätá „Dnes“ a otvorí appku v noci, predvolená je „Teraz v noci“.
+- **Nočný režim – zmena dohody z 2026-11-10 (Matej 2026-11-16):** už nie pevne 0:00–5:00, ale **0:00–5:00 vždy a 5:00–7:00 len kým beží niektorá akcia z noci** (funkcia z bodu 8); o 7:00 vždy koniec. Jedna čistá funkcia `isNightMode(data, now)` v `core/night.ts` pre mapu aj Akcie; `useNightMode` prestane používať pevný časovač na 5:00 a prepočíta režim pri každom prepočte (60 s, `visibilitychange`, `focus`). Akcia z predošlého dňa sa zobrazuje najneskôr do 7:00. Hranica „dneška“ (`getToday`, 5:00) sa nemení. Do `docs/decisions.md` pridaj nový riadok, ktorý nahrádza riadok o „V noci“ 0:00–5:00 (starý riadok nemeň).
+- Akcie: počas nočného režimu prvá a predvolená možnosť obdobia „Teraz v noci“ (tlačidlo „V noci“), obsah rovnaký ako na mape (rovnaká funkcia); Dnes = nový kalendárny deň, Zajtra ďalší. Keď nočný režim skončí, možnosť zmizne, ak bola vybraná → Dnes (na mape rovnako).
+- Testy `isNightMode`: pondelok 4:59 bez bežiacich akcií = noc; pondelok 5:01 bez bežiacich = nie; sobota 5:30 s párty v Cross Club bez konca (`closing.sat = "07:00"`) = noc a párty je viditeľná; sobota 7:01 = nie." Pri zapamätanom období: ak si používateľ pamätá „Dnes“ a otvorí appku v noci, predvolená je „Teraz v noci“.
 - Zoradenie pri „Teraz v noci“ = „čas“.
 
 ### 10. Akcie sa obnovujú samy

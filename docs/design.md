@@ -48,7 +48,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Značka = pin** (kvapka so stredne ostrým hrotom dole, presný tvar v `01-mapa-piny-mena.html`): plochý, vo farbe typu, bez času, v strede tmavý kruh 36 px s ikonou typu 22 px vo farbe typu. **Tieň pod pinom** (`drop-shadow`), aby pin pôsobil, že je nad mapou. Žiadne 3D prechody.
   - Obľúbené miesto: biely odznak 20 px vpravo hore s čiernym vyplneným srdiečkom.
   - Viac akcií v ten deň: tmavý odznak `+1`, `+2` vľavo hore (pozadie `#111118`, biely text a obrys).
-  - **Akcia, ktorá už skončila, sa na mape neukazuje.** Skončená = má `end_time` a ten už uplynul. Ak koniec nepoznáme, akcia ostáva na mape do prepnutia dňa o 5:00 (nehádame, kedy skončila).
+  - **Akcia, ktorá už skončila, sa na mape neukazuje.** Skončená = podľa pravidla „Kedy akcia beží“ (nižšie, Matej 2026-11-16).
   - **Práve prebiehajúca akcia:** okolo kruhu pinu pulzuje žiara vo farbe typu (1,6 s, kód v `01-mapa-piny.html`, trieda `.pinlive`; pri `prefers-reduced-motion` statický prstenec).
   - **Meno miesta pod pinom** (Matej 2026-11-10): Outfit 12/600, `#E4E2EE`, tmavý obrys textu, od priblíženia ~13 (pri celej Prahe bez mien). Pri kolízii mien sa skryje meno s nižšou prioritou (priorita: vybraný > prebiehajúca akcia > obľúbené > ostatné); **pin sa nikdy neskryje**.
   - **Vybraný pin** (po ťuknutí, `02-mapa-vybrany-pin-ziara.png`): **zväčší sa (1,22×, od hrotu) a dostane jemnú žiaru vo farbe typu**, meno pod ním biele a tučné (13/800). **Žiadna pilulka, žiadny biely obrys, žiadna bodka.** Vybraný pin je **vždy navrchu** (nad ostatnými pinmi aj menami).
@@ -62,7 +62,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - **Horná lišta** (16 px od okrajov, 56 px od vrchu, mriežka na celú šírku, všetky prvky **výška 44**):
   1. **Deň ▾** (biele, **šírka podľa textu**, text vždy krátky: „Dnes“, „Zajtra“, „So 15. 11.“, „V noci“). Výber dňa = panel zdola: **5 možností dní** (v noci „V noci“ + 4 dni), ako šiesta **„Iný dátum“**; všetko viditeľné bez posúvania a nad spodnou lištou → malý mesačný kalendár v štýle appky, aktívne len dni v rozsahu dát (dni bez akcií stlmené).
      **Štýl panelu (Matej 2026-11-15):** rovnaký ako panel obdobia v Akciách (`11-akcie-obdobie.png`, časť 4): nadpis „Deň“ (Bricolage 20/700), riadky 48 px so zaoblením 24, vybraný deň = biela pilulka (`#F4F2FF`, text `#111118` 600), ostatné `#F4F2FF` 500, vpravo sivý dátum 13 px (`#8E8AA6`; pri „V noci“ text „do 5:00“, pri Dnes/Zajtra dátum, pri ďalších dňoch nič), posledná položka **Iný dátum** s ikonou kalendára. Obsah a správanie ostávajú.
-     - **Noc (0:00–5:00):** prvá a **predvolená** možnosť je **„Teraz v noci“** v paneli (na tlačidle krátko „V noci“; EN „Late night now“ / „Late night“; zmena 2026-11-15); po polnoci sa mapa do tohto režimu prepne sama. Obsah: akcie, ktoré **ešte bežia** podľa pravidla „Kedy akcia beží“ nižšie (koncerty a kultúra bez konca v noci prakticky nie). Pod „V noci“ nasleduje „Dnes“ (nový deň večer), „Zajtra“… O 5:00 „V noci“ zmizne.
+     - **Noc (nočný režim, zmena 2026-11-16):** od 0:00 do 5:00 vždy; od 5:00 do 7:00 len kým ešte beží niektorá akcia z noci (podľa „Kedy akcia beží“); o 7:00 vždy koniec. V nočnom režime je prvá a **predvolená** možnosť je **„Teraz v noci“** v paneli (na tlačidle krátko „V noci“; EN „Late night now“ / „Late night“; zmena 2026-11-15); po polnoci sa mapa do tohto režimu prepne sama. Obsah: akcie, ktoré **ešte bežia** podľa pravidla „Kedy akcia beží“ nižšie (koncerty a kultúra bez konca v noci prakticky nie). Pod „V noci“ nasleduje „Dnes“ (nový deň večer), „Zajtra“… Keď nočný režim skončí (o 5:00, ak už nič z noci nebeží, inak keď skončí posledná nočná akcia, najneskôr o 7:00), „Teraz v noci“ zmizne a mapa sa prepne na Dnes.
   2. Prepínač **Všetko | Obľúbené** zaberá zvyšok lišty (Filter má pevnú šírku 44); text sa nikdy neoreže ani nezalomí – pri nedostatku miesta sa zmenší okraj, potom zmizne srdiečko pri vypnutých Obľúbených, potom písmo najviac na 13 px (Matej 2026-11-10), tmavý kontajner `#23232F`, rovnako široké polovice: zapnuté Všetko = biele; zapnuté Obľúbené = ružové s **vyplneným čiernym srdiečkom**, vypnuté = obrys srdiečka.
   3. **Filter:** ružový kruh len s ikonou (bez textu), počet aktívnych filtrov ako biely odznak v rohu. Filter: formát (vrátane `party`), žáner, typ miesta, charakter, veľkosť; kombinovateľné. **Panel filtra zároveň slúži ako legenda:** typy akcií v ňom majú rovnakú farbu a ikonu ako značky. (Panel filtra ešte nie je nakreslený; navrhni ho v tomto štýle a ukáž Matejovi pred dokončením.)
 - **Autorstvo mapy** (OpenFreeMap / OpenStreetMap) je povinné podľa licencie, nesmie sa odstrániť. Zobrazuje sa ako malá ikonka „i“, ktorá sa rozbalí po ťuknutí, umiestnená tak, aby nič neprekrývala (upravené 2026-11-09).
@@ -81,7 +81,7 @@ Obrysové, ťah 2 px, zaoblené konce. Koncert = ručný mikrofón, párty = kok
 - bez konca, `party`/`dj` alebo miesto `late-night`: do **zatvorenia miesta** v daný deň (pole `closing` miesta, `data-model.md`), ak ho nepoznáme, **do 3:00** (radšej akciu nezobraziť, než poslať človeka pred zatvorený podnik);
 - bez konca, ostatné: **3 hodiny** od začiatku;
 - bez času začiatku: beží celý deň do 3:00 (nepulzuje).
-Skončená akcia z mapy aj zo zoznamov zmizne.
+Skončená akcia z mapy aj zo zoznamov zmizne. Akcia z predošlého dňa sa zobrazuje najneskôr do 7:00 (koniec nočného režimu), aj keby jej koniec alebo zatvorenie bolo neskôr.
 
 ## 3. Panel akcie na mape (`02-mapa-vybrany-pin-karta.png`)
 
@@ -108,10 +108,10 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - **Ťuk na aktívnu záložku** v spodnej lište (Akcie, Miesta) vyroluje zoznam navrch.
 - **Štítok `alternative` sa zobrazuje ako `alt`** všade v appke (len zobrazenie, v dátach ostáva `alternative`).
 
-**Noc v Akciách (Matej 2026-11-16):** medzi 0:00 a 5:00 je v paneli obdobia prvá a predvolená možnosť **„Teraz v noci“** (na tlačidle „V noci“) s rovnakým obsahom ako na mape; **Dnes** = nový kalendárny deň (ako na mape). O 5:00 možnosť zmizne a ak bola vybraná, prepne sa na Dnes.
+**Noc v Akciách (Matej 2026-11-16):** počas nočného režimu (rovnako ako na mape: 0:00–5:00 vždy, 5:00–7:00 len kým niečo z noci beží) je v paneli obdobia prvá a predvolená možnosť **„Teraz v noci“** (na tlačidle „V noci“) s rovnakým obsahom ako na mape; **Dnes** = nový kalendárny deň (ako na mape). Keď nočný režim skončí, možnosť zmizne a ak bola vybraná, prepne sa na Dnes.
 
 **Obdobie** (panel zdola ako výber dňa na mape, `11`): nadpis „Obdobie“, prvá položka **Kedykoľvek** s ikonou nekonečna a textom „všetky akcie“, oddelená čiarou od ostatných; potom **Dnes**, **Zajtra**, **Tento víkend**, **Najbližších 7 dní**, **Najbližších 30 dní** (vpravo sivý rozsah dátumov), **Iný dátum** (ikona kalendára → mesačný kalendár ako na mape, výber intervalu: prvý ťuk začiatok, druhý koniec; dvakrát ten istý deň = jeden deň). Vybraná položka = biela pilulka. Rovnaký štýl panelu má od 2026-11-15 aj výber dňa na mape (časť 2). Na tlačidle krátky text: „Dnes“, „Zajtra“, „Víkend“, „7 dní“, „30 dní“, „Kedykoľvek“, „20.–24. 11.“
-- Hranica dňa je 5:00 (ako všade). **Tento víkend** = piatok až nedeľa; po–št najbližší víkend, pi–ne zvyšok aktuálneho. **7 a 30 dní** sú posuvné od dneška vrátane.
+- Hranica dňa je 5:00 (ako všade; počas nočného režimu je „Dnes“ už nový kalendárny deň). **Tento víkend** = piatok až nedeľa; po–št najbližší víkend, pi–ne zvyšok aktuálneho. **7 a 30 dní** sú posuvné od dneška vrátane.
 - **Predvolene Dnes**; appka si pamätá naposledy vybrané obdobie (lokálne).
 
 **Pre teba:** akcia v obľúbenom mieste alebo so žánrom/štítkom z preferencií používateľa (preferencie zatiaľ nie sú, dovtedy len obľúbené miesta). Vypnuté = všetky akcie, akcie pre teba majú na obrázku odznak **pre teba**. Zapnuté = len akcie pre teba.
