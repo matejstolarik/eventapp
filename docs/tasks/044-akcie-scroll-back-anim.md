@@ -48,3 +48,48 @@ Všetko z bodov 3–5 a zmeny obsahu mriežky majú ísť plynulo, nič nesmie s
 - V reporte postup, ako si Matej overí návrat Späť v telefóne, a jedna veta o plynulosti pri 4× spomalení CPU.
 
 ## Report
+
+**Dátum:** 2026-11-16  
+**Commity:** e8a767e (časť 1), be096bd (časti 2+6), 0b7500e (časti 3+4+5+7+8)
+
+### Čo je hotové
+
+**Časť 1 – Späť / routy / always-mount:**  
+Pridané `#/akcie` a `#/ucet` do `parseHash` a `navigate`. `EventsPage` a `MyAccountPage` sa mountujú raz (pri prvej návšteve) a potom ostávajú živé (skryté cez `display:none`), rovnako ako `MapPage`. Scroll pozícia, hľadanie a filtre sa zachovajú pri návrate zo stránky akcie/miesta. Test: `parseHash('#/akcie') → {page:'events'}`, `parseHash('#/ucet') → {page:'account'}` – oba prechádzajú (154 testov OK).
+
+**Časť 2 – Kedykoľvek bez počtu:**  
+`countRowText()` vráti `''` keď `period.type === 'anytime'`. Vpravo ostáva Zoradiť.
+
+**Časť 3 – Zbaliteľná hlavička:**  
+`position: fixed` kompaktná lišta (neposúva obsah, keď je skrytá). `IntersectionObserver` na sentinel dive (1 px) na konci hlavičky → `collapsed` state → opacity 1/0 + pointerEvents. Lupa v kompaktnej lište: `scrollToTop()` + `setTimeout(openSearch, 300)`. Animácia hľadania zmenená z `scaleX` na `clip-path: inset(0 100% 0 0%) → inset(0)` – text sa nedeformuje.
+
+**Časť 4 – Zmena = navrch:**  
+`useEffect` sleduje zmeny všetkých filtrov (period, forYouActive, isNewActive, sort, debouncedQuery) → `scrollTo({top:0, behavior:'smooth'})` + inkrement `animKey`.
+
+**Časť 5 – Šípka navrch + ťuk na záložku:**  
+`position: fixed`, vpravo 16 px, spodok 116 px, `opacity` s prechodom 150 ms. Objaví sa po `scrollTop > 2× výška obrazovky`. `registerScrollToTop` wired do `App.tsx` pre obe záložky (Akcie + Miesta).
+
+**Časť 6 – alternative → alt:**  
+`tagLabel(tag)` helper v `EventsPage`, propagované do `PlacesPage`, `VenuePage` a `EventPanel`. Všade len zobrazenie, dáta nezmenené.
+
+**Časť 7 – Animácie kariet:**  
+`@keyframes evCardIn { from: opacity 0 scale 0.96 → to: opacity 1 scale 1, 180 ms ease-out }`. Aplikuje sa na prvých 12 kariet po každej zmene filtra (`animKey > 0`). `prefers-reduced-motion: reduce` – animácia sa vypne. Scroll a zmena filtra bez viditeľného trhania (CPU throttle 4× v DevTools – bez sekania; testované na 154-položkovom zozname pri prepnutí obdobia z „dnes" na „7 dní").
+
+**Časť 8 – Štítky na obrázku:**  
+`position: absolute`, `bottom: 6, left: 6`, `background: rgba(17,17,24,0.85)`, `color: #F4F2FF`. Charakter miesta rovnaké tmavé pozadie (nie obrys). Riadok štítkov pod obrázkom odstránený. `design.md` sekcia 4 (odsek Karta) aktualizovaná.
+
+### Overenie
+- **npm test:** 154 testov, všetky OK.  
+- **npm run build:** OK (chunk size warning je predchádzajúci, nie nový).  
+- **Snímky:** `docs/tasks/044/01-akcie-kedykolvek.jpg`, `02-akcie-zbalene.jpg`, `03-miesta-sipka.jpg`, `04-akcie-stitky-na-obrazku.jpg`.
+
+### Ako overiť návrat Späť v telefóne
+1. Otvor appku na `#/akcie` (záložka Akcie).
+2. Ťukni na ľubovoľnú kartu → otvorí sa stránka akcie (`#/akcia/...`).
+3. Ťukni **Späť** (Android: systémové tlačidlo, iOS: gesto zo ľavého okraja alebo tlačidlo Späť).
+4. **Očakávané:** vrátia sa Akcie (nie Mapa), so zachovaným scrollom a filtrami.
+5. Rovnako zo záložky Miesta → miesto → Späť = Miesta.
+
+### Otvorené / nedokončené
+- `FilterIcon` v EventsPage je vizuálny placeholder (ružové tlačidlo `#FF4D8D`) – filter panel nie je implementovaný (mimo rozsahu úlohy 044).  
+- `docs/design/html/10-akcie-mriezka.html` neaktualizovaný – je komplikovaný, stačí text v `design.md` (ako zadanie hovorí).

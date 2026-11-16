@@ -123,7 +123,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - štvorcový **obrázok** (zaoblenie 12) – náhľad obrázka akcie; bez obrázka plocha vo farbe typu s ikonou typu. Odznaky: vľavo hore **pre teba** (tmavý `#111118`, iskry + text 10/600), vpravo hore **nové** (biely).
 - **dátum · čas** (12/600): dátum sivý `#8E8AA6` 500, čas vo farbe typu. Dátum vždy, pri dnešku a zajtrajšku slovom: „Dnes · 20:00“, „Zajtra · 22:00“, inak „Pi 20. 11. · 23:00“.
 - **názov** (13/500, max. 2 riadky, potom „…“), **miesto** (12/700 `#B9B6CC`, 1 riadok s „…“).
-- **štítky** v jednom riadku (výška 18, 10/500): typ, žánre, potom charakter miesta (obrys); toľko, koľko sa zmestí, na pravom okraji sa strácajú.
+- **štítky** priamo **na obrázku** (spodok-ľavý roh, 6 px od okraja): výška 18, 10/500, zaoblenie 9, pozadie `rgba(17,17,24,0.85)`, text `#F4F2FF`; štítky charakteru miesta rovnako tmavé pozadie (nie obrys). Toľko, koľko sa zmestí vodorovne, na pravom okraji sa strácajú. Riadok štítkov pod obrázkom bol **odstránený** (Matej 2026-11-16, úloha 044).
 - Ťuk na kartu → stránka akcie. Čo práve beží, sa tu nezvýrazňuje.
 
 **Prázdny stav:** „Na dnes nič nemáme.“ + tlačidlo „Pozrieť 7 dní“ (pri inom období „Skúsiť Kedykoľvek“); pri zapnutom Pre teba / Nové / filtri tlačidlo „Zrušiť filtre“.
