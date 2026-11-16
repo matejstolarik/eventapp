@@ -97,6 +97,7 @@ export const cs = {
     day: 'Den',
     tillFive: '',
     searchEvents: 'Hledat akci',
+    locationToastForSort: 'Pro řazení podle vzdálenosti povol polohu',
   },
   comingSoon: 'Připravujeme',
   offline: 'Offline. Data z',

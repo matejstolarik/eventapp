@@ -97,6 +97,7 @@ export const en = {
     day: 'Day',
     tillFive: '',
     searchEvents: 'Search events',
+    locationToastForSort: 'Allow location to sort by distance',
   },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',

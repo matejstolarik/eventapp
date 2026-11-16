@@ -97,6 +97,7 @@ export const sk = {
     day: 'Deň',
     tillFive: '',
     searchEvents: 'Hľadať akciu',
+    locationToastForSort: 'Na zoradenie podľa vzdialenosti povoľ polohu',
   },
   comingSoon: 'Pripravujeme',
   offline: 'Offline. Dáta z',

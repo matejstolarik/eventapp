@@ -4,7 +4,7 @@ import { getDict, formatDayLabel } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
-import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
+import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew } from '../core/search'
 import { isNightMode, isNightEvent } from '../core/night'
 import { EventTypeIcon } from '../icons'
@@ -244,7 +244,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const [forYouActive, setForYouActive] = useState(() => getStoredEventsFilters().forYou)
   const [isNewActive, setIsNewActive] = useState(() => getStoredEventsFilters().isNew)
 
-  const userLocation = getLastKnownLocation()
+  const [userLocationState, setUserLocationState] = useState(() => getLastKnownLocation())
+  const [locationToast, setLocationToast] = useState(false)
   const favorites = useMemo(() => getFavorites(), []) // eslint-disable-line react-hooks/exhaustive-deps
   const hasFavorites = favorites.size > 0
 
@@ -278,8 +279,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     let evts = periodSearchEvents
     if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
     if (isNewActive) evts = evts.filter(e => isNew(e, now))
-    return sortEvents(evts, venueLocations, sort, userLocation)
-  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocation]) // eslint-disable-line react-hooks/exhaustive-deps
+    return sortEvents(evts, venueLocations, sort, userLocationState)
+  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocationState]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const forYouCountInDisplay = useMemo(() => {
     if (forYouActive || !hasFavorites) return 0
@@ -332,12 +333,28 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   }
 
   function closeSortMenu() {
+    setShowSortMenu(false)
     if (sortHistoryRef.current) {
       sortHistoryRef.current = false
       history.back()
-    } else {
-      setShowSortMenu(false)
     }
+  }
+
+  function requestLocationForSort() {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setLastKnownLocation(loc)
+        setUserLocationState(loc)
+        setSort('distance')
+      },
+      () => {
+        setLocationToast(true)
+        setTimeout(() => setLocationToast(false), 3000)
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    )
   }
 
   function openSearch() {
@@ -405,8 +422,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
 
   const sortItems: SheetItem[] = useMemo(() => [
     { id: 'date', label: sortDateLabel, selected: sort === 'date' },
-    ...(isSingleDay && userLocation ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
-  ], [sort, sortDateLabel, isSingleDay, userLocation, dict.events.sortDistance]) // eslint-disable-line react-hooks/exhaustive-deps
+    ...(isSingleDay ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
+  ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance]) // eslint-disable-line react-hooks/exhaustive-deps
   const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== ''
   const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
@@ -444,6 +461,17 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           pointerEvents: 'none',
         }}>
           {dict.event.refreshError}
+        </div>
+      )}
+      {locationToast && (
+        <div style={{
+          position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+          background: '#2A2838', color: '#F4F2FF', padding: '10px 20px',
+          borderRadius: 20, fontSize: 14, fontWeight: 600, zIndex: 300,
+          whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          pointerEvents: 'none',
+        }}>
+          {dict.events.locationToastForSort}
         </div>
       )}
 
@@ -634,7 +662,15 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
                 color: item.selected ? '#F4F2FF' : '#B9B6CC',
                 fontWeight: item.selected ? 600 : 400, fontFamily: "'Outfit', sans-serif",
                 fontSize: 15, width: '100%', cursor: 'pointer', textAlign: 'left',
-              }} onClick={() => { setSort(item.id as SortMode); closeSortMenu() }}>
+              }} onClick={() => {
+                if (item.id === 'distance' && !userLocationState) {
+                  closeSortMenu()
+                  requestLocationForSort()
+                } else {
+                  setSort(item.id as SortMode)
+                  closeSortMenu()
+                }
+              }}>
                 {item.label}
                 {item.selected && (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF4D8D" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>
