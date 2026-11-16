@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getEventType, eventTags, primaryTypeTag } from './eventType'
+import { getEventType, eventTags, primaryTypeTag, eventIconKey } from './eventType'
 
 describe('getEventType', () => {
   it('party wins over all others', () => {
@@ -68,6 +68,56 @@ describe('eventTags', () => {
 
   it('multiple culture subtypes — all included', () => {
     expect(eventTags(['film', 'talk'], ['documentary'])).toEqual(['film', 'talk', 'documentary'])
+  })
+})
+
+describe('eventIconKey', () => {
+  it('party/dj/concert return own key', () => {
+    expect(eventIconKey(['party'])).toBe('party')
+    expect(eventIconKey(['dj'])).toBe('dj')
+    expect(eventIconKey(['concert'])).toBe('concert')
+    expect(eventIconKey(['music'])).toBe('concert')
+  })
+
+  it('type priority: party > dj > concert', () => {
+    expect(eventIconKey(['party', 'film'])).toBe('party')
+    expect(eventIconKey(['dj', 'film'])).toBe('dj')
+    expect(eventIconKey(['concert', 'film'])).toBe('concert')
+  })
+
+  it('culture subtype: film → film', () => {
+    expect(eventIconKey(['film'])).toBe('film')
+    expect(eventIconKey(['theatre', 'film'])).toBe('film')
+  })
+
+  it('culture subtype: comedy → comedy', () => {
+    expect(eventIconKey(['comedy'])).toBe('comedy')
+  })
+
+  it('culture subtype: dance → dance', () => {
+    expect(eventIconKey(['dance'])).toBe('dance')
+  })
+
+  it('other culture subtypes → culture (masks)', () => {
+    expect(eventIconKey(['theatre'])).toBe('culture')
+    expect(eventIconKey(['talk'])).toBe('culture')
+    expect(eventIconKey(['opening'])).toBe('culture')
+    expect(eventIconKey(['workshop'])).toBe('culture')
+    expect(eventIconKey(['quiz'])).toBe('culture')
+  })
+
+  it('other/unknown → culture (masks)', () => {
+    expect(eventIconKey(['other'])).toBe('culture')
+    expect(eventIconKey([])).toBe('culture')
+    expect(eventIconKey(['unknown'])).toBe('culture')
+  })
+
+  it('film wins over comedy/dance when film appears first in formats', () => {
+    expect(eventIconKey(['film', 'comedy'])).toBe('film')
+  })
+
+  it('comedy wins when no film', () => {
+    expect(eventIconKey(['comedy', 'dance'])).toBe('comedy')
   })
 })
 

@@ -2,6 +2,8 @@ import type { EventType } from './types'
 
 const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'comedy', 'film', 'opening', 'workshop', 'quiz'])
 
+export type EventIconKey = 'concert' | 'party' | 'dj' | 'film' | 'comedy' | 'dance' | 'culture'
+
 /** Returns the event type for color and icon, using priority:
  * party → dj → concert/music → culture formats → other */
 export function getEventType(formats: string[]): EventType {
@@ -26,6 +28,22 @@ export const EVENT_TYPE_DARK: Record<EventType, string> = {
   concert: '#14063A',
   culture: '#1B2600',
   other: '#1B2600'
+}
+
+/** Returns the icon key for an event based on its formats.
+ * concert/party/dj use their own icons; culture uses a subtype icon:
+ * film → film-clapper, comedy → vintage mic, dance → filled silhouette, else → theatre masks.
+ * other → culture (masks). */
+export function eventIconKey(formats: string[]): EventIconKey {
+  const type = getEventType(formats)
+  if (type === 'party') return 'party'
+  if (type === 'dj') return 'dj'
+  if (type === 'concert') return 'concert'
+  // culture or other — pick sub-icon from first matching culture format
+  if (formats.includes('film')) return 'film'
+  if (formats.includes('comedy')) return 'comedy'
+  if (formats.includes('dance')) return 'dance'
+  return 'culture'
 }
 
 /** Tag text color — lighter purple for concert so text stays legible on dark bg */
