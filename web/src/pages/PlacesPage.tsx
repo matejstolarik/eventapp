@@ -6,6 +6,7 @@ import { isFavorite, toggleFavorite } from '../core/store'
 import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
 import { IconHeart, EventTypeIcon } from '../icons'
 import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import type { EventIconKey } from '../core/eventType'
 import { AllFavsToggle } from '../components/AllFavsToggle'
 
 interface Props {
@@ -33,6 +34,7 @@ interface VenuePhotoProps { venue: Venue; size: number; radius: number }
 function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   const [err, setErr] = useState(false)
   const et = venueEventType(venue)
+  const iconKey: EventIconKey = et === 'other' ? 'culture' : et as EventIconKey
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
 
@@ -43,7 +45,7 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
         width: size, height: size, borderRadius: radius, background: bg,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
       }}>
-        <EventTypeIcon type={et} size={Math.round(size * 0.45)} color={fg} />
+        <EventTypeIcon iconKey={iconKey} size={Math.round(size * 0.45)} color={fg} />
       </div>
     )
   }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Event, Venue, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
 import { EventTypeIcon } from '../icons'
 import { getDict } from '../i18n'
@@ -56,6 +56,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
   const eventType = getEventType(event.formats)
+  const iconKey = eventIconKey(event.formats)
   const color = EVENT_TYPE_COLOR[eventType]
   const dark = EVENT_TYPE_DARK[eventType]
   const tagTextColor = EVENT_TYPE_TAG_TEXT[eventType]
@@ -119,7 +120,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <EventTypeIcon type={eventType} size={36} color={dark} />
+              <EventTypeIcon iconKey={iconKey} size={36} color={dark} />
             </div>
           )}
         </div>

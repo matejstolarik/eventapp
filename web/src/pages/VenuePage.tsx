@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
 import { getDict } from '../i18n'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
+import type { EventIconKey } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getToday } from '../core/day'
@@ -46,13 +47,14 @@ function HeaderImage({ venue, et }: { venue: Venue; et: EventType }) {
   const [err, setErr] = useState(false)
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
+  const iconKey: EventIconKey = et === 'other' ? 'culture' : et as EventIconKey
   if (!venue.image_url || err) {
     return (
       <div style={{
         width: '100%', height: '100%', background: bg,
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
-        <EventTypeIcon type={et} size={56} color={fg} />
+        <EventTypeIcon iconKey={iconKey} size={56} color={fg} />
       </div>
     )
   }
@@ -69,6 +71,7 @@ function HeaderImage({ venue, et }: { venue: Venue; et: EventType }) {
 function EventThumbnail({ event }: { event: Event }) {
   const [err, setErr] = useState(false)
   const et = getEventType(event.formats)
+  const iconKey = eventIconKey(event.formats)
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
   if (!event.image_thumb || err) {
@@ -77,7 +80,7 @@ function EventThumbnail({ event }: { event: Event }) {
         width: 56, height: 56, borderRadius: 12, background: bg, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
-        <EventTypeIcon type={et} size={22} color={fg} />
+        <EventTypeIcon iconKey={iconKey} size={22} color={fg} />
       </div>
     )
   }

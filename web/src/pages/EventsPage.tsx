@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language, Event } from '../core/types'
 import { getDict, formatDayLabel } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew } from '../core/search'
@@ -83,13 +83,13 @@ interface EventCardProps {
 
 function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewFlag, animIn, onClick }: EventCardProps) {
   const type = getEventType(event.formats)
+  const iconKey = eventIconKey(event.formats)
   const color = EVENT_TYPE_COLOR[type]
   const dark = EVENT_TYPE_DARK[type]
   const tagTextColor = EVENT_TYPE_TAG_TEXT[type]
   const dateLabel = formatDayLabel(event.date, lang, now)
   const timeLabel = event.start_time ?? ''
   const allTags = eventTags(event.formats, event.genres)
-  const venueTags = venue?.character ?? []
 
   return (
     <div
@@ -110,7 +110,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <EventTypeIcon type={type} size={40} color={dark} />
+          <EventTypeIcon iconKey={iconKey} size={40} color={dark} />
         )}
         {forYouFlag && (
           <span style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#111118', color: '#F4F2FF', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -123,19 +123,14 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
             new
           </span>
         )}
-        {/* Tags overlay at bottom of image — dark pills, text in type color; venue character tags stay white */}
-        {(allTags.length > 0 || venueTags.length > 0) && (
+        {/* Tags overlay — only event tags, no venue character tags */}
+        {allTags.length > 0 && (
           <div style={{ position: 'absolute', bottom: 6, left: 6, right: 0, zIndex: 1, display: 'flex', gap: 4, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
             {allTags.map(tag => (
               <span key={tag} style={{
                 flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center',
                 background: 'rgba(17,17,24,0.9)', color: tagTextColor,
               }}>
-                {tagLabel(tag)}
-              </span>
-            ))}
-            {venueTags.map(tag => (
-              <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.9)', color: '#F4F2FF' }}>
                 {tagLabel(tag)}
               </span>
             ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
@@ -85,6 +85,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const ev = event
   const venue = data.venues.find(v => v.id === ev.venue_id)
   const eventType = getEventType(ev.formats)
+  const iconKey = eventIconKey(ev.formats)
   const color = EVENT_TYPE_COLOR[eventType]
   const dark = EVENT_TYPE_DARK[eventType]
 
@@ -198,7 +199,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}>
-              <EventTypeIcon type={eventType} size={80} color={dark} />
+              <EventTypeIcon iconKey={iconKey} size={80} color={dark} />
             </div>
           )}
           {/* Gradient */}
