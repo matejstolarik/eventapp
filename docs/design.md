@@ -127,7 +127,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - štvorcový **obrázok** (zaoblenie 12) – náhľad obrázka akcie; bez obrázka plocha vo farbe typu s ikonou typu. Odznaky: vľavo hore **pre teba** (tmavý `#111118`, iskry + text 10/600), vpravo hore **nové** (biely).
 - **dátum · čas** (12/500), celé sivé `#8E8AA6` (zmena 2026-11-16: farbu nesie štítok typu, nie čas). Dátum vždy, pri dnešku a zajtrajšku slovom: „Dnes · 20:00“, „Zajtra · 22:00“, inak „Pi 20. 11. · 23:00“.
 - **názov** (13/700 `#F4F2FF`, normálne písmo, nie veľké písmená, max. 2 riadky, potom „…“), **miesto** (12/400 `#8E8AA6`, 1 riadok s „…“) – názov výrazne, miesto tlmene (Matej 2026-11-16, variant B).
-- **štítky** priamo **na obrázku** (spodok-ľavý roh, 6 px od okraja): výška 18, 10/500, zaoblenie 9, text `#F4F2FF`. **Štítok typu** (prvý) **plnou farbou typu s tmavým textom** (tmavá dvojica typu, 10/600) – čitateľný na svetlej aj tmavej fotke (zmena 2026-11-16 večer; priesvitný nebol čitateľný na bielych fotkách); ostatné štítky pozadie `rgba(17,17,24,0.9)`. Na pravom okraji obrázka sa strácajú.
+- **štítky** priamo **na obrázku** (spodok-ľavý roh, 6 px od okraja): výška 18, 10/500, zaoblenie 9, text `#F4F2FF`. **Štítok typu** (prvý) **plnou farbou typu s bielym textom** `#F4F2FF` 10/600 (konzistentne s tmavými štítkami; pri svetlých farbách jemný tieň textu) – čitateľný na svetlej aj tmavej fotke (zmena 2026-11-16 večer; priesvitný nebol čitateľný na bielych fotkách); ostatné štítky pozadie `rgba(17,17,24,0.9)`. Na pravom okraji obrázka sa strácajú.
 - Ťuk na kartu → stránka akcie. Čo práve beží, sa tu nezvýrazňuje.
 
 **Prázdny stav:** „Na dnes nič nemáme.“ + tlačidlo „Pozrieť 7 dní“ (pri inom období „Skúsiť Kedykoľvek“); pri zapnutom Pre teba / Nové / filtri tlačidlo „Zrušiť filtre“.
@@ -150,7 +150,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - Cieľ: nahradiť chodenie na web a IG miesta, takže program je najdôležitejší.
 
 ## 7. Stránka akcie (`07-stranka-akcie.png`)
-- Hore **veľký obrázok** (štvorec cez celú šírku) so stmavnutím; tlačidlo **„Plagát“** otvorí obrázok na celú obrazovku (často je to oficiálny plagát).
+- Hore **veľký obrázok** (štvorec cez celú šírku) so stmavnutím; tlačidlo **„Plagát“** otvorí obrázok na celú obrazovku (často je to oficiálny plagát); **Späť** zväčšenie zavrie a ostane na stránke akcie.
 - Názov (Bricolage 28/700), **miesto s odkazom na profil**, „deň dátum · čas“, **len štítky akcie** (formáty, žánre). Štítky miesta tu nie sú (Matej 2026-11-09), patria do profilu miesta.
 - **Hlavné tlačidlo (ružové, výška 54): Lístky**, ak má akcia `ticket_url`; inak **Stránka akcie** (pôvodný zdroj). Zdroj musí byť dostupný vždy.
 - Pod tým štyri menšie tlačidlá: **Idem** (CZ „Jdu“; zoznam v Môj účet), **Kalendár** (`.ics`), **Zdieľať**, **IG miesta**.

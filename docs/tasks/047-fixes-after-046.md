@@ -13,7 +13,7 @@ Príčina (hlavný chat z kódu): `usePendingSelect` nastaví `selectedDay` a `p
 - Test: `pendingSelect` s rovnakým dňom, aký je vybraný → karta miesta sa otvorí hneď.
 
 ### 2. Štítok typu plnou farbou
-Na karte v Akciách: štítok typu plnou farbou typu s tmavým textom (`EVENT_TYPE_DARK`, 10/600); ostatné štítky `rgba(17,17,24,0.9)`. (Priesvitný štítok s bielym textom nebol čitateľný na bielych fotkách.)
+Na karte v Akciách: štítok typu plnou farbou typu (`EVENT_TYPE_COLOR`, nepriehľadná) s **bielym textom** `#F4F2FF` 10/600 – konzistentne s tmavými štítkami, ktoré majú tiež biely text (Matej 2026-11-16). Ostatné štítky `rgba(17,17,24,0.9)`. Pri svetlých farbách typu (limetková kultúra, oranžová párty) pridaj jemný tieň textu (`text-shadow: 0 0 2px rgba(0,0,0,.45)`), aby bol biely text čitateľný.
 
 ### 3. „Idem“ → „Uložené / Moje akcie“ so záložkou
 Podľa `design.md` 7 „Zmena 2026-11-16 večer“:
@@ -40,9 +40,12 @@ Príčina: odkaz na `calendar.google.com` sa v nainštalovanej PWA otvorí ako w
 - Chrome otvára len aktivity s kategóriou BROWSABLE – nie je isté, že kalendár to podporuje. Preto: ak sa do ~1,5 s nič nestane (stránka nestratí viditeľnosť, `visibilitychange`), stiahni `.ics` ako pôvodne. Odkaz na calendar.google.com úplne odstráň.
 - Test na zostavenie intent URL. V reporte jasne napíš, že funkčnosť overí Matej v telefóne.
 
+### 9. Späť zavrie zväčšený plagát
+Príčina: zväčšenie obrázka (tlačidlo „Plagát“ na stránke akcie) nepridáva záznam do histórie, takže Späť zatvorí celú stránku akcie (a vďaka panelom z 046 niekedy ide ešte o krok ďalej). Pri otvorení zväčšenia `history.pushState`, Späť = zavrie zväčšenie a ostane na stránke akcie (rovnaký mechanizmus ako v `SelectorSheet`, ideálne spoločná malá funkcia/hook pre všetky prekrytia).
+
 ### Overenie
 - `npm test`, `npm run build`, číslo nasadenia.
 - Snímky Playwright do `docs/tasks/047/`: `01-karta-stitok-typu.jpg`, `02-akcia-bez-ceny.jpg` (záložka na riadku štítkov), `03-akcia-vypredane-bez-ceny.jpg`, `04-panel-obdobia.jpg`, `05-zoradenie-ponuka.jpg`.
-- V reporte postup overenia bodov 1, 7 a 8 v telefóne.
+- V reporte postup overenia bodov 1, 7, 8 a 9 v telefóne.
 
 ## Report
