@@ -9,6 +9,7 @@ import { matchesSearch, isForYou, isNew } from '../core/search'
 import { isNightMode, isNightEvent } from '../core/night'
 import { EventTypeIcon } from '../icons'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
+import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
 
 interface Props {
   data: EventsData
@@ -425,39 +426,10 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       <style>{`
         @keyframes evCardIn { from { opacity:0; transform:scale(0.96) } to { opacity:1; transform:scale(1) } }
         @media (prefers-reduced-motion:reduce) { @keyframes evCardIn { from { opacity:1 } } }
-        @keyframes ptr-spin { to { transform: rotate(360deg) } }
         .chips-scroll::-webkit-scrollbar { display: none }
       `}</style>
 
-      {/* Pull-to-refresh indicator */}
-      {(pullDist > 0 || isRefreshing) && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
-          display: 'flex', justifyContent: 'center', pointerEvents: 'none',
-          transform: pullDist > 0
-            ? `translateY(${Math.min(pullDist * 0.6, 60) - 44}px)`
-            : 'translateY(16px)',
-          transition: pullDist > 0 ? 'none' : 'transform 200ms',
-        }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 18,
-            background: '#2A2838', border: '1px solid #3A3848',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-            animation: isRefreshing ? 'ptr-spin 0.7s linear infinite' : 'none',
-          }}>
-            <svg
-              width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke={pullDist >= 70 || isRefreshing ? '#FF4D8D' : '#B9B6CC'}
-              strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-              style={{ transform: isRefreshing ? 'none' : `rotate(${Math.round(pullDist / 120 * 360)}deg)` }}
-            >
-              <path d="M20 8a8 8 0 1 0 .5 5" />
-              <polyline points="20 2 20 8 14 8" />
-            </svg>
-          </div>
-        </div>
-      )}
+      <PullRefreshIndicator pullDist={pullDist} isRefreshing={isRefreshing} />
       {refreshError && (
         <div style={{
           position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
