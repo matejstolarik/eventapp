@@ -12,12 +12,20 @@ import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem 
 interface Props {
   data: EventsData
   lang: Language
+  isVisible?: boolean
   onEventOpen: (eventId: string) => void
   registerScrollToTop?: (fn: () => void) => void
 }
 
 export function tagLabel(tag: string): string {
   return tag === 'alternative' ? 'alt' : tag
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
 }
 
 function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
@@ -117,16 +125,22 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
             {lang === 'en' ? 'new' : 'nové'}
           </span>
         )}
-        {/* Tags overlay at bottom of image */}
+        {/* Tags overlay at bottom of image — first tag has type color, rest dark */}
         {(allTags.length > 0 || venueTags.length > 0) && (
           <div style={{ position: 'absolute', bottom: 6, left: 6, right: 0, zIndex: 1, display: 'flex', gap: 4, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
-            {allTags.map(tag => (
-              <span key={tag} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.85)', color: '#F4F2FF' }}>
+            {allTags.map((tag, idx) => (
+              <span key={tag} style={{
+                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', color: '#F4F2FF',
+                ...(idx === 0
+                  ? { background: hexToRgba(color, 0.55), boxShadow: `inset 0 0 0 1px ${hexToRgba(color, 0.9)}` }
+                  : { background: 'rgba(17,17,24,0.85)' }
+                ),
+              }}>
                 {tagLabel(tag)}
               </span>
             ))}
             {venueTags.map(tag => (
-              <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.85)', color: '#F4F2FF', border: '1.5px solid rgba(17,17,24,0.85)', boxSizing: 'border-box' }}>
+              <span key={`v-${tag}`} style={{ flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center', background: 'rgba(17,17,24,0.85)', color: '#F4F2FF', boxSizing: 'border-box' }}>
                 {tagLabel(tag)}
               </span>
             ))}
@@ -134,17 +148,16 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
         )}
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden' }}>
-        <span style={{ color: '#8E8AA6', fontWeight: 500 }}>{dateLabel}{timeLabel ? ' · ' : ''}</span>
-        {timeLabel && <span style={{ color }}>{timeLabel}</span>}
+      <div style={{ marginTop: 6, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', color: '#8E8AA6' }}>
+        {dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.25, maxHeight: '2.5em', overflow: 'hidden', marginTop: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.25, maxHeight: '2.5em', overflow: 'hidden', marginTop: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
         {event.title}
       </div>
 
       {venue && (
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#B9B6CC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
+        <div style={{ fontSize: 12, fontWeight: 400, color: '#8E8AA6', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
           {venue.name}
         </div>
       )}
@@ -152,7 +165,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
   )
 }
 
-export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Props) {
+export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop }: Props) {
   const dict = getDict(lang)
   const [now, setNow] = useState(() => new Date())
   const baseUrl = import.meta.env.BASE_URL
@@ -176,23 +189,31 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', handleVis); window.removeEventListener('focus', refresh) }
   }, [])
 
-  // IntersectionObserver on sentinel at bottom of full header
+  // Reset collapse state when page becomes hidden (prevents compact bar preblik on return)
+  useEffect(() => {
+    if (isVisible === false) {
+      setCollapsed(false)
+      setShowScrollTop(false)
+    }
+  }, [isVisible])
+
+  // IntersectionObserver on sentinel at bottom of full header — only while visible
   useEffect(() => {
     const sentinel = headerSentinelRef.current
-    if (!sentinel) return
+    if (!sentinel || isVisible === false) return
     const obs = new IntersectionObserver(([entry]) => setCollapsed(!entry!.isIntersecting), { threshold: 0 })
     obs.observe(sentinel)
     return () => obs.disconnect()
-  }, [])
+  }, [isVisible])
 
-  // Scroll tracking for scroll-to-top button
+  // Scroll tracking for scroll-to-top button — only while visible
   useEffect(() => {
     const el = scrollRef.current
-    if (!el) return
+    if (!el || isVisible === false) return
     const onScroll = () => setShowScrollTop(el.scrollTop > window.innerHeight * 2)
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [isVisible])
 
   const isNight = isNightMode(data, now)
 
@@ -205,8 +226,8 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
   })
   const [sort, setSort] = useState<SortMode>('date')
   const [showPeriodSheet, setShowPeriodSheet] = useState(false)
-  const [showSortMenu, setShowSortMenu] = useState(false)
-  const sortMenuRef = useRef<HTMLDivElement>(null)
+  const [showSortSheet, setShowSortSheet] = useState(false)
+  const sheetHistoryRef = useRef(false)
 
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -277,20 +298,43 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
     if (!isNight && period.type === 'night') setPeriod({ type: 'today' })
   }, [isNight]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Revert distance sort when period becomes multi-day
+  useEffect(() => {
+    if (!isSingleDayPeriod(period) && sort === 'distance') setSort('date')
+  }, [period]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => { setStoredPeriod(period) }, [period])
   useEffect(() => { setStoredEventsFilters({ forYou: forYouActive, isNew: isNewActive }) }, [forYouActive, isNewActive])
 
+  // Close any open sheet on Android Back
   useEffect(() => {
-    if (!showSortMenu) return
-    function handler(e: MouseEvent) {
-      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) setShowSortMenu(false)
+    function onPopState() {
+      if (sheetHistoryRef.current) {
+        sheetHistoryRef.current = false
+        setShowPeriodSheet(false)
+        setShowSortSheet(false)
+      }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [showSortMenu])
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   function scrollToTop() {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function openSheet(open: (v: boolean) => void) {
+    open(true)
+    history.pushState({ sheet: true }, '')
+    sheetHistoryRef.current = true
+  }
+
+  function closeSheet(close: (v: boolean) => void) {
+    close(false)
+    if (sheetHistoryRef.current) {
+      sheetHistoryRef.current = false
+      history.back()
+    }
   }
 
   function openSearch() {
@@ -342,19 +386,24 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
       : id === 'next7' ? { type: 'next7' } : id === 'next30' ? { type: 'next30' } : { type: 'anytime' }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    setShowPeriodSheet(false)
+    closeSheet(setShowPeriodSheet)
   }
 
   function handleCalendarSelect(from: string, to: string) {
     const p: Period = { type: 'custom', from, to }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    setShowPeriodSheet(false)
+    closeSheet(setShowPeriodSheet)
   }
 
   const periodLabel = formatPeriodShortLabel(period, lang)
   const isSingleDay = isSingleDayPeriod(period)
   const sortDateLabel = isSingleDay ? dict.events.sortTime : dict.events.sortDate
+
+  const sortItems: SheetItem[] = useMemo(() => [
+    { id: 'date', label: sortDateLabel, selected: sort === 'date' },
+    ...(isSingleDay && userLocation ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
+  ], [sort, sortDateLabel, isSingleDay, userLocation, dict.events.sortDistance]) // eslint-disable-line react-hooks/exhaustive-deps
   const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== ''
   const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
@@ -381,8 +430,8 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
         @media (prefers-reduced-motion:reduce) { @keyframes evCardIn { from { opacity:1 } } }
       `}</style>
 
-      {/* Compact sticky bar — fixed, overlays top, only interactive when header collapsed */}
-      <div style={{
+      {/* Compact sticky bar — fixed, only shown when this tab is visible and header scrolled away */}
+      {isVisible !== false && <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10,
         background: '#111118', boxShadow: '0 8px 16px rgba(17,17,24,.9)',
         padding: '10px 16px', display: 'flex', gap: 8, alignItems: 'center',
@@ -392,7 +441,7 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
       }}>
         <button
           style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
-          onClick={() => setShowPeriodSheet(true)}
+          onClick={() => openSheet(setShowPeriodSheet)}
         >
           {periodLabel}<ChevronDown />
         </button>
@@ -412,7 +461,7 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
         <button style={{ flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#FF4D8D', color: '#1A0710', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Filter">
           <FilterIcon />
         </button>
-      </div>
+      </div>}
 
       {/* Full header — scrolls away with content */}
       <div style={{ padding: '52px 16px 0', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -425,7 +474,7 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
           <div style={{ position: 'absolute', left: 0, right: 52, opacity: searchOpen ? 1 : 0, clipPath: searchOpen ? 'inset(0 0% 0 0%)' : 'inset(0 100% 0 0%)', transition: 'clip-path 200ms, opacity 200ms', pointerEvents: searchOpen ? 'auto' : 'none' }}>
             <div style={{ height: 44, borderRadius: 22, background: '#F4F2FF', color: '#111118', display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flex: 'none' }}><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
-              <input ref={searchInputRef} value={searchQuery} onChange={e => handleSearchInput(e.target.value)} style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 15, fontWeight: 500, color: '#111118', fontFamily: "'Outfit', sans-serif", caretColor: '#FF4D8D', minWidth: 0 }} />
+              <input ref={searchInputRef} value={searchQuery} onChange={e => handleSearchInput(e.target.value)} placeholder={dict.events.searchEvents} style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 15, fontWeight: 500, color: '#111118', fontFamily: "'Outfit', sans-serif", caretColor: '#FF4D8D', minWidth: 0 }} />
             </div>
           </div>
           <button style={{ marginLeft: 'auto', flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={searchOpen ? closeSearch : openSearch} aria-label={searchOpen ? 'Zavrieť hľadanie' : 'Hľadať'}>
@@ -435,7 +484,7 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
 
         {/* Bar: period + chips + filter */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
+          <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => openSheet(setShowPeriodSheet)}>
             {periodLabel}<ChevronDown />
           </button>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
@@ -452,21 +501,10 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
         {/* Count + sort row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2 }}>
           <span>{countRowText()}</span>
-          <div style={{ position: 'relative' }} ref={sortMenuRef}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={() => setShowSortMenu(s => !s)}>
-              {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
-              <ChevronDown size={14} />
-            </button>
-            {showSortMenu && (
-              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 4, background: '#1C1C27', borderRadius: 12, padding: '4px 0', boxShadow: '0 4px 16px rgba(0,0,0,0.5)', zIndex: 20, minWidth: 140 }}>
-                {(['date', ...(userLocation ? ['distance'] : [])] as SortMode[]).map(s => (
-                  <button key={s} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', background: 'none', border: 'none', fontSize: 15, color: s === sort ? '#F4F2FF' : '#B9B6CC', fontWeight: s === sort ? 600 : 400, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setSort(s); setShowSortMenu(false) }}>
-                    {s === 'date' ? sortDateLabel : dict.events.sortDistance}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={() => openSheet(setShowSortSheet)}>
+            {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
+            <ChevronDown size={14} />
+          </button>
         </div>
 
         {/* Sentinel: when this exits viewport, header is considered collapsed */}
@@ -513,14 +551,16 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
         </div>
       )}
 
-      {/* Scroll-to-top button */}
-      <button
-        onClick={scrollToTop}
-        style={{ position: 'fixed', right: 16, bottom: 116, zIndex: 9, width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,.5)', opacity: showScrollTop ? 1 : 0, pointerEvents: showScrollTop ? 'auto' : 'none', transition: 'opacity 150ms' }}
-        aria-label="Navrch" aria-hidden={!showScrollTop}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
-      </button>
+      {/* Scroll-to-top button — only when this tab is visible */}
+      {isVisible !== false && (
+        <button
+          onClick={scrollToTop}
+          style={{ position: 'fixed', right: 16, bottom: 116, zIndex: 9, width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,.5)', opacity: showScrollTop ? 1 : 0, pointerEvents: showScrollTop ? 'auto' : 'none', transition: 'opacity 150ms' }}
+          aria-label="Navrch" aria-hidden={!showScrollTop}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+        </button>
+      )}
 
       {showPeriodSheet && (
         <SelectorSheet
@@ -531,7 +571,20 @@ export function EventsPage({ data, lang, onEventOpen, registerScrollToTop }: Pro
           lang={lang}
           onItemSelect={handlePeriodItemSelect}
           onCalendarSelect={handleCalendarSelect}
-          onClose={() => setShowPeriodSheet(false)}
+          onClose={() => closeSheet(setShowPeriodSheet)}
+        />
+      )}
+
+      {showSortSheet && (
+        <SelectorSheet
+          title={dict.events.sort}
+          items={sortItems}
+          calendarMode="single"
+          now={now}
+          lang={lang}
+          onItemSelect={id => { setSort(id as SortMode); closeSheet(setShowSortSheet) }}
+          onCalendarSelect={() => {}}
+          onClose={() => closeSheet(setShowSortSheet)}
         />
       )}
     </div>

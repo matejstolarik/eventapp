@@ -233,6 +233,7 @@ export default function App() {
             <EventsPage
               data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
               lang={lang}
+              isVisible={activeTab === 'events' && !isOverlay}
               onEventOpen={openEvent}
               registerScrollToTop={fn => { eventsScrollTopRef.current = fn }}
             />

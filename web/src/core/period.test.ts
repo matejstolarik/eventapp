@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getPeriodRange, getEventsForPeriod, formatPeriodShortLabel, formatPeriodRangeText } from './period'
+import { getPeriodRange, getEventsForPeriod, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod } from './period'
 import type { Event } from './types'
 
 // Sunday 2026-11-15 18:00 (after 5am → "today" = 2026-11-15)
@@ -164,4 +164,16 @@ describe('formatPeriodRangeText', () => {
   it('anytime → ""', () => {
     expect(formatPeriodRangeText({ type: 'anytime' }, 'sk', SK_DAYS, SUN)).toBe('')
   })
+})
+
+describe('isSingleDayPeriod', () => {
+  it('today is single-day', () => expect(isSingleDayPeriod({ type: 'today' })).toBe(true))
+  it('tomorrow is single-day', () => expect(isSingleDayPeriod({ type: 'tomorrow' })).toBe(true))
+  it('night is single-day', () => expect(isSingleDayPeriod({ type: 'night' })).toBe(true))
+  it('custom same day is single-day', () => expect(isSingleDayPeriod({ type: 'custom', from: '2026-11-16', to: '2026-11-16' })).toBe(true))
+  it('weekend is multi-day', () => expect(isSingleDayPeriod({ type: 'weekend' })).toBe(false))
+  it('next7 is multi-day', () => expect(isSingleDayPeriod({ type: 'next7' })).toBe(false))
+  it('next30 is multi-day', () => expect(isSingleDayPeriod({ type: 'next30' })).toBe(false))
+  it('anytime is multi-day', () => expect(isSingleDayPeriod({ type: 'anytime' })).toBe(false))
+  it('custom range is multi-day', () => expect(isSingleDayPeriod({ type: 'custom', from: '2026-11-16', to: '2026-11-20' })).toBe(false))
 })

@@ -92,6 +92,7 @@ export const en = {
     nightNow: 'Late night now',
     day: 'Day',
     tillFive: '',
+    searchEvents: 'Search events',
   },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',

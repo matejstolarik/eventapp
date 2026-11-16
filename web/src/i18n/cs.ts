@@ -92,6 +92,7 @@ export const cs = {
     nightNow: 'Teraz v noci',
     day: 'Den',
     tillFive: '',
+    searchEvents: 'Hledat akci',
   },
   comingSoon: 'Připravujeme',
   offline: 'Offline. Data z',

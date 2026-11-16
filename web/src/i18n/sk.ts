@@ -92,6 +92,7 @@ export const sk = {
     nightNow: 'Teraz v noci',
     day: 'Deň',
     tillFive: '',
+    searchEvents: 'Hľadať akciu',
   },
   comingSoon: 'Pripravujeme',
   offline: 'Offline. Dáta z',
