@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
-import { getGoing, setStoredLanguage } from '../core/store'
+import { getGoing, pruneGoing, setStoredLanguage } from '../core/store'
+import { isEventFinished } from '../core/events'
 
 interface Props {
   data: EventsData | null
@@ -11,16 +13,22 @@ interface Props {
 
 export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) {
   const dict = getDict(lang)
-  const goingIds = getGoing()
   const now = new Date()
-  const todayStr = now.toISOString().slice(0, 10)
+
+  useEffect(() => {
+    if (data) pruneGoing(data, now)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const venueMap = data ? new Map(data.venues.map(v => [v.id, v])) : new Map()
+  const goingIds = getGoing()
   const goingEvents = data
     ? data.events
-        .filter(e => goingIds.has(e.id))
+        .filter(e => {
+          if (!goingIds.has(e.id)) return false
+          const venue = venueMap.get(e.venue_id)
+          return !isEventFinished(e, now, venue?.closing ?? null, venue?.character ?? [])
+        })
         .sort((a, b) => {
-          const aEnded = a.date < todayStr || (a.date === todayStr && !!a.end_time && a.end_time < now.toTimeString().slice(0, 5))
-          const bEnded = b.date < todayStr || (b.date === todayStr && !!b.end_time && b.end_time < now.toTimeString().slice(0, 5))
-          if (aEnded !== bEnded) return aEnded ? 1 : -1
           if (a.date !== b.date) return a.date.localeCompare(b.date)
           if (!a.start_time && !b.start_time) return 0
           if (!a.start_time) return 1
@@ -28,7 +36,6 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
           return a.start_time.localeCompare(b.start_time)
         })
     : []
-  const venueMap = data ? Object.fromEntries(data.venues.map(v => [v.id, v])) : {}
 
   function handleLangChange(newLang: Language) {
     setStoredLanguage(newLang)
@@ -60,7 +67,7 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {goingEvents.map(event => {
-                const venue = venueMap[event.venue_id]
+                const venue = venueMap.get(event.venue_id)
                 return (
                   <button
                     key={event.id}

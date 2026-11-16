@@ -1,4 +1,5 @@
-import type { Language } from './types'
+import type { Language, EventsData } from './types'
+import { isEventFinished } from './events'
 
 function safeGet(key: string): string | null {
   try { return localStorage.getItem(key) } catch { return null }
@@ -51,6 +52,24 @@ export function toggleGoing(eventId: string): boolean {
   }
   safeSet('going', JSON.stringify([...going]))
   return going.has(eventId)
+}
+
+/** Remove finished events from the stored going list to prevent unbounded growth. */
+export function pruneGoing(data: EventsData, now: Date): void {
+  const going = getGoing()
+  if (going.size === 0) return
+  const eventMap = new Map(data.events.map(e => [e.id, e]))
+  const venueMap = new Map(data.venues.map(v => [v.id, v]))
+  const before = going.size
+  for (const id of [...going]) {
+    const event = eventMap.get(id)
+    if (!event) { going.delete(id); continue }
+    const venue = venueMap.get(event.venue_id)
+    if (isEventFinished(event, now, venue?.closing ?? null, venue?.character ?? [])) {
+      going.delete(id)
+    }
+  }
+  if (going.size !== before) safeSet('going', JSON.stringify([...going]))
 }
 
 // ── Language ───────────────────────────────────────────────────────────────
