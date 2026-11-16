@@ -432,6 +432,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         @keyframes evCardIn { from { opacity:0; transform:scale(0.96) } to { opacity:1; transform:scale(1) } }
         @media (prefers-reduced-motion:reduce) { @keyframes evCardIn { from { opacity:1 } } }
         @keyframes ptr-spin { to { transform: rotate(360deg) } }
+        .chips-scroll::-webkit-scrollbar { display: none }
       `}</style>
 
       {/* Pull-to-refresh indicator */}
@@ -486,7 +487,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         >
           {periodLabel}<ChevronDown />
         </button>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflowX: 'auto', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)', scrollbarWidth: 'none' }} className="chips-scroll">
           <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
             <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
           </button>
@@ -528,7 +529,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
             {periodLabel}<ChevronDown />
           </button>
-          <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', gap: 8, overflowX: 'auto', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)', scrollbarWidth: 'none' }} className="chips-scroll">
             <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
               <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
             </button>
