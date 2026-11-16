@@ -33,3 +33,46 @@ V 045 je Späť → zatvorenie panelu len v `EventsPage` (`history.pushState({sh
 - V reporte, ako si Matej overí kalendár a obnovenie potiahnutím v telefóne.
 
 ## Report
+
+**Dátum:** 2026-11-16
+
+**Commity:**
+- `62fbffd` feat(046-1-2): cena+Idem riadok, Na mape tlacidlo
+- `3ade35b` feat(046-3): kalendar Android Google Calendar, ios/desktop ics
+- `46e2f18` feat(046-4): obnovenie potiahnuti (pull-to-refresh)
+- `14ccfdd` feat(046-5): spat zatvori SelectorSheet aj na mape (popstate v SelectorSheet)
+
+**Čo je hotové:**
+
+1. **Riadok s cenou a Idem** – `EventPage` má nový riadok pod štítkami: vľavo `price_text` (17 px/600, pri `sold_out` prečiarknutá sivá + ružový štítok „vypredané"), vpravo okrúhle 40 px tlačidlo Idem (tmavé + ikona plus v kruhu / ružové + ikona fajky v kruhu). Toast „Pridané do Idem" / „Odobrané z Idem" (~2 s) po stlačení. Cena vypadla z meta riadku dátumu/času.
+
+2. **Rad menších tlačidiel** – Idem vypadol z radu, pribudlo „Na mape" (pin ikona). Volá `goToMap(venueId, date)`; ak akcia práve beží v nočnom režime, pošle `NIGHT_DAY`.
+
+3. **Kalendár** – Na Androide (`/Android/i.test(navigator.userAgent)`) sa otvorí Google Kalendár URL s parametrami `action=TEMPLATE`, `text`, `dates` (pražský čas bez Z, koniec = `eventEndsAt`; celodenná `YYYYMMDD/YYYYMMDD+1`), `ctz=Europe/Prague`, `details`, `location`. Ostatné zariadenia: `.ics` ako doteraz. Nový súbor `web/src/core/calendar.ts`, testy v `calendar.test.ts` (5 testov – normálna akcia, prechod cez polnoc, celodenná, bez end_time, bez venue).
+
+4. **Obnovenie potiahnutím** – `overscroll-behavior-y: contain` na `html, body` aj scroll kontajneroch v EventsPage/PlacesPage. Hook `usePullToRefresh` (touchstart/touchmove/touchend, threshold 70 px, max 120 px, `passive: false` na touchmove). Indikátor: tmavý krúžok so šípkou (ružová ak > threshold), počas obnovy sa točí spinner. Chyba siete: krátky toast „Nepodarilo sa obnoviť". `App.tsx` extrahoval `refreshData(noStore)`, ktorý pri `noStore=true` fetchuje `cache:'no-store'`.
+
+5. **Späť zatvorí SelectorSheet všade** – história (pushState/popstate) presunnutá z `EventsPage` priamo do `SelectorSheet`. Pri otvorení `pushState({sheet:true})`, popstate = `onClose()`. Cleanup: ak sheet zatvára parent (item vybratý), `history.back()`. Backdrop: `history.back()` + `onClose()` bez dvojitého zatvárania (`historyPushedRef`). Testované: nebije sa s `pushState({panel:'open'})` v MapPage.
+
+**Čísla z `site/events.json`** (príkaz: `python -c "import json; d=json.load(open('site/events.json',encoding='utf-8')); evs=d['events']; print('total:', len(evs), '| price_text:', len([e for e in evs if e.get('price_text')]), '| sold_out:', len([e for e in evs if e.get('sold_out')]), '| start_time:', len([e for e in evs if e.get('start_time')]), '| venues:', len(d['venues']))"`):
+- Celkom akcií: **374**, venues: **11**
+- S `price_text`: **0** (pipeline momentálne cenu neextrahuje)
+- `sold_out`: **11** (testovanie sold_out štítku je vizuálne funkčné, len bez price_text)
+- S `start_time`: **283** (zvyšok celodenné → Google Kalendár pošle celodenný event)
+
+**Snímky:**
+- `docs/tasks/046/01-akcia-cena-idem.jpg` – stránka akcie, Idem vypnuté (tmavé tlačidlo s +)
+- `docs/tasks/046/02-akcia-vypredane-idem-zapnute.jpg` – stránka akcie, Idem zapnuté (ružové tlačidlo s fajkou + toast „Pridané do Idem")
+- `03-akcie-potiahnutie.jpg` – vynechané; Playwright nemôže simulovať touch gesture v headless Chrome
+
+**Ako Matej overí v telefóne:**
+
+*Kalendár:* Na Androide otvor akciu so `start_time`, ťukni Kalendár → má sa otvoriť Google Kalendár s predvyplneným názvom, dátumom, časom a adresou. Na iPhone/desktope rovnaká akcia → má sa stiahnuť `.ics` súbor a otvoriť v Kalendári.
+
+*Obnovenie potiahnutím:* Na Akciách alebo Miestach stiahni prstom nadol z vrchu zoznamu (nie počas scrollovania). Po ~70 px a pustení sa má objaviť spinner a zoznam sa prekreslí. Chrómové natívne obnovenie (tenký pásik hore) sa nesmie objaviť.
+
+*Späť na mape:* Na mape otvor DaySelector (ťukni na deň v bare), ťukni Späť na telefóne → sheet sa má zatvoriť bez odchodu zo stránky.
+
+**Otvorené / nedokončené:**
+- `price_text` v `events.json` je prázdne – pipeline cenu neextrahuje, takže riadok s cenou sa nezobrazuje; Idem tlačidlo funguje aj bez ceny.
+- `03-akcie-potiahnutie.jpg` nebola vytvorená (Playwright / headless bez touch support).
