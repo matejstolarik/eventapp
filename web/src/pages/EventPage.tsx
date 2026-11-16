@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
@@ -28,11 +28,32 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const event = data.events.find(e => e.id === eventId)
   const [going, setGoing] = useState(() => isGoing(eventId))
   const [showPoster, setShowPoster] = useState(false)
+  const posterHistoryRef = useRef(false)
   const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
     setGoing(isGoing(eventId))
   }, [eventId])
+
+  useEffect(() => {
+    if (!showPoster) return
+    history.pushState({ poster: true }, '')
+    posterHistoryRef.current = true
+    function onPopState() {
+      if (posterHistoryRef.current) {
+        posterHistoryRef.current = false
+        setShowPoster(false)
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => {
+      window.removeEventListener('popstate', onPopState)
+      if (posterHistoryRef.current) {
+        posterHistoryRef.current = false
+        history.back()
+      }
+    }
+  }, [showPoster]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function showToast(msg: string) {
     setToast(msg)
