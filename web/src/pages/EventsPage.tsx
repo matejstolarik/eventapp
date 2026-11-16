@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language, Event } from '../core/types'
 import { getDict, formatDayLabel } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew } from '../core/search'
@@ -85,9 +85,10 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
   const type = getEventType(event.formats)
   const color = EVENT_TYPE_COLOR[type]
   const dark = EVENT_TYPE_DARK[type]
+  const tagTextColor = EVENT_TYPE_TAG_TEXT[type]
   const dateLabel = formatDayLabel(event.date, lang, now)
   const timeLabel = event.start_time ?? ''
-  const allTags = [...event.formats, ...event.genres]
+  const allTags = eventTags(event.formats, event.genres)
   const venueTags = venue?.character ?? []
 
   return (
@@ -122,16 +123,13 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
             new
           </span>
         )}
-        {/* Tags overlay at bottom of image — first tag has type color, rest dark */}
+        {/* Tags overlay at bottom of image — dark pills, text in type color; venue character tags stay white */}
         {(allTags.length > 0 || venueTags.length > 0) && (
           <div style={{ position: 'absolute', bottom: 6, left: 6, right: 0, zIndex: 1, display: 'flex', gap: 4, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
-            {allTags.map((tag, idx) => (
+            {allTags.map(tag => (
               <span key={tag} style={{
-                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, display: 'flex', alignItems: 'center',
-                ...(idx === 0
-                  ? { background: color, color: dark, fontWeight: 600 }
-                  : { background: 'rgba(17,17,24,0.9)', color: '#F4F2FF', fontWeight: 500 }
-                ),
+                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center',
+                background: 'rgba(17,17,24,0.9)', color: tagTextColor,
               }}>
                 {tagLabel(tag)}
               </span>
@@ -145,12 +143,12 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
         )}
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', color: '#8E8AA6' }}>
-        {dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.25, maxHeight: '2.5em', overflow: 'hidden', marginTop: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+        {event.title}
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.25, maxHeight: '2.5em', overflow: 'hidden', marginTop: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-        {event.title}
+      <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', color: '#8E8AA6', marginTop: 1 }}>
+        {dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}
       </div>
 
       {venue && (
