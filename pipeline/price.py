@@ -18,10 +18,10 @@ import unicodedata
 
 _CUR = r"(?P<cur>kč|kc|czk|eur|€|,-)"
 _NUM = r"\d{1,3}(?:[  .,]\d{3})+(?:[.,]\d{2})?(?!\d)|\d+(?:[.,]\d{1,2})?"
-# number [– number] currency   |   € number
+# number [– number] currency   |   € number / CZK number (GoOut, task 060)
 _AMOUNT_RE = re.compile(
     rf"(?<![\d.,])(?P<a>{_NUM})(?:\s*(?:[–-]|až|to)\s*(?P<b>{_NUM}))?\s*(?:,-\s*)?{_CUR}"
-    rf"|(?P<cur2>€|eur)\s*(?P<c>{_NUM})", re.I)
+    rf"|(?P<cur2>€|eur|czk|kč)\s*(?P<c>{_NUM})(?!\s*(?:kč|kc|czk|eur|€))", re.I)
 _ONLY_NUMS_RE = re.compile(rf"^\s*(?P<a>{_NUM})(?:\s*[–-]\s*(?P<b>{_NUM}))?\s*$")
 _FROM_RE = re.compile(r"(?:^|\s|\()(od|from|ab)\s+\d", re.I)
 _FREE_RE = re.compile(r"zdarma|zadarmo|free|volný|volny|gratis|bez vstupného", re.I)

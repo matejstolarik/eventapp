@@ -106,7 +106,7 @@ def test_spotify_name_must_match_artist():
 
 
 def test_facebook_price_not_fetched():
-    ok, why = E.verify_price(EV, {"price": "200 Kč", "price_source_url": "https://www.facebook.com/events/1"},
+    ok, why, _ = E.verify_price(EV, {"price": "200 Kč", "price_source_url": "https://www.facebook.com/events/1"},
                              fetch=lambda u: 1 / 0)
     assert not ok and "facebook" in why
 

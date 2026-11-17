@@ -426,19 +426,48 @@ def _fetch_page_text(url: str) -> str | None:
     return soup.get_text(" ")
 
 
-def verify_price(ev: dict, res: dict, fetch=_fetch_page_text) -> tuple[bool, str]:
+# task 060: presale (ticket shop) hosts.  Their pages often draw the price
+# with JavaScript (GoOut: "priceCents" loaded by the sale widget), so the
+# amount is not in the HTML although the price is right.
+PRESALE_HOSTS = ("goout.net", "smsticket.cz", "oazis.app", "ticketportal.cz", "ticketstream.cz")
+
+
+def is_presale(url) -> bool:
+    h = _host(url)
+    return any(h == d or h.endswith("." + d) for d in PRESALE_HOSTS)
+
+
+def _has_any_amount(page: str) -> bool:
+    """True if the page text shows at least one price amount (number with a
+    currency, or a free-entry word): the price part of the page was rendered."""
+    p = parse_price(page[:200000])
+    return bool(p and (p["min"] is not None or p["kind"] != "paid"))
+
+
+def verify_price(ev: dict, res: dict, fetch=_fetch_page_text) -> tuple[bool, str, bool]:
+    """One GET on the price source page -> (keep, why, verified).
+
+    Page read and the amount is missing -> dropped.  Page not readable (GET
+    error / 403, empty, or no amount at all = drawn by JavaScript) -> kept
+    unverified (verified False) only on a presale host; a venue page that
+    cannot be read -> dropped (task 060)."""
     url = res.get("price_source_url")
     if not _ok_url(url):
-        return False, "no valid source_url"
+        return False, "no valid source_url", False
     if _host(url).endswith("facebook.com"):
-        return False, "facebook page is not fetched by the pipeline"
+        return False, "facebook page is not fetched by the pipeline", False
+    presale = is_presale(url)
     try:
         page = fetch(url)
     except Exception as exc:
-        return False, f"GET failed: {exc.__class__.__name__}"
-    if not page:
-        return False, "empty page"
-    return price_on_page(page, res["price"], ev, res.get("artists") or [])
+        why = f"GET failed: {exc.__class__.__name__}"
+        return (True, f"presale page unreadable ({why})", False) if presale else (False, why, False)
+    if not page or not page.strip():
+        return (True, "presale page unreadable (empty)", False) if presale else (False, "empty page", False)
+    if presale and not _has_any_amount(page):
+        return True, "presale page unreadable (no amount in HTML, JavaScript)", False
+    ok, why = price_on_page(page, res["price"], ev, res.get("artists") or [])
+    return ok, why, ok
 
 
 # ---------------------------------------------------------------------------
@@ -848,6 +877,8 @@ def result_to_enrichment(res: dict, model: str, today: str, searches: int,
         enr["genre_candidates"] = res["genre_candidates"]
     if res["price"] and price_ok:
         enr["price_text"] = _prov("ai_web", model, today, source_url=res["price_source_url"])
+        if res.get("price_verified") is False:
+            enr["price_text"]["verified"] = False   # task 060: presale page not readable
         vals["price_text"] = res["price"]
     if res["start_time"]:
         enr["start_time"] = _prov("ai_web", model, today, source_url=res["start_time_source_url"])
@@ -997,7 +1028,10 @@ def process_result(ev: dict, rec: dict, model: str, today: str, aliases: dict | 
         res["price"] = res["start_time"] = res["descriptions"] = None
     res["price_ok"] = False
     if res["price"] and not ev.get("price_text"):
-        res["price_ok"], why = verify_price(ev, res, price_fetch)
+        res["price_ok"], why, res["price_verified"] = verify_price(ev, res, price_fetch)
+        if res["price_ok"] and not res["price_verified"]:
+            log.info("enrich_ai %s: price '%s' from %s kept unverified: %s",
+                     ev["id"], res["price"], res["price_source_url"], why)
         if not res["price_ok"]:
             log.info("enrich_ai %s: price '%s' from %s dropped: %s",
                      ev["id"], res["price"], res["price_source_url"], why)
