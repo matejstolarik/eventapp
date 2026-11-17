@@ -19,6 +19,7 @@ from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
 from pipeline import research_store
+from pipeline import manual as manual_mod
 from pipeline.genres import load_aliases, rename_genres
 from pipeline.price import parse_price
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
@@ -184,6 +185,8 @@ def main():
     events = [e for e in (normalize_event(r, previous) for r in all_raw) if e is not None]
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
+    manual = manual_mod.load()          # task 060: data/manual.json
+    events, _ = manual_mod.apply_manual(events, manual, today)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
     page_texts: dict[str, str] = {}
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
@@ -205,6 +208,10 @@ def main():
         log.warning("research store not written: %s", exc)
     # commercial-club rule last: EPIC music events are always party (task 053)
     events = apply_commercial_clubs(events, venues)
+    # task 060: manual additions win over AI and source (again, after the AI step)
+    events, manual_stats = manual_mod.apply_manual(events, manual, today)
+    events, link_stats = manual_mod.apply_artist_links(events, manual, today)
+    web_stats["manual"] = {**manual_stats, **link_stats}
     # task 058: renamed genre codes (r-n-b -> rnb), also in cached values
     for ev in events:
         if ev.get("genres"):
@@ -443,6 +450,10 @@ def _web_summary_lines(st: dict, proposals: list) -> list[str]:
         f" description {st.get('description', 0)}, artists {st.get('artists', 0)},"
         f" Spotify {st.get('spotify', 0)}",
         f"- Prices dropped (not confirmed on the source page): {st.get('prices_dropped', 0)}",
+        f"- Manual (data/manual.json): series {(st.get('manual') or {}).get('series', 0)},"
+        f" events {(st.get('manual') or {}).get('events', 0)},"
+        f" Spotify attached {(st.get('manual') or {}).get('attached', 0)},"
+        f" AI Spotify links dropped {(st.get('manual') or {}).get('ai_dropped', 0)}",
         f"- Re-run from stored research (no search): {st.get('from_research', 0)};"
         f" research files: {st.get('research_bytes') or '–'}",
         f"- Genre proposals (>= 3 events, not shown in the app): {len(proposals)}"

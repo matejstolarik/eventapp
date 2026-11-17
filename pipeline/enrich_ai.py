@@ -187,6 +187,11 @@ def build_prompt(ev: dict, venue: dict, page_text: str | None) -> str:
         f"Event page: {src or '(none)'}",
         f"Original description: {orig or '(missing)'}",
     ]
+    if (ev.get("classification") or {}).get("method") == "manual":
+        # task 060: known series / manual fix - do not spend searches on type and genres
+        lines.append("Type and genres are FIXED by manual data: do not search for them and return "
+                     "the current formats and genres unchanged; search only for the performers "
+                     "of this evening and its description.")
     if page_text:
         lines += ["", "EVENT PAGE TEXT (fetched today)", page_text[:5000]]
     return "\n".join(lines)
@@ -900,13 +905,16 @@ def result_to_enrichment(res: dict, model: str, today: str, searches: int,
 def values_from_enrichment(enr: dict, prev: dict) -> dict:
     """Recover the AI values of a cached event from the previous output."""
     vals = {}
-    for field in ("formats", "genres", "price_text", "start_time", "artists", "artist_links"):
+    def ai(name):   # task 060: manual.json values are re-applied, never cached as AI
+        return name in enr and (enr[name] or {}).get("by") != "manual"
+
+    for field in ("formats", "genres", "price_text", "start_time", "artists"):
         key = field
-        if field in enr and prev.get(key) is not None:
+        if ai(field) and prev.get(key) is not None:
             vals[key] = prev[key]
-    if "formats" in enr:
+    if ai("formats"):
         vals["primary_format"] = prev.get("primary_format")
-    if "description" in enr and prev.get("descriptions"):
+    if ai("description") and prev.get("descriptions"):
         vals["descriptions"] = prev["descriptions"]
     return vals
 

@@ -154,11 +154,11 @@ Polia:
 - `image_url`: URL obrázka akcie z webu podniku. Ak ho web podniku nedáva, náhradne `og:image` stránky akcie na GoOut (len ak to dovoľujú podmienky GoOut, úloha 060 časť 7); pôvod v `enrichment.image_url.source_url`. `null` ak obrázok nie je.
 - `image_thumb`: relatívna cesta k náhľadu (`img/events/<id>.jpg`, 240×240 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null`, stiahnutie zlyhalo, alebo bolo odložené (limit 150 za beh). Generuje pipeline automaticky; Matej ho nenastavuje ručne.
 - `description`: popis akcie z webu podniku. Čistý text bez HTML, max 1 000 znakov, skrátený na koniec vety (`. `, `! `, `? `), ak je dlhší — `null` ak zdroj popis neposkytuje alebo je prázdny. Adaptéry ho extrahujú priamo (RSS, JSON-LD, API). Detail enrichment (`pipeline/detail_enrich.py`) ho dograbí z detailnej stránky akcie po normalizácii (raz na akciu, cache, limit 40 fetchov na podnik a beh). Venue-špecifický CSS selektor `detail_desc_selector` v source config (venues.json) určuje, z ktorého elementu brať popis. Popis rovnajúci sa názvu akcie sa zahodí.
-- `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"ai"` ak zdroj popis nemá a `description` je český text z `descriptions.cs` (task 054), `null` ak `description` je `null`. Pôvodný popis zo zdroja ostáva v `description` (v appke sa nezobrazuje, je podklad pre AI).
+- `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"manual"` ak je z `data/manual.json` (task 060), `"ai"` ak zdroj popis nemá a `description` je český text z `descriptions.cs` (task 054), `null` ak `description` je `null`. Pôvodný popis zo zdroja ostáva v `description` (v appke sa nezobrazuje, je podklad pre AI).
 - `descriptions` (task 054, schválené Matejom 2026-11-17): popis od AI v troch jazykoch `{ "cs", "sk", "en" }`, jedno volanie; `cs` je hlavný, `sk` a `en` sú preklady. 3–5 viet, vecne, z faktov zdroja a hľadania vlastnými slovami (nie vety z pôvodného popisu), bez reklamných fráz, výkričníkov, emoji, ceny, času a miesta; názvy žánrov sa neskloňujú. Text s výkričníkom, emoji alebo reklamnou frázou pipeline zahodí. Appka zobrazí `descriptions[jazyk]` → `descriptions.cs` → `description`; pôvod sa v appke neoznačuje. Nepovinné, chýba ak AI nemala fakty.
-- `artist_links` (task 054): `[{ "name", "spotify_url" }]`, odkaz na profil interpreta na Spotify (`https://open.spotify.com/artist/<22 znakov>`), len ak URL bola vo výsledkoch hľadania. Tlačidlo Spotify v appke otvorí prvý. `artists` ostáva zoznam textov. Nepovinné.
+- `artist_links` (task 054; od task 060 len z `data/manual.json`): `[{ "name", "spotify_url" }]`, odkaz na profil interpreta na Spotify (`https://open.spotify.com/artist/<22 znakov>`). Bez ručného záznamu pole chýba. Tlačidlo Spotify v appke otvorí prvý. `artists` ostáva zoznam textov. Nepovinné.
 - `enrichment` (task 054, návrh z 052 časť 3 schválený Matejom 2026-11-17): pôvod údajov, ktoré nedodal zdroj podniku. Kľúč = pole (`formats`, `genres`, `price_text`, `start_time`, `artists`, `artist_links`, `description` – platí pre `descriptions` a pri `description_source: "ai"` aj pre `description`), hodnota `{ by, model, checked_at, source_url | source_urls, confidence?, reason? }`:
-  - `by`: `ai_text` (len z textu akcie, bez webového zdroja = odhad; len pri `formats`/`genres`) alebo `ai_web` (overené hľadaním, so zdrojom).
+  - `by`: `ai_text` (len z textu akcie, bez webového zdroja = odhad; len pri `formats`/`genres`), `ai_web` (overené hľadaním, so zdrojom) alebo `manual` (`data/manual.json`, task 060; bez `model` a `source_url`).
   - `run`: `{ checked_at, model, searches }` – kedy AI akciu spracovala (cache, pozri nižšie). Je aj vtedy, keď AI nedoplnila nič.
   - `genre_candidates`: žánre od AI mimo našich zoznamov `[{ raw, kind: music|film|stage, maps_to }]` (task 054 časť 4a); `maps_to` = náš žáner, pod ktorý patrí, alebo `null`. Z nich sa robia návrhy nových žánrov, v appke sa nezobrazujú.
   - Pravidlá: (1) údaj zo zdroja podniku má vždy prednosť; AI vyplní len prázdne pole, a keď ho neskôr dodá zdroj, AI hodnota aj jej záznam v `enrichment` sa zahodia. Formát a žánre AI nemení pri `classification.method` `manual` a `source` (žánre doplní, ak zdroj nedal žiadne). (2) `ai_web` hodnota bez `source_url` sa neuloží. (3) `ra.co` nikdy nie je zdroj. (4) Cena od AI sa uloží len po overení jedným GET na jej `source_url`: text stránky musí obsahovať sumu (pri „zdarma“ slovo zdarma/free/volný) **a** názov akcie alebo hlavného interpreta. Task 060: stránka sa načítala a suma na nej nie je → cena sa zahodí. Stránka sa nedá prečítať (chyba GET / 403, prázdna, alebo bez jedinej sumy = cenu kreslí JavaScript, napr. GoOut) **a** `source_url` je predpredaj (`goout.net`, `smsticket.cz`, `oazis.app`, `ticketportal.cz`, `ticketstream.cz`) → cena sa ponechá s `enrichment.price_text.verified: false`; nečitateľná stránka podniku → zahodiť. `verified` chýba = overená.
@@ -219,6 +219,36 @@ Typy záznamov:
 - `venue_id` + `title_contains` + `formats`: oprava všetkých akcií daného podniku, v ktorých sa v názve nachádza zadaný reťazec.
 
 Ak sa oprava aplikuje, `classification.method = "manual"`.
+
+## Ručné doplnky (`data/manual.json`, task 060, schválené Matejom 2026-11-17)
+
+Zapisuje hlavný chat podľa Mateja. Ručné hodnoty majú prednosť pred AI aj pred zdrojom podniku; `status` (zrušené) a `sold_out` (vypredané) zo zdroja sa nikdy neprepíšu (v súbore sa nedajú zadať). Pipeline ich použije dvakrát: po pravidlovej klasifikácii (pred AI zaradením a AI doplnením – AI potom nemení typ ani žánre a pri známej sérii ich nehľadá, len účinkujúcich a popis večera) a po AI doplnení (ručné hodnoty prepíšu AI).
+
+```json
+{
+  "artist_links": {
+    "Bad Karma Boy": "https://open.spotify.com/artist/0123456789abcdefghijkl"
+  },
+  "events": {
+    "kasarna-karlin-2026-12-02-bad-karma-boy-album-launch-island-mint": {
+      "formats": ["concert"], "primary_format": "concert", "genres": ["indie"],
+      "price_text": "350 Kč", "start_time": "19:30",
+      "descriptions": { "cs": "…", "sk": "…", "en": "…" }
+    }
+  },
+  "series": [
+    { "venue_id": "fuchs2", "title_contains": "LATIN CORE THURSDAYS",
+      "formats": ["party"], "genres": ["latin", "reggaeton"],
+      "descriptions": { "cs": "Krátky popis série …" } }
+  ]
+}
+```
+
+- `artist_links`: meno interpreta → `https://open.spotify.com/artist/<22 znakov>` (ID z kworb.net, overené na stránke Spotify). Odkaz sa pripojí ku každej akcii, kde je to meno v `artists` alebo ako celá časť názvu (delenie podľa `+`, `,`, `:`, `☆`, ` - `, `b2b`, `w/` …; bez diakritiky a veľkosti písmen, nie časť slova). **Iné odkazy na Spotify sa neukladajú** (odkazy od AI sa zahodia, task 060 časť 6).
+- `events`: oprava polí akcie podľa `event_id`; povolené `formats`, `primary_format`, `genres`, `price_text`, `start_time` (`HH:MM`), `descriptions` (`{cs, sk?, en?}`, `cs` povinné).
+- `series`: opakujúca sa séria – `venue_id` + `title_contains` (podreťazec názvu bez diakritiky a veľkosti) → `formats`, `primary_format`, `genres`, `descriptions` (krátky popis série). Platí prvý zhodný záznam; záznam v `events` má prednosť pred sériou.
+- Neplatné záznamy pipeline zaloguje a vynechá. Kľúč `note` (poznámka) sa ignoruje.
+- Pôvod: `enrichment.<pole> = { "by": "manual", "checked_at" }` (`description` pre `descriptions`); pri zmene typu alebo žánrov `classification.method = "manual"`. Ak akcia nemá popis zo zdroja, `description` = `descriptions.cs` a `description_source = "manual"`. Ručné hodnoty sa z predchádzajúceho behu nepreberajú ako cache – po odstránení záznamu zo súboru zmiznú.
 
 ## Kategorizácia (formát, žánre, charakter)
 
