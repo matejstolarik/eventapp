@@ -160,7 +160,7 @@ def enrich_missing_details(
                 # price / time taken from the page in an earlier run (not AI values)
                 prev_ai = prev.get("enrichment") or {}
                 if needs_price and prev.get("price_text") and "price_text" not in prev_ai:
-                    ev["price_text"] = prev["price_text"]
+                    ev["price_text"] = clean_price(prev["price_text"])
                     needs_price = False
                     filled = True
                 if needs_time and prev.get("start_time") and "start_time" not in prev_ai:
@@ -313,12 +313,17 @@ def extract_price(lines: list[str]) -> "str | None":
             value = " / ".join(parts)
         if not value or not _PRICE_TOKEN.search(value) or len(value) > 200:
             continue
-        value = value.rstrip(" .")
-        if value[0].islower():
-            # "zdarma / free entry", "v předprodeji 250 Kč …" read badly without the label
-            value = f"{label} {value}"
-        return value
+        return clean_price(value)
     return None
+
+
+def clean_price(value: str) -> str:
+    """Price as the page states it, without the label word: the app shows the
+    price without "vstupné" (design.md part 7).  Also cleans values cached by
+    the first version of this step ("Vstupné zdarma / free entry")."""
+    value = re.sub(r"^(?:základní\s+)?(?:vstupné|vstupenky|vstup|admission|entry)\b[ :]*", "",
+                   value.strip(), flags=re.I) or value
+    return value.strip().rstrip(" .")
 
 
 def extract_start_time(lines: list[str]) -> "str | None":

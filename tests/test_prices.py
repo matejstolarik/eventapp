@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from pipeline.detail_enrich import (
-    enrich_missing_details, extract_price, extract_start_time, page_lines,
+    clean_price, enrich_missing_details, extract_price, extract_start_time, page_lines,
 )
 
 FIX = Path(__file__).parent / "fixtures" / "prices"
@@ -23,11 +23,11 @@ def _lines(name):
     ("roxy-9.html", "990 Kč", None),             # "Základní vstupné 990 Kč"
     ("roxy-16.html", "599 Kč", None),            # "Vstupenky: 599 Kč"
     ("kasarna-karlin-11.html", "100 CZK", None),  # "Admission: 100 CZK"
-    ("meetfactory-2.html", "Vstupenky od 950 Kč na webu pořadatele", None),
+    ("meetfactory-2.html", "od 950 Kč na webu pořadatele", None),
     ("meetfactory-18.html",
      "250 Kč limitovaná první vlna předprodeje / 350 Kč druhá vlna předprodeje"
      " / 250 Kč pro studenty s ISICem / 450 Kč na místě", None),
-    ("citarna-unijazz-4.html", "Vstupné v předprodeji 250 Kč / 350 Kč na místě", None),
+    ("citarna-unijazz-4.html", "v předprodeji 250 Kč / 350 Kč na místě", None),
     ("citarna-unijazz-12.html", "300 Kč /400 Kč /500 Kč /600 Kč", None),
 ])
 def test_price_and_time_from_real_pages(name, price, start):
@@ -41,8 +41,11 @@ def test_no_price_on_fuchs2_page():
     assert extract_price(lines) is None
 
 
-def test_free_entry_keeps_label():
-    assert extract_price(["Vstupné: zdarma / free entry"]) == "Vstupné zdarma / free entry"
+def test_price_without_label_word():
+    assert extract_price(["Vstupné: zdarma / free entry"]) == "zdarma / free entry"
+    assert clean_price("Vstupné zdarma / free entry") == "zdarma / free entry"
+    assert clean_price("Vstupenky od 950 Kč") == "od 950 Kč"
+    assert clean_price("250 Kč") == "250 Kč"
 
 
 def test_prose_and_grant_amounts_are_not_prices():
@@ -79,7 +82,7 @@ def test_enrich_fills_price_and_time_and_records_check(monkeypatch):
     state, texts = {}, {}
     out, stats = enrich_missing_details([ev], {}, venues, check_prices=True,
                                         state=state, today="2026-11-17", page_texts=texts)
-    assert out[0]["price_text"] == "Vstupné zdarma"
+    assert out[0]["price_text"] == "zdarma"
     assert out[0]["start_time"] == "20:00"
     assert state["detail_checked"]["c1"] == "2026-11-17"
     assert "UP TONE" in texts["c1"]

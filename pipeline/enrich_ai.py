@@ -99,7 +99,9 @@ TYPE (formats, more than one allowed, only from {sorted(VALID_FORMATS)}):
 for specific music or a specific performer (commercial clubs, Erasmus/student parties, \
 80s/90s hits, open bar, mainstream themed nights). A club night focused on the music or \
 the DJs is "dj", NOT "party". Use "party" only with a clear signal and give the reason \
-in party_reason. Combine with "dj" or "concert" when there are DJs or live acts.
+in party_reason. A venue's own program category or stage name (e.g. Cross Club \
+"Party – Hlavní stage") is NOT such a signal. Combine with "dj" or "concert" when there \
+are DJs or live acts.
 - music: musical event, concert vs. DJ cannot be determined (last resort)
 - dance (dance show), talk (lecture, debate, reading, book launch, discussion), comedy \
 (stand-up), workshop, theatre, film, opening (exhibition opening), quiz, other.
@@ -134,7 +136,8 @@ never its sentences: do not copy or reshuffle its wording. No advertising phrase
 ("nezmeškejte", "legendární", "nezapomenutelný", "unikátní zážitek"), no pathos, no \
 exclamation marks, no emoji. Do not mention price, time or venue address (shown \
 elsewhere in the app). Only facts from the sources; what you did not find you do not \
-write (not even "Prague band" unless a source says so). Genre names are NOT declined \
+write (not even "Prague band" unless a source says so). Write about the event and the \
+performers, never about the sources ("podle popisu akce", "web uvádí"). Genre names are NOT declined \
 or translated: "techno", "drum and bass", "metalcore", "afrobeats" (e.g. "album v žánru \
 techno" / "techno album"), never "technové", "drum and bassový". When you have only \
 few facts, write a shorter description from what you have, or null. \
