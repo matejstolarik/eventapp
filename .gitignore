@@ -12,3 +12,6 @@ site/events.json
 
 # Playwright test output directories
 pw-output/
+
+# Task 064 crop review sheet (third-party images, local only)
+docs/tasks/064/sheet/
