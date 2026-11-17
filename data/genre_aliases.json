@@ -1,5 +1,5 @@
 {
- "_comment": "Approved mappings raw genre -> our genre (or list, main first). Only synonyms and spelling variants (Matej 2026-11-17, docs/ai-rules.md C); spelling variants like 'drum and bass', 'dream pop' are matched automatically (pipeline/genres.py).",
+ "_comment": "Approved mappings raw genre -> our genre (or list, main first). Only synonyms and spelling variants (Matej 2026-11-17, docs/ai-rules.md C); spelling variants like 'drum and bass', 'dream pop' are matched automatically (pipeline/genres.py). Task 065 (Matej 2026-11-17): psytrance and reggaeton are own genres; 'doom' alone is never mapped (string band Freshwater Dogs).",
  "rap": "hip-hop",
  "hiphop": "hip-hop",
  "d&b": "drum-and-bass",
@@ -11,13 +11,52 @@
  "r'n'b": "rnb",
  "ukg": "uk-garage",
  "dub step": "dubstep",
- "psytrance": "trance",
- "psy trance": "trance",
- "psychedelic trance": "trance",
- "reggaeton": "latin",
  "latino": "latin",
  "electronic dance music": "edm",
  "queer rave": "rave",
- "mainstage": ["edm", "electronic"],
- "ambient techno": ["techno", "ambient"]
+ "mainstage": [
+  "edm",
+  "electronic"
+ ],
+ "ambient techno": [
+  "techno",
+  "ambient"
+ ],
+ "psy trance": "psytrance",
+ "psychedelic trance": "psytrance",
+ "hard techno": "hard-techno",
+ "hardtechno": "hard-techno",
+ "breaks": "breakbeat",
+ "raggajungle": "jungle",
+ "ragga": "dancehall",
+ "acid house": "house",
+ "booty house": "house",
+ "afro house": [
+  "house",
+  "afro"
+ ],
+ "afro-fusion": "afro",
+ "hardcore rave": "rave",
+ "alt. rock": "alternative-rock",
+ "noise rock": "noise-rock",
+ "folk-rock": [
+  "folk",
+  "rock"
+ ],
+ "doom metal": "doom-metal",
+ "sludge": "sludge-metal",
+ "sludge metal": "sludge-metal",
+ "stoner metal": "stoner-metal",
+ "emo-rap": "hip-hop",
+ "indie pop": [
+  "indie",
+  "pop"
+ ],
+ "electropop": [
+  "pop",
+  "electronic"
+ ],
+ "glitch pop": "pop",
+ "šanson": "chanson",
+ "současný tanec": "contemporary-dance"
 }

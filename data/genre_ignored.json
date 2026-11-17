@@ -1,0 +1,41 @@
+{
+ "_comment": "Task 065 (Matej 2026-11-17): rejected genre candidates; not proposed again (genres-review, genre_proposals). 'cabaret' only as a music genre (stage cabaret stays).",
+ "ignored": [
+  "alternative",
+  "tekno",
+  "uptempo",
+  "acid",
+  "ghetto-tech",
+  "deconstructed club",
+  "idm",
+  "witch house",
+  "jump-up",
+  "neurofunk",
+  "jersey club",
+  "miami bass",
+  "booty bass",
+  "ballroom",
+  "bounce",
+  "rub-a-dub",
+  "flamenco",
+  "digicore",
+  "dixieland",
+  "swing",
+  "twist",
+  "rock'n'roll",
+  "trampská píseň",
+  "ploužák",
+  "valčík",
+  "old-time",
+  "drone",
+  "sound art",
+  "bigbeat",
+  "educational narrative adventure game",
+  "road movie",
+  "parodie na horory a sitcomy",
+  "postpunkový dokument"
+ ],
+ "ignored_music": [
+  "cabaret"
+ ]
+}

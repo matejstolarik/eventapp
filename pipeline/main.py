@@ -20,7 +20,7 @@ from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
 from pipeline import research_store
 from pipeline import manual as manual_mod
-from pipeline.genres import load_aliases, rename_genres
+from pipeline.genres import finalize_genres, load_aliases, load_hierarchy
 from pipeline.price import parse_price
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
 from pipeline.fetch import USER_AGENT
@@ -230,10 +230,12 @@ def main():
     events, manual_stats = manual_mod.apply_manual(events, manual, today)
     events, link_stats = manual_mod.apply_artist_links(events, manual, today)
     web_stats["manual"] = {**manual_stats, **link_stats}
-    # task 058: renamed genre codes (r-n-b -> rnb), also in cached values
+    # task 058: renamed genre codes (r-n-b -> rnb), also in cached values;
+    # task 065: no umbrella-only codes (alternative), C7 parent removal
+    hierarchy = load_hierarchy()
     for ev in events:
         if ev.get("genres"):
-            ev["genres"] = rename_genres(ev["genres"])
+            ev["genres"] = finalize_genres(ev["genres"], hierarchy)
         # task 058 part 4: structured price from the (source or AI) price text
         ev["price"] = parse_price(ev.get("price_text"))
         if ev["price"] and ev.get("free") is None and ev["price"]["kind"] in ("free", "free_reservation"):

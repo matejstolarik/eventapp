@@ -51,7 +51,7 @@ from pipeline.ai_rules import (DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, R
                                TRANSLATE_PROMPT)
 from pipeline.ai_guards import (genre_supported, price_supported, strip_names, strip_no_info,
                                 venue_mentions)
-from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
+from pipeline.genres import FILM_GENRES, STAGE_GENRES, finalize_genres, map_genre
 from pipeline.price import parse_price
 
 log = logging.getLogger(__name__)
@@ -241,6 +241,90 @@ def description_problems(text: str, names: list[str] | None = None) -> list[str]
     return probs
 
 
+def own_genre_kind(fmts) -> str | None:
+    """Genre list of an event type: music / film / stage, None for others."""
+    fmts = set(fmts or [])
+    if fmts & _MUSIC_FORMATS:
+        return "music"
+    if "film" in fmts:
+        return "film"
+    return "stage" if fmts & (_STAGE_FORMATS | {"performance"}) else None
+
+
+def genres_from_raw(raw_genres: list, raw_cands: list, genre_facts: dict | None,
+                    own_kind: str | None, research_text: str | None, aliases: dict | None,
+                    dropped: list, quote_fallback: bool = False,
+                    trusted: set | None = None) -> tuple[list, list]:
+    """Raw genre names of the model -> (our genres, genre_candidates).
+
+    trusted: genres validated in an earlier run that keep their name (no
+    second guard check; the venue page text may not be at hand).
+    quote_fallback: a genre without its own genre_facts key takes all quotes
+    (re-application to stored results, task 065: candidates had no quotes)."""
+    # task 058: genres in order (main first); raw names are mapped only through
+    # spelling variants + approved aliases, never to a parent genre.
+    gens, cands, seen_raw = [], [], set()
+    raw_of: dict = {}          # our genre -> raw names that mapped to it
+
+    def add_raw(rawname, kind):
+        rawname = _clean_text(rawname)
+        if not rawname or (rawname.lower(), kind) in seen_raw:
+            return
+        seen_raw.add((rawname.lower(), kind))
+        if kind is None:
+            # task 065: an event without a music / film / stage type (talk,
+            # other): a list genre counts as music (Jazzmánie -> jazz, before
+            # 065 a "jazz" candidate with maps_to null); an unmapped name is no
+            # proposal for any list ("educational narrative adventure game"
+            # was a music candidate)
+            mapped = map_genre(rawname, "music", aliases)
+            if not mapped:
+                dropped.append(f"genre {rawname.lower()}: event type has no genre list")
+                return
+            kind = "music"
+        else:
+            mapped = map_genre(rawname, kind, aliases)
+        if not mapped and kind in ("film", "stage"):
+            # task 058: culture events with musicians (rap musical Spitfire
+            # Company & PAST) may also carry music genres
+            mapped = map_genre(rawname, "music", aliases)
+            kind = "music" if mapped else kind
+        if kind in (own_kind, "music") and mapped and (own_kind or kind == "music"):
+            for g in mapped:
+                raw_of.setdefault(g, []).append(rawname.lower())
+                if g not in gens:
+                    gens.append(g)
+            if [rawname.lower()] != mapped:
+                cands.append({"raw": rawname.lower(), "kind": kind, "maps_to": mapped[0]})
+        elif not mapped:
+            cands.append({"raw": rawname.lower(), "kind": kind or "music", "maps_to": None})
+
+    for g in raw_genres:
+        if isinstance(g, str):
+            add_raw(g, own_kind)
+    for c in raw_cands:
+        kind = (c or {}).get("kind") if (c or {}).get("kind") in ("music", "film", "stage") else "music"
+        add_raw((c or {}).get("raw"), kind)
+    # task 062: every genre needs a quote with its name (ai-rules C2, C3)
+    quotes = {k.lower(): v for k, v in (genre_facts or {}).items()}
+    kept = []
+    for g in gens:
+        keys = [g, g.replace("-", " ")] + raw_of.get(g, [])
+        quote = " ".join(quotes[k] for k in dict.fromkeys(keys) if k in quotes)
+        if not quote and quote_fallback:
+            quote = " ".join(quotes.values())
+        if g in (trusted or ()):
+            kept.append(g)
+            continue
+        ok_g, why = genre_supported(g, quote, research_text, aliases)
+        if ok_g:
+            kept.append(g)
+        else:
+            dropped.append(f"genre {g}: {why}")
+    cands = [c for c in cands if c["maps_to"] is None or c["maps_to"] in kept]
+    return finalize_genres(kept), cands     # task 065: C7, C8
+
+
 def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
              aliases: dict | None = None, allowed_urls: set[str] | None = None,
              research_text: str | None = None, venue: dict | None = None) -> dict:
@@ -274,57 +358,12 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     except (TypeError, ValueError):
         out["type_confidence"] = 0.5
 
-    is_music = bool(set(fmts) & _MUSIC_FORMATS)
-    own_kind = "music" if is_music else "film" if "film" in fmts else (
-        "stage" if set(fmts) & (_STAGE_FORMATS | {"performance"}) else None)
-    # task 058: genres in order (main first); raw names are mapped only through
-    # spelling variants + approved aliases, never to a parent genre.
-    gens, cands, seen_raw = [], [], set()
-    raw_of: dict = {}          # our genre -> raw names that mapped to it
-
-    def add_raw(rawname, kind):
-        rawname = _clean_text(rawname)
-        if not rawname or (rawname.lower(), kind) in seen_raw:
-            return
-        seen_raw.add((rawname.lower(), kind))
-        mapped = map_genre(rawname, kind, aliases) if kind else []
-        if not mapped and kind in ("film", "stage"):
-            # task 058: culture events with musicians (rap musical Spitfire
-            # Company & PAST) may also carry music genres
-            mapped = map_genre(rawname, "music", aliases)
-            kind = "music" if mapped else kind
-        if kind in (own_kind, "music") and mapped and (own_kind or kind == "music"):
-            for g in mapped:
-                raw_of.setdefault(g, []).append(rawname.lower())
-                if g not in gens:
-                    gens.append(g)
-            if [rawname.lower()] != mapped:
-                cands.append({"raw": rawname.lower(), "kind": kind, "maps_to": mapped[0]})
-        elif not mapped:
-            cands.append({"raw": rawname.lower(), "kind": kind or "music", "maps_to": None})
-
-    for g in raw.get("genres") or []:
-        if isinstance(g, str):
-            add_raw(g, own_kind)
-    for c in raw.get("genre_candidates") or []:
-        kind = (c or {}).get("kind") if (c or {}).get("kind") in ("music", "film", "stage") else "music"
-        add_raw((c or {}).get("raw"), kind)
+    own_kind = own_genre_kind(fmts)
     facts = raw.get("genre_facts") if isinstance(raw.get("genre_facts"), dict) else {}
     out["genre_facts"] = {str(k): _clean_text(v) for k, v in facts.items() if _clean_text(v)}
-    # task 062: every genre needs a quote with its name (ai-rules C2, C3)
-    quotes = {k.lower(): v for k, v in out["genre_facts"].items()}
-    kept = []
-    for g in gens:
-        keys = [g, g.replace("-", " ")] + raw_of.get(g, [])
-        quote = " ".join(quotes[k] for k in dict.fromkeys(keys) if k in quotes)
-        ok_g, why = genre_supported(g, quote, research_text, aliases)
-        if ok_g:
-            kept.append(g)
-        else:
-            dropped.append(f"genre {g}: {why}")
-    cands = [c for c in cands if c["maps_to"] is None or c["maps_to"] in kept]
-    out["genres"] = kept
-    out["genre_candidates"] = cands
+    out["genres"], out["genre_candidates"] = genres_from_raw(
+        raw.get("genres") or [], raw.get("genre_candidates") or [], out["genre_facts"],
+        own_kind, research_text, aliases, dropped)
     out["type_reason"] = _clean_text(raw.get("type_reason"))
     out["needs_review"] = bool(raw.get("needs_review"))
 
@@ -991,6 +1030,54 @@ def values_from_enrichment(enr: dict, prev: dict) -> dict:
     return vals
 
 
+def remap_stored_genres(ev: dict, enr: dict, vals: dict, record: dict | None,
+                        page_text: str | None, aliases: dict | None) -> list | None:
+    """Task 065: re-apply the genre lists, aliases and hierarchy to a cached
+    result without an API call: the stored raw names (genre_candidates, the
+    validated genres) are mapped again and new list genres pass the guard on
+    the stored research (record facts + genre_facts, page / venue text).
+    Changes `enr` / `vals` in place; returns the new genres or None (no
+    research record / manual genres: unchanged)."""
+    if not record or (enr.get("genres") or {}).get("by") == "manual":
+        return None
+    aliases = {k.lower(): v for k, v in (aliases or {}).items()}
+    fmts = vals.get("formats") or ev.get("formats") or []
+    own_kind = own_genre_kind(fmts)
+    prev = list(vals.get("genres") or []) if "genres" in enr else []
+    cands = enr.get("genre_candidates") or []
+    by_target: dict = {}
+    for c in cands:
+        if c.get("maps_to"):
+            by_target.setdefault(c["maps_to"], []).append(c)
+    raw_cands = []
+    for g in prev:
+        raw_cands += [{"raw": c["raw"], "kind": c.get("kind") or "music"} for c in by_target.get(g, [])]
+        raw_cands.append({"raw": g, "kind": own_kind or "music"})
+    raw_cands += [c for c in cands if not c.get("maps_to")]
+    trusted = {g for g in prev if g not in by_target}
+    support = "\n".join(x for x in (record.get("facts"), page_text, ev.get("description")) if x)
+    dropped: list = []
+    gens, new_cands = genres_from_raw([], raw_cands, record.get("genre_facts") or {}, own_kind,
+                                      support, aliases, dropped, quote_fallback=True,
+                                      trusted=trusted)
+    if gens:
+        if "genres" not in enr:
+            f = enr.get("formats") or {}
+            run = enr.get("run") or {}
+            enr["genres"] = _prov(f.get("by", "ai_web"), run.get("model") or f.get("model"),
+                                  run.get("checked_at") or f.get("checked_at"),
+                                  source_url=f.get("source_url"), confidence=f.get("confidence"))
+        vals["genres"] = gens
+    else:
+        enr.pop("genres", None)
+        vals.pop("genres", None)
+    if new_cands:
+        enr["genre_candidates"] = new_cands
+    else:
+        enr.pop("genre_candidates", None)
+    return gens
+
+
 def fill_primary_from_research(events: list[dict], research: dict | None) -> int:
     """Task 063: an event whose type stayed with the venue category (no AI
     formats in its enrichment, e.g. enriched before task 063) gets the
@@ -1186,6 +1273,20 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     def apply(ev, enr, vals, st=None):
         return apply_enrichment(ev, enr, vals, st, ev["id"] in keep_genres)
 
+    stats["genres_remapped"] = []
+
+    def cached_values(ev, c):
+        """Cached enrichment + values; task 065: genres re-mapped from the
+        stored research (no API)."""
+        enr = json.loads(json.dumps(c["enrichment"]))
+        vals = values_from_enrichment(enr, c["prev"])
+        old = list(vals.get("genres") or []) if "genres" in enr else []
+        new = remap_stored_genres(ev, enr, vals, (research or {}).get(ev["id"]),
+                                  page_texts.get(ev["id"]), aliases)
+        if new is not None and new != old:
+            stats["genres_remapped"].append({"id": ev["id"], "old": old, "new": new})
+        return enr, vals
+
     # one-off manual re-run of chosen events (workflow_dispatch input reenrich_ids)
     force = {i.strip() for i in os.environ.get("ENRICH_FORCE_IDS", "").split(",") if i.strip()}
     # task 062: re-run all events of the next N days, ignoring the AI cache
@@ -1205,15 +1306,13 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             # keep cached AI values of events enriched earlier (e.g. moved date)
             c = cached_enrichment(ev, previous)
             if c:
-                out_by_id[ev["id"]] = apply(
-                    ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
+                out_by_id[ev["id"]] = apply(ev, *cached_values(ev, c))
             continue
         stats["window"] += 1
         c = None if ev["id"] in force or ev["id"] in redo else cached_enrichment(ev, previous)
         if c:
             stats["cached"] += 1
-            out_by_id[ev["id"]] = apply(
-                ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
+            out_by_id[ev["id"]] = apply(ev, *cached_values(ev, c))
         else:
             todo.append(ev)
     stats["to_enrich"] = len(todo)
@@ -1394,12 +1493,14 @@ def genre_tables(events: list[dict], approved_aliases: dict | None = None) -> tu
     Returns (aliases {raw: genre}, proposals [{name, kind, count, event_ids}])
     — proposals only for unmapped genres with >= PROPOSAL_MIN_EVENTS events.
     """
+    from pipeline.genres import is_ignored, load_ignored
+    ignored = load_ignored()          # task 065: rejected names are no proposals
     aliases = dict(approved_aliases or {})
     unmapped: dict[tuple, list] = {}
     for ev in events:
         for c in (ev.get("enrichment") or {}).get("genre_candidates") or []:
             raw = c.get("raw")
-            if not raw:
+            if not raw or (not c.get("maps_to") and is_ignored(raw, c.get("kind"), ignored)):
                 continue
             if c.get("maps_to"):
                 aliases.setdefault(raw, c["maps_to"])

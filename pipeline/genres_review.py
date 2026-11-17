@@ -17,11 +17,14 @@ import json
 import pathlib
 import sys
 
-from pipeline.genres import load_aliases
+from pipeline.genres import is_ignored, load_aliases, load_ignored, map_genre
+
+MIN_EVENTS = 2      # task 065 (Matej): a candidate is listed from 2 events
 
 
 def build(events: list[dict], approved: dict, generated_at: str | None, src: str) -> str:
     in_window = [e for e in events if (e.get("enrichment") or {}).get("run")]
+    ignored = load_ignored()
     mapped: dict = collections.defaultdict(list)
     unmapped: dict = collections.defaultdict(list)
     for ev in in_window:
@@ -30,6 +33,10 @@ def build(events: list[dict], approved: dict, generated_at: str | None, src: str
             if not raw:
                 continue
             key = (raw, c.get("kind") or "music")
+            if is_ignored(raw, key[1], ignored):
+                continue                    # task 065: rejected by Matej
+            if map_genre(raw, key[1], approved):
+                continue                    # task 065: approved since (alias / list)
             if c.get("maps_to"):
                 mapped[key + (c["maps_to"],)].append(ev)
             else:
@@ -40,9 +47,11 @@ def build(events: list[dict], approved: dict, generated_at: str | None, src: str
     def examples(evs):
         return "; ".join(f"{e.get('title', '')[:40]} ({e['id']})" for e in evs[:3])
 
-    out = [f"# Žánre na kontrolu (úloha 062)", "",
+    out = [f"# Žánre na kontrolu", "",
            f"Zdroj: `{src}` (generated_at {generated_at}), príkaz: "
-           f"`python -m pipeline.genres_review {src} docs/tasks/062/genres-review.md`.",
+           f"`python -m pipeline.genres_review {src} <výstup>`.",
+           f"Kandidáti a navrhnuté mapovania len od {MIN_EVENTS} akcií; zahodení kandidáti "
+           "(`data/genre_ignored.json`) a už schválené názvy sa nevypisujú.",
            f"Akcie s AI doplnením: {len(in_window)} z {len(events)}.", "",
            "Matej: pri každom riadku napíš áno / nie (alebo iný cieľ). Schválené mapovania "
            "pôjdu do `data/genre_aliases.json`, schválené nové žánre do zoznamu v "
@@ -55,7 +64,8 @@ def build(events: list[dict], approved: dict, generated_at: str | None, src: str
             "Surový názov sa mapoval na žáner zo zoznamu (pravopisný variant alebo synonymum).",
             "", "| surový názov | druh | → náš žáner | akcií | príklady | schváliť? |",
             "|---|---|---|---|---|---|"]
-    rows = [(k, v) for k, v in mapped.items() if k[0].lower() not in approved_l]
+    rows = [(k, v) for k, v in mapped.items()
+            if k[0].lower() not in approved_l and len(v) >= MIN_EVENTS]
     for (raw, kind, to), evs in sorted(rows, key=lambda x: (-len(x[1]), x[0][0])):
         out.append(f"| {raw} | {kind} | {to} | {len(evs)} | {examples(evs)} | |")
     if not rows:
@@ -63,6 +73,7 @@ def build(events: list[dict], approved: dict, generated_at: str | None, src: str
     out += ["", "## 3. Kandidáti bez žánru zo zoznamu (`maps_to: null`)", "",
             "Nový žáner do zoznamu, mapovanie na existujúci, alebo nič.", "",
             "| surový názov | druh | akcií | príklady | rozhodnutie |", "|---|---|---|---|---|"]
+    unmapped = {k: v for k, v in unmapped.items() if len(v) >= MIN_EVENTS}
     for (raw, kind), evs in sorted(unmapped.items(), key=lambda x: (-len(x[1]), x[0][0])):
         out.append(f"| {raw} | {kind} | {len(evs)} | {examples(evs)} | |")
     if not unmapped:

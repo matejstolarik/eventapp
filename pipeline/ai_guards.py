@@ -22,7 +22,7 @@ Guards on AI results in code (task 062 part 1, docs/ai-rules.md C2, C3, D, F).
 import re
 import unicodedata
 
-from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES, slug
+from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES, slug  # noqa: F401
 from pipeline.price import parse_price
 
 ALL_GENRES = MUSIC_GENRES | FILM_GENRES | STAGE_GENRES
@@ -38,6 +38,59 @@ VARIANTS = {
     "industrial": ["industrialn"],
     "uk-garage": ["uk garage", "ukg"],
     "post-punk": ["post punk", "postpunk"],
+    # task 065: new genres; "x*" = stem, any ending ("dokumentarn*" ->
+    # dokumentární, dokumentárního).  Not a genre: "černobílý" (b/w film).
+    "hard-techno": ["hardtechno"],
+    "breakbeat": ["break beat"],
+    "synthwave": ["synth wave"],
+    "post-rock": ["post rock", "postrock"],
+    "post-hardcore": ["post hardcore", "posthardcore"],
+    "gothic-rock": ["goth rock", "gotick* rock"],
+    "classic-rock": ["classic rock", "klasicky rock", "klasickeho rocku", "klasicky rockov*",
+                     "dad rock"],
+    "pop-punk": ["pop punk", "poppunk"],
+    "dance-punk": ["dance punk"],
+    "neo-soul": ["neo soul", "neosoul"],
+    "psytrance": ["psy trance", "psy-trance"],
+    "classical": ["classical music", "vazna hudba", "vazne hudby", "vaznou hudbu",
+                  "vazne hudbe", "klasicka hudba", "klasicke hudby", "klasickou hudbu",
+                  "klasicke hudbe"],
+    "orchestral": ["orchestraln*", "orchestr"],
+    "soundtrack": ["soundtracky", "filmova hudba", "filmove hudby", "filmovou hudbu"],
+    "chanson": ["sanson", "sansonier*", "sansonov*"],
+    "country": ["countryov*"],
+    "action": ["akcni*"],
+    "adventure": ["dobrodruzn*"],
+    "animation": ["animovan*", "animace", "animaci", "animated"],
+    "biography": ["biograf*", "zivotopisn*", "biopic"],
+    "comedy": ["komedie", "komedii", "komedi", "komediln*"],
+    "crime": ["krimi", "kriminaln*"],
+    "documentary": ["dokument", "dokumentu", "dokumentarn*", "documentaries"],
+    "drama": ["dramatick*", "cinohr*", "cinohern*"],
+    "family": ["rodinn*"],
+    "history": ["historick*", "historical"],
+    "horror": ["horor", "hororov*"],
+    "musical": ["muzikal"],
+    "mystery": ["mysteriozn*"],
+    "romance": ["romanticky film", "romanticke drama", "romantic"],
+    "sci-fi": ["sci fi", "scifi", "science fiction", "vedeckofantastick*"],
+    "short": ["short film", "short films", "kratkometrazn*", "kratas"],
+    "thriller": ["thrilleru", "thrillery"],
+    "war": ["valecn*", "war film"],
+    "queer": ["lgbt", "lgbtq"],
+    "cult-classic": ["cult classic", "cult film", "kultovn*", "kultovk*"],
+    "arthouse": ["art house", "artov*", "art film", "artfilm*"],
+    "opera": ["opern*"],
+    "puppet-theatre": ["puppet theatre", "puppet theater", "loutkov*", "loutkar*"],
+    "improv": ["improvizac*", "improvizovan*", "improvisation", "improv comedy"],
+    "cabaret": ["kabaret*"],
+    "new-circus": ["novy cirkus", "noveho cirkusu", "novem cirkusu", "contemporary circus",
+                   "soucasny cirkus", "soucasneho cirkusu"],
+    "contemporary-dance": ["contemporary dance", "soucasny tanec", "soucasneho tance",
+                           "soucasnem tanci", "soucasnym tancem"],
+    "ballet": ["balet*"],
+    "dance-theatre": ["dance theatre", "tanecni divadlo", "tanecniho divadla",
+                      "tanecnim divadle", "tanztheater"],
 }
 
 # Czech / Slovak endings after a genre word ("rockový", "punku", "jazzová")
@@ -55,7 +108,17 @@ def plain(s) -> str:
     return " ".join(s.split())
 
 
+def _plain_term(v: str) -> str:
+    """plain() that keeps the stem marker '*' at word ends."""
+    return " ".join(plain(w) + ("*" if w.endswith("*") else "") for w in v.split())
+
+
 def _term_re(term: str, czech: bool = True) -> re.Pattern:
+    if "*" in term:
+        # task 065: explicit stems ("dokumentarn*", "romantick* komedi*")
+        parts = [re.escape(w[:-1]) + r"[a-z]*" if w.endswith("*") else re.escape(w)
+                 for w in term.split()]
+        return re.compile(r"(?<![a-z0-9])" + " ".join(parts) + r"(?![a-z0-9])")
     suffix = _SUFFIX if czech else ""
     # Czech stems ("elektronick") take any ending
     if term.endswith(("ick", "aln", "nik")):
@@ -70,7 +133,7 @@ def _term_re(term: str, czech: bool = True) -> re.Pattern:
 
 def genre_terms(genre: str, aliases: dict | None) -> list[str]:
     terms = {plain(genre.replace("-", " "))}
-    terms.update(plain(v) for v in VARIANTS.get(genre, []))
+    terms.update(_plain_term(v) for v in VARIANTS.get(genre, []))
     for raw, target in (aliases or {}).items():
         targets = target if isinstance(target, list) else [target]
         if genre in targets:
@@ -83,7 +146,7 @@ def _other_phrases(genre: str, aliases: dict | None) -> list[str]:
     out = []
     for g in ALL_GENRES:
         if g != genre:
-            out += [plain(g.replace("-", " "))] + [plain(v) for v in VARIANTS.get(g, [])]
+            out += [plain(g.replace("-", " "))] + [_plain_term(v) for v in VARIANTS.get(g, [])]
     for raw, target in (aliases or {}).items():
         targets = target if isinstance(target, list) else [target]
         if genre not in targets:

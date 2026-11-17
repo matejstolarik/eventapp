@@ -1,0 +1,205 @@
+{
+ "_comment": "Task 065 (Matej 2026-11-17, docs/ai-rules.md C7): subgenre -> parents. Used by the filter and Pre teba; a parent is never added to the labels automatically. Parents are genres or umbrellas (alternative, film, theatre, dance; pipeline/genres.py UMBRELLAS). experimental has no parent: it is also a top-level music genre.",
+ "hard-techno": [
+  "techno"
+ ],
+ "trap": [
+  "hip-hop"
+ ],
+ "drill": [
+  "hip-hop"
+ ],
+ "afrobeats": [
+  "afro"
+ ],
+ "alternative-rock": [
+  "rock",
+  "alternative"
+ ],
+ "noise-rock": [
+  "rock",
+  "alternative"
+ ],
+ "post-rock": [
+  "rock",
+  "alternative"
+ ],
+ "grunge": [
+  "rock",
+  "alternative"
+ ],
+ "gothic-rock": [
+  "rock",
+  "alternative"
+ ],
+ "classic-rock": [
+  "rock"
+ ],
+ "garage-rock": [
+  "rock"
+ ],
+ "emo": [
+  "alternative"
+ ],
+ "post-hardcore": [
+  "alternative"
+ ],
+ "noise": [
+  "alternative"
+ ],
+ "indie": [
+  "alternative"
+ ],
+ "post-punk": [
+  "alternative"
+ ],
+ "shoegaze": [
+  "alternative"
+ ],
+ "slowcore": [
+  "alternative"
+ ],
+ "dream-pop": [
+  "alternative"
+ ],
+ "darkwave": [
+  "alternative"
+ ],
+ "pop-punk": [
+  "punk"
+ ],
+ "dance-punk": [
+  "punk"
+ ],
+ "noise-punk": [
+  "punk"
+ ],
+ "doom-metal": [
+  "metal"
+ ],
+ "sludge-metal": [
+  "metal"
+ ],
+ "stoner-metal": [
+  "metal"
+ ],
+ "hyperpop": [
+  "pop"
+ ],
+ "dance-pop": [
+  "pop"
+ ],
+ "alt-pop": [
+  "pop"
+ ],
+ "neo-soul": [
+  "soul"
+ ],
+ "psytrance": [
+  "trance"
+ ],
+ "reggaeton": [
+  "latin"
+ ],
+ "action": [
+  "film"
+ ],
+ "adventure": [
+  "film"
+ ],
+ "animation": [
+  "film"
+ ],
+ "arthouse": [
+  "film"
+ ],
+ "biography": [
+  "film"
+ ],
+ "comedy": [
+  "film"
+ ],
+ "crime": [
+  "film"
+ ],
+ "cult-classic": [
+  "film"
+ ],
+ "documentary": [
+  "film"
+ ],
+ "drama": [
+  "film",
+  "theatre"
+ ],
+ "family": [
+  "film"
+ ],
+ "fantasy": [
+  "film"
+ ],
+ "history": [
+  "film"
+ ],
+ "horror": [
+  "film"
+ ],
+ "music": [
+  "film"
+ ],
+ "musical": [
+  "film",
+  "theatre"
+ ],
+ "mystery": [
+  "film"
+ ],
+ "queer": [
+  "film"
+ ],
+ "romance": [
+  "film"
+ ],
+ "sci-fi": [
+  "film"
+ ],
+ "short": [
+  "film"
+ ],
+ "thriller": [
+  "film"
+ ],
+ "war": [
+  "film"
+ ],
+ "western": [
+  "film"
+ ],
+ "opera": [
+  "theatre"
+ ],
+ "puppet-theatre": [
+  "theatre"
+ ],
+ "improv": [
+  "theatre"
+ ],
+ "cabaret": [
+  "theatre"
+ ],
+ "new-circus": [
+  "theatre"
+ ],
+ "physical-theatre": [
+  "theatre"
+ ],
+ "contemporary-dance": [
+  "dance"
+ ],
+ "ballet": [
+  "dance"
+ ],
+ "dance-theatre": [
+  "dance"
+ ]
+}

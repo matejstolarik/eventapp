@@ -104,7 +104,10 @@ automatically ("metalcore" is not "metal"). "bass music" is bass-music, not uk-b
 how they describe themselves). No support -> no genre. Give the fact in genre_facts.
 4. A genre that is not on the list: put the raw name into genre_candidates (kind \
 music | film | stage) instead of forcing a list genre.
-5. Genres also for film and theatre."""
+5. Genres also for film and theatre.
+6. Umbrella genres of the scene are allowed (latin, afro). Do not add a parent genre next to its subgenre when the subgenre's name contains it ("doom-metal", not "doom-metal, metal"); a different parent stays only when it is supported (trap + hip-hop).
+7. Never give "alternative" as a genre. Give "rock" only for rock that is not more specific; a specific subgenre wins ("dad rock" -> classic-rock).
+8. Culture: the subtype (film, theatre, dance, stand-up) is the umbrella; no stage genre "comedy", "stand-up" or "performance"."""
 
 # docs/ai-rules.md D, E
 RULES_PRICE_TIME = """\

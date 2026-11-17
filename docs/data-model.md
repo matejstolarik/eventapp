@@ -186,22 +186,30 @@ Akcie s formátom `concert`, `dj` alebo `music`. Ostatné formáty (divadlo, ver
 Platí pre `music` podniku aj `genres` akcie. Malé písmená, pomlčky, anglicky. Zostavený z `music` polí všetkých podnikov v `venues.json` (2026-11-04). Čaká na schválenie Matejom.
 
 ```
-ambient, bass-music, bassline, blues, darkwave, death-metal, disco, dream-pop,
-drum-and-bass, dubstep, ebm, edm, electro, electro-swing, electronic, experimental,
-folk, funk, goregrind, grindcore, hardcore, hardstyle, hip-hop, house, indie,
-industrial, jazz, latin, metal, metalcore, oldies, pop, post-punk, punk, rave,
-reggae, rnb, rock, ska, shoegaze, slowcore, tech-house, techno, trance, uk-bass,
-uk-garage, world
+afro, afrobeats, alt-pop, alternative-rock, ambient, bass-music, bassline, blues,
+breakbeat, chanson, classic-rock, classical, country, dance-pop, dance-punk, dancehall,
+darkwave, death-metal, disco, doom-metal, dream-pop, drill, drum-and-bass, dub, dubstep,
+ebm, edm, electro, electro-swing, electronic, emo, experimental, folk, funk, garage-
+rock, goregrind, gothic-rock, grime, grindcore, grunge, hard-techno, hardcore,
+hardstyle, hip-hop, house, hyperpop, indie, industrial, jazz, jungle, latin, metal,
+metalcore, neo-soul, noise, noise-punk, noise-rock, oldies, orchestral, pop, pop-punk,
+post-hardcore, post-punk, post-rock, psytrance, punk, rave, reggae, reggaeton, rnb,
+rock, shoegaze, ska, slowcore, sludge-metal, soul, soundtrack, stoner-metal, synthwave,
+tech-house, techno, trance, trap, uk-bass, uk-garage, world
 ```
 
-(47 položiek — pôvodných 27 schválených Matejom 2026-11-04; pridané 2026-11-08: disco, hardstyle, latin, r-n-b, ska, trance; task 058 (Matej 2026-11-17): blues, industrial, hardcore, bass-music, rave, dream-pop, darkwave, slowcore, oldies, edm, metalcore, death-metal, grindcore, goregrind; `r-n-b` premenované na `rnb`. Zoznam v kóde: `pipeline/genres.py`.)
+(86 položiek — pôvodných 27 schválených Matejom 2026-11-04; pridané 2026-11-08: disco, hardstyle, latin, r-n-b, ska, trance; task 058 (Matej 2026-11-17): blues, industrial, hardcore, bass-music, rave, dream-pop, darkwave, slowcore, oldies, edm, metalcore, death-metal, grindcore, goregrind; `r-n-b` premenované na `rnb`; **task 065 (Matej 2026-11-17)**: hard-techno, breakbeat, jungle, synthwave, grime, trap, drill, afro, afrobeats, dub, dancehall, alternative-rock, noise-rock, post-rock, grunge, gothic-rock, classic-rock, garage-rock, emo, post-hardcore, noise, pop-punk, dance-punk, noise-punk, doom-metal, sludge-metal, stoner-metal, hyperpop, dance-pop, alt-pop, soul, neo-soul, classical, orchestral, soundtrack, country, chanson, psytrance, reggaeton. Zoznam v kóde: `pipeline/genres.py`.)
+
+**Hierarchia (task 065, `docs/ai-rules.md` C7):** `data/genre_hierarchy.json` `{ "podžáner": ["rodič", …] }` (aj viac rodičov). Rodič je žáner zo zoznamov alebo zastrešenie, ktoré nie je štítok: `alternative` (len filter, ai-rules C8) a podtypy kultúry `film`, `theatre`, `dance` (C9). Slúži filtru a Pre teba; rodič sa k štítku **nepridáva**. V `genres` akcie sa rodič odstráni, keď je prítomný jeho podžáner a názov rodiča je obsiahnutý v názve podžánru (`doom-metal` + `metal` → `doom-metal`); inak ostáva (`trap` + `hip-hop`). `alternative` sa ako štítok zahodí. Test konzistencie: každý rodič existuje, žiadne cykly (`tests/test_genres_065.py`).
+
+**Zahodení kandidáti (task 065):** `data/genre_ignored.json` `{ "ignored": [surové názvy], "ignored_music": [len ako hudobný žáner] }`; nenavrhujú sa znova (`genres-review`, `site/genre_proposals.json`).
 
 **Poradie a mapovanie (task 058, `docs/ai-rules.md` C):** `genres` je zoradené od hlavného žánru (zložené názvy: „ambient techno“ → `techno, ambient`; „mainstage“ → `edm, electronic`). Mapujú sa len synonymá a pravopisné varianty (`rap → hip-hop`, „drum and bass“ → `drum-and-bass`); podžánre zo zoznamu ostávajú samostatné a nadradený žáner sa automaticky nepridáva (`metalcore` ≠ `metal`). `bass music` je `bass-music`, nie `uk-bass` ani `bassline`. Schválené mapovania: `data/genre_aliases.json` (`{ "surový": "náš" | ["hlavný", "ďalší"] }`).
 
 ### Žánre kultúry (task 054 časť 4a, Matej 2026-11-17)
-- `film_genres` (film) a `stage_genres` (divadlo, tanec, performance): plnia sa len schválenými návrhmi (pridáva hlavný chat podľa Matejovho rozhodnutia; v kóde `FILM_GENRES` / `STAGE_GENRES` v `pipeline/genres.py`). `film_genres`: prázdne. `stage_genres`: `physical-theatre` (task 058). `genres` akcie s formátom `film` / `theatre` / `dance` berie len z týchto zoznamov.
+- `film_genres` (film) a `stage_genres` (divadlo, tanec, performance): plnia sa len schválenými návrhmi (pridáva hlavný chat podľa Matejovho rozhodnutia; v kóde `FILM_GENRES` / `STAGE_GENRES` v `pipeline/genres.py`). `film_genres` (task 065, rodič `film`): action, adventure, animation, arthouse, biography, comedy, crime, cult-classic, documentary, drama, experimental, family, fantasy, history, horror, music, musical, mystery, queer, romance, sci-fi, short, thriller, war, western. `stage_genres`: `physical-theatre` (task 058); task 065: pod `theatre` drama, musical, opera, puppet-theatre, improv, cabaret, new-circus; pod `dance` contemporary-dance, ballet, dance-theatre; experimental. Rovnaký názov vo filme aj na scéne (drama, musical, experimental) = jeden žáner s viacerými rodičmi. Scénické žánre comedy, stand-up a performance sa nezavádzajú (C9). `genres` akcie s formátom `film` / `theatre` / `dance` berie len z týchto zoznamov.
 - AI vracia aj žánre mimo zoznamov (`enrichment.genre_candidates`). Namapuje sa len pravopisný variant alebo schválené mapovanie z `data/genre_aliases.json` (ručne; `maps_to` navrhnuté AI sa od task 058 samo nepoužije), všetky použité mapovania (schválené + od AI) pipeline zapíše do `site/genre_aliases.json` na kontrolu.
-- Nenamapované žánre sú **návrhy**: `site/genre_proposals.json` `[{ name, kind: music|film|stage, count, event_ids }]`, len pri **≥ 3 akciách**; v appke sa nezobrazujú.
+- Nenamapované žánre sú **návrhy**: `site/genre_proposals.json` `[{ name, kind: music|film|stage, count, event_ids }]`, len pri **≥ 3 akciách**; v appke sa nezobrazujú. Na kontrolu Matejovi (`python -m pipeline.genres_review`) od **2 akcií** (task 065); zahodené (`data/genre_ignored.json`) sa nevypisujú. Akcia bez hudobného/filmového/scénického typu (talk, other): žáner zo zoznamu sa berie ako hudobný, nenamapovaný názov nie je kandidát (task 065).
 
 ## Ručné opravy klasifikácie (`data/overrides.json`)
 

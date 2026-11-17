@@ -51,7 +51,9 @@ def test_electronic_dance_music_is_no_support_for_electronic():
 def test_slvl_hard_techno_is_not_hardcore():
     q = "SLVL plays hard techno"
     assert not _ok("hardcore", q)
-    assert _ok("techno", q)
+    # task 065: hard-techno is a list genre; the parent gets no support from it
+    assert _ok("hard-techno", q)
+    assert not _ok("techno", q)
     assert _ok("hardcore", "Dutch hardcore and gabber DJ")
 
 
@@ -64,7 +66,8 @@ def test_allt_death_core_is_not_death_metal():
 
 def test_keo_alt_rock_is_not_indie():
     assert not _ok("indie", "London band playing alt-rock")
-    assert _ok("rock", "London band playing alt-rock")
+    # task 065: alt. rock -> alternative-rock (C8: the subgenre, not rock)
+    assert _ok("alternative-rock", "London band playing alt-rock")
 
 
 def test_amphibian_atmospheric_listening_is_not_ambient():

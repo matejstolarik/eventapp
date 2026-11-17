@@ -80,11 +80,11 @@ def test_validate_genres_and_candidates():
     """Task 058: order kept, subgenres on the list stay, no parent genre added,
     unknown names are candidates, only aliases / spelling variants map."""
     res = E.validate(_raw(genres=["metalcore", "Death metal", "deep house"],
-                          genre_candidates=[{"raw": "Psytrance", "kind": "music", "maps_to": "trance"}]),
+                          genre_candidates=[{"raw": "Goa trance", "kind": "music", "maps_to": "trance"}]),
                      _ev(), None)
     assert res["genres"] == ["metalcore", "death-metal"]
     assert {"raw": "deep house", "kind": "music", "maps_to": None} in res["genre_candidates"]
-    assert {"raw": "psytrance", "kind": "music", "maps_to": None} in res["genre_candidates"]
+    assert {"raw": "goa trance", "kind": "music", "maps_to": None} in res["genre_candidates"]
     # approved alias maps it, list target keeps the main genre first
     res = E.validate(_raw(genres=["ambient techno", "rap"], genre_candidates=[]), _ev(), None,
                      aliases={"ambient techno": ["techno", "ambient"], "rap": "hip-hop"})
@@ -102,11 +102,14 @@ def test_stage_genre_physical_theatre():
     assert res["genres"] == ["physical-theatre", "hip-hop"]
 
 
-def test_film_genres_list_is_empty_so_all_are_candidates():
-    res = E.validate(_raw(formats=["film"], primary_format="film", genres=["documentary"],
-                          genre_candidates=[]), _ev(formats=["film"]), None)
-    assert res["genres"] == []
-    assert res["genre_candidates"] == [{"raw": "documentary", "kind": "film", "maps_to": None}]
+def test_film_genres_from_list_and_candidates():
+    """Task 065: film genres have a list; others are candidates."""
+    res = E.validate(_raw(formats=["film"], primary_format="film",
+                          genres=["documentary", "road movie"], genre_candidates=[],
+                          genre_facts={"documentary": "dokumentární film o kapele"}),
+                     _ev(formats=["film"]), None)
+    assert res["genres"] == ["documentary"]
+    assert res["genre_candidates"] == [{"raw": "road movie", "kind": "film", "maps_to": None}]
 
 
 @pytest.mark.parametrize("text", [
