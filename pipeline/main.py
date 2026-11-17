@@ -493,6 +493,9 @@ def _web_summary_lines(st: dict, proposals: list) -> list[str]:
         f" primary_format from stored research: {st.get('primary_from_research', 0)};"
         f" kept previous AI values (not processed): {st.get('kept_previous', 0)}",
         f"- DeepSeek budget: {st.get('budget') or '–'}",
+        f"- Task 065: genres re-mapped from stored results (no API):"
+        f" {len(st.get('genres_remapped') or [])}; cached descriptions dropped"
+        f" (model set needs_review): {len(st.get('descriptions_dropped_review') or [])}",
         f"- Re-run from stored research (no search): {st.get('from_research', 0)};"
         f" research files: {st.get('research_bytes') or '–'}",
         f"- Genre proposals (>= 3 events, not shown in the app): {len(proposals)}"

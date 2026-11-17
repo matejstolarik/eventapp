@@ -419,6 +419,11 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     # translations, which still contain them, are dropped.
     removed = [str(x) for x in raw.get("no_info_removed") or []]
     no_desc = bool(raw.get("no_info_empty"))
+    if raw.get("needs_review") and (clean or raw.get("needs_review_no_desc")):
+        # task 065 (ai-rules F, H): the model itself flagged the event for
+        # review -> no AI description (cs, sk, en); price / time stay
+        dropped.append("descriptions: model set needs_review, no description")
+        clean, removed = {}, []
     if clean.get("cs"):
         cs, more = strip_no_info(clean["cs"])
         if more:
@@ -889,7 +894,12 @@ class _Gemini2:
         raw, u2 = self.decide(ev, venue, page_text, r)
         usage = [u2]
         descs = raw.get("descriptions") if isinstance(raw.get("descriptions"), dict) else None
-        if descs and isinstance(descs.get("cs"), str) and descs["cs"].strip():
+        if descs and raw.get("needs_review"):
+            # task 065 (ai-rules F, H): the model flagged the event for review
+            # -> no description, no translation call
+            raw["descriptions"] = None
+            raw["needs_review_no_desc"] = True
+        elif descs and isinstance(descs.get("cs"), str) and descs["cs"].strip():
             # task 063 (ai-rules F): sentences about missing information are
             # removed from the Czech text BEFORE the translation
             cs, removed = strip_no_info(descs["cs"])
@@ -1026,9 +1036,15 @@ def values_from_enrichment(enr: dict, prev: dict) -> dict:
             vals[key] = prev[key]
     if ai("formats"):
         vals["primary_format"] = prev.get("primary_format")
-    if ai("description") and prev.get("descriptions"):
+    if ai("description") and prev.get("descriptions") and not review_no_description(enr):
         vals["descriptions"] = prev["descriptions"]
     return vals
+
+
+def review_no_description(enr: dict) -> bool:
+    """Task 065 (ai-rules F, H): an event the model flagged for review keeps
+    no AI description, also when it was stored before 065 (REVO: Z Gumy Do Gumy)."""
+    return bool((enr.get("run") or {}).get("needs_review"))
 
 
 def remap_stored_genres(ev: dict, enr: dict, vals: dict, record: dict | None,
@@ -1277,12 +1293,16 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
         return apply_enrichment(ev, enr, vals, st, ev["id"] in keep_genres)
 
     stats["genres_remapped"] = []
+    stats["descriptions_dropped_review"] = []
 
     def cached_values(ev, c):
         """Cached enrichment + values; task 065: genres re-mapped from the
         stored research (no API)."""
         enr = json.loads(json.dumps(c["enrichment"]))
         vals = values_from_enrichment(enr, c["prev"])
+        if (c["prev"].get("descriptions") and "description" in enr
+                and review_no_description(enr)):
+            stats["descriptions_dropped_review"].append(ev["id"])
         old = list(vals.get("genres") or []) if "genres" in enr else []
         new = remap_stored_genres(ev, enr, vals, (research or {}).get(ev["id"]),
                                   page_texts.get(ev["id"]), aliases)
@@ -1458,10 +1478,13 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
         if ev["id"] not in out_by_id:
             c = cached_enrichment(ev, previous)
             if c:
-                out_by_id[ev["id"]] = apply(
-                    ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
+                out_by_id[ev["id"]] = apply(ev, *cached_values(ev, c))
                 kept += 1
     stats["kept_previous"] = kept
+    for r in stats["genres_remapped"]:
+        log.info("enrich_ai %s: genres re-mapped (task 065) %s -> %s", r["id"], r["old"], r["new"])
+    for i in stats["descriptions_dropped_review"]:
+        log.info("enrich_ai %s: cached AI description dropped (needs_review, task 065)", i)
     if counter is not None:
         stats["month_searches"] = counter["count"]
     stats["limit"] = month_limit
