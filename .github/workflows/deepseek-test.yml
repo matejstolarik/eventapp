@@ -9,12 +9,15 @@ name: DeepSeek test (manual)
 # models available to the API key (GET /models, free).
 # mode=test: python -m pipeline.deepseek_test run (50 labelled events, or
 # test_ids for the smoke test), stops at budget_usd and on HTTP 402.
+# mode=redecide (task 062): decision + translation from the stored 061
+# research with the task 062 guards, no search.
+# mode=balance: account balance only (GET /user/balance, free).
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'docs = fetch official docs + model list, test = run the test'
+        description: 'docs | test | redecide (task 062) | balance'
         required: false
         default: 'test'
       test_ids:
@@ -69,13 +72,24 @@ jobs:
             echo "DEEPSEEK_API_KEY missing"
           fi
 
+      - name: Balance before
+        if: inputs.mode != 'docs'
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          mkdir -p out
+          curl -sS -m 30 -H "Authorization: Bearer $DEEPSEEK_API_KEY" https://api.deepseek.com/user/balance -o out/balance_before.json -w "balance %{http_code}\n"
+          cat out/balance_before.json; echo
+          echo "### Balance before" >> $GITHUB_STEP_SUMMARY
+          cat out/balance_before.json >> $GITHUB_STEP_SUMMARY
+
       - uses: actions/setup-python@v5
-        if: inputs.mode == 'test'
+        if: inputs.mode == 'test' || inputs.mode == 'redecide'
         with:
           python-version: '3.12'
 
       - name: Run test
-        if: inputs.mode == 'test'
+        if: inputs.mode == 'test' || inputs.mode == 'redecide'
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_BUDGET_USD: ${{ inputs.budget_usd }}
@@ -84,7 +98,17 @@ jobs:
           TEST_OUT: out
         run: |
           pip install -r requirements.txt
-          python -m pipeline.deepseek_test run
+          python -m pipeline.deepseek_test ${{ inputs.mode == 'redecide' && 'redecide' || 'run' }}
+
+      - name: Balance after
+        if: always() && (inputs.mode == 'test' || inputs.mode == 'redecide')
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          curl -sS -m 30 -H "Authorization: Bearer $DEEPSEEK_API_KEY" https://api.deepseek.com/user/balance -o out/balance_after.json -w "balance %{http_code}\n"
+          cat out/balance_after.json; echo
+          echo "### Balance after" >> $GITHUB_STEP_SUMMARY
+          cat out/balance_after.json >> $GITHUB_STEP_SUMMARY
 
       - name: Upload results
         if: always()
