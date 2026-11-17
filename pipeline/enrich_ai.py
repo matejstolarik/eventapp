@@ -747,6 +747,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     venues_map = {v["id"]: v for v in venues}
     month = today[:7]
 
+    # one-off manual re-run of chosen events (workflow_dispatch input reenrich_ids)
+    force = {i.strip() for i in os.environ.get("ENRICH_FORCE_IDS", "").split(",") if i.strip()}
     todo, out_by_id = [], {}
     for ev in events:
         if not in_window(ev, today):
@@ -757,7 +759,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                     ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
             continue
         stats["window"] += 1
-        c = cached_enrichment(ev, previous)
+        c = None if ev["id"] in force else cached_enrichment(ev, previous)
         if c:
             stats["cached"] += 1
             out_by_id[ev["id"]] = apply_enrichment(

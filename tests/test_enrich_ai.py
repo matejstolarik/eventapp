@@ -210,3 +210,11 @@ def test_genre_tables_threshold():
     assert aliases == {"metalcore": "metal"}
     assert [p["name"] for p in proposals] == ["psytrance"]
     assert proposals[0]["count"] == 3 and proposals[0]["kind"] == "music"
+
+
+def test_forced_ids_ignore_cache(monkeypatch):
+    first, _ = run([_ev()])
+    monkeypatch.setenv("ENRICH_FORCE_IDS", "mf-1, other")
+    prov = FakeProvider()
+    run([_ev()], previous={first[0]["id"]: first[0]}, provider=prov)
+    assert len(prov.calls) == 1

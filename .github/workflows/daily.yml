@@ -6,6 +6,11 @@ on:
     # Off-the-hour to avoid GitHub Actions high-load period at :00
     - cron: '17 4 * * *'
   workflow_dispatch:
+    inputs:
+      reenrich_ids:
+        description: 'Event ids to re-run AI enrichment for, ignoring the cache (comma-separated, manual runs only)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -72,6 +77,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # task 054: AI enrichment with web search (claude | gemini)
           ENRICH_PROVIDER: claude
+          ENRICH_FORCE_IDS: ${{ inputs.reenrich_ids }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python -m pipeline.main
 
