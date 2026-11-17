@@ -1,6 +1,6 @@
 # Žánre na kontrolu
 
-Zdroj: `site/events.json` (generated_at 2026-11-18T00:25:40.356663+01:00), príkaz: `python -m pipeline.genres_review site/events.json <výstup>`.
+Zdroj: `site/events.json` (generated_at 2026-11-18T00:57:25.316170+01:00), príkaz: `python -m pipeline.genres_review site/events.json <výstup>`.
 Kandidáti a navrhnuté mapovania len od 2 akcií; zahodení kandidáti (`data/genre_ignored.json`) a už schválené názvy sa nevypisujú.
 Akcie s AI doplnením: 241 z 372.
 
@@ -73,46 +73,73 @@ Nový žáner do zoznamu, mapovanie na existujúci, alebo nič.
 | žáner | akcií |
 |---|---|
 | rock | 53 |
-| pop | 41 |
-| electronic | 40 |
-| indie | 39 |
-| techno | 37 |
+| electronic | 42 |
+| indie | 41 |
+| pop | 39 |
 | hip-hop | 35 |
 | house | 35 |
-| folk | 24 |
+| techno | 33 |
+| folk | 25 |
 | drum-and-bass | 23 |
 | edm | 20 |
-| metal | 18 |
+| metal | 17 |
 | experimental | 17 |
-| jazz | 16 |
-| punk | 12 |
+| jazz | 17 |
+| punk | 11 |
 | post-punk | 9 |
 | rnb | 9 |
 | hardcore | 7 |
 | world | 7 |
-| trance | 6 |
 | blues | 6 |
 | bass-music | 5 |
 | metalcore | 5 |
 | shoegaze | 4 |
 | tech-house | 4 |
+| hard-techno | 4 |
 | electro | 4 |
 | latin | 4 |
 | slowcore | 4 |
+| funk | 4 |
 | disco | 4 |
 | dubstep | 3 |
+| breakbeat | 3 |
+| psytrance | 3 |
 | ambient | 3 |
-| funk | 3 |
+| chanson | 3 |
 | death-metal | 3 |
 | industrial | 3 |
+| trance | 3 |
 | electro-swing | 2 |
+| noise | 2 |
+| noise-rock | 2 |
+| country | 2 |
 | reggae | 2 |
+| grime | 2 |
 | darkwave | 2 |
 | uk-bass | 2 |
 | dream-pop | 2 |
 | uk-garage | 2 |
 | physical-theatre | 2 |
+| hyperpop | 2 |
+| jungle | 2 |
 | hardstyle | 2 |
+| post-rock | 1 |
+| post-hardcore | 1 |
+| alternative-rock | 1 |
+| dub | 1 |
+| dancehall | 1 |
 | ebm | 1 |
+| trap | 1 |
+| drill | 1 |
+| sludge-metal | 1 |
+| stoner-metal | 1 |
+| noise-punk | 1 |
+| doom-metal | 1 |
+| gothic-rock | 1 |
+| animation | 1 |
+| afrobeats | 1 |
+| dance-pop | 1 |
+| pop-punk | 1 |
 | oldies | 1 |
+| afro | 1 |
 | rave | 1 |
