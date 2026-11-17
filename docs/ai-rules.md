@@ -14,7 +14,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 3. DJ-i (prezentujú sa ako DJ), veľa mien oddelených ☆/+ a noc do rána, **žánrová noc bez headlinera** (DRUMSTATION), **sound system** (Bashment) → `dj`.
 4. Spevák/kapela a po nich DJ → `concert`, `dj` doplnkový. Časový harmonogram kapiel („20:00 X, 21:00 Y“) → `concert`.
 5. `party` = len veľká komerčná/mainstreamová párty kvôli atmosfére (komerčné kluby, Erasmus/študentské, hity 80./90., open bar). V komerčnom klube (`commercial_club`): generická noc → `party`; **DJ je hlavné lákadlo a párty je postavená okolo neho** (SLVL) → `primary_format: dj`, `party` doplnkový; **lákadlom je párty samotná** (téma, formát, napr. Video Oldies Rudy Tučeka, Student Wednesday), aj keď je DJ menovaný → `party`. Pozná sa to hlavne z názvu a popisu (Matej 2026-11-17). Mimo komerčných klubov len pri jasnom signáli s dôvodom.
-6. Kultúra podľa podtypu: `film`, `theatre`, `dance`, `comedy` (stand-up), `talk` (čítanie a diskusia: krst knihy, poézia, piesne + texty, prednáška), `performance` (performatívne pásmo), `workshop` (aj hudobný/DJ), `opening` (výstava), `quiz`; inak `other`.
+6. Kultúra podľa podtypu: `film`, `theatre`, `dance`, `stand-up` (do 2026-11-17 `comedy`; ikona mikrofónu ostáva), `talk` (čítanie a diskusia: krst knihy, poézia, piesne + texty, prednáška), `performance` (performatívne pásmo), `workshop` (aj hudobný/DJ), `opening` (výstava), `quiz`; inak `other`.
 7. **(2026-11-17, Matej)** Interpret, ktorý sa primárne prezentuje ako živý act alebo kapela (live electronic act, nástroje, spev; napr. Tinlicker), je `concert` aj vtedy, keď podnik píše „DJ set“; `dj` doplnkový. Rozhoduje, čím interpret je, nie nadpis podniku. **Typ od AI má prednosť pred kategóriou podniku zo zdroja** (2026-11-17, Matej); ručná oprava (`manual.json`) má prednosť pred oboma.
 
 ## C. Žánre
@@ -24,6 +24,10 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 4. Žáner mimo zoznamu → návrh (`genre_candidates`), Matej schvaľuje.
 5. Žánre aj pri filme a divadle (zoznamy `film_genres`, `stage_genres`).
 6. Nemapovať: `bass music` ≠ `uk-bass` (len interpreti z UK) ≠ `bassline` (štýl zo Sheffieldu). `hardcore` je samostatný (nie automaticky punk ani techno).
+
+7. **(2026-11-17, Matej, schválenie žánrov – úloha 065)** Zastrešujúce žánre scény sú povolené (`latin`, `afro`) – výnimka z C2. **Hierarchia** podžáner → rodič (aj viac rodičov) je v `data/genre_hierarchy.json`; slúži filtru a Pre teba, rodič sa k štítku automaticky **nepridáva**. Ak má akcia podžáner aj rodiča a názov rodiča je obsiahnutý v názve podžánru (`doom-metal` + `metal`), rodič sa zo štítkov odstráni; inak ostane, ak ho AI našla (`trap` + `hip-hop`).
+8. `alternative` AI ako štítok **nedáva** (len zastrešenie vo filtri). `rock` ako štítok len pri nejednoznačnom rocku; konkrétny podžáner má prednosť (`classic-rock` pre „dad rock“).
+9. Pri kultúre sú zastrešením filmových a scénických žánrov podtypy (`film`, `theatre`, `dance`); scénické žánre comedy, stand-up a performance sa nezavádzajú (duplikovali by podtypy).
 
 ## D. Cena
 1. Len cena **výslovne uvedená pri tejto akcii a dátume**, so zdrojom; AI cenu pipeline overí otvorením zdrojovej stránky. Cena zo stránky podniku má prednosť.
