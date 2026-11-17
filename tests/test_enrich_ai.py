@@ -91,6 +91,10 @@ def test_stage_genre_physical_theatre():
     res = E.validate(_raw(formats=["theatre"], primary_format="theatre", genres=["Physical theatre"],
                           genre_candidates=[]), _ev(formats=["theatre"]), None)
     assert res["genres"] == ["physical-theatre"]
+    res = E.validate(_raw(formats=["theatre"], primary_format="theatre",
+                          genres=["physical theatre", "hip-hop"], genre_candidates=[]),
+                     _ev(formats=["theatre"]), None)
+    assert res["genres"] == ["physical-theatre", "hip-hop"]
 
 
 def test_film_genres_list_is_empty_so_all_are_candidates():

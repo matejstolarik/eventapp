@@ -270,7 +270,12 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
             return
         seen_raw.add((rawname.lower(), kind))
         mapped = map_genre(rawname, kind, aliases) if kind else []
-        if kind == own_kind and mapped:
+        if not mapped and kind in ("film", "stage"):
+            # task 058: culture events with musicians (rap musical Spitfire
+            # Company & PAST) may also carry music genres
+            mapped = map_genre(rawname, "music", aliases)
+            kind = "music" if mapped else kind
+        if kind in (own_kind, "music") and mapped and (own_kind or kind == "music"):
             for g in mapped:
                 if g not in gens:
                     gens.append(g)
