@@ -11,6 +11,10 @@ on:
         description: 'Providers to run (comma-separated: claude,gemini)'
         required: false
         default: 'claude,gemini'
+      gemini_model:
+        description: 'Gemini model id'
+        required: false
+        default: 'gemini-2.5-flash'
 
 permissions:
   contents: read
@@ -34,6 +38,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PILOT_PROVIDERS: ${{ inputs.providers }}
+          PILOT_GEMINI_MODEL: ${{ inputs.gemini_model }}
           PILOT_OUT: pilot-out/enrich_pilot.json
         run: python -m pipeline.enrich_pilot
 

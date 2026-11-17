@@ -59,7 +59,9 @@ CLAUDE_IN_PRICE = 0.10 / 1e6     # USD per input token
 CLAUDE_OUT_PRICE = 0.50 / 1e6    # USD per output token
 CLAUDE_SEARCH_PRICE = 10.0 / 1000  # USD per web search
 
-GEMINI_MODEL = "gemini-2.5-flash-lite"   # free tier: grounding up to 500 RPD
+# Free tier grounding (pricing page 2026-11-17): only 2.5 Flash / Flash-Lite.
+# 2.5 Flash-Lite returned 404 "no longer available to new users" (run 44057035854).
+GEMINI_MODEL = os.environ.get("PILOT_GEMINI_MODEL") or "gemini-2.5-flash"
 GEMINI_URL = ("https://generativelanguage.googleapis.com/v1beta/models/"
               f"{GEMINI_MODEL}:generateContent")
 GEMINI_DELAY_S = 6.0   # stay well under free-tier RPM
@@ -351,7 +353,8 @@ def validate_result(raw: dict, ev: dict, seen_urls: set[str] | None = None) -> d
 def run_claude(events, venues_map, budget):
     import anthropic
 
-    client = anthropic.Anthropic()
+    # strip(): a trailing newline in the secret makes an invalid HTTP header
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"].strip())
     tool_type = "web_search_20260209"
     results = []
     totals = {"input_tokens": 0, "output_tokens": 0, "searches": 0, "errors": 0}
@@ -359,6 +362,9 @@ def run_claude(events, venues_map, budget):
     for ev in events:
         if totals["searches"] >= budget:
             results.append({"id": ev["id"], "skipped": "search budget reached"})
+            continue
+        if totals["errors"] >= 3 and not any("result" in r for r in results):
+            results.append({"id": ev["id"], "skipped": "stopped after 3 errors in a row"})
             continue
         prompt = build_event_prompt(ev, venues_map.get(ev["venue_id"], {}))
         max_uses = min(MAX_SEARCHES_PER_EVENT, budget - totals["searches"])
@@ -421,7 +427,8 @@ def run_claude(events, venues_map, budget):
             else:
                 rec["error"] = "no report_enrichment after 4 turns"
         except Exception as exc:
-            rec["error"] = f"{type(exc).__name__}: {exc}"
+            cause = f" (cause: {exc.__cause__!r})" if exc.__cause__ else ""
+            rec["error"] = f"{type(exc).__name__}: {exc}{cause}"
         if "raw" in rec:
             seen = {u.split("?")[0] for u in rec["seen_urls"]}
             rec["result"] = validate_result(rec["raw"], ev, seen)
@@ -496,7 +503,7 @@ def run_gemini(events, venues_map, budget):
             rec["error"] = f"HTTP {status}: {data}"
             totals["errors"] += 1
             # Free-tier limit / grounding not allowed → stop the Gemini part
-            if status in (429, 403) or (status == 400 and "search" in str(data).lower()):
+            if status in (400, 403, 404, 429):
                 totals["stopped"] = f"stopped after HTTP {status}"
             results.append(rec)
             log.warning("gemini %s: HTTP %s", ev["id"], status)
