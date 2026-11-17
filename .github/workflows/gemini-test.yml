@@ -14,7 +14,11 @@ on:
       model:
         description: 'Gemini model id'
         required: false
-        default: 'gemini-3.5-flash'
+        default: 'gemini-3.6-flash'
+      ids:
+        description: 'Only these event ids (comma-separated, empty = all 55)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -38,6 +42,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TEST_MODEL: ${{ inputs.model }}
           TEST_OUT: test-out
+          TEST_IDS: ${{ inputs.ids }}
         run: python -m pipeline.gemini_test ${{ inputs.mode }}
 
       - name: Upload results

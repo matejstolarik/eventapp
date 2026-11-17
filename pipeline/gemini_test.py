@@ -134,6 +134,8 @@ def cmd_run(out: pathlib.Path) -> None:
     by_id = {e["id"]: e for e in data["events"]}
     venues = {v["id"]: v for v in data["venues"]}
     ids = [i for i in selected_ids(labels) if i in by_id]
+    if os.environ.get("TEST_IDS", "").strip():          # smoke test on chosen events
+        ids = [i.strip() for i in os.environ["TEST_IDS"].split(",") if i.strip() in by_id]
     missing = [i for i in selected_ids(labels) if i not in by_id]
     events = [by_id[i] for i in ids]
     model = os.environ.get("TEST_MODEL", "").strip() or None
