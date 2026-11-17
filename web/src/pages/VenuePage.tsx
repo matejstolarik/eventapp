@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
-import { getDict } from '../i18n'
+import { getDict, tagLabel } from '../i18n'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
@@ -322,7 +322,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                     const evTagList = eventTags(ev.formats, ev.genres, ev.primary_format)
                     const allTags = [
                       ...(ev.start_time ? [{ label: ev.start_time, isTime: true }] : []),
-                      ...evTagList.map(t => ({ label: t, isTime: false })),
+                      ...evTagList.map(t => ({ label: tagLabel(t, lang), isTime: false })),
                     ]
                     return (
                       <div

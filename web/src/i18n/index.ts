@@ -11,6 +11,14 @@ export function getDict(lang: Language): Dict {
   return dicts[lang]
 }
 
+/** Display label of an event tag (format or genre code) in the app language
+ * (task 058); codes without a label are shown as they are. */
+export function tagLabel(tag: string, lang: Language): string {
+  const label = getDict(lang).tags[tag]
+  if (label) return label
+  return tag === 'alternative' ? 'alt' : tag
+}
+
 /** Formats a YYYY-MM-DD date for display in the given language.
  * Handles special value 'night' for V noci mode.
  * Uses abbreviated day name + day + dot + month number. */

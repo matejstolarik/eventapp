@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language, Event } from '../core/types'
-import { getDict, formatDayLabel } from '../i18n'
+import { getDict, formatDayLabel, tagLabel } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
@@ -20,9 +20,6 @@ interface Props {
   onRefresh?: () => Promise<void>
 }
 
-export function tagLabel(tag: string): string {
-  return tag === 'alternative' ? 'alt' : tag
-}
 
 
 function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
@@ -131,7 +128,7 @@ function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewF
                 flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center',
                 background: 'rgba(17,17,24,0.9)', color: tagTextColor,
               }}>
-                {tagLabel(tag)}
+                {tagLabel(tag, lang)}
               </span>
             ))}
           </div>

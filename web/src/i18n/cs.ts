@@ -99,6 +99,7 @@ export const cs = {
     searchEvents: 'Hledat akci',
     locationToastForSort: 'Pro řazení podle vzdálenosti povol polohu',
   },
+  tags: { talk: 'čtení a diskuse', performance: 'performance', 'physical-theatre': 'fyzické divadlo' } as Record<string, string>,
   update: { available: 'Je dostupná nová verze', button: 'Aktualizovat', close: 'Zavřít' },
   comingSoon: 'Připravujeme',
   offline: 'Offline. Data z',

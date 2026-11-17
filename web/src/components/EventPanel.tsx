@@ -3,7 +3,7 @@ import type { Event, Venue, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
 import { EventTypeIcon } from '../icons'
-import { getDict } from '../i18n'
+import { getDict, tagLabel } from '../i18n'
 
 interface Props {
   events: Event[]
@@ -150,7 +150,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
                 background: '#2A2838', color: tagTextColor,
                 fontSize: 14, fontWeight: 600,
                 display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-              }}>{tag === 'alternative' ? 'alt' : tag}</span>
+              }}>{tagLabel(tag, lang)}</span>
             ))}
           </TagRow>
         </div>

@@ -1,6 +1,6 @@
 import type { EventType } from './types'
 
-const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'comedy', 'film', 'opening', 'workshop', 'quiz'])
+const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'performance', 'comedy', 'film', 'opening', 'workshop', 'quiz'])
 
 export type EventIconKey = 'concert' | 'party' | 'dj' | 'film' | 'comedy' | 'dance' | 'culture'
 

@@ -36,7 +36,7 @@ BATCH_SIZE = 20
 
 VALID_FORMATS = frozenset({
     "concert", "dj", "party", "music", "dance", "talk", "comedy", "workshop",
-    "theatre", "film", "opening", "quiz", "other",
+    "theatre", "film", "opening", "quiz", "performance", "other",
 })
 VALID_GENRES = frozenset({
     "ambient", "bassline", "disco", "drum-and-bass", "dubstep", "ebm", "electro",

@@ -3,7 +3,7 @@ import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
-import { getDict, formatEventDate } from '../i18n'
+import { getDict, formatEventDate, tagLabel } from '../i18n'
 import { isEventLive } from '../core/events'
 import { eventDescription, spotifyUrl } from '../core/eventText'
 import { isNightMode, NIGHT_DAY } from '../core/night'
@@ -178,7 +178,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const primaryTag = primaryTypeTag(ev.formats, ev.primary_format)
   // Remaining tags: culture subtypes (excluding primary) + genres
   const remainingTags = [
-    ...ev.formats.filter(f => ['theatre','dance','talk','comedy','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
+    ...ev.formats.filter(f => ['theatre','dance','talk','performance','comedy','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
     ...ev.genres,
   ]
 
@@ -284,14 +284,14 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                   height: 24, padding: '0 10px', borderRadius: 12,
                   background: color, color: dark, fontSize: 12, fontWeight: 600,
                   display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{primaryTag}</span>
+                }}>{tagLabel(primaryTag, lang)}</span>
               )}
               {remainingTags.map(tag => (
                 <span key={tag} style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
                   background: '#2A2838', color: EVENT_TYPE_TAG_TEXT[eventType], fontSize: 12, fontWeight: 600,
                   display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{tag === 'alternative' ? 'alt' : tag}</span>
+                }}>{tagLabel(tag, lang)}</span>
               ))}
             </div>
             {/* Case (c): no price, no sold_out → bookmark on tag row */}

@@ -171,3 +171,18 @@ describe('getEventType with primary_format (task 053)', () => {
     expect(eventTags(['concert', 'dj'], [], 'concert')).toEqual(['concert'])
   })
 })
+
+import { tagLabel } from '../i18n'
+describe('tagLabel (task 058)', () => {
+  it('translates talk and performance per language', () => {
+    expect(tagLabel('talk', 'sk')).toBe('čítanie a diskusia')
+    expect(tagLabel('talk', 'cs')).toBe('čtení a diskuse')
+    expect(tagLabel('talk', 'en')).toBe('talk & reading')
+    expect(tagLabel('physical-theatre', 'en')).toBe('physical theatre')
+    expect(getEventType(['performance'])).toBe('culture')
+  })
+  it('keeps other codes', () => {
+    expect(tagLabel('techno', 'cs')).toBe('techno')
+    expect(tagLabel('alternative', 'sk')).toBe('alt')
+  })
+})

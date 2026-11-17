@@ -99,6 +99,7 @@ export const en = {
     searchEvents: 'Search events',
     locationToastForSort: 'Allow location to sort by distance',
   },
+  tags: { talk: 'talk & reading', performance: 'performance', 'physical-theatre': 'physical theatre' } as Record<string, string>,
   update: { available: 'A new version is available', button: 'Update', close: 'Close' },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',

@@ -194,7 +194,9 @@ def apply_commercial_clubs(events: list[dict], venues: list[dict]) -> list[dict]
 
     Runs after the AI layer so that AI still supplies genres for these events
     but cannot remove ``party``.  "music" is replaced by "party"; concert/dj
-    stay as secondary formats; ``primary_format`` = "party".
+    stay as formats.  Task 058 (docs/ai-rules.md B5): ``party`` is always
+    added, ``primary_format`` = "party" unless the AI decided "dj" (a known,
+    named DJ as headliner, e.g. SLVL at EPIC) -- then "dj" stays primary.
     Manual overrides are left untouched.
     """
     commercial = {v["id"] for v in venues if v.get("commercial_club") is True}
@@ -210,7 +212,9 @@ def apply_commercial_clubs(events: list[dict], venues: list[dict]) -> list[dict]
         if "party" not in new:
             new.append("party")
         ev["formats"] = new
-        ev["primary_format"] = "party"
+        by_ai = (ev.get("classification") or {}).get("method") in ("llm", "llm+web")
+        if not (by_ai and ev.get("primary_format") == "dj" and "dj" in new):
+            ev["primary_format"] = "party"
     return events
 
 
