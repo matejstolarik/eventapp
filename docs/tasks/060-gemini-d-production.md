@@ -145,3 +145,6 @@ Príkaz: `python count060.py pub_pred.json pub_po.json`. Súbory sú stiahnuté 
 - Ceny Bad Karma Boy, Keo a Family Therapy sa opätovne neprepočítali (AI nebeží, prepočítanie je presunuté).
 - Časti 1, 2, 5 sú presunuté za 061.
 - Lokálne spustenie bez `ANTHROPIC_API_KEY` stráca žánre z cache AI zaradenia (208 → 152 lokálne). Je to existujúce správanie `classify_ai`, nie zmena 060; v CI je kľúč.
+
+### Doplnok 2026-11-17 (rozhodnutie Mateja)
+- 6 cien od AI so zdrojom GoOut ostáva, automatické preberanie cien cez overenie na GoOut ostáva zapnuté; riziko voči podmienkam GoOut sa rieši, ak nastane. Zápis v `docs/decisions.md`. Obrázky z GoOut (časť 7) ďalej nie.
