@@ -1,3 +1,5 @@
+> **PRESUNUTÉ DO 058 (2026-11-17)** – nerobiť samostatne; pravidlá sú v `docs/ai-rules.md`, meranie v teste 058.
+
 # 056: Pravidlá typu akcie podľa Matejových označení, podtyp `performance`, presnosť AI
 
 ## Zadanie
