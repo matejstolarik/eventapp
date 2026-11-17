@@ -34,6 +34,7 @@ Len výslovne uvedený pri akcii; inak prázdny. Nikdy neodhadovať.
 
 ## F. Popis
 Približne 5 viet; dĺžka podľa interpreta: pri veľkej hviezde môže byť dlhší, pri undergroundovom interpretovi s málom informácií kratší (2026-11-17, Matej). Vecne a do hĺbky (kto, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne), **bez reklamných fráz a pátosu**, bez výkričníkov a emoji, bez ceny/času/miesta. Žánre ako názvy („techno“, nie „technové“). Len fakty zo zdrojov; z pôvodného textu fakty, nie vety. CZ hlavný, SK a EN preklad. Vzor: popis Allt v úlohe 054 časť 4b.
+**(2026-11-17, Matej) Popis prezentuje informácie, nikdy ich nedostatok.** Žiadne vety o tom, čo sa nenašlo, nie je známe, nebolo zverejnené alebo ohlásené („o účinkujících se nedochovaly další podrobnosti“, „konkrétní účinkující nejsou zveřejněni“, „sedmé jméno zatím ohlášeno nebylo“), ani o tom, ako AI hľadala (rovnaké meno u iných interpretov). Málo informácií = kratší popis; nič = žiadny popis (pravidlo H).
 
 ## G. Interpreti a Spotify
 Mená všetkých účinkujúcich. **Spotify AI nehľadá** (zmena 2026-11-17, Matej): odkazy na Spotify dopĺňa len hlavný chat ručne do `data/manual.json` (ID z kworb.net, overené na `open.spotify.com/artist/<ID>`). Odkaz na Spotify z AI sa neukladá.
