@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Robí sa po 054** (nadväzuje na AI s hľadaním z 054). **Schválené Matejom 2026-11-17** vrátane zmien nižšie.
+**Robí sa po 058** (meria už AI s Gemini z 058). **Schválené Matejom 2026-11-17** vrátane zmien nižšie.
 
 **Čítaj:** `docs/tasks/056/labels-matej.csv` (50 akcií, `expected_primary` = Matejov hlavný typ, `expected_secondary`, `note` = jeho zdôvodnenie – **prečítaj všetky poznámky**); `docs/data-model.md` riadok `formats`; prompt v `pipeline/classify_ai.py` a v AI doplnení z 054; `apply_commercial_clubs()` v `pipeline/classify.py`; `web/src/core/eventType.ts`; `web/src/i18n/*` (štítok `talk`).
 
