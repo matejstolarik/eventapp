@@ -14,14 +14,15 @@ describe('eventDescription (task 054)', () => {
   })
 })
 
-describe('spotifyUrl (task 054)', () => {
-  it('opens the artist profile from artist_links', () => {
+describe('spotifyUrl (task 060)', () => {
+  it('opens the verified artist profile from artist_links[0]', () => {
     const url = 'https://open.spotify.com/artist/5yOvAmpIR7hVxiS6Ls5DPO'
-    expect(spotifyUrl({ title: 'Omah Lay', artists: ['Omah Lay'], artist_links: [{ name: 'Omah Lay', spotify_url: url }] })).toBe(url)
+    expect(spotifyUrl({ artist_links: [{ name: 'Omah Lay', spotify_url: url }] })).toBe(url)
   })
-  it('falls back to search', () => {
-    expect(spotifyUrl({ title: 'Akce X', artists: [], artist_links: null })).toBe('https://open.spotify.com/search/Akce%20X')
-    expect(spotifyUrl({ title: 'T', artists: ['Allt'] })).toBe('https://open.spotify.com/search/Allt')
+  it('no link -> null (no button, no Spotify search)', () => {
+    expect(spotifyUrl({ artist_links: null })).toBeNull()
+    expect(spotifyUrl({ artist_links: [] })).toBeNull()
+    expect(spotifyUrl({})).toBeNull()
   })
 })
 

@@ -167,8 +167,9 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
       showToast(dict.event.linkCopied)
     }
   }
+  const spotify = spotifyUrl(ev)
   function handleSpotify() {
-    window.open(spotifyUrl(ev), '_blank', 'noopener')
+    if (spotify) window.open(spotify, '_blank', 'noopener')
   }
   function handleNavigate() {
     if (venue) {
@@ -392,10 +393,10 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
           {ev.ticket_url ? dict.event.tickets : dict.event.website}
         </button>
 
-        {/* Secondary actions: Spotify · Kalendár · Zdieľať · Na mape · Navigovať */}
+        {/* Secondary actions: Spotify (only with a verified link) · Kalendár · Zdieľať · Na mape · Navigovať */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {([
-            { label: dict.event.spotify, onClick: handleSpotify, icon: <IconSpotify size={18} /> },
+            ...(spotify ? [{ label: dict.event.spotify, onClick: handleSpotify, icon: <IconSpotify size={18} /> }] : []),
             { label: dict.event.calendar, onClick: handleCalendar, icon: <IconCalendar size={18} color="#F4F2FF" /> },
             { label: dict.event.share, onClick: handleShare, icon: <IconShare size={18} color="#F4F2FF" /> },
             ...(venue && onGoToMap ? [{ label: dict.event.onMap, onClick: handleGoToMap, icon: <IconPin size={18} color="#F4F2FF" /> }] : []),

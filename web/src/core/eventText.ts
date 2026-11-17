@@ -8,13 +8,11 @@ export function eventDescription(ev: Pick<Event, 'descriptions' | 'description'>
   return d?.[lang] || d?.cs || ev.description || null
 }
 
-/** Spotify button target (design.md part 7): the first artist profile from
- *  artist_links, otherwise a Spotify search for the first artist / title. */
-export function spotifyUrl(ev: Pick<Event, 'artist_links' | 'artists' | 'title'>): string {
-  const link = ev.artist_links?.find(a => a.spotify_url)?.spotify_url
-  if (link) return link
-  const query = ev.artists?.[0] ?? ev.title
-  return `https://open.spotify.com/search/${encodeURIComponent(query)}`
+/** Spotify button target (design.md part 7, task 060): only the verified
+ *  artist profile artist_links[0].spotify_url (from data/manual.json);
+ *  null = no Spotify button (no Spotify search). */
+export function spotifyUrl(ev: Pick<Event, 'artist_links'>): string | null {
+  return ev.artist_links?.[0]?.spotify_url || null
 }
 
 /** Price shown in the app (task 058 part 4): from the structured `price`,
