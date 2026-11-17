@@ -34,6 +34,12 @@ Implementuj návrh z 052 (časť 3) do `data-model.md` a pipeline: `enrichment` 
 - Chyba AI alebo poskytovateľa nesmie zastaviť denný beh (varovanie, pokračovať bez doplnenia).
 - Job summary: hľadania tento mesiac / limit, cena behu, počty doplnených polí (typ zmenený, žánre, cena, čas, popis, Spotify), zahodené ceny.
 
+### 4a. Žánre a návrhy nových žánrov (Matej 2026-11-17)
+- Žánre aj pre kultúru: nové zoznamy `film_genres` a `stage_genres` (divadlo, tanec, performance) v `data-model.md`, **na začiatku prázdne** – plnia sa len schválenými návrhmi. Hudobný zoznam (33) ostáva.
+- AI vráti aj žánre mimo zoznamov (`genre_candidates`, surový text). Ak zapadá pod existujúci žáner, namapuj ho (`data/genre_aliases.json`: surový → náš, aby sa dalo kontrolovať). Ak nie, ulož ako **návrh** (`data/genre_proposals.json`: názov, typ hudba/film/divadlo, počet akcií, príklady `event_id`); v appke sa **nezobrazuje**.
+- Návrh sa hlási až pri **≥ 3 akciách**. Schválené žánre pridáva do zoznamov hlavný chat podľa Matejovho rozhodnutia.
+- **Po prvom behu na existujúcich akciách (backfill)** daj do reportu tejto úlohy tabuľku návrhov (názov, typ, počet, 2–3 príklady s odkazom) a navrhnuté mapovania – Matej ich schváli hneď, nečaká na týždenný report.
+
 ### 4b. Popis akcie od AI pri každej akcii (Matej 2026-11-17, schválené vrátane zmeny dátového modelu)
 - **Každá** akcia v rozsahu časti 4 dostane popis od AI v troch jazykoch v jednom volaní: `descriptions: { "cs": …, "sk": …, "en": … }` (nové pole v `data-model.md`). Čeština je hlavná, `sk` a `en` sú preklady toho istého textu.
 - Podklad: pôvodný popis zo zdroja (ostáva v dátach ako `description`, v appke sa nezobrazuje) + fakty z hľadania. Z pôvodného textu sa **preberajú fakty, nie vety** – nekopírovať ani neprehadzovať slová (autorské práva).

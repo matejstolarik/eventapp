@@ -26,7 +26,8 @@ Nový workflow s cron (a `workflow_dispatch` na test), číta `run_summaries` za
 2. **Podniky** (tabuľka): akcie spolu, nové za týždeň, trend oproti minulému týždňu, varovania.
 3. **Chýbajúce údaje** len tam, kde je podnik výrazne horší ako jeho bežný stav alebo > 30 % akcií bez poľa.
 4. **Na kontrolu** (najviac 10, s odkazom na zdroj a na akciu v appke): AI nič nenašla, nízka istota typu, zahodená cena, zmena typu AI.
-5. **AI:** hľadania a cena za týždeň a za mesiac / limit.
+5. **Návrhy nových žánrov** (z `data/genre_proposals.json`, len ≥ 3 akcie): názov, typ, počet, 2–3 príklady s odkazom; Matej odpovie schváliť / zlúčiť s X / zamietnuť.
+6. **AI:** hľadania a cena za týždeň a za mesiac / limit.
 - **Každý bod má krátke ID** (napr. `W47-03`), aby naň Matej mohol odkazovať.
 - Pravidlá reportu (prahy, čo hlásiť, ignorované body) v **`docs/report-rules.md`** + `data/report_ignore.json` (ID typu `venue:pole` alebo `event_id`, ktoré sa už nehlásia). Hlavný chat ich bude upravovať podľa Matejových hodnotení.
 - Report uzavrie predošlý týždenný issue.
