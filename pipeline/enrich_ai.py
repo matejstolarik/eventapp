@@ -43,6 +43,7 @@ import requests
 
 from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
+from pipeline.ai_rules import DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL
 from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
 
 log = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ MAX_SEARCHES_PER_EVENT = 3
 MAX_WORKERS = 4
 RUN_TIMEOUT_S = int(os.environ.get("ENRICH_TIMEOUT_S", "1500"))
 MAX_ERRORS_IN_A_ROW = 5
-BLOCKED_DOMAINS = ["ra.co"]
+BLOCKED_DOMAINS = ["ra.co", "instagram.com"]   # task 058: Instagram never a source
 
 # Genre lists and mapping: pipeline/genres.py (task 058 part 3).
 _MUSIC_FORMATS = {"concert", "dj", "party", "music"}
@@ -61,8 +62,6 @@ _STAGE_FORMATS = {"theatre", "dance"}
 
 CLAUDE_MODEL = "claude-haiku-5-5"
 CLAUDE_PRICES = (0.10 / 1e6, 0.50 / 1e6, 10.0 / 1000)   # in, out per token; per search
-GEMINI_MODEL = "gemini-3.1-flash-lite"
-GEMINI_PRICES = (0.25 / 1e6, 1.50 / 1e6, 0.0)          # searches: 5,000/month free
 
 _SPOTIFY_RE = re.compile(r"^https://open\.spotify\.com/(?:intl-[a-z]+/)?artist/[A-Za-z0-9]{22}")
 _TIME_RE = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
@@ -72,80 +71,13 @@ _BANNED = re.compile(
     r"don't miss|unforgettable|legendary|unique experience", re.I)
 _EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
 
-DESCRIPTION_EXAMPLE = (
-    "Švédská kapela Allt z Karlskogy hraje progresivní metalcore a od svého vzniku v roce "
-    "2020 si vybudovala pověst skupiny, která staví koncerty jako audiovizuální příběh. Debut "
-    "From The New World z roku 2024 je koncepční deska o kolapsu a přežití, ovlivněná zbrojním "
-    "průmyslem v jejich rodném městě. Letos vydali u Century Media druhé album Ataraxia a v "
-    "MeetFactory, kde v roce 2024 předskakovali Imminence, se teď představí jako hlavní hvězda. "
-    "Večer otevřou německá kapela Avralize a švédští Bite Down."
-)
+SYSTEM_PROMPT = f"""You enrich data about one event at a Prague venue. Accuracy matters more than completeness: leave a field empty (null / []) when you are not sure. Never invent facts, dates, prices or URLs.
 
-SYSTEM_PROMPT = f"""\
-You enrich data about one event at a Prague venue. Accuracy matters more than \
-completeness: leave a field empty (null / []) when you are not sure. Never invent \
-facts, dates, prices or URLs.
+RESEARCH (docs/ai-rules.md A): read the EVENT DATA and EVENT PAGE TEXT, then search (at most {MAX_SEARCHES_PER_EVENT} searches): all performers; about every main performer who it is, where from, how they present themselves (band / DJ / producer / theatre company …), genre, releases; the event page (venue website, public Facebook event, presale) for price and time. Type, genres and description come from the SAME findings. Never use Instagram or ra.co (Resident Advisor).
 
-Work order: first read the EVENT DATA and the EVENT PAGE TEXT given to you. Search \
-the web only for what is missing or unclear there (at most {MAX_SEARCHES_PER_EVENT} \
-searches). Never use ra.co (Resident Advisor) as a source.
+{RULES_ALL}
 
-TYPE (formats, more than one allowed, only from {sorted(VALID_FORMATS)}):
-- concert: live musicians/band on stage (solo artist, band, orchestra, live electronic set)
-- dj: DJ set or electronic music performance
-- party: a big commercial / mainstream party where people go for the atmosphere, not \
-for specific music or a specific performer (commercial clubs, Erasmus/student parties, \
-80s/90s hits, open bar, mainstream themed nights). A club night focused on the music or \
-the DJs is "dj", NOT "party". Use "party" only with a clear signal and give the reason \
-in party_reason. A venue's own program category or stage name (e.g. Cross Club \
-"Party – Hlavní stage") is NOT such a signal. Combine with "dj" or "concert" when there \
-are DJs or live acts.
-- music: musical event, concert vs. DJ cannot be determined (last resort)
-- dance (dance show), talk (lecture, debate, reading, book launch, discussion), comedy \
-(stand-up), workshop, theatre, film, opening (exhibition opening), quiz, other.
-Concert vs. dj: the MAIN performer decides. Concert with a DJ afterparty = concert (you \
-may add dj). Club night with bands and DJs without a clear main performer = dj. Rap / \
-hip-hop live = concert. DJ set by a musician = dj. Jam session, open mic = concert.
-primary_format: the ONE format of the main part of the event (must be one of formats).
-type_source_url: page that supports the type, or null if derived from the event text only.
-
-GENRES:
-- music events: genres only from {sorted(VALID_GENRES)}; [] if unsure.
-- film / theatre / dance: there is no fixed list yet, put genres into genre_candidates.
-- genre_candidates: every genre you found that is NOT in the list above, as the raw \
-genre name (e.g. "metalcore", "psytrance", "documentary", "physical theatre"), with \
-kind "music" | "film" | "stage" and maps_to = the genre from the list it belongs \
-under (e.g. "metalcore" -> "metal") or null when none fits.
-
-PRICE: only if explicitly stated for THIS event (and this date), exactly as written \
-(e.g. "250 Kč", "200–350 Kč", "BASIC 290 Kč / VIP 500 Kč", "zdarma"), with \
-price_source_url = the page where it is written. Otherwise null. Ticket shops \
-(GoOut, Ticketmaster, smsticket …) are fine, ra.co is not.
-START TIME: HH:MM, only if missing in EVENT DATA and explicitly stated, with source_url.
-ARTISTS: performer names (main performer first), with artists_source_url.
-SPOTIFY: spotify_url only an open.spotify.com/artist/... URL that literally appeared in \
-your search results AND clearly is this artist; otherwise omit.
-
-DESCRIPTIONS (always, for every event): descriptions.cs in Czech, 3-5 sentences, \
-factual and informative, going into depth: who the performer is, where from, what they \
-are known for, what they released, what is special about the evening (album launch, \
-comeback, guests). Take FACTS from the original description and from the sources, \
-never its sentences: do not copy or reshuffle its wording. No advertising phrases \
-("nezmeškejte", "legendární", "nezapomenutelný", "unikátní zážitek"), no pathos, no \
-exclamation marks, no emoji. Do not mention price, time or venue address (shown \
-elsewhere in the app). Only facts from the sources; what you did not find you do not \
-write (not even "Prague band" unless a source says so). Write about the event and the \
-performers, never about the sources ("podle popisu akce", "web uvádí"). Genre names are NOT declined \
-or translated: "techno", "drum and bass", "metalcore", "afrobeats" (e.g. "album v žánru \
-techno" / "techno album"), never "technové", "drum and bassový". When you have only \
-few facts, write a shorter description from what you have, or null. \
-descriptions.sk and descriptions.en are translations of the same Czech text. \
-description_source_urls: the pages the facts come from (the event page counts).
-Example of the style (approved):
-"{DESCRIPTION_EXAMPLE}"
-
-Every source_url must be a real page you saw (the event page or a search result). \
-Call report_enrichment exactly once at the end."""
+Every source_url must be a real page you saw (the event page or a search result). Call report_enrichment exactly once at the end."""
 
 _RESULT_SCHEMA = {
     "type": "object",
@@ -155,7 +87,12 @@ _RESULT_SCHEMA = {
         "party_reason": {"type": ["string", "null"]},
         "type_source_url": {"type": ["string", "null"]},
         "type_confidence": {"type": "number"},
-        "genres": {"type": "array", "items": {"type": "string"}},
+        "type_reason": {"type": ["string", "null"]},
+        "genres": {"type": "array", "items": {"type": "string"},
+                   "description": "ordered, main genre first"},
+        "genre_facts": {"type": "object", "additionalProperties": {"type": "string"},
+                        "description": "genre -> the found fact that supports it"},
+        "needs_review": {"type": "boolean"},
         "genre_candidates": {
             "type": "array",
             "items": {
@@ -266,6 +203,11 @@ def _ok_url(url) -> bool:
     return bool(url) and str(url).startswith("http") and not blocked(url)
 
 
+def canon_url(url) -> str:
+    u = re.sub(r"^https?://(www\.)?", "", str(url or "").strip().lower())
+    return u.split("#")[0].rstrip("/")
+
+
 def _clean_text(text) -> str | None:
     if not isinstance(text, str):
         return None
@@ -286,10 +228,16 @@ def description_problems(text: str) -> list[str]:
 
 
 def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
-             aliases: dict | None = None) -> dict:
+             aliases: dict | None = None, allowed_urls: set[str] | None = None) -> dict:
     """Apply the rules to a raw model result -> clean dict + 'dropped'.
 
-    aliases: approved raw genre -> our genre (data/genre_aliases.json)."""
+    aliases: approved raw genre -> our genre (data/genre_aliases.json).
+    allowed_urls: if given (Gemini two-step), every source URL must be one of
+    them (resolved search sources + event page), compared by canon_url()."""
+    allowed = None if allowed_urls is None else {canon_url(u) for u in allowed_urls}
+
+    def ok(url) -> bool:
+        return _ok_url(url) and (allowed is None or canon_url(url) in allowed)
     aliases = {k.lower(): v for k, v in (aliases or {}).items()}
     dropped: list[str] = []
     out: dict = {}
@@ -303,7 +251,7 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     out["primary_format"] = pf if pf in fmts else None
     out["party_reason"] = _clean_text(raw.get("party_reason")) if "party" in fmts else None
     tsrc = raw.get("type_source_url")
-    out["type_source_url"] = tsrc if _ok_url(tsrc) else None
+    out["type_source_url"] = tsrc if ok(tsrc) else None
     try:
         out["type_confidence"] = max(0.0, min(1.0, float(raw.get("type_confidence") or 0.5)))
     except (TypeError, ValueError):
@@ -339,10 +287,14 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
         add_raw((c or {}).get("raw"), kind)
     out["genres"] = gens
     out["genre_candidates"] = cands
+    facts = raw.get("genre_facts") if isinstance(raw.get("genre_facts"), dict) else {}
+    out["genre_facts"] = {str(k): _clean_text(v) for k, v in facts.items() if _clean_text(v)}
+    out["type_reason"] = _clean_text(raw.get("type_reason"))
+    out["needs_review"] = bool(raw.get("needs_review"))
 
     arts = [a.strip() for a in raw.get("artists") or [] if isinstance(a, str) and a.strip()][:10]
     asrc = raw.get("artists_source_url")
-    if arts and not _ok_url(asrc):
+    if arts and not ok(asrc):
         dropped.append("artists: no valid source_url")
         arts, asrc = [], None
     out["artists"], out["artists_source_url"] = arts, asrc if arts else None
@@ -362,7 +314,7 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     out["artist_links"] = links[:5]
 
     price, psrc = _clean_text(raw.get("price")), raw.get("price_source_url")
-    if price and not _ok_url(psrc):
+    if price and not ok(psrc):
         dropped.append("price: no valid source_url")
         price = None
     out["price"], out["price_source_url"] = price, psrc if price else None
@@ -371,13 +323,13 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     if st and not _TIME_RE.match(st):
         dropped.append(f"start_time: bad format {st}")
         st = None
-    if st and not _ok_url(ssrc):
+    if st and not ok(ssrc):
         dropped.append("start_time: no valid source_url")
         st = None
     out["start_time"], out["start_time_source_url"] = st, ssrc if st else None
 
     descs = raw.get("descriptions") or {}
-    dsrc = [u for u in raw.get("description_source_urls") or [] if _ok_url(u)]
+    dsrc = [u for u in raw.get("description_source_urls") or [] if ok(u)]
     clean = {k: _clean_text(descs.get(k)) for k in ("cs", "sk", "en")} if isinstance(descs, dict) else {}
     clean = {k: v for k, v in clean.items() if v}
     if clean and "cs" not in clean:
@@ -460,6 +412,8 @@ def verify_price(ev: dict, res: dict, fetch=_fetch_page_text) -> tuple[bool, str
     url = res.get("price_source_url")
     if not _ok_url(url):
         return False, "no valid source_url"
+    if _host(url).endswith("facebook.com"):
+        return False, "facebook page is not fetched by the pipeline"
     try:
         page = fetch(url)
     except Exception as exc:
@@ -538,54 +492,194 @@ class _Claude:
         raise RuntimeError("no report_enrichment after 4 turns")
 
 
-class _Gemini:
+# Gemini two-step (task 058 part 1).  gemini-3.5-flash is the model named in
+# the task; ENRICH_GEMINI_MODEL overrides it.  Prices per token (input, output
+# incl. thinking), https://aistudio.google.com/docs/pricing, 2026-11-17.
+GEMINI_PRICE_TABLE = {
+    "gemini-3.1-flash-lite": (0.25 / 1e6, 1.50 / 1e6),
+    "gemini-3.5-flash-lite": (0.30 / 1e6, 2.50 / 1e6),
+    "gemini-3.6-flash": (0.75 / 1e6, 3.75 / 1e6),     # through 2026-12-31, then x2
+    "gemini-3.8-flash": (0.75 / 1e6, 3.75 / 1e6),     # through 2026-12-31, then x2
+}
+GEMINI_SEARCH_PRICE = 14.0 / 1000    # after 5,000 free searches / month
+GEMINI_RESERVE_SEARCHES = 12         # searches reserved per event for the monthly limit
+MAX_SPOTIFY_PAGES = 5
+_GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+
+
+def resolve_redirect(uri: str) -> str | None:
+    """Grounding sources are vertexaisearch redirect URIs: one HEAD without
+    following -> the target URL (the target site itself is not requested)."""
+    if "grounding-api-redirect" not in (uri or ""):
+        return uri or None
+    try:
+        r = requests.head(uri, allow_redirects=False, timeout=10,
+                          headers={"User-Agent": USER_AGENT})
+        loc = r.headers.get("Location")
+        if not loc:
+            r = requests.get(uri, allow_redirects=False, timeout=10,
+                             headers={"User-Agent": USER_AGENT})
+            loc = r.headers.get("Location")
+        return loc or None
+    except requests.RequestException:
+        return None
+
+
+def spotify_page_name(url: str) -> str | None:
+    """One GET of an open.spotify.com/artist page -> artist name (og:title)."""
+    try:
+        r = requests.get(url, timeout=10, headers={"User-Agent": USER_AGENT})
+        r.raise_for_status()
+    except requests.RequestException:
+        return None
+    m = (re.search(r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"', r.text)
+         or re.search(r"<title>([^<|]+)", r.text))
+    return _clean_text(m.group(1)) if m else None
+
+
+def name_key(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", _norm(s or ""))
+
+
+class _Gemini2:
+    """Step 1: research with Google Search (no venue page text, so that the
+    model searches).  Step 2: decision without search from the step-1 facts,
+    the numbered sources and the venue page text."""
     name = "gemini"
-    model = GEMINI_MODEL
-    prices = GEMINI_PRICES
+    reserve = GEMINI_RESERVE_SEARCHES
 
-    def __init__(self):
-        self.key = os.environ["GEMINI_API_KEY"].strip()
+    def __init__(self, model: str | None = None, resolve=resolve_redirect,
+                 spotify_name=spotify_page_name, call=None):
+        self.key = os.environ.get("GEMINI_API_KEY", "").strip()
+        self.model = (model or os.environ.get("ENRICH_GEMINI_MODEL", "").strip()
+                      or "gemini-3.5-flash")
+        pin, pout = GEMINI_PRICE_TABLE.get(self.model, GEMINI_PRICE_TABLE["gemini-3.6-flash"])
+        self.prices = (pin, pout, 0.0)      # searches within the free 5,000 / month
+        self.resolve = resolve
+        self.spotify_name = spotify_name
+        self._call = call or self._http
 
-    def run(self, prompt: str, max_uses: int) -> dict:
-        schema = json.dumps(_RESULT_SCHEMA["properties"], ensure_ascii=False)
-        body = {
-            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-            "contents": [{"role": "user", "parts": [{"text": prompt
-                          + "\n\nAnswer with ONLY one JSON object with these keys: " + schema}]}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 4096},
-        }
-        if max_uses > 0:
-            body["tools"] = [{"google_search": {}}]
+    def _http(self, body: dict) -> dict:
         req = urllib.request.Request(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent",
-            data=json.dumps(body).encode(), method="POST",
+            _GEMINI_URL.format(self.model), data=json.dumps(body).encode(), method="POST",
             headers={"Content-Type": "application/json", "x-goog-api-key": self.key,
                      "User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(req, timeout=90) as resp:
-                data = json.loads(resp.read())
-        except urllib.error.HTTPError as exc:
-            msg = exc.read().decode("utf-8", "replace")[:300]
-            if exc.code in (401, 402, 403):   # 402: prepaid credit used up
-                raise ProviderStop(f"HTTP {exc.code}: {msg}")
-            raise RuntimeError(f"HTTP {exc.code}: {msg}")
+        last = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    return json.loads(resp.read())
+            except urllib.error.HTTPError as exc:
+                msg = exc.read().decode("utf-8", "replace")[:300]
+                if exc.code in (401, 402, 403, 404):   # 402: prepaid credit used up
+                    raise ProviderStop(f"HTTP {exc.code}: {msg}")
+                last = RuntimeError(f"HTTP {exc.code}: {msg}")
+                if exc.code not in (429, 500, 503):
+                    raise last
+            except (urllib.error.URLError, TimeoutError) as exc:
+                last = RuntimeError(f"network: {exc}")
+            time.sleep(5 * (attempt + 1))
+        raise last
+
+    @staticmethod
+    def _usage(data: dict) -> tuple[int, int]:
         um = data.get("usageMetadata", {})
+        return (um.get("promptTokenCount", 0) + um.get("toolUsePromptTokenCount", 0),
+                um.get("candidatesTokenCount", 0) + um.get("thoughtsTokenCount", 0))
+
+    def research(self, ev: dict, venue: dict) -> dict:
+        src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+        user = "\n".join([
+            f"Event: {ev.get('title')}",
+            f"Venue: {venue.get('name', ev['venue_id'])}, Prague"
+            + (f" ({venue['website']})" if venue.get("website") else ""),
+            f"Date: {ev.get('date')}",
+            f"Event page at the venue: {src or '(none)'}",
+        ])
+        rec = {"text": "", "queries": [], "sources": [], "input_tokens": 0,
+               "output_tokens": 0, "retried": False, "searched": False}
+        chunks: list = []
+        for attempt in range(2):
+            prompt = user if attempt == 0 else user + "\n\n" + RESEARCH_RETRY
+            data = self._call({
+                "systemInstruction": {"parts": [{"text": RESEARCH_PROMPT}]},
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "tools": [{"google_search": {}}],
+                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 6000},
+            })
+            i, o = self._usage(data)
+            rec["input_tokens"] += i
+            rec["output_tokens"] += o
+            cand = (data.get("candidates") or [{}])[0]
+            gm = cand.get("groundingMetadata") or {}
+            queries = gm.get("webSearchQueries") or []
+            rec["queries"] += queries
+            rec["text"] = "".join(p.get("text", "") for p in
+                                  (cand.get("content") or {}).get("parts", []))
+            chunks = [c.get("web") or {} for c in gm.get("groundingChunks") or []]
+            if queries:
+                rec["searched"] = True
+                break
+            rec["retried"] = True
+        # resolve redirect sources; Spotify artist pages get one GET for the name
+        seen, n_spotify = set(), 0
+        for c in chunks:
+            url = self.resolve(c.get("uri"))
+            if not url or blocked(url) or canon_url(url) in seen:
+                continue
+            seen.add(canon_url(url))
+            item = {"title": c.get("title") or _host(url), "url": url}
+            m = _SPOTIFY_RE.match(url)
+            if m:
+                item["url"] = m.group(0)
+                if n_spotify < MAX_SPOTIFY_PAGES:
+                    item["spotify_name"] = self.spotify_name(m.group(0))
+                    n_spotify += 1
+            rec["sources"].append(item)
+        return rec
+
+    def decide(self, ev: dict, venue: dict, page_text: str | None,
+               research: dict) -> tuple[dict, int, int]:
+        lines = [build_prompt(ev, venue, page_text), "", "RESEARCH FACTS (step 1)",
+                 research["text"] or "(nothing found)", "", "SOURCES"]
+        for n, s in enumerate(research["sources"], 1):
+            extra = f" (Spotify artist page: {s['spotify_name']})" if s.get("spotify_name") else ""
+            lines.append(f"[{n}] {s['title']}: {s['url']}{extra}")
+        if not research["sources"]:
+            lines.append("(none)")
+        schema = json.dumps(_RESULT_SCHEMA["properties"], ensure_ascii=False)
+        data = self._call({
+            "systemInstruction": {"parts": [{"text": DECIDE_PROMPT}]},
+            "contents": [{"role": "user", "parts": [{"text": "\n".join(lines)
+                          + "\n\nJSON keys (JSON schema of the values): " + schema}]}],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 8000,
+                                 "responseMimeType": "application/json"},
+        })
+        i, o = self._usage(data)
         cand = (data.get("candidates") or [{}])[0]
-        gm = cand.get("groundingMetadata") or {}
         text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", []))
         m = re.search(r"\{.*\}", text, re.S)
         if not m:
-            raise RuntimeError(f"no JSON in answer ({cand.get('finishReason')})")
-        rec = {
-            "searches": len(gm.get("webSearchQueries") or []),
-            "input_tokens": um.get("promptTokenCount", 0) + um.get("toolUsePromptTokenCount", 0),
-            "output_tokens": um.get("candidatesTokenCount", 0) + um.get("thoughtsTokenCount", 0),
-            # Gemini exposes only redirect URIs; Spotify check uses chunk titles
-            "seen_urls": None,
-            "grounding_titles": [(c.get("web") or {}).get("title", "") for c in gm.get("groundingChunks") or []],
-            "raw": json.loads(m.group(0)),
+            raise RuntimeError(f"step 2: no JSON in answer ({cand.get('finishReason')})")
+        return json.loads(m.group(0)), i, o
+
+    def run_event(self, ev: dict, venue: dict, page_text: str | None, max_uses: int) -> dict:
+        r = self.research(ev, venue)
+        raw, i, o = self.decide(ev, venue, page_text, r)
+        src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+        allowed = {s["url"] for s in r["sources"]} | ({src} if src else set())
+        return {
+            "searches": len(r["queries"]),
+            "input_tokens": r["input_tokens"] + i,
+            "output_tokens": r["output_tokens"] + o,
+            "seen_urls": [s["url"] for s in r["sources"]],
+            "allowed_urls": allowed,
+            "spotify_names": {s["url"]: s["spotify_name"] for s in r["sources"]
+                              if s.get("spotify_name")},
+            "searched": r["searched"],
+            "research": r,
+            "raw": raw,
         }
-        return rec
 
 
 def make_provider():
@@ -593,7 +687,7 @@ def make_provider():
     if name == "gemini":
         if not os.environ.get("GEMINI_API_KEY", "").strip():
             return None, "GEMINI_API_KEY not set"
-        return _Gemini(), None
+        return _Gemini2(), None
     if not os.environ.get("ANTHROPIC_API_KEY", "").strip():
         return None, "ANTHROPIC_API_KEY not set"
     return _Claude(), None
@@ -726,6 +820,54 @@ def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None)
     return ev
 
 
+def check_spotify(res: dict, rec: dict) -> None:
+    """Gemini two-step: a Spotify link stays only if its page was in the
+    resolved search sources and the page's artist name is one of the event's
+    artists (the model checked genre / country in step 2)."""
+    names = rec.get("spotify_names")
+    if names is None:
+        return
+    keys = {name_key(a) for a in res["artists"]}
+    kept = []
+    for link in res["artist_links"]:
+        page = names.get(link["spotify_url"])
+        if page and name_key(page) in keys:
+            kept.append({"name": page, "spotify_url": link["spotify_url"]})
+        else:
+            res["dropped"].append(f"spotify: page name {page!r} not an event artist")
+    res["artist_links"] = kept
+
+
+def process_result(ev: dict, rec: dict, model: str, today: str, aliases: dict | None,
+                   price_fetch=_fetch_page_text) -> tuple[dict, dict]:
+    """Validate one provider result, verify the price, build the enrichment."""
+    seen = None if rec["seen_urls"] is None else {u.split("?")[0] for u in rec["seen_urls"]}
+    res = validate(rec["raw"], ev, seen, aliases, rec.get("allowed_urls"))
+    check_spotify(res, rec)
+    searched = rec.get("searched", True)
+    if not searched:
+        # task 058: the model did not search -> not stored as ai_web
+        res["dropped"].append("not searched: only type / genres kept (ai_text)")
+        res["type_source_url"] = None
+        for k in ("artists", "artist_links", "genre_candidates"):
+            res[k] = []
+        res["price"] = res["start_time"] = res["descriptions"] = None
+    res["price_ok"] = False
+    if res["price"] and not ev.get("price_text"):
+        res["price_ok"], why = verify_price(ev, res, price_fetch)
+        if not res["price_ok"]:
+            log.info("enrich_ai %s: price '%s' from %s dropped: %s",
+                     ev["id"], res["price"], res["price_source_url"], why)
+            res["dropped"].append(f"price '{res['price']}': {why}")
+    conv = result_to_enrichment(res, model, today, rec["searches"], res["price_ok"])
+    run = conv["enrichment"]["run"]
+    if not searched:
+        run["searched"] = False
+    if res.get("needs_review"):
+        run["needs_review"] = True
+    return res, conv
+
+
 # ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
@@ -802,11 +944,14 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 left = MONTHLY_SEARCH_LIMIT - counter["count"] - reserved[0]
                 if left <= 0:
                     return ev["id"], {"skip": "limit"}
-                max_uses = min(MAX_SEARCHES_PER_EVENT, left)
+                max_uses = min(getattr(provider, "reserve", MAX_SEARCHES_PER_EVENT), left)
                 reserved[0] += max_uses
-            prompt = build_prompt(ev, venues_map.get(ev["venue_id"], {}), page_texts.get(ev["id"]))
+            venue = venues_map.get(ev["venue_id"], {})
             try:
-                rec = provider.run(prompt, max_uses)
+                if hasattr(provider, "run_event"):      # Gemini two-step (task 058)
+                    rec = provider.run_event(ev, venue, page_texts.get(ev["id"]), max_uses)
+                else:
+                    rec = provider.run(build_prompt(ev, venue, page_texts.get(ev["id"])), max_uses)
                 err = None
             except ProviderStop as exc:
                 rec, err = None, exc
@@ -850,23 +995,13 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             rec = r.get("rec")
             if not rec:
                 continue
-            seen = None if rec["seen_urls"] is None else {u.split("?")[0] for u in rec["seen_urls"]}
-            res = validate(rec["raw"], ev, seen, aliases)
-            if provider.name == "gemini" and res["artist_links"] and not any(
-                    "spotify" in (t or "").lower() for t in rec.get("grounding_titles", [])):
-                res["dropped"].append("spotify: no spotify page in grounding sources")
-                res["artist_links"] = []
-            price_ok = False
-            if res["price"] and not ev.get("price_text"):
-                price_ok, why = verify_price(ev, res, price_fetch)
-                if not price_ok:
-                    stats["prices_dropped"] += 1
-                    log.info("enrich_ai %s: price '%s' from %s dropped: %s",
-                             ev["id"], res["price"], res["price_source_url"], why)
-                    res["dropped"].append(f"price '{res['price']}': {why}")
+            res, conv = process_result(ev, rec, provider.model, today, aliases, price_fetch)
+            if res["price"] and not ev.get("price_text") and not res.get("price_ok"):
+                stats["prices_dropped"] += 1
+            if rec.get("searched") is False:
+                stats["not_searched"] = stats.get("not_searched", 0) + 1
             for d in res["dropped"]:
                 stats["dropped"].append(f"{ev['id']}: {d}")
-            conv = result_to_enrichment(res, provider.model, today, rec["searches"], price_ok)
             out_by_id[ev["id"]] = apply_enrichment(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
 

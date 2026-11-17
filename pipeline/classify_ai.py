@@ -26,6 +26,7 @@ import time as _time
 
 import anthropic
 
+from pipeline.ai_rules import RULES_TYPE, TYPE_EXAMPLES
 from pipeline.genres import MUSIC_GENRES
 
 log = logging.getLogger(__name__)
@@ -107,36 +108,14 @@ _CLASSIFY_TOOL = {
     },
 }
 
-_SYSTEM_PROMPT = """\
-You classify events at music and culture venues in Prague.
+# task 058: rules from docs/ai-rules.md (pipeline/ai_rules.py)
+_SYSTEM_PROMPT = f"""You classify events at music and culture venues in Prague from the event data only (no web search). Prefer specific formats over "music" or "other".
 
-Formats:
-- concert: live musicians/band on stage (solo artist, band, orchestra, live electronic set)
-- dj: DJ set or electronic music performance
-- party: a big commercial / mainstream party where people go for the atmosphere, not for specific music or a specific performer (commercial clubs, Erasmus/student parties, 80s/90s hits, open bar, mainstream themed nights). A club night focused on the music or the DJs is "dj", NOT "party". Use "party" only with a clear signal and always give the reason in party_reason. Combine with "dj" or "concert" when there are DJs or live acts.
-- music: musical event but cannot determine if concert or DJ (use as last resort)
-- dance: dance show/performance
-- talk: lecture, debate, reading, panel discussion
-- comedy: stand-up comedy
-- workshop: hands-on workshop or class
-- theatre: theatrical performance or play
-- film: film screening
-- opening: art vernissage / exhibition opening
-- quiz: pub quiz
-- other: does not fit any category above
+{RULES_TYPE}
 
-Concert vs. dj — the MAIN performer decides:
-- Concert with a DJ afterparty = "concert" (you may add "dj" as a second format).
-- Club night with bands and DJs where the main performer is not clear = "dj".
-- Rap / hip-hop performed live = "concert".
-- A DJ set by a musician = "dj".
-- Jam session, open mic = "concert".
+{TYPE_EXAMPLES}
 
-An event may have multiple formats (e.g. ["concert", "dj"] for a concert that becomes a club night).
-Always give primary_format: the one format of the main part of the event (e.g. ["concert", "dj"] concert with DJ afterparty → primary_format "concert").
-Prefer specific formats over "music" or "other".
-For genres, only add items you are confident about — empty list is fine.\
-"""
+Genres: only from the fixed list, ordered from the main genre, only when the event data supports them (synonyms only, never a parent genre automatically: metalcore is not metal). Empty list is fine."""
 
 
 
