@@ -35,7 +35,7 @@ Len výslovne uvedený pri akcii; inak prázdny. Nikdy neodhadovať.
 3–5 viet, vecne a do hĺbky (kto, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne), **bez reklamných fráz a pátosu**, bez výkričníkov a emoji, bez ceny/času/miesta. Žánre ako názvy („techno“, nie „technové“). Len fakty zo zdrojov; z pôvodného textu fakty, nie vety. CZ hlavný, SK a EN preklad. Vzor: popis Allt v úlohe 054 časť 4b.
 
 ## G. Interpreti a Spotify
-Mená všetkých účinkujúcich. Spotify odkaz len pri istej zhode; inak appka vyhľadá podľa mena.
+Mená všetkých účinkujúcich. Pri každom hlavnom interpretovi hľadanie „<meno> spotify“; odkaz `open.spotify.com/artist/…` len ak je vo výsledkoch a zhoda je istá (meno + žáner alebo krajina). Inak appka vyhľadá podľa mena.
 
 ## H. Neistota
 Keď AI nič nenájde (napr. REVO: Z Gumy Do Gumy), nechaj prázdne a označ „na kontrolu“. Nič nehádať.
