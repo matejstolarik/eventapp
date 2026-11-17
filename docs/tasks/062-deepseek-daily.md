@@ -2,6 +2,8 @@
 
 ## Zadanie
 
+> **ZMENA 2026-11-17 (Matej, pred spustením):** v časti 3 sa **nezastavuje** (ani pri typ pod 46/50, ani pri veľa zahodených žánroch). Meranie urob a výsledky daj do reportu, potom pokračuj časťou 4. Iný poskytovateľ nie je, chyby sa riešia po nasadení. Pravidlo kreditu v časti 4 (pri nízkom zostatku len 30 dní) platí.
+
 **Schválené Matejom 2026-11-17** po reporte 061: AI doplnenie a AI zaradenie v dennom behu = **DeepSeek variant A** (`pipeline/deepseek.py`). Nahrádza pôvodné časti 1, 2, 5 úlohy 060 (Gemini D). Gemini s hľadaním sa nepoužíva (060 poistka ostáva).
 
 **Čítaj:** `docs/ai-rules.md` (celé, zmenené B7 a F 2026-11-17); report 061 (Časť 2, tabuľka, Zahodené poistkami, Otvorené); zadanie 060 časť 2 (poistky – žánre a cena bez opory, nesplnené); `pipeline/deepseek.py`, `pipeline/enrich_ai.py` (`process_result`, `description_problems`), `pipeline/classify_ai.py`, `pipeline/research_store.py`, `.github/workflows/daily.yml`; `docs/decisions.md` (`grep -n "061\|060"`).
