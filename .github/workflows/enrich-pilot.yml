@@ -1,0 +1,46 @@
+name: Enrich pilot (manual)
+
+# Task 052: one-off pilot of AI enrichment with web search (Claude vs. Gemini).
+# Manual only. Does not touch events.json or GitHub Pages; results are a
+# workflow artifact (JSON) plus the job summary.
+
+on:
+  workflow_dispatch:
+    inputs:
+      providers:
+        description: 'Providers to run (comma-separated: claude,gemini)'
+        required: false
+        default: 'claude,gemini'
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pilot
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PILOT_PROVIDERS: ${{ inputs.providers }}
+          PILOT_OUT: pilot-out/enrich_pilot.json
+        run: python -m pipeline.enrich_pilot
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enrich-pilot-${{ github.run_id }}
+          path: pilot-out/
+          retention-days: 30
