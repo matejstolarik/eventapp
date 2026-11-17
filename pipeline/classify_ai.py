@@ -26,6 +26,8 @@ import time as _time
 
 import anthropic
 
+from pipeline.genres import MUSIC_GENRES
+
 log = logging.getLogger(__name__)
 
 MODEL = "claude-haiku-5-5"
@@ -38,13 +40,7 @@ VALID_FORMATS = frozenset({
     "concert", "dj", "party", "music", "dance", "talk", "comedy", "workshop",
     "theatre", "film", "opening", "quiz", "performance", "other",
 })
-VALID_GENRES = frozenset({
-    "ambient", "bassline", "disco", "drum-and-bass", "dubstep", "ebm", "electro",
-    "electro-swing", "electronic", "experimental", "folk", "funk", "hardstyle",
-    "hip-hop", "house", "indie", "jazz", "latin", "metal", "pop", "post-punk",
-    "punk", "r-n-b", "reggae", "rock", "ska", "shoegaze", "tech-house", "techno",
-    "trance", "uk-bass", "uk-garage", "world",
-})
+VALID_GENRES = MUSIC_GENRES   # task 058: lists live in pipeline/genres.py
 
 _CLASSIFY_TOOL = {
     "name": "classify_events",

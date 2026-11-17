@@ -1,1 +1,23 @@
-{}
+{
+ "_comment": "Approved mappings raw genre -> our genre (or list, main first). Only synonyms and spelling variants (Matej 2026-11-17, docs/ai-rules.md C); spelling variants like 'drum and bass', 'dream pop' are matched automatically (pipeline/genres.py).",
+ "rap": "hip-hop",
+ "hiphop": "hip-hop",
+ "d&b": "drum-and-bass",
+ "dnb": "drum-and-bass",
+ "drum'n'bass": "drum-and-bass",
+ "drum n bass": "drum-and-bass",
+ "drumandbass": "drum-and-bass",
+ "r&b": "rnb",
+ "r'n'b": "rnb",
+ "ukg": "uk-garage",
+ "dub step": "dubstep",
+ "psytrance": "trance",
+ "psy trance": "trance",
+ "psychedelic trance": "trance",
+ "reggaeton": "latin",
+ "latino": "latin",
+ "electronic dance music": "edm",
+ "queer rave": "rave",
+ "mainstage": ["edm", "electronic"],
+ "ambient techno": ["techno", "ambient"]
+}

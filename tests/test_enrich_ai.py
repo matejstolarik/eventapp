@@ -72,16 +72,25 @@ def test_validate_rules():
 
 
 def test_validate_genres_and_candidates():
-    res = E.validate(_raw(genres=["metal", "metalcore"],
-                          genre_candidates=[{"raw": "Psytrance", "kind": "music", "maps_to": None}]),
+    """Task 058: order kept, subgenres on the list stay, no parent genre added,
+    unknown names are candidates, only aliases / spelling variants map."""
+    res = E.validate(_raw(genres=["metalcore", "Death metal", "deep house"],
+                          genre_candidates=[{"raw": "Psytrance", "kind": "music", "maps_to": "trance"}]),
                      _ev(), None)
-    assert res["genres"] == ["metal"]
+    assert res["genres"] == ["metalcore", "death-metal"]
+    assert {"raw": "deep house", "kind": "music", "maps_to": None} in res["genre_candidates"]
     assert {"raw": "psytrance", "kind": "music", "maps_to": None} in res["genre_candidates"]
-    assert any(c["raw"] == "metalcore" for c in res["genre_candidates"])
-    # approved alias maps it
-    res = E.validate(_raw(genres=["psytrance"], genre_candidates=[]), _ev(), None,
-                     aliases={"psytrance": "trance"})
-    assert "trance" in res["genres"]
+    # approved alias maps it, list target keeps the main genre first
+    res = E.validate(_raw(genres=["ambient techno", "rap"], genre_candidates=[]), _ev(), None,
+                     aliases={"ambient techno": ["techno", "ambient"], "rap": "hip-hop"})
+    assert res["genres"] == ["techno", "ambient", "hip-hop"]
+    assert {"raw": "rap", "kind": "music", "maps_to": "hip-hop"} in res["genre_candidates"]
+
+
+def test_stage_genre_physical_theatre():
+    res = E.validate(_raw(formats=["theatre"], primary_format="theatre", genres=["Physical theatre"],
+                          genre_candidates=[]), _ev(formats=["theatre"]), None)
+    assert res["genres"] == ["physical-theatre"]
 
 
 def test_film_genres_list_is_empty_so_all_are_candidates():
@@ -118,7 +127,7 @@ def test_enrich_fills_empty_fields_with_provenance():
     assert ev["descriptions"]["cs"] == DESC_CS
     assert ev["description"] == "Puvodni popis." and ev["description_source"] == "source"
     assert ev["classification"]["method"] == "llm+web"
-    assert ev["genres"] == ["metal"]
+    assert ev["genres"] == ["metal", "metalcore"]
     enr = ev["enrichment"]
     assert enr["run"]["checked_at"] == TODAY
     assert enr["price_text"] == {"by": "ai_web", "model": "claude-haiku-5-5",

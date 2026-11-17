@@ -43,6 +43,7 @@ import requests
 
 from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
+from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
 
 log = logging.getLogger(__name__)
 
@@ -54,10 +55,7 @@ RUN_TIMEOUT_S = int(os.environ.get("ENRICH_TIMEOUT_S", "1500"))
 MAX_ERRORS_IN_A_ROW = 5
 BLOCKED_DOMAINS = ["ra.co"]
 
-# Culture genre lists (task 054 part 4a) start empty; approved proposals are
-# added by the main chat after Matej's decision.
-FILM_GENRES: frozenset = frozenset()
-STAGE_GENRES: frozenset = frozenset()
+# Genre lists and mapping: pipeline/genres.py (task 058 part 3).
 _MUSIC_FORMATS = {"concert", "dj", "party", "music"}
 _STAGE_FORMATS = {"theatre", "dance"}
 
@@ -312,34 +310,33 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
         out["type_confidence"] = 0.5
 
     is_music = bool(set(fmts) & _MUSIC_FORMATS)
-    allowed = VALID_GENRES if is_music else (
-        FILM_GENRES if "film" in fmts else STAGE_GENRES if set(fmts) & _STAGE_FORMATS else frozenset())
-    gens, cands = [], []
+    own_kind = "music" if is_music else "film" if "film" in fmts else (
+        "stage" if set(fmts) & (_STAGE_FORMATS | {"performance"}) else None)
+    # task 058: genres in order (main first); raw names are mapped only through
+    # spelling variants + approved aliases, never to a parent genre.
+    gens, cands, seen_raw = [], [], set()
+
+    def add_raw(rawname, kind):
+        rawname = _clean_text(rawname)
+        if not rawname or (rawname.lower(), kind) in seen_raw:
+            return
+        seen_raw.add((rawname.lower(), kind))
+        mapped = map_genre(rawname, kind, aliases) if kind else []
+        if kind == own_kind and mapped:
+            for g in mapped:
+                if g not in gens:
+                    gens.append(g)
+            if [rawname.lower()] != mapped:
+                cands.append({"raw": rawname.lower(), "kind": kind, "maps_to": mapped[0]})
+        elif not mapped:
+            cands.append({"raw": rawname.lower(), "kind": kind or "music", "maps_to": None})
+
     for g in raw.get("genres") or []:
-        if g in allowed:
-            gens.append(g)
-        elif isinstance(g, str) and g.strip():
-            cands.append({"raw": g.strip(), "kind": "music" if is_music else
-                          "film" if "film" in fmts else "stage", "maps_to": None})
+        if isinstance(g, str):
+            add_raw(g, own_kind)
     for c in raw.get("genre_candidates") or []:
-        rawname = _clean_text((c or {}).get("raw"))
-        if not rawname:
-            continue
-        kind = c.get("kind") if c.get("kind") in ("music", "film", "stage") else "music"
-        maps = c.get("maps_to")
-        target = VALID_GENRES if kind == "music" else FILM_GENRES if kind == "film" else STAGE_GENRES
-        maps = maps if maps in target else None
-        if aliases.get(rawname.lower()) in target:
-            maps = aliases[rawname.lower()]
-        if rawname.lower() in {x.lower() for x in target}:
-            continue
-        cands.append({"raw": rawname.lower(), "kind": kind, "maps_to": maps})
-    # mapped candidates add their genre
-    for c in cands:
-        if not c["maps_to"] and aliases.get(c["raw"].lower()) in allowed:
-            c["maps_to"] = aliases[c["raw"].lower()]
-        if c["maps_to"] and c["maps_to"] not in gens and c["kind"] == ("music" if is_music else c["kind"]):
-            gens.append(c["maps_to"])
+        kind = (c or {}).get("kind") if (c or {}).get("kind") in ("music", "film", "stage") else "music"
+        add_raw((c or {}).get("raw"), kind)
     out["genres"] = gens
     out["genre_candidates"] = cands
 

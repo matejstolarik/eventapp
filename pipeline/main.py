@@ -18,6 +18,7 @@ from pipeline.classify import classify_events, apply_commercial_clubs
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
+from pipeline.genres import load_aliases, rename_genres
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
 from pipeline.fetch import USER_AGENT
 
@@ -186,9 +187,7 @@ def main():
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
                                                   state=state, today=today,
                                                   page_texts=page_texts)
-    approved_aliases = {}
-    if GENRE_ALIASES_PATH.exists():
-        approved_aliases = json.loads(GENRE_ALIASES_PATH.read_text(encoding="utf-8"))
+    approved_aliases = load_aliases(GENRE_ALIASES_PATH)
     try:
         events, web_stats = enrich_events_ai(events, venues, previous,
                                              state if loaded_state is not None else None,
@@ -199,6 +198,10 @@ def main():
         web_stats = {"skipped": f"error: {exc}"[:200], "warnings": []}
     # commercial-club rule last: EPIC music events are always party (task 053)
     events = apply_commercial_clubs(events, venues)
+    # task 058: renamed genre codes (r-n-b -> rnb), also in cached values
+    for ev in events:
+        if ev.get("genres"):
+            ev["genres"] = rename_genres(ev["genres"])
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
