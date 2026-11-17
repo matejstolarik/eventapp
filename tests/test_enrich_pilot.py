@@ -31,7 +31,9 @@ def test_select_events_covers_required_venues_and_skips_priced_past():
 def test_suspicion_reasons():
     assert ep.suspicion_reasons(_ev("a", "v", ["concert"]))  # empty genres
     assert ep.suspicion_reasons(_ev("a", "v", ["concert", "dj", "party"], ["rock"]))
-    assert not ep.suspicion_reasons(_ev("a", "v", ["dj", "party"], ["techno"], title="Techno night"))
+    assert not ep.suspicion_reasons(_ev("a", "v", ["dj"], ["techno"], title="Techno night"))
+    # new party definition (Matej 2026-11-17): every party is re-checked
+    assert ep.suspicion_reasons(_ev("a", "v", ["dj", "party"], ["techno"], title="Techno night"))
 
 
 def test_validate_result_rules():

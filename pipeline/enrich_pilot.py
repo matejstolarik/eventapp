@@ -85,7 +85,9 @@ def suspicion_reasons(ev: dict) -> list[str]:
     if fmts & _MUSIC and not ev.get("genres"):
         reasons.append("hudobná akcia s prázdnymi žánrami")
     if "party" in fmts and not _PARTY_WORDS.search(ev.get("title", "")):
-        reasons.append("party bez signálu v názve – môže byť koncert")
+        reasons.append("party bez signálu v názve – môže byť koncert / dj")
+    elif "party" in fmts:
+        reasons.append("party – overiť podľa novej definície (komerčná párty vs. dj noc)")
     if "party" in fmts and "concert" in fmts:
         reasons.append("party + concert naraz")
     cls = ev.get("classification") or {}
@@ -166,9 +168,12 @@ Rules:
 - First use the EVENT DATA given to you (mode A). Search the web only for what \
 is missing there. At most {MAX_SEARCHES_PER_EVENT} searches.
 - Never use ra.co (Resident Advisor) as a source.
-- formats: only from {sorted(VALID_FORMATS)}. "party" = the main point is \
-dancing / club night (combine with "dj" or "concert"); a band concert is \
-["concert"] without "party".
+- formats: only from {sorted(VALID_FORMATS)}. "party" = a big commercial / \
+mainstream party where people go for the atmosphere, not for specific music or \
+a specific performer (commercial clubs, Erasmus/student parties, 80s/90s hits, \
+open bar, mainstream themed nights). A club night focused on the music or the \
+DJs is "dj", NOT "party". A band concert is "concert". Use "party" only with a \
+clear signal and give the reason in party_reason.
 - genres: only from {sorted(VALID_GENRES)}; [] if unsure.
 - formats/genres: give source_url (page that supports it) or null if derived \
 from the event text only; confidence 0-1.
@@ -191,6 +196,7 @@ _RESULT_SCHEMA = {
         "genres": {"type": "array", "items": {"type": "string"}},
         "type_source_url": {"type": ["string", "null"]},
         "type_confidence": {"type": "number"},
+        "party_reason": {"type": ["string", "null"]},
         "artists": {"type": "array", "items": {"type": "string"}},
         "spotify": {
             "type": "array",
@@ -282,6 +288,10 @@ def validate_result(raw: dict, ev: dict, seen_urls: set[str] | None = None) -> d
     out["type_source_url"] = type_src
     out["type_is_estimate"] = not type_src
     out["type_confidence"] = raw.get("type_confidence")
+    out["party_reason"] = raw.get("party_reason")
+    if "party" in fmts and not raw.get("party_reason"):
+        dropped.append("party: no party_reason")
+        out["formats"] = [f for f in fmts if f != "party"]
 
     out["artists"] = [a for a in raw.get("artists") or [] if isinstance(a, str)][:10]
     spot = []
