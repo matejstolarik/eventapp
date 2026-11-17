@@ -1,6 +1,7 @@
 name: Gemini test (manual)
 
-# Task 058 part 1: test of the Gemini two-step AI enrichment on 55 events.
+# Task 058 part 1: test of the Gemini two-step AI enrichment on 55 events;
+# task 059: cost tuning of the steps (mode tune).
 # Manual only. Does not touch events.json or GitHub Pages; results are a
 # workflow artifact (JSON) plus the job summary.
 
@@ -8,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'list = models available to the key, run = the test'
+        description: 'list = models, run = 058 test, tune = 059 cost tuning'
         required: false
         default: 'list'
       model:
@@ -19,6 +20,14 @@ on:
         description: 'Only these event ids (comma-separated, empty = all 55)'
         required: false
         default: ''
+      variants:
+        description: 'tune: variants (comma-separated, empty = all A-F)'
+        required: false
+        default: ''
+      budget:
+        description: 'tune: stop new AI calls above this spend (USD)'
+        required: false
+        default: '0.3'
 
 permissions:
   contents: read
@@ -43,6 +52,8 @@ jobs:
           TEST_MODEL: ${{ inputs.model }}
           TEST_OUT: test-out
           TEST_IDS: ${{ inputs.ids }}
+          TEST_VARIANTS: ${{ inputs.variants }}
+          TEST_BUDGET_USD: ${{ inputs.budget }}
         run: python -m pipeline.gemini_test ${{ inputs.mode }}
 
       - name: Upload results

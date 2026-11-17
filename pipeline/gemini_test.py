@@ -397,6 +397,157 @@ def cmd_xlsx(src: pathlib.Path, dst: pathlib.Path, verdicts: pathlib.Path | None
     print(f"{dst}: type 50 = {acc_all}, without examples = {acc_noex}")
 
 
+# ---------------------------------------------------------------------------
+# Task 059: cost tuning.  One research per event and research model, then
+# step 2 (+ translation) for every variant on the same research.
+# ---------------------------------------------------------------------------
+
+FLASH, LITE = "gemini-3.6-flash", "gemini-3.1-flash-lite"
+# name -> (research model, research thinking, decide model, decide thinking)
+VARIANTS = {
+    "A": (FLASH, "low", FLASH, "medium"),
+    "B": (FLASH, "low", FLASH, "low"),
+    "C": (FLASH, "low", LITE, "low"),
+    "D": (FLASH, "low", LITE, "minimal"),
+    "E": (LITE, "low", LITE, "low"),
+    "F": (LITE, "low", FLASH, "low"),
+}
+# 10 events of the 058 test for the full enrichment comparison
+TEN_IDS = [
+    SPITFIRE_ID,
+    "bike-jesus-2026-11-18-athena-chlebova-krest-praha-gambrz-reprz-ventolin-dj-set-liv",
+    "meetfactory-2026-11-19-pragokoncert-allt-avralize-bite-down",
+    "fuchs2-2026-11-21-family-therapy-present-asher-parashoot-fahell-zecco-millo",
+    "epic-2026-11-21-video-oldies-ruda-tuceka",
+    "cross-club-2026-11-18-krizovatka",
+    "palac-akropolis-2027-02-23-soyuz-by-pl",
+    "cross-club-2026-11-19-up-tone-w-marathon",
+    "kasarna-karlin-2026-11-20-animaglajz-animations-from-sutnarka",
+    "forum-karlin-2026-11-18-omah-lay",
+]
+
+
+def variant_label(name: str) -> str:
+    rm, rt, dm, dt = VARIANTS[name]
+    short = {FLASH: "3.6 Flash", LITE: "3.1 Flash-Lite"}
+    return f"{name}: prieskum {short[rm]} ({rt}), rozhodnutie {short[dm]} ({dt})"
+
+
+def _memo_fetch():
+    cache: dict = {}
+
+    def fetch(url):
+        if url not in cache:
+            try:
+                cache[url] = _fetch_page_text(url)
+            except Exception as exc:          # same as a failed GET
+                cache[url] = None
+                log.info("price page %s: %s", url, exc)
+        return cache[url]
+    return fetch
+
+
+def cmd_tune(out: pathlib.Path) -> None:
+    labels = load_labels()
+    data = _get_json(EVENTS_URL)
+    by_id = {e["id"]: e for e in data["events"]}
+    venues = {v["id"]: v for v in data["venues"]}
+    ids = list(labels) + [i for i in TEN_IDS if i not in labels]
+    if os.environ.get("TEST_IDS", "").strip():
+        ids = [i.strip() for i in os.environ["TEST_IDS"].split(",") if i.strip()]
+    missing = [i for i in ids if i not in by_id]
+    events = [by_id[i] for i in ids if i in by_id]
+    names = [v.strip() for v in (os.environ.get("TEST_VARIANTS") or ",".join(VARIANTS)).split(",")
+             if v.strip() in VARIANTS]
+    budget = float(os.environ.get("TEST_BUDGET_USD") or "1.0")
+    spent = [0.0]
+    lock = __import__("threading").Lock()
+    log.info("tune: %d events, variants %s, budget $%s, missing %s", len(events), names, budget,
+             missing)
+    pages = _page_texts(events)
+    today = datetime.date.today().isoformat()
+
+    def guarded(fn):
+        with lock:
+            if spent[0] >= budget:
+                raise RuntimeError("budget reached")
+        res = fn()
+        cost = sum(u["cost_usd"] for u in res.get("steps") or res.get("usage") or [])
+        with lock:
+            spent[0] += cost
+        return res
+
+    # step 1 once per research model
+    research: dict = {}
+    for rm, rt in sorted({(VARIANTS[n][0], VARIANTS[n][1]) for n in names}):
+        prov = _Gemini2(model=rm, research_thinking=rt)
+
+        def one(ev, prov=prov):
+            try:
+                return ev["id"], guarded(lambda: prov.research(
+                    ev, venues.get(ev["venue_id"], {}))), None
+            except Exception as exc:
+                return ev["id"], None, f"{exc.__class__.__name__}: {exc}"[:300]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+            research[rm] = {i: {"rec": r, "error": e} for i, r, e in pool.map(one, events)}
+        log.info("research %s done, spent $%.4f", rm, spent[0])
+
+    fetch = _memo_fetch()
+    variants: dict = {}
+    for n in names:
+        rm, rt, dm, dt = VARIANTS[n]
+        prov = _Gemini2(model=rm, research_thinking=rt, decide_model=dm, decide_thinking=dt)
+
+        def two(ev, prov=prov, rm=rm):
+            r = research[rm][ev["id"]]
+            if not r["rec"]:
+                return ev["id"], None, "research: " + (r["error"] or "?")
+            try:
+                rec = guarded(lambda: prov.run_from_research(
+                    ev, venues.get(ev["venue_id"], {}), pages.get(ev["id"]), r["rec"]))
+                rec["searches"] = len(r["rec"]["queries"])
+                return ev["id"], rec, None
+            except Exception as exc:
+                return ev["id"], None, f"{exc.__class__.__name__}: {exc}"[:300]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+            raw = list(pool.map(two, events))
+        items = {}
+        for (i, rec, err), ev in zip(raw, events):
+            if err:
+                items[i] = {"error": err}
+                continue
+            res, conv = process_result(ev, rec, rm, today, {}, fetch)   # sequential GETs
+            items[i] = {"raw": rec["raw"], "steps": rec["steps"],
+                        "result": {k: v for k, v in res.items()},
+                        "price_text": res["price"] if res.get("price_ok") else None}
+        variants[n] = items
+        log.info("variant %s done, spent $%.4f", n, spent[0])
+
+    def clean(rec):
+        return {k: v for k, v in rec.items()} if rec else None
+    doc = {"date": today, "events_url": EVENTS_URL, "generated_at": data.get("generated_at"),
+           "missing": missing, "variants_run": names, "spent_usd": round(spent[0], 4),
+           "events": {e["id"]: {"venue_id": e["venue_id"], "title": e["title"],
+                                "date": e["date"],
+                                "url": next((s.get("url") for s in e.get("sources", [])
+                                             if s.get("url")), None),
+                                "venue_price_text": e.get("price_text")
+                                if "price_text" not in (e.get("enrichment") or {}) else None}
+                      for e in events},
+           "research": {rm: {i: {"error": v["error"], "rec": clean(v["rec"])}
+                             for i, v in rs.items()} for rm, rs in research.items()},
+           "variants": variants}
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "tune.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1),
+                                   encoding="utf-8")
+    log.info("tune done: spent $%.4f", spent[0])
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a", encoding="utf-8") as f:
+            f.write(f"## Gemini tuning\n\nEvents {len(events)}, variants {names}, "
+                    f"spent ~${spent[0]:.4f}\n")
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
@@ -405,6 +556,8 @@ def main() -> None:
         cmd_list(out)
     elif cmd == "run":
         cmd_run(out)
+    elif cmd == "tune":
+        cmd_tune(out)
     elif cmd == "recheck":
         cmd_recheck(pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]))
     elif cmd == "xlsx":
