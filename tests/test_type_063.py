@@ -93,3 +93,13 @@ def test_primary_from_stored_research():
     assert E.fill_primary_from_research([ev, other], research) == 1
     assert ev["primary_format"] == "theatre"
     assert other["primary_format"] is None      # concert not in formats -> re-decide needed
+
+
+def test_classify_ai_leaves_window_source_events_to_enrich():
+    from pipeline.classify_ai import _events_needing_ai
+    near = _tinlicker(date="2026-11-21")
+    far = _tinlicker(id="far", date="2027-03-01")
+    plain = _tinlicker(id="p", date="2026-11-21", classification=None)
+    ids = [e["id"] for e in _events_needing_ai([near, far, plain], "2026-11-17")]
+    assert ids == ["far", "p"]
+    assert len(_events_needing_ai([near, far, plain])) == 3     # no date given: all

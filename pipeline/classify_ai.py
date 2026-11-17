@@ -131,6 +131,7 @@ def classify_events_ai(
     max_tokens: int | None = None,
     budget=None,
     call=None,
+    today: str | None = None,
 ) -> tuple[list[dict], dict]:
     """AI classification for events layer 1 could not determine.
 
@@ -148,7 +149,7 @@ def classify_events_ai(
     ai_cache = _build_ai_cache(previous_events or [])
 
     keep = venue_genre_ids(events)            # task 063: venue genres win
-    to_classify = _events_needing_ai(events)
+    to_classify = _events_needing_ai(events, today)
     log.info("[classify_ai]: %d events need AI classification", len(to_classify))
 
     # Apply cache
@@ -261,12 +262,21 @@ def classify_events_ai(
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _events_needing_ai(events: list[dict]) -> list[dict]:
+def _events_needing_ai(events: list[dict], today: str | None = None) -> list[dict]:
     """Return events the AI classifies: all but manual ones (task 063).
-    Layer-1 types (source, keyword) stay when the AI returns nothing."""
+    Layer-1 types (source, keyword) stay when the AI returns nothing.
+
+    today: source / keyword events inside the AI enrichment window are left to
+    enrich_ai, which decides the type from the web research (and keeps the
+    layer-1 type when it returns none); a text-only guess here would replace
+    the type of events enriched before task 063."""
+    if today:
+        from pipeline.enrich_ai import in_window
     result = []
     for ev in events:
         cls = ev.get("classification")
+        if today and cls and cls.get("method") in ("source", "keyword") and in_window(ev, today):
+            continue
         # task 063 (docs/ai-rules.md B7): the AI type wins over the venue
         # category (source) and title keywords; only manual is never sent
         if cls and cls.get("method") == "manual":

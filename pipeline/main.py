@@ -197,7 +197,8 @@ def main():
         log.info("DeepSeek budget this run: $%.4f (month spent before $%.4f)",
                  ai_budget.limit, ai_budget.month_spent_before)
     keep_genres = venue_genre_ids(events)  # task 063: before the AI changes the type
-    events, ai_stats = classify_events_ai(events, venues, previous_list, budget=ai_budget)
+    events, ai_stats = classify_events_ai(events, venues, previous_list, budget=ai_budget,
+                                          today=today)
     page_texts: dict[str, str] = {}
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
                                                   state=state, today=today,

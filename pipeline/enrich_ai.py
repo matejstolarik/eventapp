@@ -1000,7 +1000,8 @@ def fill_primary_from_research(events: list[dict], research: dict | None) -> int
     for ev in events:
         rec = (research or {}).get(ev["id"])
         method = (ev.get("classification") or {}).get("method")
-        if not rec or ev.get("primary_format") or method not in ("source", "keyword"):
+        # manual: formats stay as set by hand, only the missing primary is filled
+        if not rec or ev.get("primary_format") or method not in ("source", "keyword", "manual"):
             continue
         if "enrichment" not in ev or rec.get("primary_format") not in (ev.get("formats") or []):
             continue
