@@ -15,6 +15,10 @@ on:
         description: 'Gemini model ids (fallback order, comma-separated)'
         required: false
         default: 'gemini-3.1-flash-lite,gemini-3.5-flash-lite'
+      gemini_extra:
+        description: 'Extra sentence appended to the Gemini prompt (empty = same prompt as Claude)'
+        required: false
+        default: ''
       gemini_thinking:
         description: 'Gemini thinkingLevel (empty = model default)'
         required: false
@@ -44,6 +48,7 @@ jobs:
           PILOT_PROVIDERS: ${{ inputs.providers }}
           PILOT_GEMINI_MODEL: ${{ inputs.gemini_model }}
           PILOT_GEMINI_THINKING: ${{ inputs.gemini_thinking }}
+          PILOT_GEMINI_EXTRA: ${{ inputs.gemini_extra }}
           PILOT_OUT: pilot-out/enrich_pilot.json
         run: python -m pipeline.enrich_pilot
 
