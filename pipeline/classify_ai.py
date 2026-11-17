@@ -272,7 +272,8 @@ def _build_ai_cache(previous_events: list[dict]) -> dict:
     cache: dict[str, dict] = {}
     for ev in previous_events:
         cls = ev.get("classification")
-        if not (cls and cls.get("method") == "llm"):
+        # task 054: "llm+web" = verified by the AI enrichment step (cached too)
+        if not (cls and cls.get("method") in ("llm", "llm+web")):
             continue
         if "primary_format" not in ev:
             # Task 053: classified before primary_format / the new party

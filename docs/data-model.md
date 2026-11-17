@@ -113,6 +113,16 @@ Definície nových štítkov:
   "image_thumb": null,
   "description": "Popisný text akcie z webu podniku, čistý text, max 1 000 znakov.",
   "description_source": "source",
+  "descriptions": { "cs": "Český popis od AI …", "sk": "Slovenský preklad …", "en": "English translation …" },
+  "artist_links": [{ "name": "Zombie Cats", "spotify_url": "https://open.spotify.com/artist/..." }],
+  "enrichment": {
+    "run":         { "checked_at": "2026-11-17", "model": "claude-haiku-5-5", "searches": 2 },
+    "formats":     { "by": "ai_web", "model": "claude-haiku-5-5", "checked_at": "2026-11-17", "source_url": "https://...", "confidence": 0.9 },
+    "genres":      { "by": "ai_web", "model": "claude-haiku-5-5", "checked_at": "2026-11-17", "source_url": "https://...", "confidence": 0.9 },
+    "price_text":  { "by": "ai_web", "model": "claude-haiku-5-5", "checked_at": "2026-11-17", "source_url": "https://..." },
+    "description": { "by": "ai_web", "model": "claude-haiku-5-5", "checked_at": "2026-11-17", "source_urls": ["https://..."] },
+    "genre_candidates": [{ "raw": "neurofunk", "kind": "music", "maps_to": "drum-and-bass" }]
+  },
   "sources": [
     { "type": "jsonld", "url": "https://meetfactory.cz/cs/program/detail/event", "external_id": null, "section": "hudba" },
     { "type": "rss", "url": "https://www.crossclub.cz/cs/program/8697-neurocells-hard-rave/", "external_id": "8697", "section": null }
@@ -136,15 +146,23 @@ Polia:
 - `primary_format`: jeden formát hlavnej časti akcie (z `formats`), rozhoduje typ akcie pre farbu a ikonu (task 053). Určí ho AI vrstva 2 (hlavný interpret: koncert s DJ afterparty → `concert`) alebo pravidlo komerčného klubu (`party`). `null` ak ho pipeline neurčila (vrstva 1 zo sekcie/kľúčových slov, ručná oprava) – appka potom použije poradie `party` → `dj` → `concert`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
-- `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
+- `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie). Zdroje (task 054): stránka akcie podniku (riadok „Vstupné:“, „Vstupenky:“, „Admission:“ – Cross Club, EPIC, Roxy, MeetFactory, Kasárna, Čitárna; `detail_enrich`, kontrola chýbajúcej ceny najviac raz za 7 dní), štítok „vstup zdarma“ (Archa+), „VSTUP VOLNÝ“ (Akropolis); inak AI s overením (pozri `enrichment`).
 - `sold_out`: `true` len ak zdroj výslovne uvádza vypredané; `false` len ak zdroj výslovne ponúka lístky; inak `null`. Nie je to `status`.
 - `room`: nepovinné, sála alebo priestor v rámci podniku tak, ako ho uvádza zdroj (napr. Akropolis: Velký sál, Malá scéna, Jazz Bar); `null` ak zdroj ho neuvádza.
 - `ticket_url`: odkaz priamo na predaj lístkov (napr. GoOut, RA, Ticketmaster). Stránka akcie na webe podniku patrí len do `sources[].url`, nie sem. Ak zdroj neposkytuje predajný odkaz, pole je `null`.
 - `image_url`: URL obrázka akcie z webu podniku. `null` ak zdroj obrázok neposkytuje.
 - `image_thumb`: relatívna cesta k náhľadu (`img/events/<id>.jpg`, 240×240 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null`, stiahnutie zlyhalo, alebo bolo odložené (limit 150 za beh). Generuje pipeline automaticky; Matej ho nenastavuje ručne.
 - `description`: popis akcie z webu podniku. Čistý text bez HTML, max 1 000 znakov, skrátený na koniec vety (`. `, `! `, `? `), ak je dlhší — `null` ak zdroj popis neposkytuje alebo je prázdny. Adaptéry ho extrahujú priamo (RSS, JSON-LD, API). Detail enrichment (`pipeline/detail_enrich.py`) ho dograbí z detailnej stránky akcie po normalizácii (raz na akciu, cache, limit 40 fetchov na podnik a beh). Venue-špecifický CSS selektor `detail_desc_selector` v source config (venues.json) určuje, z ktorého elementu brať popis. Popis rovnajúci sa názvu akcie sa zahodí.
-- `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"ai"` ak ho vygeneruje AI vrstva 2 (neskôr), `null` ak `description` je `null`.
-- `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. Nepovinné `reason`: krátky text od AI, prečo je akcia `party` (task 053; len pri `method = "llm"` a formáte `party`). `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
+- `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"ai"` ak zdroj popis nemá a `description` je český text z `descriptions.cs` (task 054), `null` ak `description` je `null`. Pôvodný popis zo zdroja ostáva v `description` (v appke sa nezobrazuje, je podklad pre AI).
+- `descriptions` (task 054, schválené Matejom 2026-11-17): popis od AI v troch jazykoch `{ "cs", "sk", "en" }`, jedno volanie; `cs` je hlavný, `sk` a `en` sú preklady. 3–5 viet, vecne, z faktov zdroja a hľadania vlastnými slovami (nie vety z pôvodného popisu), bez reklamných fráz, výkričníkov, emoji, ceny, času a miesta; názvy žánrov sa neskloňujú. Text s výkričníkom, emoji alebo reklamnou frázou pipeline zahodí. Appka zobrazí `descriptions[jazyk]` → `descriptions.cs` → `description`; pôvod sa v appke neoznačuje. Nepovinné, chýba ak AI nemala fakty.
+- `artist_links` (task 054): `[{ "name", "spotify_url" }]`, odkaz na profil interpreta na Spotify (`https://open.spotify.com/artist/<22 znakov>`), len ak URL bola vo výsledkoch hľadania. Tlačidlo Spotify v appke otvorí prvý. `artists` ostáva zoznam textov. Nepovinné.
+- `enrichment` (task 054, návrh z 052 časť 3 schválený Matejom 2026-11-17): pôvod údajov, ktoré nedodal zdroj podniku. Kľúč = pole (`formats`, `genres`, `price_text`, `start_time`, `artists`, `artist_links`, `description` – platí pre `descriptions` a pri `description_source: "ai"` aj pre `description`), hodnota `{ by, model, checked_at, source_url | source_urls, confidence?, reason? }`:
+  - `by`: `ai_text` (len z textu akcie, bez webového zdroja = odhad; len pri `formats`/`genres`) alebo `ai_web` (overené hľadaním, so zdrojom).
+  - `run`: `{ checked_at, model, searches }` – kedy AI akciu spracovala (cache, pozri nižšie). Je aj vtedy, keď AI nedoplnila nič.
+  - `genre_candidates`: žánre od AI mimo našich zoznamov `[{ raw, kind: music|film|stage, maps_to }]` (task 054 časť 4a); `maps_to` = náš žáner, pod ktorý patrí, alebo `null`. Z nich sa robia návrhy nových žánrov, v appke sa nezobrazujú.
+  - Pravidlá: (1) údaj zo zdroja podniku má vždy prednosť; AI vyplní len prázdne pole, a keď ho neskôr dodá zdroj, AI hodnota aj jej záznam v `enrichment` sa zahodia. Formát a žánre AI nemení pri `classification.method` `manual` a `source` (žánre doplní, ak zdroj nedal žiadne). (2) `ai_web` hodnota bez `source_url` sa neuloží. (3) `ra.co` nikdy nie je zdroj. (4) Cena od AI sa uloží len po overení jedným GET na jej `source_url`: text stránky musí obsahovať sumu (pri „zdarma“ slovo zdarma/free/volný) **a** názov akcie alebo hlavného interpreta.
+  - Cache: AI ide len na akcie v najbližších 60 dňoch, ktoré sú nové alebo majú zmenený názov (porovnáva sa s predchádzajúcim `events.json`, akcia s `enrichment.run.checked_at` a rovnakým názvom sa neposiela znova).
+- `classification`: ako sa určili formát a žánre (`source`, `keyword`, `manual`, `llm`, `llm+web` – `llm+web` = AI s hľadaním a webovým zdrojom, task 054) a s akou istotou. Nepovinné `reason`: krátky text od AI, prečo je akcia `party` (task 053; len pri `method = "llm"` a formáte `party`). `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
 - `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `postponed` (akcia odložená bez nového dátumu; prefix odstránený z názvu) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.
 
@@ -174,6 +192,11 @@ tech-house, techno, trance, uk-bass, uk-garage, world
 ```
 
 (33 položiek — pôvodných 27 schválených Matejom 2026-11-04; pridané 2026-11-08: disco, hardstyle, latin, r-n-b, ska, trance)
+
+### Žánre kultúry (task 054 časť 4a, Matej 2026-11-17)
+- `film_genres` (film) a `stage_genres` (divadlo, tanec, performance): **na začiatku prázdne**. Plnia sa len schválenými návrhmi (pridáva hlavný chat podľa Matejovho rozhodnutia; v kóde `FILM_GENRES` / `STAGE_GENRES` v `pipeline/enrich_ai.py`). `genres` akcie s formátom `film` / `theatre` / `dance` berie len z týchto zoznamov.
+- AI vracia aj žánre mimo zoznamov (`enrichment.genre_candidates`). Ak žáner zapadá pod existujúci, namapuje sa: schválené mapovania sú v `data/genre_aliases.json` (`{ "surový": "náš" }`, ručne), všetky použité mapovania (schválené + od AI) pipeline zapíše do `site/genre_aliases.json` na kontrolu.
+- Nenamapované žánre sú **návrhy**: `site/genre_proposals.json` `[{ name, kind: music|film|stage, count, event_ids }]`, len pri **≥ 3 akciách**; v appke sa nezobrazujú.
 
 ## Ručné opravy klasifikácie (`data/overrides.json`)
 
@@ -237,6 +260,17 @@ Výnimka: prázdna hodnota nikdy neprepíše vyplnenú.
 - Podozrenie na prehodený deň a mesiac: ak sa dátum z URL a z JSON-LD líšia práve prehodením dňa a mesiaca → `date_conflict` + `date_suspicious`. Kasárna Karlín zobrazuje dátumy v HTML systematicky ako MM. DD. (nie DD. MM.) — toto sa **neflaguje**, keďže dátum z HTML textu sa na Kasárne vôbec nepoužíva; berieme ho len z URL a z JSON-LD.
 - Čas z JSON-LD sa neberie naslepo: Kasárna má chybu v timezone na serveri (čas je posunutý o 5–6 h). Správny čas sa parsuje z textu stránky.
 - Adaptér, ktorý vráti nula akcií pri podniku, ktorý zvyčajne nejaké má: varovanie v logu (pravdepodobne sa zmenil web).
+
+## Stav pipeline medzi behmi (`pipeline_state.json`, task 054)
+
+Zverejnený na GitHub Pages vedľa `events.json` (pipeline ho načíta z `PREVIOUS_EVENTS_URL` → `pipeline_state.json`, lokálne zo `site/`). Nie je pre appku.
+```json
+{ "detail_checked": { "<event id>": "2026-11-17" },
+  "ai_searches": { "month": "2026-11", "count": 312 },
+  "updated_at": "2026-11-17T05:20:00+01:00" }
+```
+- `detail_checked`: kedy sa stránka akcie naposledy kontrolovala kvôli chýbajúcej cene/času (opakuje sa najskôr po 7 dňoch).
+- `ai_searches`: počet webových hľadaní AI v kalendárnom mesiaci (limit 400). Ak sa stav nedá načítať (iná chyba ako 404), AI doplnenie sa v tom behu nespustí.
 
 ## Formát výstupu
 

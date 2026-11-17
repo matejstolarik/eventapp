@@ -146,7 +146,9 @@ def enrich_missing_details(
                     # Skip cached desc if venue has a custom selector (old extraction may be wrong)
                     # or if the cached description equals the event title (not a real description)
                     is_title_only = prev_desc.strip().lower() == event_title.strip().lower()
-                    if not has_custom_selector and not is_title_only:
+                    # task 054: an AI description is not a source description
+                    is_ai = prev.get("description_source") == "ai"
+                    if not has_custom_selector and not is_title_only and not is_ai:
                         ev["description"] = prev_desc
                         ev["description_source"] = prev.get("description_source", "source")
                         needs_desc = False
