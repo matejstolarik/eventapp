@@ -100,6 +100,7 @@ export const sk = {
     locationToastForSort: 'Na zoradenie podľa vzdialenosti povoľ polohu',
   },
   tags: { talk: 'čítanie a diskusia', performance: 'performance', 'physical-theatre': 'fyzické divadlo' } as Record<string, string>,
+  price: { from: 'od', free: 'Zdarma', voluntary: 'Dobrovoľné vstupné', freeReservation: 'Zdarma, rezervácia', czk: 'Kč' },
   update: { available: 'Je dostupná nová verzia', button: 'Aktualizovať', close: 'Zavrieť' },
   comingSoon: 'Pripravujeme',
   offline: 'Offline. Dáta z',

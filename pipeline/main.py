@@ -19,6 +19,7 @@ from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
 from pipeline.genres import load_aliases, rename_genres
+from pipeline.price import parse_price
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
 from pipeline.fetch import USER_AGENT
 
@@ -202,6 +203,10 @@ def main():
     for ev in events:
         if ev.get("genres"):
             ev["genres"] = rename_genres(ev["genres"])
+        # task 058 part 4: structured price from the (source or AI) price text
+        ev["price"] = parse_price(ev.get("price_text"))
+        if ev["price"] and ev.get("free") is None and ev["price"]["kind"] in ("free", "free_reservation"):
+            ev["free"] = True
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)

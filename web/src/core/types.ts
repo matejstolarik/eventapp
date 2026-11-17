@@ -34,6 +34,13 @@ export interface VenueSource {
   strategy?: string
 }
 
+export interface Price {
+  min: number | null
+  max: number | null
+  currency: string | null
+  kind: 'paid' | 'free' | 'voluntary' | 'free_reservation'
+}
+
 export interface Event {
   id: string
   venue_id: string
@@ -49,6 +56,8 @@ export interface Event {
   character: string[]
   artists: string[]
   price_text: string | null
+  /** Structured price (task 058); price_text is the source text and is not shown */
+  price?: Price | null
   free: boolean | null
   sold_out: boolean | null
   room: string | null

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
 import { getDict, tagLabel } from '../i18n'
+import { priceLabel } from '../core/eventText'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
@@ -369,9 +370,9 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                               </div>
                             </div>
                           )}
-                          {(ev.price_text || ev.free) && (
+                          {priceLabel(ev, lang) && (
                             <p style={{ margin: '3px 0 0', fontSize: 12, color: '#8B8AA0', fontWeight: 500 }}>
-                              {ev.price_text ?? dict.event.free}
+                              {priceLabel(ev, lang)}
                             </p>
                           )}
                         </div>

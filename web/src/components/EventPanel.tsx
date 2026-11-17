@@ -3,7 +3,8 @@ import type { Event, Venue, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
 import { EventTypeIcon } from '../icons'
-import { getDict, tagLabel } from '../i18n'
+import { tagLabel } from '../i18n'
+import { priceLabel } from '../core/eventText'
 
 interface Props {
   events: Event[]
@@ -52,7 +53,6 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   // venue is used for distance; character tags are shown only on the venue profile page
   const [currentIdx, setCurrentIdx] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
-  const dict = getDict(lang)
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
   const eventType = getEventType(event.formats, event.primary_format)
@@ -63,12 +63,12 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const tags = eventTags(event.formats, event.genres, event.primary_format)
 
   const distStr = userLocation
-    ? ' · ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
+    ? ' Â· ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
     : ''
 
-  const timeStr = event.start_time ? ` · ${event.start_time}` : ''
+  const timeStr = event.start_time ? ` Â· ${event.start_time}` : ''
   const subtitle = `${venue.name}${timeStr}${distStr}`
-  const priceStr = event.price_text ?? (event.free ? dict.event.free : null)
+  const priceStr = priceLabel(event, lang)
 
   function handleTouchStart(e: React.TouchEvent) {
     setTouchStartX(e.touches[0]?.clientX ?? null)
@@ -94,7 +94,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         zIndex: 20,
         touchAction: 'pan-y',
       }}
-      aria-label="Vybraná akcia"
+      aria-label="VybranÃ¡ akcia"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -105,7 +105,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
           cursor: 'pointer', padding: 0,
         }}
         onClick={() => onEventOpen(event.id)}
-        aria-label="Otvoriť akciu"
+        aria-label="OtvoriÅ¥ akciu"
       >
         {/* Image or color placeholder */}
         <div style={{
@@ -143,7 +143,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
       {/* Tag row: culture subtypes + genres, dark pills, type text color; no type tag */}
       {tags.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <TagRow aria-label="Štítky akcie">
+          <TagRow aria-label="Å tÃ­tky akcie">
             {tags.map(tag => (
               <span key={tag} style={{
                 height: 32, padding: '0 14px', borderRadius: 16,

@@ -5,7 +5,7 @@ import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate, tagLabel } from '../i18n'
 import { isEventLive } from '../core/events'
-import { eventDescription, spotifyUrl } from '../core/eventText'
+import { eventDescription, spotifyUrl, priceLabel } from '../core/eventText'
 import { isNightMode, NIGHT_DAY } from '../core/night'
 import { buildAndroidCalendarIntent, generateICS } from '../core/calendar'
 import {
@@ -92,6 +92,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
 
   const dateLabel = formatEventDate(ev.date, lang)
   const description = eventDescription(ev, lang)
+  const price = priceLabel(ev, lang)
   const timePart = ev.start_time ? ` · ${ev.start_time}` : ''
   const metaLine = `${dateLabel}${timePart}`
 
@@ -295,7 +296,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
               ))}
             </div>
             {/* Case (c): no price, no sold_out → bookmark on tag row */}
-            {!ev.price_text && !ev.sold_out && (
+            {!price && !ev.sold_out && (
               <button
                 style={{
                   width: 40, height: 40, borderRadius: 20, flexShrink: 0, marginTop: -8,
@@ -314,7 +315,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         )}
 
         {/* Case (a): has price → price + bookmark row */}
-        {ev.price_text && (
+        {price && (
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 40 }}>
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{
@@ -322,7 +323,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                 color: ev.sold_out ? '#5D5677' : '#F4F2FF',
                 textDecoration: ev.sold_out ? 'line-through' : 'none'
               }}>
-                {ev.price_text}
+                {price}
               </span>
               {ev.sold_out && (
                 <span style={{
@@ -351,7 +352,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         )}
 
         {/* Case (b): no price, sold_out → sold_out row + bookmark */}
-        {!ev.price_text && ev.sold_out && (
+        {!price && ev.sold_out && (
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, minHeight: 32 }}>
             <div style={{ flex: 1 }}>
               <span style={{

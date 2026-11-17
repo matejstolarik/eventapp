@@ -100,6 +100,7 @@ export const en = {
     locationToastForSort: 'Allow location to sort by distance',
   },
   tags: { talk: 'talk & reading', performance: 'performance', 'physical-theatre': 'physical theatre' } as Record<string, string>,
+  price: { from: 'from', free: 'Free', voluntary: 'Pay what you want', freeReservation: 'Free, booking required', czk: 'CZK' },
   update: { available: 'A new version is available', button: 'Update', close: 'Close' },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',
