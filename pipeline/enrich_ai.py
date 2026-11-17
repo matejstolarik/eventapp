@@ -49,7 +49,8 @@ from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
 from pipeline.ai_rules import (DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL,
                                TRANSLATE_PROMPT)
-from pipeline.ai_guards import genre_supported, price_supported, strip_names, venue_mentions
+from pipeline.ai_guards import (genre_supported, price_supported, strip_names, strip_no_info,
+                                venue_mentions)
 from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
 from pipeline.price import parse_price
 
@@ -372,6 +373,20 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     dsrc = [u for u in raw.get("description_source_urls") or [] if ok(u)]
     clean = {k: _clean_text(descs.get(k)) for k in ("cs", "sk", "en")} if isinstance(descs, dict) else {}
     clean = {k: v for k, v in clean.items() if v}
+    # task 063 (ai-rules F): no sentences about missing information.  Two-step
+    # providers remove them before the translation (raw["no_info_removed"]);
+    # here for one-step providers too: the Czech text is cleaned and the SK/EN
+    # translations, which still contain them, are dropped.
+    removed = [str(x) for x in raw.get("no_info_removed") or []]
+    no_desc = bool(raw.get("no_info_empty"))
+    if clean.get("cs"):
+        cs, more = strip_no_info(clean["cs"])
+        if more:
+            removed += more
+            clean = {"cs": cs} if cs else {}
+            no_desc = no_desc or not cs
+    for sent in removed:
+        dropped.append(f"description_no_info: {sent}")
     if clean and "cs" not in clean:
         dropped.append("descriptions: no Czech text")
         clean = {}
@@ -386,6 +401,12 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
             clean = {}
     out["descriptions"] = clean or None
     out["review"] = []
+    if no_desc:
+        # task 063: only sentences about missing information -> no AI
+        # description (rule H, review)
+        dropped.append("description_no_info: nothing usable left, no description")
+        out["needs_review"] = True
+        out["review"].append("no description: only sentences about missing information")
     if clean and venue is not None:
         # task 062: venue / hall in the description -> review, not dropped
         hits = venue_mentions(clean["cs"], venue)
@@ -830,9 +851,18 @@ class _Gemini2:
         usage = [u2]
         descs = raw.get("descriptions") if isinstance(raw.get("descriptions"), dict) else None
         if descs and isinstance(descs.get("cs"), str) and descs["cs"].strip():
-            tr, u3 = self.translate(descs["cs"])
-            usage.append(u3)
-            raw["descriptions"] = {"cs": descs["cs"], **tr}
+            # task 063 (ai-rules F): sentences about missing information are
+            # removed from the Czech text BEFORE the translation
+            cs, removed = strip_no_info(descs["cs"])
+            if removed:
+                raw["no_info_removed"] = removed
+            if cs:
+                tr, u3 = self.translate(cs)
+                usage.append(u3)
+                raw["descriptions"] = {"cs": cs, **tr}
+            else:
+                raw["descriptions"] = None
+                raw["no_info_empty"] = True
         src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
         allowed = {s["url"] for s in r["sources"]} | ({src} if src else set())
         return _sum_usage({

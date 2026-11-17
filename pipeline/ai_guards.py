@@ -14,6 +14,8 @@ Guards on AI results in code (task 062 part 1, docs/ai-rules.md C2, C3, D, F).
 - exclamation marks that are part of the event title or an artist name
   ("FIRE!") are ignored by the description check.
 - venue_mentions(): a description naming the venue or a hall goes to review.
+- strip_no_info(): sentences about missing information are removed from the
+  Czech description (task 063, ai-rules F).
 """
 
 import re
@@ -168,3 +170,51 @@ def venue_mentions(text: str, venue: dict, extra_names: list[str] | None = None)
     if m:
         hits.append(m.group(0))
     return hits
+
+
+# ---------------------------------------------------------------------------
+# Task 063 (docs/ai-rules.md F): a description presents facts, never their
+# absence.  Sentences about what was not found / is not known / not published
+# or announced, or about the search itself, are removed one by one (Czech,
+# before the translation).  Patterns run on plain() text (no diacritics).
+# ---------------------------------------------------------------------------
+
+_NEG = r"(?:nejsou|neni|nebyl[aiy]?|nebylo|nebudou)"
+_MISSING = (r"(?:zverejnen\w*|uveden\w*|ohlasen\w*|oznamen\w*|k dispozici|dostupn\w*|"
+            r"dolozen\w*|jmenovan\w*|popsan\w*|specifikovan\w*|upresnen\w*|potvrzen\w*)")
+_NO_INFO = [re.compile(p) for p in (
+    rf"\b{_NEG}(?: \w+){{0,8}} {_MISSING}",          # "nejsou ... zveřejněni"
+    rf"\b{_MISSING}(?: \w+){{0,3}} {_NEG}\b",        # "ohlášeno nebylo"
+    rf"\b{_NEG}(?: \w+){{0,2}} znam[aeyo]?\b",       # "nejsou známé", "není známo"
+    r"\bne(?:zverejnil|uvedl|ohlasil|oznamil|upresnil|potvrdil)\w*",
+    r"\b(?:nepodarilo|nedochoval\w*|nenasl\w*|nelze (?:dohledat|zjistit|dolozit))",
+    r"\b(?:tba|tbc)\b",
+    r"\bdostupn\w* (?:zdroj|informac|material|podklad)\w*",   # about the search
+    r"\bzustava\w* otevren\w*|\bteprve v priprave\b|\boznamen\w* pozdeji\b",
+    r"\b(?:budou|bude|maji byt|ma byt)(?: \w+){0,2} (?:oznamen|ohlasen|zverejnen|upresnen)\w*",
+    r"\bstejn\w* (?:jmen|nazv|nazev)\w*",              # other performers with the same name
+)]
+_SENT_SPLIT = re.compile(r"(?<=[.?!…])\s+(?=[\"„“(]?[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ])")
+MIN_USABLE_CHARS = 60
+
+
+# a moved / cancelled event is a fact, even with "new date to be announced"
+_KEEP = re.compile(r"\b(?:presun\w*|preloz\w*|zrusen\w*|odlozen\w*)")
+
+
+def no_info_sentence(sentence: str) -> bool:
+    t = plain(sentence)
+    return not _KEEP.search(t) and any(p.search(t) for p in _NO_INFO)
+
+
+def strip_no_info(text: str | None) -> tuple[str | None, list[str]]:
+    """Remove sentences about missing information -> (text or None, removed).
+    None = nothing usable left (rule H: no AI description)."""
+    if not text or not text.strip():
+        return None, []
+    sents = [s.strip() for s in _SENT_SPLIT.split(text.strip()) if s.strip()]
+    removed = [s for s in sents if no_info_sentence(s)]
+    if not removed:
+        return text, []
+    kept = " ".join(s for s in sents if s not in removed)
+    return (kept if len(kept) >= MIN_USABLE_CHARS else None), removed

@@ -483,6 +483,7 @@ def _web_summary_lines(st: dict, proposals: list) -> list[str]:
         f" AI Spotify links dropped {(st.get('manual') or {}).get('ai_dropped', 0)}",
         f"- Dropped by guards (task 062): {_dropped_kinds(st.get('dropped') or [])};"
         f" descriptions to review (venue / hall): {len(st.get('review') or [])};"
+        f" primary_format from stored research: {st.get('primary_from_research', 0)};"
         f" kept previous AI values (not processed): {st.get('kept_previous', 0)}",
         f"- DeepSeek budget: {st.get('budget') or '–'}",
         f"- Re-run from stored research (no search): {st.get('from_research', 0)};"

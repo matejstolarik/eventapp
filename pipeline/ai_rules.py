@@ -134,12 +134,17 @@ facts. Factual and in depth: who the performer is, where from, what they are kno
 for, what they released, what is special about the evening (album launch, comeback, \
 guests). Built from the SAME facts as type and genres. No advertising phrases \
 ("nezmeškejte", "legendární", "nezapomenutelný", "unikátní zážitek"), no pathos, no \
-exclamation marks, no emoji. NEVER the price, the time or the place: no venue name, \
-no hall / room / stage ("ve Velkém sále", "v Čítárně"), no address, no organiser or \
-promoter. Only facts from the sources; take facts from the \
+exclamation marks, no emoji. NEVER the price or the time; no address, no organiser or \
+promoter. The venue or a hall may be mentioned when it matters. Only facts from the \
+sources; take facts from the \
 original text, never its sentences. Never write about the sources ("podle popisu \
-akce"). Genre names are not declined or translated ("techno", "drum and bass", \
-"metalcore"; never "technové"). Few facts -> a shorter text, or null. descriptions.sk \
+akce"). PRESENT FACTS, NEVER THEIR ABSENCE: no sentence about what was not found, is \
+not known, was not published or not announced yet ("o účinkujících se nedochovaly \
+další podrobnosti", "konkrétní účinkující nejsou zveřejněni", "sedmé jméno zatím \
+ohlášeno nebylo", "hosté budou oznámeni"), and nothing about the search itself (other \
+performers with the same name, what could not be linked to a performer). Genre names \
+are not declined or translated ("techno", "drum and bass", "metalcore"; never \
+"technové"). Few facts -> a shorter text; no facts -> null. descriptions.sk \
 and descriptions.en are translations of the Czech text. description_source_urls = \
 pages the facts come from (the event page counts).
 Style example (approved): "{DESCRIPTION_EXAMPLE}\""""
