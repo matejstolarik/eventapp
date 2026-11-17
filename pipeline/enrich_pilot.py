@@ -59,12 +59,48 @@ CLAUDE_IN_PRICE = 0.10 / 1e6     # USD per input token
 CLAUDE_OUT_PRICE = 0.50 / 1e6    # USD per output token
 CLAUDE_SEARCH_PRICE = 10.0 / 1000  # USD per web search
 
-# Free tier grounding (pricing page 2026-11-17): only 2.5 Flash / Flash-Lite.
-# 2.5 Flash-Lite returned 404 "no longer available to new users" (run 44057035854).
-GEMINI_MODEL = os.environ.get("PILOT_GEMINI_MODEL") or "gemini-2.5-flash"
-GEMINI_URL = ("https://generativelanguage.googleapis.com/v1beta/models/"
-              f"{GEMINI_MODEL}:generateContent")
-GEMINI_DELAY_S = 6.0   # stay well under free-tier RPM
+# Task 054: paid tier.  Cheapest text model with Grounding with Google Search
+# (aistudio.google.com/docs/pricing, 2026-11-17): gemini-3.1-flash-lite
+# $0.25 / $1.50 per MTok, 5,000 grounded searches / month free (shared by all
+# Gemini 3+), then $14 / 1000.  2.5 models are not available to new users
+# (HTTP 404 in task 052).  Fallback order if a model returns 404.
+GEMINI_MODELS = [m.strip() for m in (os.environ.get("PILOT_GEMINI_MODEL")
+                 or "gemini-3.1-flash-lite,gemini-3.5-flash-lite").split(",") if m.strip()]
+GEMINI_MODEL = GEMINI_MODELS[0]
+GEMINI_PRICES = {   # USD per token (input, output incl. thinking)
+    "gemini-3.1-flash-lite": (0.25 / 1e6, 1.50 / 1e6),
+    "gemini-3.5-flash-lite": (0.30 / 1e6, 2.50 / 1e6),
+}
+GEMINI_SEARCH_PRICE = 14.0 / 1000   # after the 5,000 free searches per month
+GEMINI_DELAY_S = 2.0
+
+
+def gemini_url(model: str) -> str:
+    return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+# Task 054: the same 20 events as the task 052 pilot (run 44057664658).
+PILOT_052_IDS = [
+    "cross-club-2026-11-18-krizovatka",
+    "fuchs2-2026-11-20-high-speed-fairytales-liia-theya-dj-king-kobra-tmk",
+    "bike-jesus-2026-11-18-athena-chlebova-krest-praha-gambrz-reprz-ventolin-dj-set-liv",
+    "palac-akropolis-2027-02-23-soyuz-by-pl",
+    "meetfactory-2026-11-21-good-times-only-krest-desky-blue-uandi",
+    "epic-2026-11-18-student-wednesday",
+    "archa-plus-2026-11-30-roast-slavi-narozky",
+    "citarna-unijazz-2026-11-18-text-appeal-vol-28",
+    "forum-karlin-2026-11-18-omah-lay",
+    "kasarna-karlin-2026-11-18-transgender-awareness-week-lola",
+    "roxy-2026-11-19-colorfactory",
+    "cross-club-2026-11-19-kavarna-krest-boldrikovo-knihy",
+    "fuchs2-2026-11-21-family-therapy-present-asher-parashoot-fahell-zecco-millo",
+    "bike-jesus-2026-11-19-themayrevolution-praha-krest-1-live",
+    "palac-akropolis-2026-11-24-divadlo-nie-jeste-jsme-tu",
+    "meetfactory-2026-11-19-pragokoncert-allt-avralize-bite-down",
+    "epic-2026-11-19-almost-weekend",
+    "archa-plus-2026-11-18-burkicom-slunce",
+    "kasarna-karlin-2026-11-20-animaglajz-animations-from-sutnarka",
+    "cross-club-2026-11-19-up-tone-w-marathon",
+]
 
 REQUIRED_VENUES = ["cross-club", "fuchs2", "bike-jesus", "palac-akropolis",
                    "meetfactory", "epic", "archa-plus"]
@@ -452,9 +488,9 @@ def run_claude(events, venues_map, budget):
 # Gemini (REST, stdlib only)
 # ---------------------------------------------------------------------------
 
-def _gemini_call(api_key: str, body: dict) -> tuple[int, dict | str]:
+def _gemini_call(api_key: str, body: dict, model: str = "") -> tuple[int, dict | str]:
     req = urllib.request.Request(
-        GEMINI_URL, data=json.dumps(body).encode(), method="POST",
+        gemini_url(model or GEMINI_MODEL), data=json.dumps(body).encode(), method="POST",
         headers={"Content-Type": "application/json", "x-goog-api-key": api_key,
                  "User-Agent": USER_AGENT},
     )
@@ -478,8 +514,11 @@ def _parse_json_text(text: str) -> dict | None:
 def run_gemini(events, venues_map, budget):
     api_key = os.environ["GEMINI_API_KEY"].strip()
     results = []
-    totals = {"input_tokens": 0, "output_tokens": 0, "searches": 0, "errors": 0,
-              "model": GEMINI_MODEL, "stopped": None}
+    models = list(GEMINI_MODELS)
+    totals = {"input_tokens": 0, "output_tokens": 0, "thoughts_tokens": 0,
+              "tool_use_prompt_tokens": 0, "searches": 0, "errors": 0,
+              "model": models[0], "model_version": None, "stopped": None,
+              "model_errors": []}
     schema_hint = json.dumps(_RESULT_SCHEMA["properties"], ensure_ascii=False)
 
     for i, ev in enumerate(events):
@@ -497,21 +536,33 @@ def run_gemini(events, venues_map, budget):
             "systemInstruction": {"parts": [{"text": _SYSTEM}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "tools": [{"google_search": {}}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2048},
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 4096,
+                                 "thinkingConfig": {"thinkingLevel": "low"}},
         }
         rec = {"id": ev["id"]}
-        status, data = _gemini_call(api_key, body)
+        while True:
+            status, data = _gemini_call(api_key, body, models[0])
+            if status == 404 and len(models) > 1:
+                totals["model_errors"].append(f"{models[0]}: HTTP 404: {str(data)[:300]}")
+                models.pop(0)
+                totals["model"] = models[0]
+                continue
+            break
         if status != 200:
             rec["error"] = f"HTTP {status}: {data}"
             totals["errors"] += 1
-            # Free-tier limit / grounding not allowed → stop the Gemini part
-            if status in (400, 403, 404, 429):
+            # 402 = prepaid credit exhausted (task 054: stop, pay nothing more)
+            if status in (400, 402, 403, 404, 429):
                 totals["stopped"] = f"stopped after HTTP {status}"
             results.append(rec)
             log.warning("gemini %s: HTTP %s", ev["id"], status)
             continue
         um = data.get("usageMetadata", {})
+        rec["usage"] = um
+        totals["model_version"] = data.get("modelVersion") or totals["model_version"]
         totals["input_tokens"] += um.get("promptTokenCount", 0)
+        totals["tool_use_prompt_tokens"] += um.get("toolUsePromptTokenCount", 0)
+        totals["thoughts_tokens"] += um.get("thoughtsTokenCount", 0)
         totals["output_tokens"] += um.get("candidatesTokenCount", 0) + um.get("thoughtsTokenCount", 0)
         cand = (data.get("candidates") or [{}])[0]
         gm = cand.get("groundingMetadata") or {}
@@ -542,8 +593,12 @@ def run_gemini(events, venues_map, budget):
         log.info("gemini %s: %d searches%s", ev["id"], rec.get("searches", 0),
                  f" ERROR {rec['error'][:120]}" if rec.get("error") else "")
 
-    totals["cost_usd_if_paid"] = round(totals["input_tokens"] * 0.10 / 1e6
-                                       + totals["output_tokens"] * 0.40 / 1e6, 4)
+    pin, pout = GEMINI_PRICES.get(totals["model"], (0.30 / 1e6, 2.50 / 1e6))
+    tok_cost = ((totals["input_tokens"] + totals["tool_use_prompt_tokens"]) * pin
+                + totals["output_tokens"] * pout)
+    totals["cost_usd_tokens"] = round(tok_cost, 4)
+    # searches are free up to 5,000 / month; price if they were billed:
+    totals["cost_usd_searches_if_billed"] = round(totals["searches"] * GEMINI_SEARCH_PRICE, 4)
     return results, totals
 
 
@@ -565,7 +620,7 @@ def _fmt(res: dict | None) -> str:
 
 
 def write_summary(path, selected, out):
-    lines = ["## Enrich pilot (task 052)", ""]
+    lines = ["## Enrich pilot (task 052/054)", ""]
     for prov in ("claude", "gemini"):
         t = out.get(prov, {}).get("totals")
         if t:
@@ -588,7 +643,14 @@ def main():
     data = _load_events(os.environ.get("PILOT_EVENTS_URL", DEFAULT_EVENTS_URL))
     venues_map = {v["id"]: v for v in data.get("venues", [])}
     today = datetime.datetime.now(PRAGUE_TZ).date().isoformat()
-    selected = select_events(data["events"], today)
+    if os.environ.get("PILOT_SELECT") == "auto":
+        selected = select_events(data["events"], today)
+    else:
+        by_id = {e["id"]: e for e in data["events"]}
+        missing = [i for i in PILOT_052_IDS if i not in by_id]
+        if missing:
+            log.warning("052 pilot events no longer in data: %s", missing)
+        selected = [by_id[i] for i in PILOT_052_IDS if i in by_id]
     log.info("selected %d events", len(selected))
 
     providers = [p.strip() for p in os.environ.get("PILOT_PROVIDERS", "claude,gemini").split(",")]
