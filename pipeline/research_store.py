@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import pathlib
+import time
 import urllib.error
 import urllib.request
 
@@ -70,26 +71,68 @@ def _base_url() -> str | None:
     return url.rsplit("/", 1)[0] + "/research/" if url else None
 
 
+def _fetch_month(base: str, m: str) -> tuple[dict | None, str | None]:
+    """Published month file -> (data, error); a 404 is (None, None)."""
+    last = None
+    for attempt in range(3):                   # task 065: Pages answered 503 / 404
+        try:
+            req = urllib.request.Request(base + f"{m}.json", headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read()), None
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None, None
+            last = f"HTTP {exc.code}"
+        except (OSError, ValueError) as exc:
+            last = str(exc)[:120]
+        time.sleep(2 * (attempt + 1))
+    return None, last
+
+
+def _merge(store: dict, data: dict | None) -> int:
+    """Add records; for the same id the later `processed` wins (equal: the
+    later source).  Returns the number of records read."""
+    recs = (data or {}).get("events", [])
+    for rec in recs:
+        old = store.get(rec["id"])
+        if old is None or (rec.get("processed") or "") >= (old.get("processed") or ""):
+            store[rec["id"]] = rec
+    return len(recs)
+
+
 def load(today: str) -> dict:
-    """id -> record from the published (CI) or local (dev) month files."""
+    """id -> record, merged from (task 065) a one-off seed file
+    (RESEARCH_SEED, comma-separated paths), the local month files
+    (site/research, kept between CI runs by actions/cache) and the published
+    (Pages) month files.  Before task 065 only Pages was read in CI: when it
+    answered with an error / 404 the store was empty and the run published
+    an almost empty file (run 44198194551: 243 -> 1 record)."""
     store: dict = {}
+    for path in [x.strip() for x in os.environ.get("RESEARCH_SEED", "").split(",") if x.strip()]:
+        try:
+            n = _merge(store, json.loads(pathlib.Path(path).read_text(encoding="utf-8")))
+            log.info("research seed %s: %d records", path, n)
+        except (OSError, ValueError) as exc:
+            log.warning("research seed %s not readable (%s)", path, exc)
     base = _base_url()
     for m in reversed(months(today)):          # newer months override older ones
-        data = None
-        try:
-            if base:
-                req = urllib.request.Request(base + f"{m}.json", headers={"User-Agent": USER_AGENT})
-                with urllib.request.urlopen(req, timeout=30) as resp:
-                    data = json.loads(resp.read())
-            elif (RESEARCH_DIR / f"{m}.json").exists():
-                data = json.loads((RESEARCH_DIR / f"{m}.json").read_text(encoding="utf-8"))
-        except urllib.error.HTTPError as exc:
-            if exc.code != 404:
-                log.warning("research %s not available (%s)", m, exc)
-        except (OSError, ValueError) as exc:
-            log.warning("research %s not available (%s)", m, exc)
-        for rec in (data or {}).get("events", []):
-            store[rec["id"]] = rec
+        local_n = 0
+        f = RESEARCH_DIR / f"{m}.json"
+        if f.exists():
+            try:
+                local_n = _merge(store, json.loads(f.read_text(encoding="utf-8")))
+            except (OSError, ValueError) as exc:
+                log.warning("research %s: local file not readable (%s)", m, exc)
+        if not base:
+            continue
+        data, err = _fetch_month(base, m)
+        pages_n = _merge(store, data)
+        if err:
+            log.warning("research %s not available from Pages (%s); local copy: %d records",
+                        m, err, local_n)
+        elif pages_n < local_n:
+            log.warning("research %s: Pages has %d records, local copy %d (merged)",
+                        m, pages_n, local_n)
     log.info("research store: %d records loaded", len(store))
     return store
 

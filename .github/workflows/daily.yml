@@ -23,6 +23,10 @@ on:
         description: 'DeepSeek budget of this run in USD (default 0.30; month limit 3 USD always applies)'
         required: false
         default: ''
+      research_seed:
+        description: 'One-off: research store file(s) in the repo merged into the stored research (task 065, e.g. docs/tasks/065/research-2026-11-run44172530495.json)'
+        required: false
+        default: ''
       enrich_timeout_s:
         description: 'AI enrichment wall-clock limit in seconds (default 1500)'
         required: false
@@ -87,6 +91,15 @@ jobs:
           key: event-thumbs-${{ github.run_id }}
           restore-keys: event-thumbs-
 
+      - name: Cache stored AI research
+        # task 065: site/research is kept between runs here too, so an error
+        # of the published (Pages) copy cannot empty the research store
+        uses: actions/cache@v4
+        with:
+          path: site/research
+          key: research-${{ github.run_id }}
+          restore-keys: research-
+
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
@@ -101,6 +114,7 @@ jobs:
           ENRICH_FORCE_DAYS: ${{ inputs.reenrich_days }}
           ENRICH_FROM_RESEARCH: ${{ inputs.reenrich_from_research }}
           ENRICH_TIMEOUT_S: ${{ inputs.enrich_timeout_s }}
+          RESEARCH_SEED: ${{ inputs.research_seed }}
         run: python -m pipeline.main
 
       - name: Set up Node.js
