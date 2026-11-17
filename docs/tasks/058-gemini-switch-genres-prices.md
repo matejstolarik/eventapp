@@ -1,3 +1,5 @@
+> **Časti 2 a 5 nahradila úloha 060 (variant D, 2026-11-17).**
+
 # 058: Test Gemini 3.5 Flash (2 kroky), prechod na Gemini, žánre, štruktúrovaná cena, prepočítanie
 
 ## Zadanie

@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Robí sa po 056.** **Schválené Matejom 2026-11-17:** kanál GitHub Issues (notifikácie cez appku GitHub / e-mail), týždenný report v pondelok ráno.
+**Robí sa po 060.** **Schválené Matejom 2026-11-17:** kanál GitHub Issues (notifikácie cez appku GitHub / e-mail), týždenný report v pondelok ráno.
 
 **Čítaj:** `.github/workflows/daily.yml`; `pipeline/main.py` (kde vzniká job summary a riadok „New events“); `pipeline/checks.py`; `docs/data-model.md` časť Quality checks (`grep -n "Quality" docs/data-model.md`); `data/overrides.json` (formát).
 
@@ -27,7 +27,8 @@ Nový workflow s cron (a `workflow_dispatch` na test), číta `run_summaries` za
 3. **Chýbajúce údaje** len tam, kde je podnik výrazne horší ako jeho bežný stav alebo > 30 % akcií bez poľa.
 4. **Na kontrolu** (najviac 10, s odkazom na zdroj a na akciu v appke): AI nič nenašla, nízka istota typu, zahodená cena, zmena typu AI.
 5. **Návrhy nových žánrov** (z `data/genre_proposals.json`, len ≥ 3 akcie): názov, typ, počet, 2–3 príklady s odkazom; Matej odpovie schváliť / zlúčiť s X / zamietnuť.
-6. **AI:** hľadania a cena za týždeň a za mesiac / limit.
+6. **Na doplnenie v chate** (hlavný chat to číta z issue): hlavní interpreti nových koncertov/DJ nocí bez Spotify odkazu (meno, akcia, odkaz); akcie s cenou `verified: false` v najbližších 14 dňoch; akcie „na kontrolu“ (nič nenájdené, nízka istota typu, zahodené žánre).
+7. **AI:** hľadania a cena za týždeň a za mesiac / limit.
 - **Každý bod má krátke ID** (napr. `W47-03`), aby naň Matej mohol odkazovať.
 - Pravidlá reportu (prahy, čo hlásiť, ignorované body) v **`docs/report-rules.md`** + `data/report_ignore.json` (ID typu `venue:pole` alebo `event_id`, ktoré sa už nehlásia). Hlavný chat ich bude upravovať podľa Matejových hodnotení.
 - Report uzavrie predošlý týždenný issue.
