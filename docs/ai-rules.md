@@ -13,7 +13,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 2. Kapela, spevák, raper naživo, **elektronika hraná naživo** (live set, „LIVE“/„(live)“ pri hlavnom interpretovi, živá kapela, spev, nástroje; napr. Bonobo, Tinlicker, Modeselektor LIVE, Amphibian Quadrophonic Soundsystem, CREDIT 00 (live)) → `concert`.
 3. DJ-i (prezentujú sa ako DJ), veľa mien oddelených ☆/+ a noc do rána, **žánrová noc bez headlinera** (DRUMSTATION), **sound system** (Bashment) → `dj`.
 4. Spevák/kapela a po nich DJ → `concert`, `dj` doplnkový. Časový harmonogram kapiel („20:00 X, 21:00 Y“) → `concert`.
-5. `party` = len veľká komerčná/mainstreamová párty kvôli atmosfére (komerčné kluby, Erasmus/študentské, hity 80./90., open bar). V komerčnom klube (`commercial_club`): generická noc → `party`; **známy menovaný DJ** (SLVL) → `primary_format: dj`, `party` doplnkový. Mimo komerčných klubov len pri jasnom signáli s dôvodom.
+5. `party` = len veľká komerčná/mainstreamová párty kvôli atmosfére (komerčné kluby, Erasmus/študentské, hity 80./90., open bar). V komerčnom klube (`commercial_club`): generická noc → `party`; **DJ je hlavné lákadlo a párty je postavená okolo neho** (SLVL) → `primary_format: dj`, `party` doplnkový; **lákadlom je párty samotná** (téma, formát, napr. Video Oldies Rudy Tučeka, Student Wednesday), aj keď je DJ menovaný → `party`. Pozná sa to hlavne z názvu a popisu (Matej 2026-11-17). Mimo komerčných klubov len pri jasnom signáli s dôvodom.
 6. Kultúra podľa podtypu: `film`, `theatre`, `dance`, `comedy` (stand-up), `talk` (čítanie a diskusia: krst knihy, poézia, piesne + texty, prednáška), `performance` (performatívne pásmo), `workshop` (aj hudobný/DJ), `opening` (výstava), `quiz`; inak `other`.
 
 ## C. Žánre
