@@ -73,7 +73,7 @@ def test_two_steps_and_sources():
     urls = {s["url"] for s in rec["research"]["sources"]}
     assert urls == {"https://past.bandcamp.com", SPOT}          # ra.co dropped
     res, conv = E.process_result(EV, rec, p.model, "2026-11-17", {})
-    assert res["genres"] == ["hip-hop", "industrial"]
+    assert res["genres"] == ["industrial"]      # task 062: hip-hop has no quote
     assert res["artist_links"] == [{"name": "PAST", "spotify_url": SPOT}]
     assert res["description_source_urls"] == ["https://past.bandcamp.com"]   # invented URL dropped
     assert conv["enrichment"]["formats"]["by"] == "ai_web"

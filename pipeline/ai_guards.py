@@ -1,0 +1,159 @@
+"""
+Guards on AI results in code (task 062 part 1, docs/ai-rules.md C2, C3, D, F).
+
+- genre_supported(): a genre stays only when its quote (genre_facts) AND the
+  research (step-1 facts + venue page text) contain the genre name, an
+  approved alias (data/genre_aliases.json) or a spelling variant, as a whole
+  word.  Names of OTHER genres that contain the word are masked first, so a
+  parent genre never gets support from a subgenre ("tech house" is no support
+  for house, "electronic dance music" none for electronic, "hard techno" none
+  for hardcore).
+- price_supported(): an AI price stays only when it has an amount or a free /
+  voluntary word ("Tba" is no price) and the research or the venue page shows
+  that amount / word.
+- exclamation marks that are part of the event title or an artist name
+  ("FIRE!") are ignored by the description check.
+- venue_mentions(): a description naming the venue or a hall goes to review.
+"""
+
+import re
+import unicodedata
+
+from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES, slug
+from pipeline.price import parse_price
+
+ALL_GENRES = MUSIC_GENRES | FILM_GENRES | STAGE_GENRES
+
+# Spelling variants not in genre_aliases.json (same word, other spelling /
+# Czech spelling of the same word).  Never a different genre.
+VARIANTS = {
+    "hip-hop": ["hip hop", "hiphop"],
+    "drum-and-bass": ["drum and bass", "drum n bass", "drumnbass", "dnb", "d and b"],
+    "rnb": ["r and b", "rnb", "rn b", "r n b"],
+    "electronic": ["elektronick", "electronica", "elektronik"],
+    "experimental": ["experimentaln"],
+    "industrial": ["industrialn"],
+    "uk-garage": ["uk garage", "ukg"],
+    "post-punk": ["post punk", "postpunk"],
+}
+
+# Czech / Slovak endings after a genre word ("rockový", "punku", "jazzová")
+_SUFFIX = r"(?:ov(?:a|á|é|ý|ou|ých|ého|ým|e|y|i|u|ej|ému)?|u|e|em|y|a|i|ie|y)?"
+
+
+def plain(s) -> str:
+    s = unicodedata.normalize("NFKD", str(s or ""))
+    s = "".join(c for c in s if not unicodedata.combining(c)).lower()
+    s = s.replace("&", " and ")
+    s = re.sub(r"['’`]", "", s)
+    s = re.sub(r"[^a-z0-9]+", " ", s)
+    return " ".join(s.split())
+
+
+def _term_re(term: str, czech: bool = True) -> re.Pattern:
+    suffix = _SUFFIX if czech else ""
+    # Czech stems ("elektronick") take any ending
+    if term.endswith(("ick", "aln", "nik")):
+        suffix = r"[a-z]*"
+    return re.compile(rf"(?<![a-z0-9]){re.escape(term)}{suffix}(?![a-z0-9])")
+
+
+def genre_terms(genre: str, aliases: dict | None) -> list[str]:
+    terms = {plain(genre.replace("-", " "))}
+    terms.update(plain(v) for v in VARIANTS.get(genre, []))
+    for raw, target in (aliases or {}).items():
+        targets = target if isinstance(target, list) else [target]
+        if genre in targets:
+            terms.add(plain(raw))
+    return sorted(t for t in terms if t)
+
+
+def _other_phrases(genre: str, aliases: dict | None) -> list[str]:
+    """Names / aliases of other genres (not mapping to `genre`)."""
+    out = []
+    for g in ALL_GENRES:
+        if g != genre:
+            out += [plain(g.replace("-", " "))] + [plain(v) for v in VARIANTS.get(g, [])]
+    for raw, target in (aliases or {}).items():
+        targets = target if isinstance(target, list) else [target]
+        if genre not in targets:
+            out.append(plain(raw))
+    return out
+
+
+def _supports(text: str, genre: str, aliases: dict | None) -> bool:
+    text = plain(text)
+    if not text:
+        return False
+    terms = genre_terms(genre, aliases)
+    # mask longer names of other genres that contain one of our terms
+    for ph in sorted(set(_other_phrases(genre, aliases)), key=len, reverse=True):
+        if any(_term_re(t, False).search(ph) for t in terms) and ph not in terms:
+            text = _term_re(ph, False).sub(" ", text)
+    return any(_term_re(t).search(text) for t in terms)
+
+
+def genre_supported(genre: str, quote: str | None, research_text: str | None,
+                    aliases: dict | None) -> tuple[bool, str]:
+    if not quote:
+        return False, "no genre_facts quote"
+    if not _supports(quote, genre, aliases):
+        return False, "genre name not in its quote"
+    if research_text is not None and not _supports(research_text, genre, aliases):
+        return False, "genre name not in the research facts / venue page"
+    return True, "ok"
+
+
+_FREE_RE = re.compile(r"zdarma|zadarmo|free|volny vstup|vstup volny|dobrovoln|bez vstupneho|gratis")
+
+
+def price_supported(price: str, support_text: str | None) -> tuple[bool, str]:
+    p = parse_price(price)
+    if not p:
+        return False, "no amount and no free / voluntary word"
+    if support_text is None:
+        return True, "ok"
+    text = plain(support_text)
+    if p["min"] is not None:
+        digits = re.sub(r"(?<=\d) (?=\d{3}\b)", "", text)
+        amounts = {str(int(v)) for v in (p["min"], p["max"]) if v is not None}
+        missing = [a for a in amounts if not re.search(rf"(?<!\d){a}(?!\d)", digits)]
+        if missing:
+            return False, f"amount {missing} not in research facts / venue page"
+        return True, "ok"
+    if not _FREE_RE.search(text):
+        return False, "free / voluntary word not in research facts / venue page"
+    return True, "ok"
+
+
+def strip_names(text: str, names: list[str]) -> str:
+    """Remove words with '!' that belong to the title / an artist name."""
+    for name in names:
+        for word in re.findall(r"\S*!\S*", name or ""):
+            word = word.strip(".,;:()[]\"'“”„")
+            if word:
+                text = re.sub(re.escape(word), " ", text, flags=re.I)
+    return text
+
+
+_HALL_RE = re.compile(r"(?<![a-z])(sal[ae]?|salu|salem|stage|hall|mistnost\w*|miestnost\w*|"
+                      r"citarn\w*)(?![a-z])")
+
+
+def venue_mentions(text: str, venue: dict, extra_names: list[str] | None = None) -> list[str]:
+    """Venue / hall names found in a description (-> needs_review)."""
+    t = plain(text)
+    hits = []
+    names = [venue.get("name")] + list(extra_names or [])
+    for n in names:
+        n = plain(n)
+        # "Palác Akropolis" -> also "akropolis"; very short words are skipped
+        parts = [n] + [w for w in n.split() if len(w) >= 5]
+        for p in parts:
+            if p and _term_re(p).search(t):
+                hits.append(p)
+                break
+    m = _HALL_RE.search(t)
+    if m:
+        hits.append(m.group(0))
+    return hits

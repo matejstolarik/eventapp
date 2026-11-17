@@ -49,6 +49,7 @@ from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
 from pipeline.ai_rules import (DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL,
                                TRANSLATE_PROMPT)
+from pipeline.ai_guards import genre_supported, price_supported, strip_names, venue_mentions
 from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
 from pipeline.price import parse_price
 
@@ -226,9 +227,10 @@ def _clean_text(text) -> str | None:
     return text or None
 
 
-def description_problems(text: str) -> list[str]:
+def description_problems(text: str, names: list[str] | None = None) -> list[str]:
+    """names: event title + artists; a '!' inside them (FIRE!) is no problem (task 062)."""
     probs = []
-    if "!" in text:
+    if "!" in strip_names(text, names or []):
         probs.append("exclamation mark")
     if _EMOJI.search(text):
         probs.append("emoji")
@@ -239,12 +241,15 @@ def description_problems(text: str) -> list[str]:
 
 
 def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
-             aliases: dict | None = None, allowed_urls: set[str] | None = None) -> dict:
+             aliases: dict | None = None, allowed_urls: set[str] | None = None,
+             research_text: str | None = None, venue: dict | None = None) -> dict:
     """Apply the rules to a raw model result -> clean dict + 'dropped'.
 
     aliases: approved raw genre -> our genre (data/genre_aliases.json).
     allowed_urls: if given (Gemini two-step), every source URL must be one of
-    them (resolved search sources + event page), compared by canon_url()."""
+    them (resolved search sources + event page), compared by canon_url().
+    research_text: step-1 facts + venue page text (two-step providers); genres
+    and the price need support in it (task 062, pipeline/ai_guards.py)."""
     allowed = None if allowed_urls is None else {canon_url(u) for u in allowed_urls}
 
     def ok(url) -> bool:
@@ -274,6 +279,7 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     # task 058: genres in order (main first); raw names are mapped only through
     # spelling variants + approved aliases, never to a parent genre.
     gens, cands, seen_raw = [], [], set()
+    raw_of: dict = {}          # our genre -> raw names that mapped to it
 
     def add_raw(rawname, kind):
         rawname = _clean_text(rawname)
@@ -288,6 +294,7 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
             kind = "music" if mapped else kind
         if kind in (own_kind, "music") and mapped and (own_kind or kind == "music"):
             for g in mapped:
+                raw_of.setdefault(g, []).append(rawname.lower())
                 if g not in gens:
                     gens.append(g)
             if [rawname.lower()] != mapped:
@@ -301,10 +308,22 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     for c in raw.get("genre_candidates") or []:
         kind = (c or {}).get("kind") if (c or {}).get("kind") in ("music", "film", "stage") else "music"
         add_raw((c or {}).get("raw"), kind)
-    out["genres"] = gens
-    out["genre_candidates"] = cands
     facts = raw.get("genre_facts") if isinstance(raw.get("genre_facts"), dict) else {}
     out["genre_facts"] = {str(k): _clean_text(v) for k, v in facts.items() if _clean_text(v)}
+    # task 062: every genre needs a quote with its name (ai-rules C2, C3)
+    quotes = {k.lower(): v for k, v in out["genre_facts"].items()}
+    kept = []
+    for g in gens:
+        keys = [g, g.replace("-", " ")] + raw_of.get(g, [])
+        quote = " ".join(quotes[k] for k in dict.fromkeys(keys) if k in quotes)
+        ok_g, why = genre_supported(g, quote, research_text, aliases)
+        if ok_g:
+            kept.append(g)
+        else:
+            dropped.append(f"genre {g}: {why}")
+    cands = [c for c in cands if c["maps_to"] is None or c["maps_to"] in kept]
+    out["genres"] = kept
+    out["genre_candidates"] = cands
     out["type_reason"] = _clean_text(raw.get("type_reason"))
     out["needs_review"] = bool(raw.get("needs_review"))
 
@@ -333,6 +352,11 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     if price and not ok(psrc):
         dropped.append("price: no valid source_url")
         price = None
+    if price:
+        ok_p, why = price_supported(price, research_text)   # task 062 (060 part 2)
+        if not ok_p:
+            dropped.append(f"price '{price}': {why}")
+            price = None
     out["price"], out["price_source_url"] = price, psrc if price else None
 
     st, ssrc = _clean_text(raw.get("start_time")), raw.get("start_time_source_url")
@@ -355,11 +379,19 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
         dropped.append("descriptions: no source_urls")
         clean = {}
     if clean:
-        probs = sorted({p for v in clean.values() for p in description_problems(v)})
+        names = [ev.get("title") or ""] + (ev.get("artists") or []) + arts
+        probs = sorted({p for v in clean.values() for p in description_problems(v, names)})
         if probs:
             dropped.append(f"descriptions: {', '.join(probs)}")
             clean = {}
     out["descriptions"] = clean or None
+    out["review"] = []
+    if clean and venue is not None:
+        # task 062: venue / hall in the description -> review, not dropped
+        hits = venue_mentions(clean["cs"], venue)
+        if hits:
+            out["needs_review"] = True
+            out["review"].append(f"description mentions venue / hall: {', '.join(hits)}")
     out["description_source_urls"] = dsrc if clean else []
     out["dropped"] = dropped
     return out
@@ -804,6 +836,9 @@ class _Gemini2:
         src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
         allowed = {s["url"] for s in r["sources"]} | ({src} if src else set())
         return _sum_usage({
+            # task 062: genres and price need support in the facts / venue page
+            "support_text": "\n".join([r.get("text") or "", page_text or "",
+                                        ev.get("title") or "", ev.get("price_text") or ""]),
             "searches": 0,
             "seen_urls": [s["url"] for s in r["sources"]],
             "allowed_urls": allowed,
@@ -1021,10 +1056,11 @@ def check_spotify(res: dict, rec: dict) -> None:
 
 
 def process_result(ev: dict, rec: dict, model: str, today: str, aliases: dict | None,
-                   price_fetch=_fetch_page_text) -> tuple[dict, dict]:
+                   price_fetch=_fetch_page_text, venue: dict | None = None) -> tuple[dict, dict]:
     """Validate one provider result, verify the price, build the enrichment."""
     seen = None if rec["seen_urls"] is None else {u.split("?")[0] for u in rec["seen_urls"]}
-    res = validate(rec["raw"], ev, seen, aliases, rec.get("allowed_urls"))
+    res = validate(rec["raw"], ev, seen, aliases, rec.get("allowed_urls"),
+                   rec.get("support_text"), venue)
     check_spotify(res, rec)
     searched = rec.get("searched", True)
     if not searched:
@@ -1199,13 +1235,16 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             rec = r.get("rec")
             if not rec:
                 continue
-            res, conv = process_result(ev, rec, provider.model, today, aliases, price_fetch)
+            res, conv = process_result(ev, rec, provider.model, today, aliases, price_fetch,
+                                       venues_map.get(ev["venue_id"], {}))
             if res["price"] and not ev.get("price_text") and not res.get("price_ok"):
                 stats["prices_dropped"] += 1
             if rec.get("searched") is False:
                 stats["not_searched"] = stats.get("not_searched", 0) + 1
             for d in res["dropped"]:
                 stats["dropped"].append(f"{ev['id']}: {d}")
+            for d in res.get("review") or []:
+                stats.setdefault("review", []).append(f"{ev['id']}: {d}")
             out_by_id[ev["id"]] = apply_enrichment(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
             if ev["id"] in redo and rec.get("searches") == 0:

@@ -38,7 +38,11 @@ commercial clubs only with a clear signal; give the reason in party_reason.
 discussion: book launch, poetry, songs + texts, lecture), performance (performative \
 piece between theatre and visual art), workshop (also a music / DJ workshop), opening \
 (exhibition opening), quiz; otherwise other. music = musical event where concert vs. \
-dj cannot be decided (last resort)."""
+dj cannot be decided (last resort).
+7. A performer who presents himself primarily as a live act or a band (live \
+electronic act, instruments, vocals; e.g. Tinlicker) -> primary concert even when the \
+venue writes "DJ set"; dj secondary. What the performer IS decides, not the venue's \
+headline."""
 
 # Matej's labels (docs/tasks/056/labels-matej.csv) used as examples; the
 # measurement marks these events as "in prompt".
@@ -63,7 +67,8 @@ Examples (decided by the editor):
 - "Amphibian Quadrophonic Soundsystem" (Archa+): electronic, close to DJs, but played \
 live and they look like a band -> concert.
 - "TINLICKER" (Roxy): DJ duo that left Anjunadeep and now performs as a live band \
-instead of DJ sets -> concert, dj secondary.
+instead of DJ sets; the venue headline says "DJ set" -> still concert (rule 7), dj \
+secondary.
 - "Modeselektor LIVE" (Roxy): known as DJs, but play live with vocals -> concert.
 - "CREDIT 00 (live), MIDIRAMA & RAPHAEL KOSMOS" (Bike Jesus): explicit (live) at the \
 main performer -> concert.
@@ -123,12 +128,15 @@ DESCRIPTION_EXAMPLE = (
 )
 
 RULES_DESCRIPTION = f"""\
-DESCRIPTIONS (always): descriptions.cs in Czech, 3-5 sentences, factual and in depth: \
-who the performer is, where from, what they are known for, what they released, what \
-is special about the evening (album launch, comeback, guests). Built from the SAME \
-facts as type and genres. No advertising phrases ("nezmeškejte", "legendární", \
-"nezapomenutelný", "unikátní zážitek"), no pathos, no exclamation marks, no emoji, no \
-price / time / venue address. Only facts from the sources; take facts from the \
+DESCRIPTIONS (always): descriptions.cs in Czech, about 5 sentences; the length follows \
+the performer: longer for a big star, shorter for an underground performer with few \
+facts. Factual and in depth: who the performer is, where from, what they are known \
+for, what they released, what is special about the evening (album launch, comeback, \
+guests). Built from the SAME facts as type and genres. No advertising phrases \
+("nezmeškejte", "legendární", "nezapomenutelný", "unikátní zážitek"), no pathos, no \
+exclamation marks, no emoji. NEVER the price, the time or the place: no venue name, \
+no hall / room / stage ("ve Velkém sále", "v Čítárně"), no address, no organiser or \
+promoter. Only facts from the sources; take facts from the \
 original text, never its sentences. Never write about the sources ("podle popisu \
 akce"). Genre names are not declined or translated ("techno", "drum and bass", \
 "metalcore"; never "technové"). Few facts -> a shorter text, or null. descriptions.sk \
@@ -169,4 +177,4 @@ DECIDE_PROMPT = f"""You decide the data of one event at a Prague venue from RESE
 Write ONLY descriptions.cs (Czech); the Slovak and English versions are made later by a separate translation, leave descriptions.sk and descriptions.en out. Keep type_reason to one short sentence. Answer with ONLY one JSON object, no text around it."""
 
 # Gemini step 3 (task 059): translation of the Czech description, cheapest model
-TRANSLATE_PROMPT = """Translate the Czech event description into Slovak (sk) and English (en). Keep the facts, names and genre names exactly; do not add or drop anything; no advertising phrases, no exclamation marks. Answer with ONLY a JSON object {"sk": "...", "en": "..."}."""
+TRANSLATE_PROMPT = """Translate the Czech event description into Slovak (sk) and English (en). Do NOT change any fact: keep every name, number, date, title and genre name exactly, and keep the grammatical gender of every person as in the Czech text (Czech "producent, který" is a man -> Slovak "producent, ktorý", English "he"; never turn a man into a woman or the other way round). Do not add or drop anything; no advertising phrases, no exclamation marks. Answer with ONLY a JSON object {"sk": "...", "en": "..."}."""

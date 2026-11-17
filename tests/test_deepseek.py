@@ -126,7 +126,8 @@ def test_run_event_rules_applied_and_cost():
     assert all(c.get("response_format") == {"type": "json_object"} for c in calls if "tools" not in c)
     res, conv = E.process_result(EV, rec, D.MODEL, "2026-11-17", {}, lambda u: None)
     assert res["artist_links"] == []                    # Spotify never from the model
-    assert res["genres"] == ["house", "techno"]         # same validation as Gemini: kept,
+    assert res["genres"] == ["house"]       # task 062: techno has no quote -> dropped
+    assert any(d.startswith("genre techno") for d in res["dropped"])
     assert list(res["genre_facts"]) == ["house"]        # counted as "no fact" in the test
     assert not res["price_ok"]                          # "Tba" -> no price
     assert "https://made-up.example/x" not in (res.get("description_source_urls") or [])

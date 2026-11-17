@@ -29,7 +29,12 @@ def _raw(**kw):
            "price": "od 950 Kč", "price_source_url": URL,
            "start_time": "20:00", "start_time_source_url": URL,
            "descriptions": {"cs": DESC_CS, "sk": "Švédska kapela Allt.", "en": "Swedish band Allt."},
-           "description_source_urls": [URL]}
+           "description_source_urls": [URL],
+           # task 062: every genre needs a quote with its name
+           "genre_facts": {"metal": "Swedish metal band", "metalcore": "plays metalcore",
+                           "death-metal": "death metal", "techno": "ambient techno DJ",
+                           "ambient": "ambient techno DJ", "hip-hop": "Czech hip-hop and rap",
+                           "physical-theatre": "physical theatre company"}}
     raw.update(kw)
     return raw
 
