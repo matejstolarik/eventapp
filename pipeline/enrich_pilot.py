@@ -532,12 +532,14 @@ def run_gemini(events, venues_map, budget):
             time.sleep(GEMINI_DELAY_S)
         prompt = (build_event_prompt(ev, venues_map.get(ev["venue_id"], {}))
                   + "\n\nAnswer with ONLY one JSON object with these keys: " + schema_hint)
+        gen = {"temperature": 0.2, "maxOutputTokens": 4096}
+        if os.environ.get("PILOT_GEMINI_THINKING"):
+            gen["thinkingConfig"] = {"thinkingLevel": os.environ["PILOT_GEMINI_THINKING"]}
         body = {
             "systemInstruction": {"parts": [{"text": _SYSTEM}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "tools": [{"google_search": {}}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 4096,
-                                 "thinkingConfig": {"thinkingLevel": "low"}},
+            "generationConfig": gen,
         }
         rec = {"id": ev["id"]}
         while True:
