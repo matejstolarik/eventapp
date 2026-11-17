@@ -4,6 +4,7 @@ import fs from 'fs'
 
 const OUT_DIR = path.resolve('D:/AI/eventapp/docs/tasks/051')
 fs.mkdirSync(OUT_DIR, { recursive: true })
+const THUMB_DIR = path.resolve('D:/AI/eventapp/tests/playwright/fixtures/thumbs')
 
 const FROZEN_ISO = '2026-11-16T18:00:00'
 const TODAY = '2026-11-16'
@@ -62,6 +63,11 @@ async function setup(page: any) {
   })
   await page.route('**/events.json', (route: any) => {
     route.fulfill({ contentType: 'application/json', body: JSON.stringify(SYNTHETIC) })
+  })
+  // Test thumbnails live outside web/public (task 052) so they never reach Pages
+  await page.route('**/test-thumb*.jpg', (route: any) => {
+    const name = path.basename(new URL(route.request().url()).pathname)
+    route.fulfill({ contentType: 'image/jpeg', body: fs.readFileSync(path.join(THUMB_DIR, name)) })
   })
 }
 

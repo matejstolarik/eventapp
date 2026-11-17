@@ -10,6 +10,7 @@ import fs from 'fs'
 const BASE = 'http://localhost:5173/eventapp/'
 const OUT = 'D:\\AI\\eventapp\\docs\\tasks\\051'
 fs.mkdirSync(OUT, { recursive: true })
+const THUMB_DIR = 'D:/AI/eventapp/tests/playwright/fixtures/thumbs'
 
 const FROZEN_ISO = '2026-11-16T18:00:00'
 const TODAY = '2026-11-16'
@@ -62,6 +63,11 @@ await ctx.addInitScript(() => {
   localStorage.removeItem('eventsFilters')
 })
 
+// Test thumbnails live outside web/public (task 052) so they never reach Pages
+await ctx.route('**/test-thumb*.jpg', route => {
+  const name = path.basename(new URL(route.request().url()).pathname)
+  route.fulfill({ contentType: 'image/jpeg', body: fs.readFileSync(path.join(THUMB_DIR, name)) })
+})
 await ctx.route('**/events.json', route => {
   route.fulfill({ contentType: 'application/json', body: SYNTHETIC })
 })
