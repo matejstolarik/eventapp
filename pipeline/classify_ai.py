@@ -13,8 +13,11 @@ On subsequent pipeline runs, results are loaded from previous_events and
 re-used without calling the API (unless the event title changes).
 
 Configuration:
-  ANTHROPIC_API_KEY env var — required for AI layer; pipeline continues
-  without it (warning in job summary).
+  ENRICH_PROVIDER   env var — "deepseek" (task 062, daily run): DeepSeek in
+  JSON mode with the run / month budget; otherwise Claude Haiku.
+  ANTHROPIC_API_KEY / DEEPSEEK_API_KEY — without the key (or on HTTP 401/402,
+  budget reached) no API call is made, but cached AI results are still
+  applied (task 062: genres from the cache are never lost).
   AI_MAX_CALLS      env var — max API calls per run (default 50)
   AI_MAX_TOKENS     env var — max total tokens per run (default 200000)
 """
@@ -125,6 +128,8 @@ def classify_events_ai(
     previous_events: list[dict] | None = None,
     max_calls: int | None = None,
     max_tokens: int | None = None,
+    budget=None,
+    call=None,
 ) -> tuple[list[dict], dict]:
     """AI classification for events layer 1 could not determine.
 
@@ -137,12 +142,6 @@ def classify_events_ai(
     if max_tokens is None:
         max_tokens = int(os.environ.get("AI_MAX_TOKENS", 200_000))
 
-    api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
-    if not api_key:
-        log.warning("[classify_ai]: ANTHROPIC_API_KEY not set — skipping AI layer")
-        return events, {"skipped": True, "reason": "ANTHROPIC_API_KEY not set"}
-
-    client = anthropic.Anthropic(api_key=api_key)
     venues_map = {v["id"]: v for v in venues}
 
     ai_cache = _build_ai_cache(previous_events or [])
@@ -166,10 +165,42 @@ def classify_events_ai(
     log.info("[classify_ai]: %d cache hits, %d to classify via API",
              cache_hits, len(still_need))
 
+    # task 062: the cache is applied above in every case; only the API calls
+    # depend on the provider and its key
+    provider = (os.environ.get("ENRICH_PROVIDER") or "claude").strip().lower()
+    deepseek = None
+    client = None
+    why = None
+    if call is not None:
+        pass
+    elif provider == "deepseek":
+        if not (os.environ.get("DEEPSEEK_API_KEY") or "").strip():
+            why = "DEEPSEEK_API_KEY not set"
+        elif budget is None:
+            why = "DeepSeek budget unavailable (pipeline state not loaded)"
+        else:
+            from pipeline.deepseek import _DeepSeek
+            deepseek = _DeepSeek(budget=budget)
+    else:
+        api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+        if api_key:
+            client = anthropic.Anthropic(api_key=api_key)
+        else:
+            why = "ANTHROPIC_API_KEY not set"
+    if why:
+        log.warning("[classify_ai]: %s — no API calls, %d cache hits applied", why, cache_hits)
+        return events, {"skipped": True, "reason": why, "cache_hits": cache_hits,
+                        "to_classify": len(still_need)}
+    if call is None:
+        call = ((lambda b, v: _call_deepseek(deepseek, b, v)) if deepseek
+                else (lambda b, v: _call_api_with_retry(client, b, v)))
+
     total_input = 0
     total_output = 0
     api_calls = 0
     errors = 0
+    cost = 0.0
+    stopped = None
     total_batches = (len(still_need) + BATCH_SIZE - 1) // BATCH_SIZE if still_need else 0
 
     for batch_idx, i in enumerate(range(0, len(still_need), BATCH_SIZE)):
@@ -185,12 +216,19 @@ def classify_events_ai(
         batch_venues = {e["venue_id"]: venues_map.get(e["venue_id"], {}) for e in batch}
 
         try:
-            results, usage = _call_api_with_retry(client, batch, batch_venues)
+            results, usage = call(batch, batch_venues)
             api_calls += 1
             total_input += usage.input_tokens
             total_output += usage.output_tokens
+            cost += getattr(usage, "cost_usd", None) or (
+                usage.input_tokens / 1_000_000 * INPUT_PRICE_PER_MTOK
+                + usage.output_tokens / 1_000_000 * OUTPUT_PRICE_PER_MTOK)
             _apply_batch_results(batch, results)
         except Exception as exc:
+            if exc.__class__.__name__ == "ProviderStop":     # HTTP 401/402, budget
+                stopped = str(exc)[:200]
+                log.warning("[classify_ai]: stopped: %s", stopped)
+                break
             cause = f" (cause: {exc.__cause__})" if exc.__cause__ else ""
             log.warning(
                 "[classify_ai]: API call %d/%d failed: %s: %s%s — batch skipped",
@@ -198,11 +236,10 @@ def classify_events_ai(
             )
             errors += 1
 
-    cost = (total_input / 1_000_000 * INPUT_PRICE_PER_MTOK +
-            total_output / 1_000_000 * OUTPUT_PRICE_PER_MTOK)
-
     stats = {
         "skipped": False,
+        "provider": "deepseek" if deepseek else ("claude" if client else "test"),
+        "stopped": stopped,
         "cache_hits": cache_hits,
         "api_calls": api_calls,
         "errors": errors,
@@ -403,6 +440,23 @@ def _call_api(
         f"No classify_events tool_use block in response "
         f"(stop_reason={response.stop_reason})"
     )
+
+
+class _Usage:
+    def __init__(self, inp: int, out: int, cost: float):
+        self.input_tokens, self.output_tokens, self.cost_usd = inp, out, cost
+
+
+def _call_deepseek(prov, batch: list[dict], venues: dict) -> tuple[list[dict], "_Usage"]:
+    """task 062: same prompt and schema as the Claude tool, DeepSeek JSON mode."""
+    system = (_SYSTEM_PROMPT + "\n\nAnswer with ONLY one JSON object of this JSON schema: "
+              + json.dumps(_CLASSIFY_TOOL["input_schema"], ensure_ascii=False))
+    out, usage = prov._json_call("classify", "disabled", system, _build_prompt(batch, venues), 4096)
+    u = _Usage(sum(x["input_tokens"] for x in usage), sum(x["output_tokens"] for x in usage),
+               sum(x["cost_usd"] for x in usage))
+    if not isinstance(out, dict) or not isinstance(out.get("classifications"), list):
+        raise RuntimeError("DeepSeek: no classifications in JSON answer")
+    return out["classifications"], u
 
 
 def _build_prompt(batch: list[dict], venues: dict) -> str:

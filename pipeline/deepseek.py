@@ -1,6 +1,8 @@
 """
 Task 061: DeepSeek provider (variant A: research, decision and translation
-all with DeepSeek).  TEST ONLY -- not used by the daily run.
+all with DeepSeek).  Task 062: used by the daily run (ENRICH_PROVIDER=deepseek)
+for AI enrichment and AI classification; budget per run and per calendar
+month (daily_budget / record_spend, state["ai_cost"]).
 
 Same three steps as _Gemini2 (task 059), same validation afterwards
 (pipeline.enrich_ai.process_result):
@@ -52,7 +54,10 @@ MAX_TURNS = 8                       # model calls in the research loop
 SEARCH_COUNT = 6                    # results per search
 SEARCH_SUFFIX = " -site:ra.co -site:instagram.com"
 FETCH_CHARS = 6000                  # page text passed to the model
-BUDGET_USD = float(os.environ.get("DEEPSEEK_BUDGET_USD") or "1.0")
+BUDGET_USD = float(os.environ.get("DEEPSEEK_BUDGET_USD") or "1.0")     # test script (061)
+RUN_BUDGET_USD = 0.30               # task 062: daily run
+MONTH_BUDGET_USD = 3.0              # task 062: calendar month (state["ai_cost"])
+MONTHLY_SEARCH_LIMIT = 3000         # searches cost $0.00075; the $ budget is the real limit
 
 RESEARCH_PROMPT_DS = f"""You research one event at a Prague venue with the tools search(query) and fetch(url). Report only facts you found with the tools. Do not decide the event type and do not write prose.
 
@@ -108,11 +113,38 @@ class Budget:
             self.spent += usd
 
 
+def daily_budget(state: dict, today: str, run_limit: float | None = None) -> "Budget":
+    """Budget of one daily run: min(run limit, month limit - spent this month).
+
+    run_limit: env DEEPSEEK_RUN_BUDGET_USD (workflow input, e.g. 1.40 for the
+    one-off recompute), default RUN_BUDGET_USD.  The month spend is the sum
+    of the recorded run costs in state["ai_cost"] (pipeline_state.json)."""
+    if run_limit is None:
+        run_limit = float(os.environ.get("DEEPSEEK_RUN_BUDGET_USD", "").strip() or RUN_BUDGET_USD)
+    cost = state.get("ai_cost") or {}
+    spent = float(cost.get("usd") or 0) if cost.get("month") == today[:7] else 0.0
+    b = Budget(round(max(0.0, min(run_limit, MONTH_BUDGET_USD - spent)), 4))
+    b.month_spent_before, b.run_limit = spent, run_limit
+    return b
+
+
+def record_spend(state: dict, today: str, budget: "Budget") -> dict:
+    """Add the run's spend to state["ai_cost"] (new month -> starts at 0)."""
+    cost = state.get("ai_cost") or {}
+    if cost.get("month") != today[:7]:
+        cost = {"month": today[:7], "usd": 0.0, "runs": 0}
+    cost["usd"] = round(float(cost.get("usd") or 0) + budget.spent, 4)
+    cost["runs"] = int(cost.get("runs") or 0) + 1
+    state["ai_cost"] = cost
+    return cost
+
+
 class _DeepSeek(_Gemini2):
     """Steps 2-3 and run_from_research / run_event come from _Gemini2; the
     model calls and the research loop are DeepSeek's."""
     name = "deepseek"
     reserve = MAX_SEARCHES
+    monthly_search_limit = MONTHLY_SEARCH_LIMIT
 
     def __init__(self, call=None, tool=None, budget: Budget | None = None,
                  decide_thinking: str | None = None, now=None):

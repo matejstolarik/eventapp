@@ -187,7 +187,16 @@ def main():
     events = classify_events(events, venues, overrides)
     manual = manual_mod.load()          # task 060: data/manual.json
     events, _ = manual_mod.apply_manual(events, manual, today)
-    events, ai_stats = classify_events_ai(events, venues, previous_list)
+    # task 062: DeepSeek budget shared by AI classification and AI enrichment
+    # (per run and per calendar month, recorded in pipeline_state.json)
+    ai_budget = None
+    if (os.environ.get("ENRICH_PROVIDER") or "").strip().lower() == "deepseek" \
+            and loaded_state is not None:
+        from pipeline.deepseek import daily_budget
+        ai_budget = daily_budget(state, today)
+        log.info("DeepSeek budget this run: $%.4f (month spent before $%.4f)",
+                 ai_budget.limit, ai_budget.month_spent_before)
+    events, ai_stats = classify_events_ai(events, venues, previous_list, budget=ai_budget)
     page_texts: dict[str, str] = {}
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
                                                   state=state, today=today,
@@ -198,10 +207,17 @@ def main():
         events, web_stats = enrich_events_ai(events, venues, previous,
                                              state if loaded_state is not None else None,
                                              today, page_texts=page_texts,
-                                             aliases=approved_aliases, research=research)
+                                             aliases=approved_aliases, research=research,
+                                             budget=ai_budget)
     except Exception as exc:   # never stop the daily run
         log.warning("AI enrichment failed: %s", exc)
         web_stats = {"skipped": f"error: {exc}"[:200], "warnings": []}
+    if ai_budget is not None:
+        from pipeline.deepseek import record_spend
+        cost = record_spend(state, today, ai_budget)
+        web_stats["budget"] = {"run_limit_usd": ai_budget.limit,
+                               "run_spent_usd": round(ai_budget.spent, 4),
+                               "month": cost["month"], "month_spent_usd": cost["usd"]}
     try:
         web_stats["research_bytes"] = research_store.save(research, today)
     except OSError as exc:
@@ -428,6 +444,16 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
         f.write("\n".join(lines) + "\n")
 
 
+def _dropped_kinds(dropped: list[str]) -> dict:
+    """'<id>: genre x: why' -> {'genre': n, 'price': n, ...} (task 062)."""
+    out: dict = {}
+    for d in dropped:
+        what = d.split(": ", 1)[-1]
+        kind = what.split(" ", 1)[0].split(":", 1)[0].split("'", 1)[0]
+        out[kind] = out.get(kind, 0) + 1
+    return out
+
+
 def _web_summary_lines(st: dict, proposals: list) -> list[str]:
     """Job summary section of the AI enrichment with web search (task 054)."""
     lines = ["### AI enrichment with web search (task 054)", ""]
@@ -454,6 +480,10 @@ def _web_summary_lines(st: dict, proposals: list) -> list[str]:
         f" events {(st.get('manual') or {}).get('events', 0)},"
         f" Spotify attached {(st.get('manual') or {}).get('attached', 0)},"
         f" AI Spotify links dropped {(st.get('manual') or {}).get('ai_dropped', 0)}",
+        f"- Dropped by guards (task 062): {_dropped_kinds(st.get('dropped') or [])};"
+        f" descriptions to review (venue / hall): {len(st.get('review') or [])};"
+        f" kept previous AI values (not processed): {st.get('kept_previous', 0)}",
+        f"- DeepSeek budget: {st.get('budget') or '–'}",
         f"- Re-run from stored research (no search): {st.get('from_research', 0)};"
         f" research files: {st.get('research_bytes') or '–'}",
         f"- Genre proposals (>= 3 events, not shown in the app): {len(proposals)}"

@@ -11,6 +11,22 @@ on:
         description: 'Event ids to re-run AI enrichment for, ignoring the cache (comma-separated, manual runs only)'
         required: false
         default: ''
+      reenrich_days:
+        description: 'Re-run AI enrichment for ALL events of the next N days (max 60), ignoring the cache (task 062 recompute)'
+        required: false
+        default: ''
+      reenrich_from_research:
+        description: 'Re-run the decision step from stored research, no search ("all" or comma-separated ids)'
+        required: false
+        default: ''
+      ai_budget_usd:
+        description: 'DeepSeek budget of this run in USD (default 0.30; month limit 3 USD always applies)'
+        required: false
+        default: ''
+      enrich_timeout_s:
+        description: 'AI enrichment wall-clock limit in seconds (default 1500)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -74,11 +90,17 @@ jobs:
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
+          # task 062: AI classification + AI enrichment with DeepSeek (variant A).
+          # Backup: ENRICH_PROVIDER: claude (needs ANTHROPIC_API_KEY, kept below).
+          # Gemini with Google Search is refused in code (task 060).
+          ENRICH_PROVIDER: deepseek
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_RUN_BUDGET_USD: ${{ inputs.ai_budget_usd }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # task 054: AI enrichment with web search (claude | gemini)
-          ENRICH_PROVIDER: claude
           ENRICH_FORCE_IDS: ${{ inputs.reenrich_ids }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ENRICH_FORCE_DAYS: ${{ inputs.reenrich_days }}
+          ENRICH_FROM_RESEARCH: ${{ inputs.reenrich_from_research }}
+          ENRICH_TIMEOUT_S: ${{ inputs.enrich_timeout_s }}
         run: python -m pipeline.main
 
       - name: Set up Node.js

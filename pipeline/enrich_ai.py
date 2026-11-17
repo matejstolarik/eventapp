@@ -59,7 +59,7 @@ WINDOW_DAYS = 60
 MONTHLY_SEARCH_LIMIT = 400
 MAX_SEARCHES_PER_EVENT = 3
 MAX_WORKERS = 4
-RUN_TIMEOUT_S = int(os.environ.get("ENRICH_TIMEOUT_S", "1500"))
+RUN_TIMEOUT_S = int(os.environ.get("ENRICH_TIMEOUT_S", "").strip() or "1500")
 MAX_ERRORS_IN_A_ROW = 5
 BLOCKED_DOMAINS = ["ra.co", "instagram.com"]   # task 058: Instagram never a source
 
@@ -875,8 +875,16 @@ _DECIDE_SCHEMA = json.dumps(
      for k, v in _RESULT_SCHEMA["properties"].items()}, ensure_ascii=False)
 
 
-def make_provider():
+def make_provider(budget=None):
     name = (os.environ.get("ENRICH_PROVIDER") or "claude").strip().lower()
+    if name == "deepseek":
+        # task 062: daily run with DeepSeek (variant A); budget per run / month
+        if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
+            return None, "DEEPSEEK_API_KEY not set"
+        if budget is None:
+            return None, "DeepSeek budget unavailable (pipeline state not loaded)"
+        from pipeline.deepseek import _DeepSeek
+        return _DeepSeek(budget=budget), None
     if name == "gemini":
         # task 060: never Gemini with the google_search tool in the daily run
         return None, ("ENRICH_PROVIDER=gemini refused: Gemini Grounding with Google Search "
@@ -1098,7 +1106,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                      page_texts: dict | None = None, provider=None,
                      price_fetch=_fetch_page_text,
                      aliases: dict | None = None,
-                     research: dict | None = None) -> tuple[list[dict], dict]:
+                     research: dict | None = None,
+                     budget=None) -> tuple[list[dict], dict]:
     """Enrich events in the window. Returns (events, stats).
 
     research: stored research records (id -> record, task 059); new records
@@ -1115,6 +1124,12 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
 
     # one-off manual re-run of chosen events (workflow_dispatch input reenrich_ids)
     force = {i.strip() for i in os.environ.get("ENRICH_FORCE_IDS", "").split(",") if i.strip()}
+    # task 062: re-run all events of the next N days, ignoring the AI cache
+    force_days = int(os.environ.get("ENRICH_FORCE_DAYS", "").strip() or 0)
+    if force_days:
+        last = (datetime.date.fromisoformat(today)
+                + datetime.timedelta(days=min(force_days, WINDOW_DAYS))).isoformat()
+        force |= {e["id"] for e in events if in_window(e, today) and e.get("date", "") <= last}
     redo_env = os.environ.get("ENRICH_FROM_RESEARCH", "").strip()
     redo_ids = {i.strip() for i in redo_env.split(",") if i.strip()}
     redo = {e["id"] for e in events if research and e["id"] in research
@@ -1140,7 +1155,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     stats["to_enrich"] = len(todo)
 
     if todo and provider is None:
-        provider, why = make_provider()
+        provider, why = make_provider(budget)
         if provider is None:
             stats["skipped"] = why
             stats["warnings"].append(f"AI enrichment skipped: {why}")
@@ -1158,6 +1173,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             counter = {"month": month, "count": 0}
         state["ai_searches"] = counter
 
+    month_limit = getattr(provider, "monthly_search_limit", MONTHLY_SEARCH_LIMIT)
     if todo:
         stats["provider"], stats["model"] = provider.name, provider.model
         lock = threading.Lock()
@@ -1173,7 +1189,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                     return ev["id"], {"skip": "stopped"}
                 if time.monotonic() > deadline:
                     return ev["id"], {"skip": "timeout"}
-                left = MONTHLY_SEARCH_LIMIT - counter["count"] - reserved[0]
+                left = month_limit - counter["count"] - reserved[0]
                 if left <= 0:
                     return ev["id"], {"skip": "limit"}
                 max_uses = min(getattr(provider, "reserve", MAX_SEARCHES_PER_EVENT), left)
@@ -1261,21 +1277,32 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             stats["cost_usd"] = round(stats.pop("exact_cost_usd"), 4)
         if stats["skipped_limit"]:
             stats["warnings"].append(
-                f"AI search limit {MONTHLY_SEARCH_LIMIT}/month reached: "
+                f"AI search limit {month_limit}/month reached: "
                 f"{stats['skipped_limit']} events wait for next month")
         if stats["skipped_timeout"]:
             stats["warnings"].append(f"AI enrichment: {stats['skipped_timeout']} events not "
                                      f"processed (timeout/stop), next run continues")
 
+    # task 062: an event that was due but not processed (provider stopped:
+    # HTTP 401/402, budget, outage, timeout) keeps its previous AI values
+    kept = 0
+    for ev in todo:
+        if ev["id"] not in out_by_id:
+            c = cached_enrichment(ev, previous)
+            if c:
+                out_by_id[ev["id"]] = apply_enrichment(
+                    ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
+                kept += 1
+    stats["kept_previous"] = kept
     if counter is not None:
         stats["month_searches"] = counter["count"]
-    stats["limit"] = MONTHLY_SEARCH_LIMIT
+    stats["limit"] = month_limit
     for w in stats["warnings"]:
         log.warning("%s", w)
     out = [out_by_id.get(e["id"], e) for e in events]
     log.info("enrich_ai: window=%d cached=%d enriched=%d errors=%d searches=%d month=%s/%d cost=$%.4f",
              stats["window"], stats["cached"], stats["enriched"], stats["errors"],
-             stats["searches"], stats.get("month_searches"), MONTHLY_SEARCH_LIMIT, stats["cost_usd"])
+             stats["searches"], stats.get("month_searches"), month_limit, stats["cost_usd"])
     return out, stats
 
 

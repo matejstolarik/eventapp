@@ -302,10 +302,12 @@ Zverejnený na GitHub Pages vedľa `events.json` (pipeline ho načíta z `PREVIO
 ```json
 { "detail_checked": { "<event id>": "2026-11-17" },
   "ai_searches": { "month": "2026-11", "count": 312 },
+  "ai_cost": { "month": "2026-11", "usd": 1.42, "runs": 9 },
   "updated_at": "2026-11-17T05:20:00+01:00" }
 ```
 - `detail_checked`: kedy sa stránka akcie naposledy kontrolovala kvôli chýbajúcej cene/času (opakuje sa najskôr po 7 dňoch).
-- `ai_searches`: počet webových hľadaní AI v kalendárnom mesiaci (limit 400). Ak sa stav nedá načítať (iná chyba ako 404), AI doplnenie sa v tom behu nespustí.
+- `ai_searches`: počet webových hľadaní AI v kalendárnom mesiaci (limit 400 pri Claude; pri DeepSeek 3 000, skutočný limit je rozpočet v $). Ak sa stav nedá načítať (iná chyba ako 404), AI doplnenie sa v tom behu nespustí.
+- `ai_cost` (task 062, DeepSeek): súčet ceny AI (zaradenie + doplnenie) za kalendárny mesiac v $ a počet behov. Rozpočet behu = min(0,30 $, 3 $ − `usd`); po prekročení sa AI zastaví, beh pokračuje. Nový mesiac začína od 0.
 
 ## Formát výstupu
 
