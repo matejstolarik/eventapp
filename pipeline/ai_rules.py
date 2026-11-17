@@ -29,9 +29,11 @@ sets), a sound system night.
 bands ("20:00 X, 21:00 Y") -> concert.
 5. party = only a big commercial / mainstream party where people go for the \
 atmosphere (commercial clubs, Erasmus / student nights, 80s/90s hits, open bar). In \
-a commercial club: a generic night -> primary party; a KNOWN NAMED DJ as headliner \
--> primary dj, party secondary. Outside commercial clubs only with a clear signal; \
-give the reason in party_reason.
+a commercial club: a generic night -> primary party; the DJ is the main draw and the \
+party is built around him -> primary dj, party secondary; the party itself is the \
+draw (theme, format, e.g. Video Oldies Rudy Tučeka, Student Wednesday), even with a \
+named DJ -> primary party. Decide mainly from the title and the description. Outside \
+commercial clubs only with a clear signal; give the reason in party_reason.
 6. Culture by subtype: film, theatre, dance, comedy (stand-up), talk (reading and \
 discussion: book launch, poetry, songs + texts, lecture), performance (performative \
 piece between theatre and visual art), workshop (also a music / DJ workshop), opening \
@@ -48,6 +50,7 @@ EXAMPLE_IDS = [
     "cross-club-2026-11-27-drumstation",
     "fuchs2-2026-11-21-family-therapy-present-asher-parashoot-fahell-zecco-millo",
     "epic-2026-11-20-slvl",
+    "epic-2026-11-21-video-oldies-ruda-tuceka",   # named in rule B5 (task 059)
     "epic-2026-11-18-student-wednesday",
     "bike-jesus-2026-11-16-bashment-bass-foundation-anniversary-dance-featuring-nomadix",
     "archa-plus-2027-01-27-a-u-set-and-play-w-ursula-sereghy",
@@ -68,8 +71,8 @@ main performer -> concert.
 several performers, no headliner -> dj (the venue's "party" label is not taken).
 - "FAMILY THERAPY present Asher ☆ Parashoot ☆ Fahell ☆ Zecco ☆ Millo" (Fuchs2): many \
 names, into the night, they present themselves as DJs -> dj.
-- "SLVL" (EPIC, commercial club): a very well-known DJ named as headliner -> dj, party \
-secondary.
+- "SLVL" (EPIC, commercial club): the DJ is the main draw, the party is built around \
+him -> dj, party secondary.
 - "STUDENT WEDNESDAY" (EPIC): generic commercial night without named DJs -> party.
 - "Bashment Bass Foundation Anniversary Dance featuring NOMADIX (UK)" (Bike Jesus): \
 sound system night -> dj (not party).
@@ -144,36 +147,26 @@ guess."""
 RULES_ALL = "\n\n".join([RULES_TYPE, TYPE_EXAMPLES, RULES_GENRES, RULES_PRICE_TIME,
                          RULES_DESCRIPTION, RULES_ARTISTS])
 
-# Gemini step 1 (research with Google Search) -- docs/ai-rules.md A, G
-RESEARCH_PROMPT = """\
-You research one event at a Prague venue with Google Search. Answer only with facts \
-you found, each with its source. Do not decide the event type.
+# Gemini step 1 (research with Google Search) -- docs/ai-rules.md A, G.
+# Task 059: at most 3 searches + 1 Spotify search (musicians only), terse facts.
+MAX_RESEARCH_SEARCHES = 3
+RESEARCH_PROMPT = f"""You research one event at a Prague venue with Google Search. Report only facts you found. Do not decide the event type and do not write prose.
 
-Determine ALL performers of this event. SEARCH about EVERY main performer: who it is, \
-where from, how they present themselves (band / DJ / producer / live act / theatre \
-company …), what genre they play, what they released. For every main performer also \
-run a separate search "<name> spotify". Search also for the page of this event (venue \
-website, public Facebook event, ticket presale) for the price (all price levels) and \
-start time of THIS date. Never use Instagram or ra.co (Resident Advisor).
+Use AT MOST {MAX_RESEARCH_SEARCHES} searches for the research: determine ALL performers; about every MAIN performer find who it is, where from, how they present themselves (band / DJ / producer / live act / theatre company …), genre, releases; find the page of this event (venue website, public Facebook event, ticket presale) for the price (all price levels) and the start time of THIS date. Combine several performers in one search when you can. Only when the main performer is a musician or DJ (a concert or a DJ night; not theatre, dance, film, talk, exhibition, workshop): one more search "<main performer> spotify". Never use Instagram or ra.co (Resident Advisor).
 
-Answer as a short fact list:
-PERFORMERS: one block per performer: name; who / origin; presents as; genres (as the \
-sources say); releases; source.
-EVENT PAGE: url; price as written; start time; source.
-UNKNOWN: what you could not find."""
+Answer with short fact lines only (no sentences around them), max ~150 words:
+P: <name> | <who / origin> | presents as: <...> | genres: <as the sources say> | releases: <...>
+E: url <...> | price <as written> | start <HH:MM>
+U: <what you could not find>"""
 
-RESEARCH_RETRY = """\
-IMPORTANT: you did not search. You MUST use Google Search now, at least one search per \
-main performer plus one for the event page. Facts from memory are not accepted."""
+RESEARCH_RETRY = """IMPORTANT: you did not search. You MUST use Google Search now (at most 3 searches). Facts from memory are not accepted."""
 
 # Gemini step 2 (decision without search)
-DECIDE_PROMPT = f"""\
-You decide the data of one event at a Prague venue from RESEARCH FACTS (found with \
-web search, with numbered SOURCES) and the EVENT PAGE TEXT. You do not search. Use \
-only these facts; accuracy matters more than completeness: leave a field empty when \
-the facts do not support it. Every *_source_url must be one of the SOURCES URLs or \
-the event page URL.
+DECIDE_PROMPT = f"""You decide the data of one event at a Prague venue from RESEARCH FACTS (found with web search, with numbered SOURCES) and the EVENT PAGE TEXT. You do not search. Use only these facts; accuracy matters more than completeness: leave a field empty when the facts do not support it. Every *_source_url must be one of the SOURCES URLs or the event page URL.
 
 {RULES_ALL}
 
-Answer with ONLY one JSON object."""
+Write ONLY descriptions.cs (Czech); the Slovak and English versions are made later by a separate translation, leave descriptions.sk and descriptions.en out. Keep type_reason to one short sentence. Answer with ONLY one JSON object, no text around it."""
+
+# Gemini step 3 (task 059): translation of the Czech description, cheapest model
+TRANSLATE_PROMPT = """Translate the Czech event description into Slovak (sk) and English (en). Keep the facts, names and genre names exactly; do not add or drop anything; no advertising phrases, no exclamation marks. Answer with ONLY a JSON object {"sk": "...", "en": "..."}."""

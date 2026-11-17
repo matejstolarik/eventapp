@@ -42,6 +42,10 @@ def _provider(step1s):
         calls.append(body)
         if "tools" in body:
             return step1s.pop(0)
+        if body["systemInstruction"]["parts"][0]["text"] == E.TRANSLATE_PROMPT:
+            return {"candidates": [{"content": {"parts": [{"text": json.dumps(
+                {"sk": "PAST je duo (sk).", "en": "PAST is a duo."})}]}}],
+                    "usageMetadata": {"promptTokenCount": 10, "candidatesTokenCount": 10}}
         return {"candidates": [{"content": {"parts": [{"text": json.dumps(DECISION)}]}}],
                 "usageMetadata": {"promptTokenCount": 300, "candidatesTokenCount": 80,
                                   "thoughtsTokenCount": 20}}
@@ -56,11 +60,16 @@ def _provider(step1s):
 def test_two_steps_and_sources():
     p, calls = _provider([_step1()])
     rec = p.run_event(EV, {"name": "Palác Akropolis"}, "page text", 12)
-    assert len(calls) == 2
+    assert len(calls) == 3                       # research, decision, translation
     assert "tools" in calls[0] and "page text" not in json.dumps(calls[0])   # step 1 without page
     assert "tools" not in calls[1] and "page text" in json.dumps(calls[1])
+    assert calls[0]["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "low"}
+    assert calls[1]["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "medium"}
+    assert calls[2]["contents"][0]["parts"][0]["text"] == "PAST je duo."   # only cs translated
     assert rec["searches"] == 2 and rec["searched"]
-    assert rec["input_tokens"] == 400 and rec["output_tokens"] == 150
+    assert rec["input_tokens"] == 410 and rec["output_tokens"] == 160
+    assert rec["raw"]["descriptions"] == {"cs": "PAST je duo.", "sk": "PAST je duo (sk).",
+                                          "en": "PAST is a duo."}
     urls = {s["url"] for s in rec["research"]["sources"]}
     assert urls == {"https://past.bandcamp.com", SPOT}          # ra.co dropped
     res, conv = E.process_result(EV, rec, p.model, "2026-11-17", {})
@@ -73,7 +82,7 @@ def test_two_steps_and_sources():
 def test_retry_then_not_searched():
     p, calls = _provider([_step1(False), _step1(False)])
     rec = p.run_event(EV, {}, None, 12)
-    assert len(calls) == 3 and E.RESEARCH_RETRY in json.dumps(calls[1], ensure_ascii=False)
+    assert len(calls) == 4 and E.RESEARCH_RETRY in json.dumps(calls[1], ensure_ascii=False)
     assert rec["searched"] is False and rec["research"]["retried"]
     res, conv = E.process_result(EV, rec, p.model, "2026-11-17", {})
     enr = conv["enrichment"]
@@ -85,7 +94,7 @@ def test_retry_then_not_searched():
 def test_retry_succeeds():
     p, calls = _provider([_step1(False), _step1(True)])
     rec = p.run_event(EV, {}, None, 12)
-    assert rec["searched"] and rec["research"]["retried"] and len(calls) == 3
+    assert rec["searched"] and rec["research"]["retried"] and len(calls) == 4
 
 
 def test_spotify_name_must_match_artist():
@@ -100,3 +109,61 @@ def test_facebook_price_not_fetched():
     ok, why = E.verify_price(EV, {"price": "200 Kč", "price_source_url": "https://www.facebook.com/events/1"},
                              fetch=lambda u: 1 / 0)
     assert not ok and "facebook" in why
+
+
+KWORB = "https://kworb.net/spotify/artist/" + "K" * 22 + "_songs.html"
+SPOT_K = "https://open.spotify.com/artist/" + "K" * 22
+
+
+def _kworb_provider(page_name):
+    p, calls = _provider([_step1()])
+    targets = {REDIRECT + "a": "https://past.bandcamp.com", REDIRECT + "s": KWORB,
+               REDIRECT + "r": "https://ra.co/dj/past"}
+    p.resolve = targets.get
+    got = []
+    p.spotify_name = lambda u: got.append(u) or page_name
+    return p, got
+
+
+def test_kworb_id_verified_and_stored():
+    p, got = _kworb_provider("Past")          # case-insensitive match with "PAST"
+    rec = p.run_event(EV, {}, None, 12)
+    assert got == [SPOT_K]                    # one GET of the Spotify page, none of kworb
+    res, _ = E.process_result(EV, rec, p.model, "2026-11-17", {})
+    assert {"name": "Past", "spotify_url": SPOT_K} in res["artist_links"]
+    assert res["kworb"][0]["status"] == "ok"
+
+
+def test_kworb_rejected_on_name_or_http():
+    for name in ("Someone Else", None):
+        p, _ = _kworb_provider(name)
+        rec = p.run_event(EV, {}, None, 12)
+        res, _ = E.process_result(EV, rec, p.model, "2026-11-17", {})
+        assert all(link["spotify_url"] != SPOT_K for link in res["artist_links"])
+        assert res["kworb"][0]["status"].startswith("rejected")
+
+
+def test_from_stored_research_without_search(monkeypatch, tmp_path):
+    from pipeline import research_store as R
+    p, calls = _provider([_step1()])
+    store: dict = {}
+    ev = dict(EV, date="2026-11-20")
+    E.enrich_events_ai([ev], [], {}, {}, "2026-11-17", provider=p,
+                       price_fetch=lambda u: None, research=store)
+    assert store["e1"]["facts"] == "PAST: industrial hip-hop duo."
+    assert store["e1"]["queries"] == ["PAST band", "PAST spotify"]
+    monkeypatch.setattr(R, "RESEARCH_DIR", tmp_path)
+    monkeypatch.delenv("PREVIOUS_EVENTS_URL", raising=False)
+    sizes = R.save(store, "2026-11-17")
+    assert list(sizes) == ["2026-11"] and (tmp_path / "2026-11.json").exists()
+    loaded = R.load("2026-11-17")
+    assert loaded["e1"]["genre_facts"] == store["e1"]["genre_facts"]
+    # rules changed -> step 2 again from the stored facts, no search, cache ignored
+    n = len(calls)
+    monkeypatch.setenv("ENRICH_FROM_RESEARCH", "all")
+    prev = {"e1": dict(ev, enrichment={"run": {"model": "x"}})}
+    _, st = E.enrich_events_ai([ev], [], prev, {}, "2026-11-17", provider=p,
+                               price_fetch=lambda u: None, research=loaded)
+    new = calls[n:]
+    assert new and all("tools" not in c for c in new)
+    assert st["from_research"] == 1 and st["searches"] == 0

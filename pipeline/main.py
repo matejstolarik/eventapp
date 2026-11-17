@@ -18,6 +18,7 @@ from pipeline.classify import classify_events, apply_commercial_clubs
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
+from pipeline import research_store
 from pipeline.genres import load_aliases, rename_genres
 from pipeline.price import parse_price
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
@@ -189,14 +190,19 @@ def main():
                                                   state=state, today=today,
                                                   page_texts=page_texts)
     approved_aliases = load_aliases(GENRE_ALIASES_PATH)
+    research = research_store.load(today)      # task 059: stored AI research
     try:
         events, web_stats = enrich_events_ai(events, venues, previous,
                                              state if loaded_state is not None else None,
                                              today, page_texts=page_texts,
-                                             aliases=approved_aliases)
+                                             aliases=approved_aliases, research=research)
     except Exception as exc:   # never stop the daily run
         log.warning("AI enrichment failed: %s", exc)
         web_stats = {"skipped": f"error: {exc}"[:200], "warnings": []}
+    try:
+        web_stats["research_bytes"] = research_store.save(research, today)
+    except OSError as exc:
+        log.warning("research store not written: %s", exc)
     # commercial-club rule last: EPIC music events are always party (task 053)
     events = apply_commercial_clubs(events, venues)
     # task 058: renamed genre codes (r-n-b -> rnb), also in cached values
@@ -437,6 +443,8 @@ def _web_summary_lines(st: dict, proposals: list) -> list[str]:
         f" description {st.get('description', 0)}, artists {st.get('artists', 0)},"
         f" Spotify {st.get('spotify', 0)}",
         f"- Prices dropped (not confirmed on the source page): {st.get('prices_dropped', 0)}",
+        f"- Re-run from stored research (no search): {st.get('from_research', 0)};"
+        f" research files: {st.get('research_bytes') or '–'}",
         f"- Genre proposals (>= 3 events, not shown in the app): {len(proposals)}"
         + (": " + ", ".join(f"{p['name']} ({p['kind']}, {p['count']})" for p in proposals[:15])
            if proposals else ""),

@@ -29,6 +29,7 @@ Provider: ENRICH_PROVIDER = "claude" (default) | "gemini".
 
 import concurrent.futures
 import datetime
+import html
 import json
 import logging
 import os
@@ -43,7 +44,8 @@ import requests
 
 from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
-from pipeline.ai_rules import DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL
+from pipeline.ai_rules import (DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL,
+                               TRANSLATE_PROMPT)
 from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
 from pipeline.price import parse_price
 
@@ -505,19 +507,37 @@ class _Claude:
         raise RuntimeError("no report_enrichment after 4 turns")
 
 
-# Gemini two-step (task 058 part 1).  gemini-3.5-flash is the model named in
-# the task; ENRICH_GEMINI_MODEL overrides it.  Prices per token (input, output
-# incl. thinking), https://aistudio.google.com/docs/pricing, 2026-11-17.
+# Gemini two-step (task 058 part 1, cost tuning task 059).  Step 1 research
+# (Google Search), step 2 decision (no search, Czech description only),
+# step 3 translation cs -> sk, en with the cheapest model.  Models and
+# thinking levels per step are constructor arguments or env variables
+# (ENRICH_GEMINI_MODEL / _RESEARCH_THINKING / _DECIDE_MODEL / _DECIDE_THINKING /
+# _TRANSLATE_MODEL / _TRANSLATE_THINKING).  Prices per token (input, output
+# incl. thinking, cached input), https://aistudio.google.com/docs/pricing,
+# 2026-11-17.
 GEMINI_PRICE_TABLE = {
-    "gemini-3.1-flash-lite": (0.25 / 1e6, 1.50 / 1e6),
-    "gemini-3.5-flash-lite": (0.30 / 1e6, 2.50 / 1e6),
-    "gemini-3.6-flash": (0.75 / 1e6, 3.75 / 1e6),     # through 2026-12-31, then x2
-    "gemini-3.8-flash": (0.75 / 1e6, 3.75 / 1e6),     # through 2026-12-31, then x2
+    "gemini-3.1-flash-lite": (0.25 / 1e6, 1.50 / 1e6, 0.025 / 1e6),
+    "gemini-3.5-flash-lite": (0.30 / 1e6, 2.50 / 1e6, 0.03 / 1e6),
+    "gemini-3.6-flash": (0.75 / 1e6, 3.75 / 1e6, 0.075 / 1e6),   # through 2026-12-31, then x2
+    "gemini-3.8-flash": (0.75 / 1e6, 3.75 / 1e6, 0.075 / 1e6),   # through 2026-12-31, then x2
 }
+GEMINI_PRICE_X2_FROM = {"gemini-3.6-flash": "2027-01-01", "gemini-3.8-flash": "2027-01-01"}
 GEMINI_SEARCH_PRICE = 14.0 / 1000    # after 5,000 free searches / month
-GEMINI_RESERVE_SEARCHES = 12         # searches reserved per event for the monthly limit
+GEMINI_FREE_SEARCHES = 5000
+GEMINI_RESERVE_SEARCHES = 6          # searches reserved per event for the monthly limit
+GEMINI_DEFAULTS = {"model": "gemini-3.6-flash", "research_thinking": "low",
+                   "decide_model": None, "decide_thinking": "medium",
+                   "translate_model": "gemini-3.1-flash-lite", "translate_thinking": "minimal"}
 MAX_SPOTIFY_PAGES = 5
 _GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+_KWORB_RE = re.compile(r"^https?://(?:www\.)?kworb\.net/spotify/artist/([A-Za-z0-9]{22})")
+
+
+def gemini_cost(model: str, inp: int, out: int, cached: int = 0, x2: bool = False) -> float:
+    """USD for one call; x2 = the price from 2027-01-01 (Flash models double)."""
+    pin, pout, pcache = GEMINI_PRICE_TABLE.get(model, GEMINI_PRICE_TABLE["gemini-3.6-flash"])
+    f = 2 if x2 and model in GEMINI_PRICE_X2_FROM else 1
+    return f * ((inp - cached) * pin + cached * pcache + out * pout)
 
 
 def resolve_redirect(uri: str) -> str | None:
@@ -539,7 +559,8 @@ def resolve_redirect(uri: str) -> str | None:
 
 
 def spotify_page_name(url: str) -> str | None:
-    """One GET of an open.spotify.com/artist page -> artist name (og:title)."""
+    """One GET of an open.spotify.com/artist page -> artist name (og:title).
+    None unless the page answers 200."""
     try:
         r = requests.get(url, timeout=10, headers={"User-Agent": USER_AGENT})
         r.raise_for_status()
@@ -547,7 +568,7 @@ def spotify_page_name(url: str) -> str | None:
         return None
     m = (re.search(r'<meta[^>]+property="og:title"[^>]+content="([^"]+)"', r.text)
          or re.search(r"<title>([^<|]+)", r.text))
-    return _clean_text(m.group(1)) if m else None
+    return _clean_text(html.unescape(m.group(1))) if m else None
 
 
 def name_key(s: str) -> str:
@@ -557,24 +578,39 @@ def name_key(s: str) -> str:
 class _Gemini2:
     """Step 1: research with Google Search (no venue page text, so that the
     model searches).  Step 2: decision without search from the step-1 facts,
-    the numbered sources and the venue page text."""
+    the numbered sources and the venue page text.  Step 3: translation."""
     name = "gemini"
     reserve = GEMINI_RESERVE_SEARCHES
 
     def __init__(self, model: str | None = None, resolve=resolve_redirect,
-                 spotify_name=spotify_page_name, call=None):
+                 spotify_name=spotify_page_name, call=None, **cfg):
+        env = {k: os.environ.get(f"ENRICH_GEMINI_{k.upper()}", "").strip() or None
+               for k in GEMINI_DEFAULTS}
+        conf = {k: cfg.get(k) or env[k] or GEMINI_DEFAULTS[k] for k in GEMINI_DEFAULTS}
+        if model:
+            conf["model"] = model
+        conf["decide_model"] = conf["decide_model"] or conf["model"]
+        self.conf = conf
         self.key = os.environ.get("GEMINI_API_KEY", "").strip()
-        self.model = (model or os.environ.get("ENRICH_GEMINI_MODEL", "").strip()
-                      or "gemini-3.5-flash")
-        pin, pout = GEMINI_PRICE_TABLE.get(self.model, GEMINI_PRICE_TABLE["gemini-3.6-flash"])
+        self.model = conf["model"]
+        # run stats use the research model's prices; run_event also returns
+        # the exact cost of all steps in cost_usd
+        pin, pout, _ = GEMINI_PRICE_TABLE.get(self.model, GEMINI_PRICE_TABLE["gemini-3.6-flash"])
         self.prices = (pin, pout, 0.0)      # searches within the free 5,000 / month
         self.resolve = resolve
         self.spotify_name = spotify_name
         self._call = call or self._http
 
-    def _http(self, body: dict) -> dict:
+    @property
+    def label(self) -> str:
+        c = self.conf
+        return (f"research {c['model']}/{c['research_thinking']}, decide "
+                f"{c['decide_model']}/{c['decide_thinking']}, translate {c['translate_model']}")
+
+    def _http(self, body: dict, model: str | None = None) -> dict:
         req = urllib.request.Request(
-            _GEMINI_URL.format(self.model), data=json.dumps(body).encode(), method="POST",
+            _GEMINI_URL.format(model or self.model), data=json.dumps(body).encode(),
+            method="POST",
             headers={"Content-Type": "application/json", "x-goog-api-key": self.key,
                      "User-Agent": USER_AGENT})
         last = None
@@ -594,11 +630,29 @@ class _Gemini2:
             time.sleep(5 * (attempt + 1))
         raise last
 
-    @staticmethod
-    def _usage(data: dict) -> tuple[int, int]:
+    def _generate(self, model: str, thinking: str | None, body: dict) -> tuple[dict, dict]:
+        gc = body.setdefault("generationConfig", {})
+        if thinking:
+            gc["thinkingConfig"] = {"thinkingLevel": thinking}
+        try:
+            data = self._call(body, model)
+        except TypeError:                     # test doubles with call(body)
+            data = self._call(body)
         um = data.get("usageMetadata", {})
-        return (um.get("promptTokenCount", 0) + um.get("toolUsePromptTokenCount", 0),
-                um.get("candidatesTokenCount", 0) + um.get("thoughtsTokenCount", 0))
+        u = {"model": model, "thinking": thinking,
+             "input_tokens": um.get("promptTokenCount", 0) + um.get("toolUsePromptTokenCount", 0),
+             "cached_tokens": um.get("cachedContentTokenCount", 0),
+             "output_tokens": um.get("candidatesTokenCount", 0) + um.get("thoughtsTokenCount", 0),
+             "thoughts_tokens": um.get("thoughtsTokenCount", 0)}
+        u["cost_usd"] = gemini_cost(model, u["input_tokens"], u["output_tokens"],
+                                    u["cached_tokens"])
+        return data, u
+
+    @staticmethod
+    def _text(data: dict) -> tuple[str, dict]:
+        cand = (data.get("candidates") or [{}])[0]
+        return "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", [])
+                       if not p.get("thought")), cand
 
     def research(self, ev: dict, venue: dict) -> dict:
         src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
@@ -609,32 +663,31 @@ class _Gemini2:
             f"Date: {ev.get('date')}",
             f"Event page at the venue: {src or '(none)'}",
         ])
-        rec = {"text": "", "queries": [], "sources": [], "input_tokens": 0,
-               "output_tokens": 0, "retried": False, "searched": False}
+        rec = {"text": "", "queries": [], "sources": [], "usage": [], "retried": False,
+               "searched": False, "kworb": [], "model": self.conf["model"],
+               "thinking": self.conf["research_thinking"]}
         chunks: list = []
         for attempt in range(2):
             prompt = user if attempt == 0 else user + "\n\n" + RESEARCH_RETRY
-            data = self._call({
+            data, u = self._generate(self.conf["model"], self.conf["research_thinking"], {
                 "systemInstruction": {"parts": [{"text": RESEARCH_PROMPT}]},
                 "contents": [{"role": "user", "parts": [{"text": prompt}]}],
                 "tools": [{"google_search": {}}],
-                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 6000},
+                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 4000},
             })
-            i, o = self._usage(data)
-            rec["input_tokens"] += i
-            rec["output_tokens"] += o
-            cand = (data.get("candidates") or [{}])[0]
+            rec["usage"].append(u)
+            rec["text"], cand = self._text(data)
             gm = cand.get("groundingMetadata") or {}
             queries = gm.get("webSearchQueries") or []
             rec["queries"] += queries
-            rec["text"] = "".join(p.get("text", "") for p in
-                                  (cand.get("content") or {}).get("parts", []))
             chunks = [c.get("web") or {} for c in gm.get("groundingChunks") or []]
             if queries:
                 rec["searched"] = True
                 break
             rec["retried"] = True
-        # resolve redirect sources; Spotify artist pages get one GET for the name
+        # resolve redirect sources; Spotify artist pages get one GET for the
+        # name.  kworb.net/spotify/artist/<ID> -> open.spotify.com/artist/<ID>
+        # with one GET of the Spotify page (task 059; nothing fetched from kworb)
         seen, n_spotify = set(), 0
         for c in chunks:
             url = self.resolve(c.get("uri"))
@@ -645,14 +698,26 @@ class _Gemini2:
             m = _SPOTIFY_RE.match(url)
             if m:
                 item["url"] = m.group(0)
+                seen.add(canon_url(m.group(0)))
                 if n_spotify < MAX_SPOTIFY_PAGES:
                     item["spotify_name"] = self.spotify_name(m.group(0))
                     n_spotify += 1
             rec["sources"].append(item)
+            k = _KWORB_RE.match(url)
+            if k and n_spotify < MAX_SPOTIFY_PAGES:
+                sp = f"https://open.spotify.com/artist/{k.group(1)}"
+                if canon_url(sp) in seen:
+                    continue
+                seen.add(canon_url(sp))
+                name = self.spotify_name(sp)
+                n_spotify += 1
+                rec["kworb"].append({"kworb_url": url, "spotify_url": sp, "page_name": name})
+                rec["sources"].append({"title": "Spotify artist page (ID from kworb.net)",
+                                       "url": sp, "spotify_name": name, "via": "kworb"})
         return rec
 
     def decide(self, ev: dict, venue: dict, page_text: str | None,
-               research: dict) -> tuple[dict, int, int]:
+               research: dict) -> tuple[dict, dict]:
         lines = [build_prompt(ev, venue, page_text), "", "RESEARCH FACTS (step 1)",
                  research["text"] or "(nothing found)", "", "SOURCES"]
         for n, s in enumerate(research["sources"], 1):
@@ -660,39 +725,82 @@ class _Gemini2:
             lines.append(f"[{n}] {s['title']}: {s['url']}{extra}")
         if not research["sources"]:
             lines.append("(none)")
-        schema = json.dumps(_RESULT_SCHEMA["properties"], ensure_ascii=False)
-        data = self._call({
-            "systemInstruction": {"parts": [{"text": DECIDE_PROMPT}]},
-            "contents": [{"role": "user", "parts": [{"text": "\n".join(lines)
-                          + "\n\nJSON keys (JSON schema of the values): " + schema}]}],
+        # static rules + schema first (system instruction) -> implicit cache
+        data, u = self._generate(self.conf["decide_model"], self.conf["decide_thinking"], {
+            "systemInstruction": {"parts": [{"text": DECIDE_PROMPT + "\n\nJSON keys (JSON "
+                                             "schema of the values): " + _DECIDE_SCHEMA}]},
+            "contents": [{"role": "user", "parts": [{"text": "\n".join(lines)}]}],
             "generationConfig": {"temperature": 0.1, "maxOutputTokens": 8000,
                                  "responseMimeType": "application/json"},
         })
-        i, o = self._usage(data)
-        cand = (data.get("candidates") or [{}])[0]
-        text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", []))
+        text, cand = self._text(data)
         m = re.search(r"\{.*\}", text, re.S)
         if not m:
             raise RuntimeError(f"step 2: no JSON in answer ({cand.get('finishReason')})")
-        return json.loads(m.group(0)), i, o
+        return json.loads(m.group(0)), u
 
-    def run_event(self, ev: dict, venue: dict, page_text: str | None, max_uses: int) -> dict:
-        r = self.research(ev, venue)
-        raw, i, o = self.decide(ev, venue, page_text, r)
+    def translate(self, cs: str) -> tuple[dict, dict]:
+        data, u = self._generate(self.conf["translate_model"], self.conf["translate_thinking"], {
+            "systemInstruction": {"parts": [{"text": TRANSLATE_PROMPT}]},
+            "contents": [{"role": "user", "parts": [{"text": cs}]}],
+            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 3000,
+                                 "responseMimeType": "application/json"},
+        })
+        text, _ = self._text(data)
+        m = re.search(r"\{.*\}", text, re.S)
+        try:
+            out = json.loads(m.group(0)) if m else {}
+        except ValueError:
+            out = {}
+        return {k: out[k] for k in ("sk", "en") if isinstance(out.get(k), str)}, u
+
+    def run_from_research(self, ev: dict, venue: dict, page_text: str | None,
+                          r: dict) -> dict:
+        """Steps 2 + 3 from a research record (new or stored); no search."""
+        raw, u2 = self.decide(ev, venue, page_text, r)
+        usage = [u2]
+        descs = raw.get("descriptions") if isinstance(raw.get("descriptions"), dict) else None
+        if descs and isinstance(descs.get("cs"), str) and descs["cs"].strip():
+            tr, u3 = self.translate(descs["cs"])
+            usage.append(u3)
+            raw["descriptions"] = {"cs": descs["cs"], **tr}
         src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
         allowed = {s["url"] for s in r["sources"]} | ({src} if src else set())
-        return {
-            "searches": len(r["queries"]),
-            "input_tokens": r["input_tokens"] + i,
-            "output_tokens": r["output_tokens"] + o,
+        return _sum_usage({
+            "searches": 0,
             "seen_urls": [s["url"] for s in r["sources"]],
             "allowed_urls": allowed,
             "spotify_names": {s["url"]: s["spotify_name"] for s in r["sources"]
                               if s.get("spotify_name")},
+            "kworb": r.get("kworb") or [],
             "searched": r["searched"],
             "research": r,
             "raw": raw,
-        }
+            "steps": usage,
+        })
+
+    def run_event(self, ev: dict, venue: dict, page_text: str | None, max_uses: int) -> dict:
+        r = self.research(ev, venue)
+        rec = self.run_from_research(ev, venue, page_text, r)
+        rec["searches"] = len(r["queries"])
+        rec["steps"] = r["usage"] + rec["steps"]
+        return _sum_usage(rec)
+
+
+def _sum_usage(rec: dict) -> dict:
+    steps = rec["steps"]
+    rec["input_tokens"] = sum(u["input_tokens"] for u in steps)
+    rec["output_tokens"] = sum(u["output_tokens"] for u in steps)
+    rec["cached_tokens"] = sum(u["cached_tokens"] for u in steps)
+    rec["cost_usd"] = sum(u["cost_usd"] for u in steps)
+    return rec
+
+
+# Step 2 schema without the sk / en descriptions (they come from step 3).
+_DECIDE_SCHEMA = json.dumps(
+    {k: (v if k != "descriptions" else {"type": ["object", "null"],
+                                         "properties": {"cs": {"type": "string"}}})
+     for k, v in _RESULT_SCHEMA["properties"].items()}, ensure_ascii=False)
 
 
 def make_provider():
@@ -848,7 +956,26 @@ def check_spotify(res: dict, rec: dict) -> None:
             kept.append({"name": page, "spotify_url": link["spotify_url"]})
         else:
             res["dropped"].append(f"spotify: page name {page!r} not an event artist")
-    res["artist_links"] = kept
+    # task 059: Spotify ID from a kworb.net search result, verified by one GET
+    # of the Spotify page (200 + page name = an event artist without accents
+    # and case).  Stored even when step 2 did not pick it.
+    have = {link["spotify_url"] for link in kept}
+    res["kworb"] = []
+    for k in rec.get("kworb") or []:
+        page = k.get("page_name")
+        if not page:
+            status = "rejected: page not 200 / no name"
+        elif name_key(page) not in keys:
+            status = f"rejected: page name {page!r} not an event artist"
+        else:
+            status = "ok"
+            if k["spotify_url"] not in have:
+                kept.append({"name": page, "spotify_url": k["spotify_url"]})
+                have.add(k["spotify_url"])
+        res["kworb"].append({**k, "status": status})
+        if status != "ok":
+            res["dropped"].append(f"spotify (kworb) {k['spotify_url']}: {status}")
+    res["artist_links"] = kept[:5]
 
 
 def process_result(ev: dict, rec: dict, model: str, today: str, aliases: dict | None,
@@ -889,8 +1016,14 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                      state: dict | None, today: str,
                      page_texts: dict | None = None, provider=None,
                      price_fetch=_fetch_page_text,
-                     aliases: dict | None = None) -> tuple[list[dict], dict]:
-    """Enrich events in the window. Returns (events, stats)."""
+                     aliases: dict | None = None,
+                     research: dict | None = None) -> tuple[list[dict], dict]:
+    """Enrich events in the window. Returns (events, stats).
+
+    research: stored research records (id -> record, task 059); new records
+    of the Gemini provider are added to it.  ENRICH_FROM_RESEARCH = "all" or
+    comma-separated ids re-runs step 2 from the stored facts (no search),
+    ignoring the cache, for events in the window that have a record."""
     stats: dict = {"window": 0, "cached": 0, "to_enrich": 0, "enriched": 0, "errors": 0,
                    "skipped_limit": 0, "skipped_timeout": 0, "searches": 0,
                    "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0,
@@ -901,6 +1034,11 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
 
     # one-off manual re-run of chosen events (workflow_dispatch input reenrich_ids)
     force = {i.strip() for i in os.environ.get("ENRICH_FORCE_IDS", "").split(",") if i.strip()}
+    redo_env = os.environ.get("ENRICH_FROM_RESEARCH", "").strip()
+    redo_ids = {i.strip() for i in redo_env.split(",") if i.strip()}
+    redo = {e["id"] for e in events if research and e["id"] in research
+            and (redo_env.lower() == "all" or e["id"] in redo_ids)}
+    stats["from_research"] = 0
     todo, out_by_id = [], {}
     for ev in events:
         if not in_window(ev, today):
@@ -911,7 +1049,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                     ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
             continue
         stats["window"] += 1
-        c = None if ev["id"] in force else cached_enrichment(ev, previous)
+        c = None if ev["id"] in force or ev["id"] in redo else cached_enrichment(ev, previous)
         if c:
             stats["cached"] += 1
             out_by_id[ev["id"]] = apply_enrichment(
@@ -958,10 +1096,16 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 if left <= 0:
                     return ev["id"], {"skip": "limit"}
                 max_uses = min(getattr(provider, "reserve", MAX_SEARCHES_PER_EVENT), left)
+                if ev["id"] in redo and hasattr(provider, "run_from_research"):
+                    max_uses = 0                         # no search
                 reserved[0] += max_uses
             venue = venues_map.get(ev["venue_id"], {})
             try:
-                if hasattr(provider, "run_event"):      # Gemini two-step (task 058)
+                if max_uses == 0 and ev["id"] in redo:   # task 059: stored facts
+                    from pipeline.research_store import to_research
+                    rec = provider.run_from_research(ev, venue, page_texts.get(ev["id"]),
+                                                     to_research(research[ev["id"]]))
+                elif hasattr(provider, "run_event"):      # Gemini two-step (task 058)
                     rec = provider.run_event(ev, venue, page_texts.get(ev["id"]), max_uses)
                 else:
                     rec = provider.run(build_prompt(ev, venue, page_texts.get(ev["id"])), max_uses)
@@ -979,6 +1123,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                     stats["searches"] += rec["searches"]
                     stats["input_tokens"] += rec["input_tokens"]
                     stats["output_tokens"] += rec["output_tokens"]
+                    if "cost_usd" in rec:
+                        stats["exact_cost_usd"] = stats.get("exact_cost_usd", 0.0) + rec["cost_usd"]
                     errors_in_row[0] = 0
                 else:
                     stats["errors"] += 1
@@ -1017,10 +1163,18 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 stats["dropped"].append(f"{ev['id']}: {d}")
             out_by_id[ev["id"]] = apply_enrichment(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
+            if ev["id"] in redo and rec.get("searches") == 0:
+                stats["from_research"] += 1
+            if research is not None and rec.get("research"):
+                from pipeline.research_store import record_from
+                research[ev["id"]] = record_from(ev, rec, res, getattr(provider, "conf", {}),
+                                                 today)
 
         pin, pout, psearch = provider.prices
         stats["cost_usd"] = round(stats["input_tokens"] * pin + stats["output_tokens"] * pout
                                   + stats["searches"] * psearch, 4)
+        if "exact_cost_usd" in stats:        # Gemini: per-step models and cached tokens
+            stats["cost_usd"] = round(stats.pop("exact_cost_usd"), 4)
         if stats["skipped_limit"]:
             stats["warnings"].append(
                 f"AI search limit {MONTHLY_SEARCH_LIMIT}/month reached: "
