@@ -211,7 +211,7 @@ Príkaz (`before.json` = zverejnený `events.json` 11:23, `run4.json` = zverejne
 - Úloha 057 čaká súbor `data/genre_proposals.json`, ten je ale v `site/genre_proposals.json` (pozri rozhodnutia).
 
 ### Doplnenie 2026-11-17 – prepočítanie 3 akcií Cross Clubu (Matej: „Yes, re-run them“)
-- Commit `ea0b0f2`+: nový vstup `reenrich_ids` pri ručnom spustení `Daily pipeline` (env `ENRICH_FORCE_IDS`), zadané akcie idú do AI aj keď sú v cache.
+- Commit `8650dbc`: nový vstup `reenrich_ids` pri ručnom spustení `Daily pipeline` (env `ENRICH_FORCE_IDS`), zadané akcie idú do AI aj keď sú v cache.
 - Beh [44089592642](https://github.com/matejstolarik/eventapp/actions/runs/44089592642): 3 akcie doplnené, 240 z cache, **5 hľadaní, $0.0628**, mesiac 330 / 400.
 - Výsledok (zverejnený `events.json` po behu): `cross-club-2026-11-18-krizovatka`, `cross-club-2026-11-23-prodigy-afterparty-rave`, `cross-club-2026-11-30-los-tekkenos` → všetky `formats: ["dj"]`, `primary_format: "dj"` (predtým `dj, party`). Príkaz: `python -c "import json; [print(e['id'], e['formats']) for e in json.load(open('run5.json',encoding='utf-8'))['events'] if e['venue_id']=='cross-club' and 'party' in e['formats']]"` → žiadna akcia.
 - Bod „Cross Club `dj, party` pri 3 DJ nociach“ v Otvorených je tým uzavretý.
