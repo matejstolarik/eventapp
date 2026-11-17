@@ -1,0 +1,64 @@
+name: DeepSeek test (manual)
+
+# Task 061: one-off test of DeepSeek as a replacement for Gemini/Claude.
+# Manual only. Does not touch events.json or GitHub Pages; results are a
+# workflow artifact.
+#
+# mode=docs: download the official DeepSeek docs pages (part 1 of the task,
+# the docs host is not reachable from the developer machine) and list the
+# models available to the API key (GET /models, free).
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'docs = fetch official docs + model list'
+        required: false
+        default: 'docs'
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch official docs
+        if: inputs.mode == 'docs'
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          mkdir -p out
+          UA="eventapp-docs-check/1.0 (personal project)"
+          for p in guides/search quick_start/pricing guides/json_mode guides/tool_calls \
+                   quick_start/rate_limit quick_start/error_codes api/deepseek-api news; do
+            f="out/$(echo "$p" | tr / _).html"
+            curl -sSL -m 30 -A "$UA" -o "$f" "https://api-docs.deepseek.com/$p/" \
+              -w "$p %{http_code} %{size_download}\n" || echo "$p FAILED"
+            sleep 1
+          done
+          for u in https://cdn.deepseek.com/policies/en-US/deepseek-open-platform-terms-of-service.html \
+                   https://cdn.deepseek.com/policies/en-US/deepseek-terms-of-use.html; do
+            f="out/$(basename "$u")"
+            curl -sSL -m 30 -A "$UA" -o "$f" "$u" -w "$u %{http_code} %{size_download}\n" || echo "$u FAILED"
+            sleep 1
+          done
+          if [ -n "$DEEPSEEK_API_KEY" ]; then
+            curl -sS -m 30 -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+              https://api.deepseek.com/models -o out/models.json -w "models %{http_code}\n"
+            curl -sS -m 30 -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+              https://api.deepseek.com/user/balance -o out/balance.json -w "balance %{http_code}\n"
+          else
+            echo "DEEPSEEK_API_KEY missing"
+          fi
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-test-${{ github.run_id }}
+          path: out/
+          retention-days: 30
