@@ -34,7 +34,22 @@ Každá časť vlastný commit. Rozhodnutia do `docs/decisions.md`.
 - Po častiach 1–4: všetky akcie v najbližších 60 dňoch cez D (ignorovať cache). Ak dôjde kredit, zvyšok dobehne postupne.
 - `docs/tasks/060/genres-review.md` (pôvodne 058 časť 3): všetky mapovania a kandidáti po prepočítaní.
 
+### 6. Spotify bez AI (Matej 2026-11-17)
+- Z prieskumu (krok 1) vyhodiť hľadanie „<meno> spotify“ (`docs/ai-rules.md` G). Odkazy na Spotify len z `data/manual.json`.
+- Odkazy na Spotify od AI v existujúcich dátach (054, 058) zahodiť, ak nie sú v `manual.json`.
+- Limit hľadaní v prieskume tým klesá na 3 na akciu.
+
+### 7. Obrázok z GoOut ako náhrada (Matej 2026-11-17, napr. Bike Jesus)
+- Len ak akcia **nemá obrázok z webu podniku** a pipeline už má stránku akcie na `goout.net` (z `ticket_url` alebo z výsledkov hľadania pri cene). Vziať `og:image` z tej istej stránky, **pri tom istom načítaní ako kontrola ceny** (žiadne ďalšie hľadanie, nanajvýš 1 GET na akciu). GoOut sa nikdy nevyhľadáva len kvôli obrázku.
+- Pôvod do `enrichment.image_url.source_url`. Náhľad ako doteraz.
+- **Podmienka:** podmienky použitia GoOut (časť 3) musia dovoľovať aj použitie obrázka. Ak nie, alebo nie je jasné, **zastav túto časť** a napíš to do reportu. Výsledok overenia podmienok (URL, citát) do reportu.
+- Report: koľko akcií bez obrázka pred a po.
+
+### 8. Tlačidlo Spotify v appke (`docs/design.md` §7, „Spotify len s overeným odkazom“)
+- Tlačidlo Spotify len pri `artist_links[0].spotify_url`; inak sa nevykreslí a zvyšné 4 tlačidlá sa rovnomerne rozložia. Vyhľadávanie `open.spotify.com/search` zrušiť.
+- Screenshoty (Playwright, `docs/tasks/060/`): `detail-spotify.jpg` (akcia s odkazom), `detail-bez-spotify.jpg` (bez odkazu). Ak žiadna akcia odkaz nemá, na screenshot dočasne testovací `manual.json` záznam len lokálne, necommitovať.
+
 ## Overenie a report
 - `pytest -q`, `npm test` (`--reporter=dot`), build OK.
-- Z `site/events.json` posledného behu (s príkazom): počty s cenou (overenou / neoverenou), časom, žánrami, popisom, Spotify pred a po; zahodené žánre a ceny poistkami (počty + 5 príkladov); hľadania a cena prepočítania.
+- Z `site/events.json` posledného behu (s príkazom): počty s cenou (overenou / neoverenou), časom, žánrami, popisom, Spotify pred a po (časť 6); zahodené žánre a ceny poistkami (počty + 5 príkladov); hľadania a cena prepočítania.
 - Ručne over 5 akcií (URL + čo tam je), z toho aspoň 2 ceny z GoOut.
