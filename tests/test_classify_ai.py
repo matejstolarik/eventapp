@@ -215,3 +215,33 @@ def test_layer1_source_keyword_not_overwritten(mock_cls):
     # Only e3 classified by AI
     assert result[2]["formats"] == ["other"]
     assert result[2]["classification"]["method"] == "llm"
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_party_reason_stored_in_classification(mock_cls):
+    """Task 053: 'party' comes with a short reason stored in classification."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["dj", "party"], "genres": ["pop"],
+         "party_reason": "Erasmus party with open bar", "confidence": 0.8},
+    ])
+    events = [_ev("e1", "ERASMUS OPEN BAR")]
+    result, _ = classify_events_ai(events, VENUES)
+    assert result[0]["formats"] == ["dj", "party"]
+    assert result[0]["classification"]["reason"] == "Erasmus party with open bar"
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_party_without_reason_dropped(mock_cls):
+    """Task 053: 'party' without party_reason is dropped, other formats stay."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["dj", "party"], "genres": [], "confidence": 0.8},
+        {"event_index": 1, "formats": ["concert"], "party_reason": "irrelevant",
+         "genres": [], "confidence": 0.8},
+    ])
+    events = [_ev("e1", "TECHNO NIGHT"), _ev("e2", "Band")]
+    result, _ = classify_events_ai(events, VENUES)
+    assert result[0]["formats"] == ["dj"]
+    assert "reason" not in result[0]["classification"]
+    assert "reason" not in result[1]["classification"]

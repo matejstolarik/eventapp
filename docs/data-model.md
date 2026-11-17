@@ -129,7 +129,8 @@ Polia:
 - `start_time`: nepovinné, niektoré zdroje čas nedávajú (Cross RSS). Appka vtedy ukáže len dátum.
 - `doors_time`: nepovinné, čas otvorenia dverí (napr. z `doorTime` v JSON-LD MeetFactory). Nikdy sa nepoužíva ako `start_time`.
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
-- `formats` (viac naraz): `concert` (živí hudobníci na pódiu — kapela, sólo umelec, orchester, živý elektronický set), `dj`, `party` (klubová noc alebo tematická párty, kombinuje sa s `dj` alebo `concert`; rozhoduje AI vrstva 2 s vysvetlením v prompte), `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť concert vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
+- `formats` (viac naraz): `concert` (živí hudobníci na pódiu — kapela, sólo umelec, orchester, živý elektronický set), `dj`, `party` (veľká komerčná/mainstreamová párty, kam ľudia idú kvôli atmosfére, nie kvôli konkrétnej hudbe či interpretovi: komerčné kluby, Erasmus/študentské, hity 80./90., open bar, mainstreamové tematické večery; klubová noc zameraná na hudbu/DJ-ov je `dj`, nie `party`; mimo komerčných klubov len pri jasnom signáli, AI uvedie dôvod v `classification.reason`; v podniku s `commercial_club: true` je každá hudobná akcia `party`; task 053), `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť concert vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
+  - **`concert` vs. `dj` rozhoduje hlavný interpret** (task 053): koncert s DJ afterparty = `concert` (afterparty môže ostať ako druhý formát `dj`); klubová noc s kapelami aj DJ-mi bez jasného hlavného interpreta = `dj`; rap/hip-hop naživo = `concert`; DJ set hudobníka = `dj`; jam session a open mic = `concert` (dočasne). Elektronický live set: zatiaľ bez pevného pravidla (rozhodne kolo označovania, task 053 časť 3).
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
@@ -140,7 +141,7 @@ Polia:
 - `image_thumb`: relatívna cesta k náhľadu (`img/events/<id>.jpg`, 240×240 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null`, stiahnutie zlyhalo, alebo bolo odložené (limit 150 za beh). Generuje pipeline automaticky; Matej ho nenastavuje ručne.
 - `description`: popis akcie z webu podniku. Čistý text bez HTML, max 1 000 znakov, skrátený na koniec vety (`. `, `! `, `? `), ak je dlhší — `null` ak zdroj popis neposkytuje alebo je prázdny. Adaptéry ho extrahujú priamo (RSS, JSON-LD, API). Detail enrichment (`pipeline/detail_enrich.py`) ho dograbí z detailnej stránky akcie po normalizácii (raz na akciu, cache, limit 40 fetchov na podnik a beh). Venue-špecifický CSS selektor `detail_desc_selector` v source config (venues.json) určuje, z ktorého elementu brať popis. Popis rovnajúci sa názvu akcie sa zahodí.
 - `description_source`: `"source"` ak popis pochádza zo zdrojových dát (adaptér alebo detail enrichment), `"ai"` ak ho vygeneruje AI vrstva 2 (neskôr), `null` ak `description` je `null`.
-- `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
+- `classification`: ako sa určili formát a žánre (`source`, `llm`, `llm+web`) a s akou istotou. Nepovinné `reason`: krátky text od AI, prečo je akcia `party` (task 053; len pri `method = "llm"` a formáte `party`). `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
 - `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `postponed` (akcia odložená bez nového dátumu; prefix odstránený z názvu) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.
 
@@ -194,7 +195,7 @@ Dve vrstvy:
 1. **Deterministická (layer 1):** Priorita: manual override → sekcia zdroja → kľúčové slová v názve → fallback `music`. Bez hádania podľa podniku — ak rule nepomôže, formát ostáva `music` alebo prázdny.
 2. **AI (layer 2, Claude Haiku):** Klasifikuje zostatok (prázdne formáty alebo `music`). Vstup: názov, interpreti, sekcia, čas začiatku, podnik a jeho štítky. Výsledok sa cachuje v `events.json` a znova sa volá AI len pri zmene názvu.
 
-`classification = {"method": "source" | "keyword" | "llm" | "manual", "confidence": float}`
+`classification = {"method": "source" | "keyword" | "llm" | "manual", "confidence": float, "reason"?: string}`
 
 ## Rozhranie adaptéra
 

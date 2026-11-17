@@ -67,8 +67,8 @@ _CLASSIFY_TOOL = {
                         "formats": {
                             "type": "array",
                             "description": (
-                                "Event format(s). Multiple allowed (e.g. [\"live\", \"dj\"] "
-                                "for a concert+club night)."
+                                "Event format(s). Multiple allowed (e.g. [\"concert\", \"dj\"] "
+                                "for a concert with a DJ afterparty)."
                             ),
                             "items": {"type": "string", "enum": sorted(VALID_FORMATS)},
                         },
@@ -79,6 +79,13 @@ _CLASSIFY_TOOL = {
                                 "only when confident. Empty list if unsure."
                             ),
                             "items": {"type": "string", "enum": sorted(VALID_GENRES)},
+                        },
+                        "party_reason": {
+                            "type": "string",
+                            "description": (
+                                "Required when formats include \"party\": short reason "
+                                "(max ~15 words) why this is a commercial/mainstream party."
+                            ),
                         },
                         "confidence": {
                             "type": "number",
@@ -102,10 +109,7 @@ You classify events at music and culture venues in Prague.
 Formats:
 - concert: live musicians/band on stage (solo artist, band, orchestra, live electronic set)
 - dj: DJ set or electronic music performance
-- party: the main point is dancing/partying (club night, themed party, student party). \
-Combine with "dj" or "concert". Key signals: "party", "párty", "night", "rave" in title, \
-or the event is a regular club night. Example: EPIC club night = ["dj", "party"]; \
-Fuchs2 listening-oriented DJ set = ["dj"] without "party".
+- party: a big commercial / mainstream party where people go for the atmosphere, not for specific music or a specific performer (commercial clubs, Erasmus/student parties, 80s/90s hits, open bar, mainstream themed nights). A club night focused on the music or the DJs is "dj", NOT "party". Use "party" only with a clear signal and always give the reason in party_reason. Combine with "dj" or "concert" when there are DJs or live acts.
 - music: musical event but cannot determine if concert or DJ (use as last resort)
 - dance: dance show/performance
 - talk: lecture, debate, reading, panel discussion
@@ -116,6 +120,13 @@ Fuchs2 listening-oriented DJ set = ["dj"] without "party".
 - opening: art vernissage / exhibition opening
 - quiz: pub quiz
 - other: does not fit any category above
+
+Concert vs. dj — the MAIN performer decides:
+- Concert with a DJ afterparty = "concert" (you may add "dj" as a second format).
+- Club night with bands and DJs where the main performer is not clear = "dj".
+- Rap / hip-hop performed live = "concert".
+- A DJ set by a musician = "dj".
+- Jam session, open mic = "concert".
 
 An event may have multiple formats (e.g. ["concert", "dj"] for a concert that becomes a club night).
 Prefer specific formats over "music" or "other".
@@ -162,7 +173,7 @@ def classify_events_ai(
         cached = ai_cache.get(event["id"])
         if cached and cached.get("title") == event.get("title"):
             _apply_ai_result(event, cached["formats"], cached.get("genres", []),
-                             cached["confidence"])
+                             cached["confidence"], cached.get("reason"))
             cache_hits += 1
         else:
             still_need.append(event)
@@ -258,15 +269,25 @@ def _build_ai_cache(previous_events: list[dict]) -> dict:
             "formats": ev.get("formats", []),
             "genres": ev.get("genres", []),
             "confidence": cls.get("confidence", 0.5),
+            "reason": cls.get("reason"),
         }
     return cache
 
 
-def _apply_ai_result(event: dict, formats: list, genres: list, confidence: float) -> None:
+def _apply_ai_result(
+    event: dict,
+    formats: list,
+    genres: list,
+    confidence: float,
+    reason: str | None = None,
+) -> None:
     event["formats"] = formats
     if genres:
         event["genres"] = genres
-    event["classification"] = {"method": "llm", "confidence": round(confidence, 2)}
+    cls = {"method": "llm", "confidence": round(confidence, 2)}
+    if reason:
+        cls["reason"] = reason
+    event["classification"] = cls
 
 
 def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
@@ -292,8 +313,17 @@ def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
             log.warning("[classify_ai]: invalid genres discarded %s for '%s'",
                         invalid_genres, event.get("title"))
 
+        reason = (entry.get("party_reason") or "").strip() or None
+        if "party" in fmts and not reason:
+            # Task 053: "party" needs an explicit reason, otherwise it is dropped.
+            log.warning("[classify_ai]: 'party' without party_reason dropped for '%s'",
+                        event.get("title"))
+            fmts = [f for f in fmts if f != "party"]
+        if "party" not in fmts:
+            reason = None
+
         if fmts:
-            _apply_ai_result(event, fmts, genres, confidence)
+            _apply_ai_result(event, fmts, genres, confidence, reason)
         else:
             log.warning("[classify_ai]: no valid formats in AI result for '%s'",
                         event.get("title"))
