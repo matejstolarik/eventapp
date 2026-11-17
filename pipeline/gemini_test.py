@@ -703,6 +703,11 @@ def cmd_tune_xlsx(srcs: list[pathlib.Path], dst: pathlib.Path, verdicts: pathlib
             f"{m['events']} akcií" + (f", chyby: {len(m['errors'])}" if m["errors"] else "")
             + (nl + notes if notes else ""),
         ])
+    # smoke run 44117223620 (3 events): Flash-Lite as researcher did not search
+    rows.append(["E / F: prieskum 3.1 Flash-Lite (low) – vyradené po skúške na 3 akciách",
+                 "–", "–", "–", "–", "–", 0.33, "–", "–", "–", "–", "–", "–",
+                 "2 z 3 akcií bez jediného hľadania aj po opakovanom pokuse "
+                 "(beh 44117223620), preto nemeraný na 50"])
     ws = wb.active
     ws.title = "Varianty"
     sheet(ws, ["variant (model / premýšľanie)", "typ – 50 akcií", "typ – bez príkladov v prompte",
