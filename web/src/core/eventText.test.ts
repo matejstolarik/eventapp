@@ -28,7 +28,7 @@ describe('spotifyUrl (task 054)', () => {
 import { priceLabel } from './eventText'
 describe('priceLabel (task 058)', () => {
   const P = (min: number | null, max: number | null, currency: string | null = 'CZK', kind: 'paid' | 'free' | 'voluntary' | 'free_reservation' = 'paid') =>
-    ({ price: { min, max, currency, kind }, free: null })
+    ({ price: { min, max, currency, kind }, free: null, price_text: 'x' })
   it('formats amounts per language', () => {
     expect(priceLabel(P(350, 350), 'cs')).toBe('350 Kč')
     expect(priceLabel(P(250, 350), 'sk')).toBe('250–350 Kč')
@@ -46,6 +46,7 @@ describe('priceLabel (task 058)', () => {
     expect(priceLabel(P(null, null, null, 'free_reservation'), 'sk')).toBe('Zdarma, rezervácia')
     expect(priceLabel(P(null, null, null, 'free_reservation'), 'cs')).toBe('Zdarma, rezervace')
     expect(priceLabel(P(null, null, null, 'free_reservation'), 'en')).toBe('Free, booking required')
-    expect(priceLabel({ price: null, free: null }, 'cs')).toBeNull()
+    expect(priceLabel({ price: null, free: null, price_text: 'Tba' }, 'cs')).toBeNull()
+    expect(priceLabel({ free: null, price_text: '250 Kč' }, 'cs')).toBe('250 Kč')
   })
 })

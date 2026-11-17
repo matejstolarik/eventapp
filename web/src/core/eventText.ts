@@ -20,10 +20,13 @@ export function spotifyUrl(ev: Pick<Event, 'artist_links' | 'artists' | 'title'>
 /** Price shown in the app (task 058 part 4): from the structured `price`,
  *  in the app language, without any other text: "350 Kč", "250–350 Kč",
  *  "od 950 Kč" / "from 950 CZK", "20 €", Zdarma, Dobrovolné vstupné,
- *  Zdarma, rezervace.  No `price` -> "free" label if `free`, else null. */
-export function priceLabel(ev: Pick<Event, 'price' | 'free'>, lang: Language): string | null {
+ *  Zdarma, rezervace.  No `price` -> "free" label if `free`, else null
+ *  (price_text only for older data without the `price` key). */
+export function priceLabel(ev: Pick<Event, 'price' | 'free' | 'price_text'>, lang: Language): string | null {
   const t = getDict(lang).price
   const p = ev.price
+  // data from before task 058 has no `price` key yet: keep showing price_text
+  if (p === undefined && ev.price_text) return ev.price_text
   if (!p) return ev.free ? t.free : null
   if (p.kind === 'free') return t.free
   if (p.kind === 'free_reservation') return t.freeReservation
