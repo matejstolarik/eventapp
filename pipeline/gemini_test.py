@@ -479,7 +479,12 @@ def cmd_tune(out: pathlib.Path) -> None:
 
     # step 1 once per research model
     research: dict = {}
+    if os.environ.get("TEST_RESEARCH_FILE"):       # same step-1 facts as an earlier run
+        for rm, rs in _research_from_file(os.environ["TEST_RESEARCH_FILE"]).items():
+            research[rm] = {i: {"rec": v["rec"], "error": v["error"]} for i, v in rs.items()}
     for rm, rt in sorted({(VARIANTS[n][0], VARIANTS[n][1]) for n in names}):
+        if rm in research:
+            continue
         prov = _Gemini2(model=rm, research_thinking=rt)
 
         def one(ev, prov=prov):
@@ -548,6 +553,232 @@ def cmd_tune(out: pathlib.Path) -> None:
                     f"spent ~${spent[0]:.4f}\n")
 
 
+def _research_from_file(path: str) -> dict:
+    """tune: reuse step-1 research of an earlier tune run (same facts for
+    every variant, no new search)."""
+    doc = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    return {rm: dict(rs) for rm, rs in doc["research"].items()}
+
+
+_GENRE_WORDS = {"hip-hop": ["hip hop", "hip-hop", "rap"], "drum-and-bass": ["drum", "dnb", "jungle"],
+                "edm": ["edm", "mainstage", "electro house", "big room"], "rnb": ["r&b", "rnb"]}
+
+
+def _plain(s: str) -> str:
+    import unicodedata
+    s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()
+    return " ".join(s.replace("-", " ").split())
+
+
+def unsupported_genres(res: dict, facts: str) -> tuple[list, list]:
+    """(genres without a genre_facts entry, genres whose name does not occur in
+    the step-1 facts -> checked by hand)."""
+    gf = {k.lower(): v for k, v in (res.get("genre_facts") or {}).items()}
+    text = _plain(facts)
+    no_fact, check = [], []
+    for g in res.get("genres") or []:
+        if g.lower() not in gf:
+            no_fact.append(g)
+        words = _GENRE_WORDS.get(g, [g.replace("-", " ")])
+        if not any(_plain(w) in text for w in words):
+            check.append(g)
+    return no_fact, check
+
+
+def tune_metrics(doc: dict) -> dict:
+    """Per variant: type accuracy on the 50 labelled events, genres, tokens, cost."""
+    from pipeline.enrich_ai import GEMINI_FREE_SEARCHES, GEMINI_SEARCH_PRICE, gemini_cost
+    labels = load_labels()
+    out = {}
+    for n, items in doc["variants"].items():
+        research = doc["research"][VARIANTS[n][0]]
+        ok = ok_noex = n_lab = n_noex = 0
+        errors, no_fact, check = [], [], []
+        out_tok, cost, cost2, searches, n_ev = 0, 0.0, 0.0, 0, 0
+        for i, v in items.items():
+            r = (research.get(i) or {}).get("rec")
+            if "error" in v or not r:
+                errors.append(i)
+                continue
+            res = v["result"]
+            n_ev += 1
+            steps = (r.get("usage") or []) + v["steps"]
+            out_tok += sum(u["output_tokens"] for u in steps)
+            cost += sum(u["cost_usd"] for u in steps)
+            cost2 += sum(gemini_cost(u["model"], u["input_tokens"], u["output_tokens"],
+                                     u["cached_tokens"], x2=True) for u in steps)
+            searches += len(r["queries"])
+            a, b = unsupported_genres(res, r.get("text") or "")
+            title = doc["events"][i]["title"][:40]
+            no_fact += [f"{title}: {g}" for g in a]
+            check += [f"{title}: {g}" for g in b]
+        for i, lab in labels.items():
+            v = items.get(i)
+            if v is None:
+                continue
+            good = (v.get("result") or {}).get("primary_format") == lab["expected_primary"]
+            n_lab += 1
+            ok += good
+            if i not in EXAMPLE_IDS:
+                n_noex += 1
+                ok_noex += good
+        if not n_ev:                    # variant not run (budget) -> left out
+            continue
+        per, per2 = cost / max(n_ev, 1), cost2 / max(n_ev, 1)
+        s_per = searches / max(n_ev, 1)
+
+        def month(k, p):
+            extra = max(0.0, s_per * k - GEMINI_FREE_SEARCHES) * GEMINI_SEARCH_PRICE
+            return round(p * k + extra, 2)
+        out[n] = {"label": variant_label(n), "events": n_ev, "errors": errors,
+                  "type_ok": ok, "type_n": n_lab, "noex_ok": ok_noex, "noex_n": n_noex,
+                  "no_fact": no_fact, "check": check,
+                  "out_tokens": round(out_tok / max(n_ev, 1)), "searches": round(s_per, 2),
+                  "cost": per, "cost2027": per2,
+                  "m280": month(280, per), "m1300": month(1300, per),
+                  "m280_2027": month(280, per2), "m1300_2027": month(1300, per2)}
+    return out
+
+
+def load_tune(srcs: list[pathlib.Path]) -> dict:
+    doc = {"variants": {}, "research": {}, "events": {}}
+    for s in srcs:                      # several tune runs (same research file)
+        d = json.loads(s.read_text(encoding="utf-8"))
+        for kk, vv in d["research"].items():
+            doc["research"].setdefault(kk, {}).update(vv)
+        doc["variants"].update(d["variants"])
+        doc["events"].update(d["events"])
+    return doc
+
+
+def cmd_tune_xlsx(srcs: list[pathlib.Path], dst: pathlib.Path, verdicts: pathlib.Path | None,
+                  best: list[str]) -> None:
+    """Excel for Matej: sheet Varianty, sheet Akcie (10 events: 058 vs. the
+    best two variants), sheet Typ 50."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font
+
+    doc = load_tune(srcs)
+    labels = load_labels()
+    verd = json.loads(verdicts.read_text(encoding="utf-8")) if verdicts and verdicts.exists() else {}
+    met = tune_metrics(doc)
+    old = {r["id"]: r for r in json.loads(pathlib.Path("docs/tasks/058/gemini_test.json")
+                                          .read_text(encoding="utf-8"))["results"]}
+    wb = Workbook()
+    font, bold = Font(name="Arial", size=10), Font(name="Arial", size=10, bold=True)
+    wrap = Alignment(wrap_text=True, vertical="top")
+    link = Font(name="Arial", size=10, color="0563C1", underline="single")
+
+    def sheet(ws, header, rows, widths, link_cols=()):
+        ws.append(header)
+        for row in rows:
+            ws.append(row)
+        for c in ws[1]:
+            c.font, c.alignment = bold, wrap
+        for row in ws.iter_rows(min_row=2):
+            for c in row:
+                c.font, c.alignment = font, wrap
+                if c.column in link_cols and isinstance(c.value, str) and c.value.startswith("http"):
+                    c.hyperlink, c.font = c.value, link
+        for k, w in enumerate(widths, 1):
+            ws.column_dimensions[ws.cell(1, k).column_letter].width = w
+        ws.freeze_panes = "A2"
+
+    nl = "\n"
+    # 058 reference (report 058: 55 events, $1.44, 356 searches, 318,591 output tokens)
+    rows = [["058: prieskum + rozhodnutie 3.6 Flash (predvolené premýšľanie), popis CZ+SK+EN",
+             "47/50 (94 %)", "35/38 (92 %)", "0", "0", 5793, 6.47, 0.0262, 0.0524,
+             7.34, 34.08, 14.68, 68.17, "55 akcií, $1.44 (report 058)"]]
+    for n, m in met.items():
+        notes = verd.get("_notes", {}).get(n)
+        rows.append([
+            m["label"],
+            f"{m['type_ok']}/{m['type_n']} ({100 * m['type_ok'] / max(m['type_n'], 1):.0f} %)",
+            f"{m['noex_ok']}/{m['noex_n']} ({100 * m['noex_ok'] / max(m['noex_n'], 1):.0f} %)",
+            str(len(m["no_fact"])) + (nl + nl.join(m["no_fact"]) if m["no_fact"] else ""),
+            verd.get("_genres", {}).get(n) or (str(len(m["check"])) + " na kontrolu"
+                                               + (nl + nl.join(m["check"]) if m["check"] else "")),
+            m["out_tokens"], m["searches"], round(m["cost"], 4), round(m["cost2027"], 4),
+            m["m280"], m["m1300"], m["m280_2027"], m["m1300_2027"],
+            f"{m['events']} akcií" + (f", chyby: {len(m['errors'])}" if m["errors"] else "")
+            + (nl + notes if notes else ""),
+        ])
+    ws = wb.active
+    ws.title = "Varianty"
+    sheet(ws, ["variant (model / premýšľanie)", "typ – 50 akcií", "typ – bez príkladov v prompte",
+               "žáner bez faktu (genre_facts)", "nepodložené žánre",
+               "výstupné tokeny / akcia", "hľadania / akcia", "$ / akcia",
+               "$ / akcia od 1. 1. 2027", "$ / mesiac pri 280 akciách",
+               "$ / mesiac pri 1 300 akciách", "$ / mesiac 280 (od 2027)",
+               "$ / mesiac 1 300 (od 2027)", "poznámka"],
+          rows, [46, 14, 16, 26, 34, 12, 10, 10, 12, 12, 12, 12, 12, 40])
+
+    def cells(res: dict, r: dict, queries, sources) -> list:
+        genres = ", ".join(res.get("genres") or [])
+        if res.get("genre_facts"):
+            genres += nl + nl.join(f"{k}: {v}" for k, v in res["genre_facts"].items())
+        d = res.get("descriptions") or {}
+        return [nl.join(queries), nl.join(s["url"] for s in sources),
+                _type_str(res) + (f"{nl}{res['type_reason']}" if res.get("type_reason") else ""),
+                genres, _price_cell(r, res), res.get("start_time") or "",
+                ", ".join(res.get("artists") or [])
+                + "".join(f"{nl}Spotify: {a['spotify_url']}" for a in res.get("artist_links") or []),
+                d.get("cs") or "", d.get("sk") or "", d.get("en") or ""]
+
+    arows = []
+    for i in TEN_IDS:
+        e = doc["events"].get(i)
+        if not e:
+            continue
+        lab = labels.get(i)
+        exp = VERIFIED[i][0] if i in VERIFIED else (SPITFIRE[0] if i == SPITFIRE_ID else "")
+        if not exp and lab:
+            exp = lab["expected_primary"] + f" – Matej: {lab['note'][:150]}"
+        o = old.get(i)
+        if o:
+            arows.append([e["venue_id"], e["title"], e["url"], "058"]
+                         + cells(o["result"], o, o["queries"], o["sources"])
+                         + [exp, verd.get(i, {}).get("058", "")])
+        for n in best:
+            v = doc["variants"].get(n, {}).get(i)
+            rr = (doc["research"][VARIANTS[n][0]].get(i) or {}).get("rec")
+            if not v or "error" in v or not rr:
+                continue
+            r = {"venue_price_text": e.get("venue_price_text"),
+                 "price": parse_price(v.get("price_text"))}
+            arows.append([e["venue_id"], e["title"], e["url"], variant_label(n)]
+                         + cells(v["result"], r, rr["queries"], rr["sources"])
+                         + [exp, verd.get(i, {}).get(n, "")])
+    ws2 = wb.create_sheet("Akcie")
+    sheet(ws2, ["podnik", "názov akcie", "odkaz", "verzia", "čo hľadal", "zdroje", "typ",
+                "žánre (v poradí) + fakty", "cena (ako v appke + zdroj)", "čas", "interpreti",
+                "popis CZ", "popis SK", "popis EN", "očakávané (overené / Matej)", "výsledok"],
+          arows, [12, 26, 28, 26, 30, 36, 22, 30, 24, 7, 26, 50, 40, 40, 34, 30],
+          link_cols=(3,))
+
+    trows = []
+    for i, lab in labels.items():
+        row = [lab["venue"], lab["title"], lab["expected_primary"]
+               + (f" (+{lab['expected_secondary']})" if lab["expected_secondary"] else ""),
+               "áno" if i in EXAMPLE_IDS else ""]
+        for n in met:
+            res = (doc["variants"][n].get(i) or {}).get("result")
+            row.append("" if res is None else ("OK " if res.get("primary_format")
+                                               == lab["expected_primary"] else "CHYBA ")
+                       + _type_str(res))
+        trows.append(row)
+    ws3 = wb.create_sheet("Typ 50")
+    sheet(ws3, ["podnik", "akcia", "očakávané (Matej)", "príklad v prompte"]
+          + [f"variant {n}" for n in met], trows, [14, 40, 20, 10] + [24] * len(met))
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(dst)
+    for n, m in met.items():
+        print(f"{n}: type {m['type_ok']}/{m['type_n']}, no-ex {m['noex_ok']}/{m['noex_n']}, "
+              f"no_fact {len(m['no_fact'])}, check {len(m['check'])}, out {m['out_tokens']}, "
+              f"searches {m['searches']}, ${m['cost']:.4f} (2027 ${m['cost2027']:.4f}), "
+              f"month 280 ${m['m280']} / 1300 ${m['m1300']}")
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
@@ -558,6 +789,9 @@ def main() -> None:
         cmd_run(out)
     elif cmd == "tune":
         cmd_tune(out)
+    elif cmd == "tune-xlsx":     # tune-xlsx OUT.xlsx VERDICTS BEST1,BEST2 IN.json [IN2.json ...]
+        cmd_tune_xlsx([pathlib.Path(a) for a in sys.argv[5:]], pathlib.Path(sys.argv[2]),
+                      pathlib.Path(sys.argv[3]), sys.argv[4].split(","))
     elif cmd == "recheck":
         cmd_recheck(pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]))
     elif cmd == "xlsx":

@@ -28,6 +28,10 @@ on:
         description: 'tune: stop new AI calls above this spend (USD)'
         required: false
         default: '0.3'
+      research_file:
+        description: 'tune: reuse step-1 research from this tune.json in the repo (no new search)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -54,6 +58,7 @@ jobs:
           TEST_IDS: ${{ inputs.ids }}
           TEST_VARIANTS: ${{ inputs.variants }}
           TEST_BUDGET_USD: ${{ inputs.budget }}
+          TEST_RESEARCH_FILE: ${{ inputs.research_file }}
         run: python -m pipeline.gemini_test ${{ inputs.mode }}
 
       - name: Upload results
