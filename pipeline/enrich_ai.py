@@ -24,7 +24,10 @@ Rules enforced in code (docs/data-model.md, "AI doplnenie"):
     events are skipped (processed next month).
   - Any provider error -> warning, pipeline continues without enrichment.
 
-Provider: ENRICH_PROVIDER = "claude" (default) | "gemini".
+Provider: ENRICH_PROVIDER = "claude" (default).  "gemini" is refused in the
+daily run (task 060): the Gemini API terms do not allow our use of Grounding
+with Google Search (caching / analysing results, taking links from them).
+The _Gemini2 class stays for the prompts and the research store (task 061).
 """
 
 import concurrent.futures
@@ -806,9 +809,9 @@ _DECIDE_SCHEMA = json.dumps(
 def make_provider():
     name = (os.environ.get("ENRICH_PROVIDER") or "claude").strip().lower()
     if name == "gemini":
-        if not os.environ.get("GEMINI_API_KEY", "").strip():
-            return None, "GEMINI_API_KEY not set"
-        return _Gemini2(), None
+        # task 060: never Gemini with the google_search tool in the daily run
+        return None, ("ENRICH_PROVIDER=gemini refused: Gemini Grounding with Google Search "
+                      "is not allowed for this use (Gemini API terms, task 060)")
     if not os.environ.get("ANTHROPIC_API_KEY", "").strip():
         return None, "ANTHROPIC_API_KEY not set"
     return _Claude(), None
