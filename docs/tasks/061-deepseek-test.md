@@ -2,6 +2,10 @@
 
 ## Zadanie
 
+> **ZMENA 2026-11-17 večer (Matej, pred spustením) – platí pred všetkým nižšie.**
+> - Kredit DeepSeek je **2 $** (nie ~5 $). Rozpočet v kóde: **zastaviť pri 1 $ za beh** (nahrádza 2 $), HTTP 402 → stop. Pred celým testom pusti 3 akcie a z nich odhadni cenu 50; ak odhad presahuje 1 $, zastav a napíš to.
+> - Model `deepseek-flash`, endpoint Search/Fetch (`/v1/tools/search`) a ich parametre sú v zadaní z prieskumu hlavného chatu, nie overené v kóde. **Ak sa oficiálne docs DeepSeek (časť 1) líšia (iný názov modelu, endpoint, chýbajúci Fetch, iný spôsob hľadania), zastav po časti 1 a napíš rozdiely.** Neimprovizuj náhradu.
+
 **Schválené Matejom 2026-11-17.** Gemini s Google hľadaním nesmieme použiť (podmienky, pozri hlavičku 060). DeepSeek: výstup patrí nám, podmienky API ukladanie výsledkov ani dávkový beh nezakazujú, publikovaný AI obsah treba označiť ako AI (Terms of Use). Tento test zistí, či DeepSeek dosiahne kvalitu Gemini D na Matejových 50 označených akciách. **Len test, nič do denného behu.**
 
 **Predpoklad (Matej):** účet na `platform.deepseek.com`, predplatený kredit (~5 $), GitHub Secret `DEEPSEEK_API_KEY`. Bez kľúča zastav a napíš to.
