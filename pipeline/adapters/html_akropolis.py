@@ -213,6 +213,7 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
     # Ticket status from vstupne_6 (see module docstring for code meanings)
     sold_out = None
     free = None
+    price_text = None
     ticket_url = None
     status = "scheduled"
     if event_id and vstupne:
@@ -230,6 +231,7 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
         elif state_no == _FREE:
             sold_out = False
             free = True
+            price_text = "vstup volný"   # task 054: page label "VSTUP VOLNÝ!"
         elif state_no == _SOLD_OUT:
             sold_out = True
         elif state_no == _CANCELLED:
@@ -255,7 +257,7 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
         genres=[],
         character=list(venue.get("character") or []),
         artists=[],
-        price_text=None,
+        price_text=price_text,
         free=free,
         sold_out=sold_out,
         room=room,

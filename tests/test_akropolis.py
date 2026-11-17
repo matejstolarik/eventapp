@@ -234,6 +234,7 @@ def test_vstupne_code_3_free():
                    today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
     assert kafka.free is True
+    assert kafka.price_text == "vstup volný"  # task 054
     assert kafka.sold_out is False
     assert kafka.ticket_url is None
 

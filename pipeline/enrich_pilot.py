@@ -531,7 +531,9 @@ def run_gemini(events, venues_map, budget):
         if i:
             time.sleep(GEMINI_DELAY_S)
         prompt = (build_event_prompt(ev, venues_map.get(ev["venue_id"], {}))
-                  + "\n\nAnswer with ONLY one JSON object with these keys: " + schema_hint)
+                  + "\n\nAnswer with ONLY one JSON object with these keys: " + schema_hint
+                  + ("\n\n" + os.environ["PILOT_GEMINI_EXTRA"]
+                     if os.environ.get("PILOT_GEMINI_EXTRA") else ""))
         gen = {"temperature": 0.2, "maxOutputTokens": 4096}
         if os.environ.get("PILOT_GEMINI_THINKING"):
             gen["thinkingConfig"] = {"thinkingLevel": os.environ["PILOT_GEMINI_THINKING"]}

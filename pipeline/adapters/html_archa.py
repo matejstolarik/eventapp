@@ -191,6 +191,7 @@ def _parse_item(venue, item, section_override, yesterday, cutoff):
     # ── ticket status ──────────────────────────────────────────────────────
     sold_out = None
     free = None
+    price_text = None
     ticket_url = None
     status = "scheduled"
 
@@ -199,6 +200,7 @@ def _parse_item(venue, item, section_override, yesterday, cutoff):
     elif any(t.lower() == "vstup zdarma" for t in tags):
         free = True
         sold_out = False
+        price_text = next(t for t in tags if t.lower() == "vstup zdarma")  # task 054
     elif item.select_one("button.goout-sale-button"):
         # GoOut widget button — tickets available but no direct purchase URL
         sold_out = False
@@ -214,7 +216,7 @@ def _parse_item(venue, item, section_override, yesterday, cutoff):
         genres=[],
         character=list(venue.get("character") or []),
         artists=[],
-        price_text=None,
+        price_text=price_text,
         free=free,
         sold_out=sold_out,
         room=None,

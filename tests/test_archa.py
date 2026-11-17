@@ -63,6 +63,7 @@ def test_archa_free_event():
     events = parse(VENUE, SOURCE, fixture("archa_program.html"), today=TEST_TODAY)
     free = [e for e in events if e.free is True]
     assert len(free) > 0, "KARAOKE+ and similar free events should be detected"
+    assert all(e.price_text.lower() == "vstup zdarma" for e in free)  # task 054
 
 
 def test_archa_goout_button_sold_out_false():
