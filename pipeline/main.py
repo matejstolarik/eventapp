@@ -162,12 +162,27 @@ def main():
 
     log.info("Wrote %d events to %s", len(events_out), EVENTS_OUT)
 
+    new_total, new_per_venue = count_new_events(events_out, previous)
+    log.info("New events: %d (per venue %s)", new_total, new_per_venue)
+
     _write_job_summary(source_results, events_out, generated_at, capture.messages, ai_stats,
-                      enrich_stats)
+                      enrich_stats, new_events=(new_total, new_per_venue, bool(previous)))
+
+
+def count_new_events(events: list[dict], previous: dict) -> tuple[int, dict[str, int]]:
+    """Count events whose id was not in the previous run (task 052).
+
+    Returns (total, {venue_id: count}) sorted by venue id.
+    """
+    per_venue: dict[str, int] = {}
+    for e in events:
+        if e["id"] not in previous:
+            per_venue[e["venue_id"]] = per_venue.get(e["venue_id"], 0) + 1
+    return sum(per_venue.values()), dict(sorted(per_venue.items()))
 
 
 def _write_job_summary(source_results, events, generated_at, adapter_warnings=None,
-                       ai_stats=None, enrich_stats=None):
+                       ai_stats=None, enrich_stats=None, new_events=None):
     """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
     summary_path = os.getenv("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -205,6 +220,12 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
         lines.append(f"| {vid} | {cnt} |")
 
     lines += ["", f"**Total:** {len(events)} events", ""]
+
+    if new_events is not None:
+        new_total, new_per_venue, has_previous = new_events
+        per = ", ".join(f"{v} {n}" for v, n in new_per_venue.items()) or "none"
+        note = "" if has_previous else " — previous events unavailable, all counted as new"
+        lines += [f"**New events:** {new_total} (per venue: {per}){note}", ""]
 
     all_warn_lines = [f"- `{vid}` [{lbl}]: {msg}" for vid, lbl, msg in warnings]
     if adapter_warnings:
