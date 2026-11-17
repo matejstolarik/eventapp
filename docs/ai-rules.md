@@ -15,7 +15,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 4. Spevák/kapela a po nich DJ → `concert`, `dj` doplnkový. Časový harmonogram kapiel („20:00 X, 21:00 Y“) → `concert`.
 5. `party` = len veľká komerčná/mainstreamová párty kvôli atmosfére (komerčné kluby, Erasmus/študentské, hity 80./90., open bar). V komerčnom klube (`commercial_club`): generická noc → `party`; **DJ je hlavné lákadlo a párty je postavená okolo neho** (SLVL) → `primary_format: dj`, `party` doplnkový; **lákadlom je párty samotná** (téma, formát, napr. Video Oldies Rudy Tučeka, Student Wednesday), aj keď je DJ menovaný → `party`. Pozná sa to hlavne z názvu a popisu (Matej 2026-11-17). Mimo komerčných klubov len pri jasnom signáli s dôvodom.
 6. Kultúra podľa podtypu: `film`, `theatre`, `dance`, `comedy` (stand-up), `talk` (čítanie a diskusia: krst knihy, poézia, piesne + texty, prednáška), `performance` (performatívne pásmo), `workshop` (aj hudobný/DJ), `opening` (výstava), `quiz`; inak `other`.
-7. **(2026-11-17, Matej)** Interpret, ktorý sa primárne prezentuje ako živý act alebo kapela (live electronic act, nástroje, spev; napr. Tinlicker), je `concert` aj vtedy, keď podnik píše „DJ set“; `dj` doplnkový. Rozhoduje, čím interpret je, nie nadpis podniku.
+7. **(2026-11-17, Matej)** Interpret, ktorý sa primárne prezentuje ako živý act alebo kapela (live electronic act, nástroje, spev; napr. Tinlicker), je `concert` aj vtedy, keď podnik píše „DJ set“; `dj` doplnkový. Rozhoduje, čím interpret je, nie nadpis podniku. **Typ od AI má prednosť pred kategóriou podniku zo zdroja** (2026-11-17, Matej); ručná oprava (`manual.json`) má prednosť pred oboma.
 
 ## C. Žánre
 1. **Zoradené od hlavného.** Zložené názvy → hlavný prvý: „ambient techno“ → `techno, ambient`; „mainstage“ → `edm, electronic`; „oldies“ → `oldies` (+ `pop` len ak sedí).
@@ -33,7 +33,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 Len výslovne uvedený pri akcii; inak prázdny. Nikdy neodhadovať.
 
 ## F. Popis
-Približne 5 viet; dĺžka podľa interpreta: pri veľkej hviezde môže byť dlhší, pri undergroundovom interpretovi s málom informácií kratší (2026-11-17, Matej). Vecne a do hĺbky (kto, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne), **bez reklamných fráz a pátosu**, bez výkričníkov a emoji, bez ceny/času/miesta. Žánre ako názvy („techno“, nie „technové“). Len fakty zo zdrojov; z pôvodného textu fakty, nie vety. CZ hlavný, SK a EN preklad. Vzor: popis Allt v úlohe 054 časť 4b.
+Približne 5 viet; dĺžka podľa interpreta: pri veľkej hviezde môže byť dlhší, pri undergroundovom interpretovi s málom informácií kratší (2026-11-17, Matej). Vecne a do hĺbky (kto, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne), **bez reklamných fráz a pátosu**, bez výkričníkov a emoji, bez ceny a času (miesto a sála môžu byť spomenuté – 2026-11-17, Matej; nejde na kontrolu). Žánre ako názvy („techno“, nie „technové“). Len fakty zo zdrojov; z pôvodného textu fakty, nie vety. CZ hlavný, SK a EN preklad. Vzor: popis Allt v úlohe 054 časť 4b.
 **(2026-11-17, Matej) Popis prezentuje informácie, nikdy ich nedostatok.** Žiadne vety o tom, čo sa nenašlo, nie je známe, nebolo zverejnené alebo ohlásené („o účinkujících se nedochovaly další podrobnosti“, „konkrétní účinkující nejsou zveřejněni“, „sedmé jméno zatím ohlášeno nebylo“), ani o tom, ako AI hľadala (rovnaké meno u iných interpretov). Málo informácií = kratší popis; nič = žiadny popis (pravidlo H).
 
 ## G. Interpreti a Spotify
