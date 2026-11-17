@@ -38,7 +38,7 @@ export function IconFilm({ size = 18, color = 'currentColor', strokeWidth = DEFA
   )
 }
 
-export function IconComedy({ size = 18, color = 'currentColor', strokeWidth = DEFAULT_STROKE }: IconProps) {
+export function IconStandUp({ size = 18, color = 'currentColor', strokeWidth = DEFAULT_STROKE }: IconProps) {
   const sw = strokeWidth * (2 / DEFAULT_STROKE)
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
@@ -101,7 +101,7 @@ export function EventTypeIcon({ iconKey, size = 18, color = 'currentColor' }: { 
   if (iconKey === 'dj') return <IconDJ size={size} color={color} />
   if (iconKey === 'concert') return <IconConcert size={size} color={color} />
   if (iconKey === 'film') return <IconFilm size={size} color={color} />
-  if (iconKey === 'comedy') return <IconComedy size={size} color={color} />
+  if (iconKey === 'standup') return <IconStandUp size={size} color={color} />
   if (iconKey === 'dance') return <IconDance size={size} color={color} />
   return <IconCulture size={size} color={color} />
 }

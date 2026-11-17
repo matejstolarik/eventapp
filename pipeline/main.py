@@ -14,7 +14,8 @@ from pipeline.adapters import api as api_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
-from pipeline.classify import classify_events, apply_commercial_clubs, venue_genre_ids
+from pipeline.classify import (classify_events, apply_commercial_clubs, rename_format_fields,
+                               venue_genre_ids)
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
@@ -130,7 +131,8 @@ def _migrate_event(e: dict) -> dict:
     if fmts and "live" in fmts:
         e = dict(e)
         e["formats"] = ["concert" if f == "live" else f for f in fmts]
-    return e
+    # comedy -> stand-up (task 065, 2026-11-18): cached formats keep the new code
+    return rename_format_fields(e)
 
 
 def main():
@@ -233,7 +235,8 @@ def main():
     # task 058: renamed genre codes (r-n-b -> rnb), also in cached values;
     # task 065: no umbrella-only codes (alternative), C7 parent removal
     hierarchy = load_hierarchy()
-    for ev in events:
+    for i, ev in enumerate(events):
+        ev = events[i] = rename_format_fields(ev)      # task 065: comedy -> stand-up
         if ev.get("genres"):
             ev["genres"] = finalize_genres(ev["genres"], hierarchy)
         # task 058 part 4: structured price from the (source or AI) price text

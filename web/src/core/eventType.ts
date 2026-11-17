@@ -1,8 +1,8 @@
 import type { EventType } from './types'
 
-const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'performance', 'comedy', 'film', 'opening', 'workshop', 'quiz'])
+const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'performance', 'stand-up', 'film', 'opening', 'workshop', 'quiz'])
 
-export type EventIconKey = 'concert' | 'party' | 'dj' | 'film' | 'comedy' | 'dance' | 'culture'
+export type EventIconKey = 'concert' | 'party' | 'dj' | 'film' | 'standup' | 'dance' | 'culture'
 
 /** Returns the event type for color and icon.
  * Task 053: if the AI gave `primary_format` (the main part of the event) and it is
@@ -39,7 +39,7 @@ export const EVENT_TYPE_DARK: Record<EventType, string> = {
 
 /** Returns the icon key for an event based on its formats.
  * concert/party/dj use their own icons; culture uses a subtype icon:
- * film → film-clapper, comedy → vintage mic, dance → filled silhouette, else → theatre masks.
+ * film → film-clapper, stand-up → vintage mic, dance → filled silhouette, else → theatre masks.
  * other → culture (masks). */
 export function eventIconKey(formats: string[], primaryFormat?: string | null): EventIconKey {
   const type = getEventType(formats, primaryFormat)
@@ -48,7 +48,7 @@ export function eventIconKey(formats: string[], primaryFormat?: string | null): 
   if (type === 'concert') return 'concert'
   // culture or other — pick sub-icon from first matching culture format
   if (formats.includes('film')) return 'film'
-  if (formats.includes('comedy')) return 'comedy'
+  if (formats.includes('stand-up')) return 'standup'
   if (formats.includes('dance')) return 'dance'
   return 'culture'
 }

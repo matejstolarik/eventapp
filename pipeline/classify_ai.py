@@ -42,7 +42,7 @@ OUTPUT_PRICE_PER_MTOK = 0.50  # USD per million output tokens (up to 100K prompt
 BATCH_SIZE = 20
 
 VALID_FORMATS = frozenset({
-    "concert", "dj", "party", "music", "dance", "talk", "comedy", "workshop",
+    "concert", "dj", "party", "music", "dance", "talk", "stand-up", "workshop",
     "theatre", "film", "opening", "quiz", "performance", "other",
 })
 VALID_GENRES = MUSIC_GENRES   # task 058: lists live in pipeline/genres.py
@@ -346,7 +346,8 @@ def _apply_batch_results(batch: list[dict], results: list[dict],
         if idx is None or not (0 <= idx < len(batch)):
             continue
         event = batch[idx]
-        raw_formats = entry.get("formats", [])
+        from pipeline.classify import rename_formats
+        raw_formats = rename_formats(entry.get("formats", []))   # task 065: comedy -> stand-up
         raw_genres = entry.get("genres", [])
         confidence = float(entry.get("confidence", 0.5))
 

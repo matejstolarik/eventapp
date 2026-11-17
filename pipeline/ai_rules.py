@@ -8,7 +8,7 @@ sync with docs/ai-rules.md; a new rule there = a change here.
 
 from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES
 
-FORMATS = ["concert", "dj", "party", "music", "dance", "talk", "comedy", "workshop",
+FORMATS = ["concert", "dj", "party", "music", "dance", "talk", "stand-up", "workshop",
            "theatre", "film", "opening", "quiz", "performance", "other"]
 
 # docs/ai-rules.md B
@@ -34,7 +34,7 @@ party is built around him -> primary dj, party secondary; the party itself is th
 draw (theme, format, e.g. Video Oldies Rudy Tučeka, Student Wednesday), even with a \
 named DJ -> primary party. Decide mainly from the title and the description. Outside \
 commercial clubs only with a clear signal; give the reason in party_reason.
-6. Culture by subtype: film, theatre, dance, comedy (stand-up), talk (reading and \
+6. Culture by subtype: film, theatre, dance, stand-up (stand-up comedy), talk (reading and \
 discussion: book launch, poetry, songs + texts, lecture), performance (performative \
 piece between theatre and visual art), workshop (also a music / DJ workshop), opening \
 (exhibition opening), quiz; otherwise other. music = musical event where concert vs. \

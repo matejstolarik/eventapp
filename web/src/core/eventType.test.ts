@@ -27,7 +27,7 @@ describe('getEventType', () => {
     expect(getEventType(['theatre'])).toBe('culture')
     expect(getEventType(['dance'])).toBe('culture')
     expect(getEventType(['talk'])).toBe('culture')
-    expect(getEventType(['comedy'])).toBe('culture')
+    expect(getEventType(['stand-up'])).toBe('culture')
     expect(getEventType(['film'])).toBe('culture')
     expect(getEventType(['opening'])).toBe('culture')
     expect(getEventType(['workshop'])).toBe('culture')
@@ -90,8 +90,8 @@ describe('eventIconKey', () => {
     expect(eventIconKey(['theatre', 'film'])).toBe('film')
   })
 
-  it('culture subtype: comedy → comedy', () => {
-    expect(eventIconKey(['comedy'])).toBe('comedy')
+  it('culture subtype: stand-up → standup (task 065)', () => {
+    expect(eventIconKey(['stand-up'])).toBe('standup')
   })
 
   it('culture subtype: dance → dance', () => {
@@ -112,12 +112,12 @@ describe('eventIconKey', () => {
     expect(eventIconKey(['unknown'])).toBe('culture')
   })
 
-  it('film wins over comedy/dance when film appears first in formats', () => {
-    expect(eventIconKey(['film', 'comedy'])).toBe('film')
+  it('film wins over stand-up/dance when film appears first in formats', () => {
+    expect(eventIconKey(['film', 'stand-up'])).toBe('film')
   })
 
-  it('comedy wins when no film', () => {
-    expect(eventIconKey(['comedy', 'dance'])).toBe('comedy')
+  it('stand-up wins when no film', () => {
+    expect(eventIconKey(['stand-up', 'dance'])).toBe('standup')
   })
 })
 
@@ -179,6 +179,8 @@ describe('tagLabel (task 058)', () => {
     expect(tagLabel('talk', 'cs')).toBe('čtení a diskuse')
     expect(tagLabel('talk', 'en')).toBe('talk & reading')
     expect(tagLabel('physical-theatre', 'en')).toBe('physical theatre')
+    expect(tagLabel('stand-up', 'cs')).toBe('stand-up')          // task 065
+    expect(tagLabel('puppet-theatre', 'cs')).toBe('loutkové divadlo')
     expect(getEventType(['performance'])).toBe('culture')
   })
   it('keeps other codes', () => {

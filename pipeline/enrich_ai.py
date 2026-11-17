@@ -343,12 +343,13 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
     dropped: list[str] = []
     out: dict = {}
 
-    fmts = [f for f in raw.get("formats") or [] if f in VALID_FORMATS]
+    from pipeline.classify import RENAMED_FORMATS, rename_formats
+    fmts = [f for f in rename_formats(raw.get("formats")) if f in VALID_FORMATS]
     if "party" in fmts and not _clean_text(raw.get("party_reason")):
         dropped.append("party: no party_reason")
         fmts = [f for f in fmts if f != "party"]
     out["formats"] = fmts
-    pf = raw.get("primary_format")
+    pf = RENAMED_FORMATS.get(raw.get("primary_format"), raw.get("primary_format"))
     out["primary_format"] = pf if pf in fmts else None
     out["party_reason"] = _clean_text(raw.get("party_reason")) if "party" in fmts else None
     tsrc = raw.get("type_source_url")
@@ -1090,9 +1091,11 @@ def fill_primary_from_research(events: list[dict], research: dict | None) -> int
         # manual: formats stay as set by hand, only the missing primary is filled
         if not rec or ev.get("primary_format") or method not in ("source", "keyword", "manual"):
             continue
-        if "enrichment" not in ev or rec.get("primary_format") not in (ev.get("formats") or []):
+        from pipeline.classify import RENAMED_FORMATS
+        pf = RENAMED_FORMATS.get(rec.get("primary_format"), rec.get("primary_format"))
+        if "enrichment" not in ev or pf not in (ev.get("formats") or []):
             continue
-        ev["primary_format"] = rec["primary_format"]
+        ev["primary_format"] = pf
         n += 1
     return n
 

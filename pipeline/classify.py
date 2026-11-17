@@ -59,9 +59,9 @@ SECTION_MAP: dict[str, str | None] = {
     "conference": "talk",
     # workshop
     "workshop": "workshop",
-    # comedy
-    "comedy": "comedy",
-    "stand-up": "comedy",
+    # stand-up (task 065: format renamed from "comedy")
+    "comedy": "stand-up",
+    "stand-up": "stand-up",
     # other
     "off-program": "other",
     "performance": "other",
@@ -96,6 +96,33 @@ DJ_PATTERNS: list[str] = [
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
+# Renamed format codes (old -> new): task 065 comedy -> stand-up.  Applied to
+# previous events, model answers, manual values and the output.
+RENAMED_FORMATS = {"comedy": "stand-up"}
+
+
+def rename_formats(fmts: list | None) -> list:
+    out = []
+    for f in fmts or []:
+        f = RENAMED_FORMATS.get(f, f)
+        if f not in out:
+            out.append(f)
+    return out
+
+
+def rename_format_fields(ev: dict) -> dict:
+    """formats + primary_format with renamed codes (new dict if changed)."""
+    fmts, pf = ev.get("formats"), ev.get("primary_format")
+    if not (set(fmts or []) & set(RENAMED_FORMATS) or pf in RENAMED_FORMATS):
+        return ev
+    ev = dict(ev)
+    if fmts is not None:
+        ev["formats"] = rename_formats(fmts)
+    if pf in RENAMED_FORMATS:
+        ev["primary_format"] = RENAMED_FORMATS[pf]
+    return ev
+
 
 def classify_events(
     events: list[dict],

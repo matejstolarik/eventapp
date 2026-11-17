@@ -180,7 +180,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const primaryTag = primaryTypeTag(ev.formats, ev.primary_format)
   // Remaining tags: culture subtypes (excluding primary) + genres
   const remainingTags = [
-    ...ev.formats.filter(f => ['theatre','dance','talk','performance','comedy','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
+    ...ev.formats.filter(f => ['theatre','dance','talk','performance','stand-up','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
     ...ev.genres,
   ]
 

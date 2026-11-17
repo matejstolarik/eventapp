@@ -94,6 +94,9 @@ def _clean_fields(fields, allowed, where) -> dict:
         if k in ("formats", "genres") and not (isinstance(v, list) and all(isinstance(x, str) for x in v)):
             log.warning("manual.json %s.%s: list of strings expected", where, k)
             continue
+        if k in ("formats", "primary_format"):
+            from pipeline.classify import RENAMED_FORMATS, rename_formats   # task 065
+            v = rename_formats(v) if k == "formats" else RENAMED_FORMATS.get(v, v)
         if k == "start_time" and not (isinstance(v, str) and _TIME_RE.match(v)):
             log.warning("manual.json %s.start_time: HH:MM expected", where)
             continue
