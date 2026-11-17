@@ -94,7 +94,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         zIndex: 20,
         touchAction: 'pan-y',
       }}
-      aria-label="VybranÃ¡ akcia"
+      aria-label="Vybraná akcia"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -105,7 +105,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
           cursor: 'pointer', padding: 0,
         }}
         onClick={() => onEventOpen(event.id)}
-        aria-label="OtvoriÅ¥ akciu"
+        aria-label="Otvoriť akciu"
       >
         {/* Image or color placeholder */}
         <div style={{
@@ -143,7 +143,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
       {/* Tag row: culture subtypes + genres, dark pills, type text color; no type tag */}
       {tags.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <TagRow aria-label="Å tÃ­tky akcie">
+          <TagRow aria-label="Štítky akcie">
             {tags.map(tag => (
               <span key={tag} style={{
                 height: 32, padding: '0 14px', borderRadius: 16,
