@@ -5,6 +5,7 @@ import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate } from '../i18n'
 import { isEventLive } from '../core/events'
+import { eventDescription, spotifyUrl } from '../core/eventText'
 import { isNightMode, NIGHT_DAY } from '../core/night'
 import { buildAndroidCalendarIntent, generateICS } from '../core/calendar'
 import {
@@ -90,6 +91,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const dark = EVENT_TYPE_DARK[eventType]
 
   const dateLabel = formatEventDate(ev.date, lang)
+  const description = eventDescription(ev, lang)
   const timePart = ev.start_time ? ` · ${ev.start_time}` : ''
   const metaLine = `${dateLabel}${timePart}`
 
@@ -165,8 +167,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     }
   }
   function handleSpotify() {
-    const query = ev.artists?.[0] ?? ev.title
-    window.open(`https://open.spotify.com/search/${encodeURIComponent(query)}`, '_blank', 'noopener')
+    window.open(spotifyUrl(ev), '_blank', 'noopener')
   }
   function handleNavigate() {
     if (venue) {
@@ -418,9 +419,9 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         </div>
 
         {/* Description */}
-        {ev.description && (
+        {description && (
           <p style={{ fontSize: 14, lineHeight: 1.5, color: '#B9B6CC' }}>
-            {ev.description}
+            {description}
           </p>
         )}
       </div>

@@ -57,6 +57,10 @@ export interface Event {
   image_thumb: string | null
   description: string | null
   description_source: string | null
+  /** AI description in three languages (task 054); cs is the main text */
+  descriptions?: Partial<Record<Language, string>> | null
+  /** Spotify artist profiles (task 054) */
+  artist_links?: { name: string | null; spotify_url: string }[] | null
   sources: EventSource[]
   classification: { method: string; confidence: number } | null
   first_seen: string
