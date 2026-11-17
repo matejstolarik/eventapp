@@ -63,10 +63,10 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const tags = eventTags(event.formats, event.genres, event.primary_format)
 
   const distStr = userLocation
-    ? ' Â· ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
+    ? ' · ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
     : ''
 
-  const timeStr = event.start_time ? ` Â· ${event.start_time}` : ''
+  const timeStr = event.start_time ? ` · ${event.start_time}` : ''
   const subtitle = `${venue.name}${timeStr}${distStr}`
   const priceStr = priceLabel(event, lang)
 
