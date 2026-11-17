@@ -2,6 +2,18 @@
 
 ## Zadanie
 
+> **ZMENA 2026-11-17 večer (Matej, pred spustením) – platí pred všetkým nižšie.**
+> Podmienky Gemini API (sekcia „Grounding with Google Search“, `https://ai.google.dev/gemini-api/terms`) zakazujú náš spôsob použitia: výsledky sa smú len zobraziť používateľovi, ktorý poslal prompt, so Search Suggestions; zakázané je ich cachovať, analyzovať, vyťahovať z nich odkazy a používať odkazy na určenie stránok na sťahovanie. **Gemini s Google hľadaním sa v pipeline nepoužíva.** Náhrada sa testuje v úlohe 061 (DeepSeek).
+> **Rob len:**
+> - **Časť 3** bez odseku „GoOut ako prvý zdroj ceny“ v pôvodnej podobe (AI hľadanie). Namiesto neho: ak stránka akcie alebo nákupu na webe podniku odkazuje na GoOut (odkaz na lístky alebo `src` iframe, napr. Akropolis `page_id=42027`), pipeline otvorí tú jednu stránku GoOut a vezme cenu (bez AI, 1 GET na akciu, cache). Podmienky GoOut over pred zavedením; ak zakazujú, zastav túto časť. Oprava kontroly ceny a cenové vlny platia.
+> - **Časť 4** (`data/manual.json`) celá.
+> - **Časť 6** len: zahodiť Spotify odkazy od AI, ktoré nie sú v `manual.json`.
+> - **Časť 7** len z odkazu GoOut z webu podniku (rovnaké načítanie ako cena v časti 3), nie z výsledkov hľadania.
+> - **Časť 8** celá.
+> - Navyše: workflow `gemini-test.yml` vypnúť (odstrániť `workflow_dispatch` alebo súbor `git rm`) a v kóde zabezpečiť, že denný beh nikdy nevolá Gemini s nástrojom `google_search` (test). Kód `_Gemini2` a `research_store.py` ostávajú (prompty a uloženie prieskumu použije 061).
+> **Nerob:** časti 1, 2, 5 (presúvajú sa do úlohy po 061). Denný beh ostáva na `ENRICH_PROVIDER: claude` (kredit ~0,19 $ – AI v behu prakticky nebeží, beh musí bez nej dobehnúť).
+> Report: ako je uvedené, bez čísel prepočítania.
+
 **Nahrádza časti 2 a 5 úlohy 058** (prechod a prepočítanie). **Schválené Matejom 2026-11-17.** Kredit Gemini ~1,8 $, bez automatického dobíjania; prepočítanie (~245 akcií × ~0,0045 $) sa doň zmestí. Pri HTTP 402 zastaviť AI, beh pokračuje.
 
 **Čítaj:** report 059 (tabuľka variantov, Časť 3, Otvorené); `docs/ai-rules.md`; report 058 (Časť 1 – kontrola ceny); kód Gemini providera (`enrich_ai.py`, `_Gemini2`), `pipeline/research_store.py`, `pipeline/price.py`, `pipeline/genres.py`, `data/overrides.json`.
