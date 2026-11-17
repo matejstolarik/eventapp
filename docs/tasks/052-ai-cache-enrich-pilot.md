@@ -29,6 +29,7 @@ Do reportu (nie do `data-model.md`) navrhni, ako pri každom údaji doplnenom AI
   - čas začiatku len ak chýba a je výslovne uvedený, so `source_url`,
   - popis 2–3 vety v češtine vlastnými slovami (nekopírovať), len ak chýba; so zdrojmi.
   - Najprv použi text detailu akcie, ktorý pipeline už sťahuje (režim A); hľadaj len to, čo v ňom nie je.
+- **Definícia `party` (Matej 2026-11-17, nahrádza „klubová noc alebo tematická párty“ v `data-model.md`; zmenu dokumentu a produkčného promptu rieši úloha 053):** `party` = veľká komerčná/mainstreamová párty, kam ľudia idú kvôli atmosfére, nie kvôli konkrétnej hudbe či interpretovi (komerčné kluby, Erasmus/študentské, hity 80./90., open bar, mainstreamové tematické večery). Klubová noc zameraná na hudbu/DJ-ov je `dj`, nie `party`. `party` len pri jasnom signáli a s uvedeným dôvodom. V pilote použi túto definíciu v prompte oboch poskytovateľov a pri porovnaní s dnešným stavom ju ber ako správnu.
 - **Claude:** `claude-haiku-5-5` + web search tool (`max_uses: 3`, zakázaná doména `ra.co`).
 - **Gemini:** najlacnejší aktuálny model s Grounding with Google Search na **bezplatnej úrovni** (over v dokumentácii, ktorý model a aké limity; nič neplatené nezapínaj). Ak sa doména `ra.co` nedá vylúčiť, výsledky s `ra.co` zahoď a napíš to do reportu. Ak bezplatná úroveň hľadanie nepodporuje alebo narazí na limit, **zastav Gemini časť a napíš presne, čo vrátilo** (chyba, limit).
 - **Strop pilotu:** najviac 60 hľadaní na poskytovateľa.
