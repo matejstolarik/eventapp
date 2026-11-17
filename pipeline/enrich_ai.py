@@ -962,9 +962,32 @@ def values_from_enrichment(enr: dict, prev: dict) -> dict:
     return vals
 
 
-def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None) -> dict:
+def fill_primary_from_research(events: list[dict], research: dict | None) -> int:
+    """Task 063: an event whose type stayed with the venue category (no AI
+    formats in its enrichment, e.g. enriched before task 063) gets the
+    ``primary_format`` the AI decided from the stored research record, when it
+    is one of the event's formats.  No API call.  Returns the count."""
+    n = 0
+    for ev in events:
+        rec = (research or {}).get(ev["id"])
+        method = (ev.get("classification") or {}).get("method")
+        if not rec or ev.get("primary_format") or method not in ("source", "keyword"):
+            continue
+        if "enrichment" not in ev or rec.get("primary_format") not in (ev.get("formats") or []):
+            continue
+        ev["primary_format"] = rec["primary_format"]
+        n += 1
+    return n
+
+
+def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None,
+                     keep_genres: bool | None = None) -> dict:
     """Apply AI values to empty fields only; source values win (their
-    enrichment entry is dropped).  Returns a new event dict."""
+    enrichment entry is dropped).  Returns a new event dict.
+
+    Task 063 (docs/ai-rules.md B7): the AI type wins over the venue category
+    (``source``) and keywords; only ``manual`` wins over the AI.  Genres are
+    unchanged: venue genres win (keep_genres; default = method manual/source)."""
     ev = dict(ev)
     enr = json.loads(json.dumps(enr))   # deep copy
     cls = ev.get("classification") or {}
@@ -974,7 +997,7 @@ def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None)
         if stats is not None:
             stats[key] = stats.get(key, 0) + 1
 
-    if "formats" in vals and method not in ("manual", "source"):
+    if "formats" in vals and method != "manual":
         new = vals["formats"]
         if set(new) != set(ev.get("formats") or []):
             count("type_changed")
@@ -989,7 +1012,9 @@ def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None)
     elif "formats" in enr:
         enr.pop("formats")
 
-    if "genres" in vals and (method not in ("manual", "source") or not ev.get("genres")):
+    if keep_genres is None:
+        keep_genres = method in ("manual", "source")
+    if "genres" in vals and (not keep_genres or not ev.get("genres")):
         if vals["genres"] != (ev.get("genres") or []):
             count("genres")
         ev["genres"] = vals["genres"]
@@ -1107,7 +1132,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                      price_fetch=_fetch_page_text,
                      aliases: dict | None = None,
                      research: dict | None = None,
-                     budget=None) -> tuple[list[dict], dict]:
+                     budget=None,
+                     keep_genres: set | None = None) -> tuple[list[dict], dict]:
     """Enrich events in the window. Returns (events, stats).
 
     research: stored research records (id -> record, task 059); new records
@@ -1121,6 +1147,14 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     page_texts = page_texts or {}
     venues_map = {v["id"]: v for v in venues}
     month = today[:7]
+    # task 063: ids with venue genres (layer 1); main.py passes them because
+    # classify_ai may already have replaced classification.method
+    if keep_genres is None:
+        from pipeline.classify import venue_genre_ids
+        keep_genres = venue_genre_ids(events)
+
+    def apply(ev, enr, vals, st=None):
+        return apply_enrichment(ev, enr, vals, st, ev["id"] in keep_genres)
 
     # one-off manual re-run of chosen events (workflow_dispatch input reenrich_ids)
     force = {i.strip() for i in os.environ.get("ENRICH_FORCE_IDS", "").split(",") if i.strip()}
@@ -1141,14 +1175,14 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             # keep cached AI values of events enriched earlier (e.g. moved date)
             c = cached_enrichment(ev, previous)
             if c:
-                out_by_id[ev["id"]] = apply_enrichment(
+                out_by_id[ev["id"]] = apply(
                     ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
             continue
         stats["window"] += 1
         c = None if ev["id"] in force or ev["id"] in redo else cached_enrichment(ev, previous)
         if c:
             stats["cached"] += 1
-            out_by_id[ev["id"]] = apply_enrichment(
+            out_by_id[ev["id"]] = apply(
                 ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
         else:
             todo.append(ev)
@@ -1261,7 +1295,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 stats["dropped"].append(f"{ev['id']}: {d}")
             for d in res.get("review") or []:
                 stats.setdefault("review", []).append(f"{ev['id']}: {d}")
-            out_by_id[ev["id"]] = apply_enrichment(ev, conv["enrichment"], conv["values"], stats)
+            out_by_id[ev["id"]] = apply(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
             if ev["id"] in redo and rec.get("searches") == 0:
                 stats["from_research"] += 1
@@ -1290,7 +1324,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
         if ev["id"] not in out_by_id:
             c = cached_enrichment(ev, previous)
             if c:
-                out_by_id[ev["id"]] = apply_enrichment(
+                out_by_id[ev["id"]] = apply(
                     ev, c["enrichment"], values_from_enrichment(c["enrichment"], c["prev"]))
                 kept += 1
     stats["kept_previous"] = kept
@@ -1307,6 +1341,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     for w in stats["warnings"]:
         log.warning("%s", w)
     out = [out_by_id.get(e["id"], e) for e in events]
+    stats["primary_from_research"] = fill_primary_from_research(out, research)
     log.info("enrich_ai: window=%d cached=%d enriched=%d errors=%d searches=%d month=%s/%d cost=$%.4f",
              stats["window"], stats["cached"], stats["enriched"], stats["errors"],
              stats["searches"], stats.get("month_searches"), month_limit, stats["cost_usd"])

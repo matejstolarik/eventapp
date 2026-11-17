@@ -160,8 +160,11 @@ def test_source_values_win():
     ev = out[0]
     assert ev["price_text"] == "250 Kč" and ev["start_time"] == "19:00"
     assert ev["formats"] == ["concert"] and ev["genres"] == ["rock"]
-    for field in ("price_text", "start_time", "formats", "genres"):
+    for field in ("price_text", "start_time", "genres"):
         assert field not in ev["enrichment"]
+    # task 063 (B7): the AI type wins over the venue category
+    assert "formats" in ev["enrichment"] and ev["primary_format"] == "concert"
+    assert ev["classification"]["method"] in ("llm", "llm+web")
 
 
 def test_unconfirmed_price_is_dropped():

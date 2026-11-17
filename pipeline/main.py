@@ -14,7 +14,7 @@ from pipeline.adapters import api as api_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
-from pipeline.classify import classify_events, apply_commercial_clubs
+from pipeline.classify import classify_events, apply_commercial_clubs, venue_genre_ids
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.enrich_ai import enrich_events_ai, genre_tables
@@ -196,6 +196,7 @@ def main():
         ai_budget = daily_budget(state, today)
         log.info("DeepSeek budget this run: $%.4f (month spent before $%.4f)",
                  ai_budget.limit, ai_budget.month_spent_before)
+    keep_genres = venue_genre_ids(events)  # task 063: before the AI changes the type
     events, ai_stats = classify_events_ai(events, venues, previous_list, budget=ai_budget)
     page_texts: dict[str, str] = {}
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
@@ -208,7 +209,7 @@ def main():
                                              state if loaded_state is not None else None,
                                              today, page_texts=page_texts,
                                              aliases=approved_aliases, research=research,
-                                             budget=ai_budget)
+                                             budget=ai_budget, keep_genres=keep_genres)
     except Exception as exc:   # never stop the daily run
         log.warning("AI enrichment failed: %s", exc)
         web_stats = {"skipped": f"error: {exc}"[:200], "warnings": []}

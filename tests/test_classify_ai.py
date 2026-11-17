@@ -195,25 +195,28 @@ def test_max_tokens_keeps_layer1_result(mock_cls):
 
 @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
 @patch("pipeline.classify_ai.anthropic.Anthropic")
-def test_layer1_source_keyword_not_overwritten(mock_cls):
-    """Events classified by source or keyword are excluded from AI processing."""
+def test_layer1_source_keyword_sent_to_ai(mock_cls):
+    """Task 063 (B7): source / keyword types go to the AI too and the AI type
+    wins; an event without an AI result keeps its layer-1 type."""
     mock_cls.return_value = _mock_client([
-        {"event_index": 0, "formats": ["other"], "genres": [], "confidence": 0.5},
+        {"event_index": 0, "formats": ["concert", "dj"], "primary_format": "concert",
+         "genres": [], "confidence": 0.8},
+        {"event_index": 2, "formats": ["other"], "genres": [], "confidence": 0.5},
     ])
 
     events = [
-        _ev("e1", "TECHNO NIGHT", method="source", formats=["dj"]),
-        _ev("e2", "Live Gig", method="keyword", formats=["live"]),
+        _ev("e1", "TINLICKER", method="source", formats=["dj"]),
+        _ev("e2", "Live Gig", method="keyword", formats=["concert"]),
         _ev("e3", "Unknown Event"),
     ]
     result, stats = classify_events_ai(events, VENUES)
 
-    # Layer 1 events unchanged
-    assert result[0]["formats"] == ["dj"]
-    assert result[0]["classification"]["method"] == "source"
-    assert result[1]["formats"] == ["live"]
+    assert result[0]["formats"] == ["concert", "dj"]
+    assert result[0]["primary_format"] == "concert"
+    assert result[0]["classification"]["method"] == "llm"
+    # no AI result -> layer-1 type stays
+    assert result[1]["formats"] == ["concert"]
     assert result[1]["classification"]["method"] == "keyword"
-    # Only e3 classified by AI
     assert result[2]["formats"] == ["other"]
     assert result[2]["classification"]["method"] == "llm"
 

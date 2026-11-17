@@ -30,6 +30,7 @@ import time as _time
 import anthropic
 
 from pipeline.ai_rules import RULES_TYPE, TYPE_EXAMPLES
+from pipeline.classify import venue_genre_ids
 from pipeline.genres import MUSIC_GENRES
 
 log = logging.getLogger(__name__)
@@ -146,6 +147,7 @@ def classify_events_ai(
 
     ai_cache = _build_ai_cache(previous_events or [])
 
+    keep = venue_genre_ids(events)            # task 063: venue genres win
     to_classify = _events_needing_ai(events)
     log.info("[classify_ai]: %d events need AI classification", len(to_classify))
 
@@ -157,7 +159,7 @@ def classify_events_ai(
         if cached and cached.get("title") == event.get("title"):
             _apply_ai_result(event, cached["formats"], cached.get("genres", []),
                              cached["confidence"], cached.get("reason"),
-                             cached.get("primary_format"))
+                             cached.get("primary_format"), event["id"] in keep)
             cache_hits += 1
         else:
             still_need.append(event)
@@ -223,7 +225,7 @@ def classify_events_ai(
             cost += getattr(usage, "cost_usd", None) or (
                 usage.input_tokens / 1_000_000 * INPUT_PRICE_PER_MTOK
                 + usage.output_tokens / 1_000_000 * OUTPUT_PRICE_PER_MTOK)
-            _apply_batch_results(batch, results)
+            _apply_batch_results(batch, results, keep)
         except Exception as exc:
             if exc.__class__.__name__ == "ProviderStop":     # HTTP 401/402, budget
                 stopped = str(exc)[:200]
@@ -260,11 +262,14 @@ def classify_events_ai(
 # ---------------------------------------------------------------------------
 
 def _events_needing_ai(events: list[dict]) -> list[dict]:
-    """Return events that layer 1 did not classify (AI should handle)."""
+    """Return events the AI classifies: all but manual ones (task 063).
+    Layer-1 types (source, keyword) stay when the AI returns nothing."""
     result = []
     for ev in events:
         cls = ev.get("classification")
-        if cls and cls.get("method") in ("manual", "source", "keyword"):
+        # task 063 (docs/ai-rules.md B7): the AI type wins over the venue
+        # category (source) and title keywords; only manual is never sent
+        if cls and cls.get("method") == "manual":
             continue
         result.append(ev)
     return result
@@ -311,10 +316,11 @@ def _apply_ai_result(
     confidence: float,
     reason: str | None = None,
     primary_format: str | None = None,
+    keep_genres: bool = False,
 ) -> None:
     event["formats"] = formats
     event["primary_format"] = primary_format if primary_format in formats else None
-    if genres:
+    if genres and not (keep_genres and event.get("genres")):   # task 063: venue genres win
         event["genres"] = genres
     cls = {"method": "llm", "confidence": round(confidence, 2)}
     if reason:
@@ -322,7 +328,8 @@ def _apply_ai_result(
     event["classification"] = cls
 
 
-def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
+def _apply_batch_results(batch: list[dict], results: list[dict],
+                         keep: set | None = None) -> None:
     """Apply tool-use results to events in batch order."""
     for entry in results:
         idx = entry.get("event_index")
@@ -362,7 +369,8 @@ def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
             primary = None
 
         if fmts:
-            _apply_ai_result(event, fmts, genres, confidence, reason, primary)
+            _apply_ai_result(event, fmts, genres, confidence, reason, primary,
+                             event["id"] in (keep or set()))
         else:
             log.warning("[classify_ai]: no valid formats in AI result for '%s'",
                         event.get("title"))
@@ -481,6 +489,9 @@ def _build_prompt(batch: list[dict], venues: dict) -> str:
         )
         if section:
             parts.append(f"    Section: {section}")
+        if (ev.get("classification") or {}).get("method") in ("source", "keyword")                 and ev.get("formats"):
+            # task 063: the venue category is a hint only; the performer decides (B7)
+            parts.append(f"    Venue category: {', '.join(ev['formats'])}")
         if ev.get("start_time"):
             parts.append(f"    Start time: {ev['start_time']}")
         if ev.get("artists"):

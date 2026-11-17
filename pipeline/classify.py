@@ -188,6 +188,15 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
 MUSIC_FORMATS = frozenset({"concert", "dj", "music", "party"})
 
 
+def venue_genre_ids(events: list[dict]) -> set[str]:
+    """Task 063: ids of events whose genres come from the venue (layer 1:
+    ``classification.method`` manual / source with genres).  Computed before
+    the AI layers; their genres win over AI genres (unchanged rule), even
+    when the AI type now wins over the venue category (docs/ai-rules.md B7)."""
+    return {e["id"] for e in events if e.get("genres")
+            and (e.get("classification") or {}).get("method") in ("manual", "source")}
+
+
 def apply_commercial_clubs(events: list[dict], venues: list[dict]) -> list[dict]:
     """Task 053: in a venue with ``commercial_club: true`` every music event is
     a party.  Deterministic venue rule (layer 1, no AI decision).
