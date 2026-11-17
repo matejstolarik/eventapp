@@ -1,0 +1,60 @@
+after generated_at 2026-11-17T11:23:02.637134+01:00 events 374
+type   before after
+party            80   38
+dj               28   51
+concert         160  184
+culture/other   106  101
+party by venue before [('EPIC Prague', 34), ('Fuchs2', 14), ('Bike Jesus', 12), ('Cross Club', 11), ('Čítárna Unijazz', 5), ('MeetFactory', 1), ('Palác Akropolis', 1), ('Archa+', 1), ('ROXY', 1)]
+party by venue after  [('EPIC Prague', 35), ('Čítárna Unijazz', 2), ('Archa+', 1)]
+primary_format set: 202 methods Counter({'llm': 201, 'source': 121, 'keyword': 52})
+changed type: 50 Counter({'party->dj': 24, 'party->concert': 20, 'culture/other->concert': 4, 'culture/other->party': 1, 'dj->party': 1})
+Archa+ | Amphibian Quadrophonic Soundsystem | party | dj | dj party | dj | dj | None
+Archa+ | Jana Kirschner - Večer Trojkráľový | culture/other | concert | talk | concert | concert | None
+Archa+ | ROAST slaví narozky | culture/other | party | other | party | party | Birthday celebration event; unclear performer, likely mainstream party
+Bike Jesus | ACT OF THE BOUNCE | party | concert | dj party | music | music | None
+Bike Jesus | Bashment Bass Foundation Anniversary Dance featuring NOMADIX (UK) | party | dj | dj party | dj party | dj | Anniversary dance night with a UK guest; club atmosphere rather than a specific act
+Bike Jesus | FEVERDREAM | party | dj | dj party | dj | dj | None
+Bike Jesus | Iluka | party | concert | dj party | music | music | None
+Bike Jesus | Novulent + Softcult | party | concert | concert dj party | concert | concert | None
+Bike Jesus | REVO: Just InCase: Blackloud, KAWA, Topal | party | dj | dj party | dj | dj | None
+Bike Jesus | REVO: SOUR ROOM | party | dj | dj party | dj | dj | None
+Bike Jesus | REVO: Spirála | party | concert | dj party | music | music | None
+Bike Jesus | REVO: Z Gumy Do Gumy | party | concert | dj party | music | music | None
+Bike Jesus | Rikas | party | concert | dj party | music | music | None
+Bike Jesus | SEBE + Pokoj25 | party | concert | dj party | concert | concert | None
+Bike Jesus | Tonic Walter | party | concert | dj party | music | music | None
+Cross Club | CROSS SLAM 2026 - NOVÁ GENERACE - No.4 | party | concert | dj party | music | music | None
+Cross Club | DIVA INVITES | party | dj | dj party | dj | dj | None
+Cross Club | DRUMSTATION | party | dj | dj party | dj | dj | None
+Cross Club | KŘIŽOVATKA | party | dj | dj party | dj | dj | None
+Cross Club | LIQUID WAVE  & TECHNO STAGE | party | dj | dj party | dj | dj | None
+Cross Club | LOS TEKKENOS | party | dj | dj party | dj | dj | None
+Cross Club | MOORDOOR | party | dj | dj party | dj | dj | None
+Cross Club | PSYTRANCE | party | dj | dj party | dj | dj | None
+Cross Club | SUNDEJ SE SUNDAY | party | dj | dj party | dj | dj | None
+Cross Club | SUNDEJ SE SUNDAY | party | dj | dj party | dj | dj | None
+Cross Club | UNITY RAGE DNB STAGE | party | dj | dj party | dj | dj | None
+EPIC Prague | JINGLE RAVE | dj | party | dj | dj party | party | None
+Fuchs2 | BUMBUM SATORI present Dukla ☆ Pebble Seven | party | concert | dj party | concert dj | concert | None
+Fuchs2 | EDEN present House of Eden | party | dj | dj party | dj | dj | None
+Fuchs2 | FAMILY THERAPY present Asher ☆ Parashoot ☆ Fahell ☆ Zecco ☆ Millo | party | dj | dj party | dj concert | dj | None
+Fuchs2 | GUTT3RCLUB x GLITTER.HIT: Ship Sket ☆ Kewu ☆ domizako | party | dj | dj party | dj concert | dj | None
+Fuchs2 | HIGH SPEED FAIRYTALES: LIIA ☆ Theya ☆ DJ King Kobra ☆ tmk | party | dj | concert dj party | dj concert | dj | None
+Fuchs2 | LATIN CORE THURSDAYS: Addly Muff ☆ Gatita Tribalera ☆ Swine Daily | party | dj | dj party | dj concert | dj | None
+Fuchs2 | Nina Farrina INVITES Henning Baer ☆ Adamatron ☆ 3ever | party | dj | dj party | dj concert | dj | None
+Fuchs2 | PUSHTEEK presents High on Fire ☆ Cancer Void ☆ Thulsa | party | concert | concert dj party | concert | concert | None
+Fuchs2 | PŘESUNUTO / FLOA:  Bert and Friends ★ Madhouse Express ★ Anna Vaverková | party | concert | dj party | concert | concert | None
+Fuchs2 | RFP CONCERTS & HEARTNOIZE present Fat Dog | party | concert | dj party | concert | concert | None
+Fuchs2 | RFP CONCERTS present Chinchilla ☆ Jolina Louise | party | concert | dj party | concert | concert | None
+Fuchs2 | WRONG 10 YEARS presents Prison Religion ☆ Wick ☆ Zaffer 9 | party | concert | dj party | concert | concert | None
+Fuchs2 | ZLOMENÁ SCÉNA x OVERVIEW MUSIC present Calyx Skantia Kyrist Wingz & Energy | party | dj | dj party | dj concert | dj | None
+Fuchs2 | deBasement | party | concert | dj party | music | music | None
+MeetFactory | Winter Prague Gothic Treffen | party | concert | party | concert dj | concert | None
+Palác Akropolis | ASTA HIROKI/FR+FTHMLSS/UK+CATCH92/UK | party | dj | dj party | dj | dj | None
+Palác Akropolis | DIVADLO NIE ►JEŠTĚ JSME TU | culture/other | concert | theatre | concert | concert | None
+Palác Akropolis | LATERNA MAGIKA ►PERPETUUM HAVEL | culture/other | concert | theatre | concert | concert | None
+ROXY | PSH: PSH RAP'N'ROLL 20 let výročí | party | concert | concert party | concert dj | concert | None
+Čítárna Unijazz | PSYTRANCE UNITED | party | dj | dj party | dj | dj | None
+Čítárna Unijazz | Podzemnická vánoční besídka | party | concert | party | concert | concert | None
+Čítárna Unijazz | Text-appeal vol. 28 | culture/other | concert | talk | music | music | None
+Čítárna Unijazz | Unijazz Open | party | concert | concert party | music | music | None
