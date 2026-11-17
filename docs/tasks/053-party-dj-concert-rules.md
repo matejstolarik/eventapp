@@ -110,3 +110,11 @@ Príkaz: `python docs/tasks/053/rare.py before.json site/events.json` (+ histór
 - Akropolis: akcie so sekciou zdroja hudba (`genre=1`), ktoré sú divadlo (Laterna Magika 2027-04-05, Divadlo NIE) – AI ich po prehodnotení dala `concert`. Riešenie: ručná oprava v `overrides.json` alebo pravidlo v prompte – na rozhodnutie Mateja.
 - Bike Jesus: 8 akcií po prehodnotení `music` (predtým `dj party`), napr. REVO: Spirála, Rikas, Tonic Walter – zdroj nemá popis, AI nevedela rozlíšiť. Zobrazia sa ako koncert.
 - Elektronický live set: čaká na vyplnenie `labels.csv` Matejom (ďalšia úloha: príklady do promptu, meranie presnosti).
+
+### Oprava reportu (2026-11-17, po otázke Mateja)
+- Časť „Overenie na webe“ vyššie som napísal **bez otvorenia stránok**, údaje boli z `events.json` (URL a sekcia zdroja, popis). Skutočne overené teraz:
+  - https://palacakropolis.cz/work/33298?event_id=40507&genre=1&no=62&page_id=33824 – Divadlo NIE ►Ještě jsme tu (24. 11. 2026): „Koncept a režie: Kjell Moberg“, hudba, scénografia, svetelný dizajn → divadelná inscenácia, nie koncert.
+  - https://palacakropolis.cz/work/33298?event_id=40754&genre=1&no=62&page_id=33824 – Laterna Magika ►Perpetuum Havel (5. 4. 2027): „Námět, scénář a režie – Petr Boháč“, inscenácia o väzňovi podľa Havlovej frašky → divadlo.
+  - https://www.fuchs2.cz/events/rfp-concerts-heartnoize-present-fat-dog – „RFP CONCERTS & HEARTNOIZE present Fat Dog“, 20 Mar 2027 19:00–22:59 → koncert kapely Fat Dog; `concert` je správne.
+  - https://citarna.unijazz.cz/events/unijazz-open-40/ – 02. 12. 2026 18:00, „Pravidelný šachový turnaj…“ → nie hudba.
+- **Ručné opravy** v `data/overrides.json` (prejavia sa pri ďalšom behu): `palac-akropolis` + „JEŠTĚ JSME TU“ → `theatre`, `palac-akropolis` + „PERPETUUM HAVEL“ → `theatre` (lokálne overené: zachytí 9 termínov, 3 + 6), `citarna-unijazz` + „Unijazz Open“ → `other` (šachový turnaj, žiadny presnejší formát nemáme).

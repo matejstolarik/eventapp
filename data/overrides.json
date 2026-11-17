@@ -1,1 +1,5 @@
-[]
+[
+  { "venue_id": "palac-akropolis", "title_contains": "JEŠTĚ JSME TU", "formats": ["theatre"] },
+  { "venue_id": "palac-akropolis", "title_contains": "PERPETUUM HAVEL", "formats": ["theatre"] },
+  { "venue_id": "citarna-unijazz", "title_contains": "Unijazz Open", "formats": ["other"] }
+]
