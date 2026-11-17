@@ -45,6 +45,7 @@ from pipeline.classify_ai import VALID_FORMATS, VALID_GENRES
 from pipeline.fetch import USER_AGENT, _rate_limit
 from pipeline.ai_rules import DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, RULES_ALL
 from pipeline.genres import FILM_GENRES, STAGE_GENRES, map_genre
+from pipeline.price import parse_price
 
 log = logging.getLogger(__name__)
 
@@ -365,6 +366,13 @@ def _norm(text: str) -> str:
 
 
 def _amounts(price: str) -> list[str]:
+    """Amounts of a price text (task 058: from the price parser, so dates,
+    times and decimals like "1490.00 Kč" are not taken as amounts)."""
+    p = parse_price(price)
+    if p and p["min"] is not None:
+        return sorted({str(int(v)) for v in (p["min"], p["max"]) if v is not None})
+    if p:
+        return []          # free / voluntary: checked by word
     nums = re.findall(r"\d[\d . ]*\d|\d", price)
     return [re.sub(r"[ . ]", "", n) for n in nums]
 
@@ -392,7 +400,7 @@ def price_on_page(page: str, price: str, ev: dict, artists: list[str]) -> tuple[
         missing = [a for a in amounts if not re.search(rf"(?<!\d){a}(?!\d)", digits_text)]
         if missing:
             return False, f"amount {missing} not on page"
-    elif not re.search(r"zdarma|free|volny|zadarmo|dobrovoln", text):
+    elif not re.search(r"zdarma|free|volny|zadarmo|dobrovoln|bez vstupneho|gratis", text):
         return False, "free-entry word not on page"
     if not any(k in text for k in _title_keys(ev, artists)):
         return False, "event title / artist not on page"

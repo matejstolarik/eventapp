@@ -118,6 +118,10 @@ def test_price_on_page():
     assert not E.price_on_page("Vstupné 950 Kč, jiná akce", "950 Kč", ev, [])[0]
     assert E.price_on_page("ALLT live, vstup zdarma", "zdarma", ev, ["Allt"])[0]
     assert E.price_on_page("Allt 1 280 Kč", "1280 Kč", ev, ["Allt"])[0]
+    # task 058: decimals and dates are not amounts
+    assert E.price_on_page("Allt vstupenky 1 490 Kč", "1490.00 Kč", ev, ["Allt"])[0]
+    assert E.price_on_page("Allt: 500 Kč / 600 Kč", "do 31. 12. 2026 500 Kč / do 7. 4. 2027 600 Kč",
+                           ev, ["Allt"])[0]
 
 
 # ── main entry ──────────────────────────────────────────────────────────────

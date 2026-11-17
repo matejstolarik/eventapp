@@ -200,6 +200,33 @@ def cmd_run(out: pathlib.Path) -> None:
                     f"cost ~${tot['cost_usd']}\n")
 
 
+def cmd_recheck(src: pathlib.Path, events_json: pathlib.Path) -> None:
+    """Local: validate the saved model answers again with the current code
+    (no AI call; price check = one GET per AI price as in the daily run)."""
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    data = json.loads(events_json.read_text(encoding="utf-8"))
+    by_id = {e["id"]: e for e in data["events"]}
+    for r in doc["results"]:
+        if r.get("error"):
+            continue
+        ev = dict(by_id[r["id"]])
+        if "price_text" in (ev.get("enrichment") or {}):
+            ev["price_text"] = None        # AI price of task 054, not the venue's
+        rec = {"raw": r["raw"], "searches": r["searches"], "searched": r["searched"],
+               "seen_urls": [s["url"] for s in r["sources"]],
+               "allowed_urls": {s["url"] for s in r["sources"]} | ({r["url"]} if r["url"] else set()),
+               "spotify_names": {s["url"]: s["spotify_name"] for s in r["sources"]
+                                 if s.get("spotify_name")}}
+        res, conv = process_result(ev, rec, doc["model"], doc["date"], {})
+        r["result"] = res
+        r["values"] = conv["values"]
+        r["venue_price_text"] = ev.get("price_text")
+        r["claude_price_text"] = by_id[r["id"]].get("price_text") if ev.get("price_text") is None else None
+        r["price_text"] = res["price"] if res.get("price_ok") else None
+        r["price"] = parse_price(r["price_text"])
+    src.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Excel for Matej (local)
 # ---------------------------------------------------------------------------
@@ -217,6 +244,27 @@ def _app_price(p: dict | None) -> str:
     if p["max"] is None:
         return f"od {p['min']}{unit}"
     return (f"{p['min']}–{p['max']}" if p["max"] != p["min"] else f"{p['min']}") + unit
+
+
+def _price_cell(r: dict, res: dict) -> str:
+    """App price + source + status (venue price wins in the daily run)."""
+    venue = r["venue_price_text"] if "venue_price_text" in r else (r.get("current") or {}).get("price_text")
+    ai = res.get("price")
+    lines = []
+    if venue:
+        lines.append(f"{_app_price(parse_price(venue))} (web podniku má prednosť)")
+    if ai:
+        shown = _app_price(parse_price(ai)) or ai
+        if r.get("price"):
+            status = "overená GET-om"
+        elif venue:
+            status = "len pre porovnanie"
+        else:
+            why = next((d.split(": ", 1)[-1] for d in res.get("dropped", [])
+                        if d.startswith("price")), "")
+            status = f"zahodená: {why}"
+        lines.append(f"Gemini: {shown} ({status})\n{res.get('price_source_url') or ''}")
+    return "\n".join(lines)
 
 
 def _type_str(r: dict) -> str:
@@ -270,11 +318,7 @@ def cmd_xlsx(src: pathlib.Path, dst: pathlib.Path, verdicts: pathlib.Path | None
             exp = (f"{lab['expected_primary']}" + (f" (+{lab['expected_secondary']})"
                    if lab["expected_secondary"] else "") + f" – Matej: {lab['note'][:200]}")
             claude = ", ".join(r["current"]["formats"] or []) + " (053)"
-        price = _app_price(r.get("price"))
-        if price:
-            price += f"\n{res.get('price_source_url') or ''}"
-        elif res.get("price"):
-            price = f"(zahodená: {res['price']}; {res.get('price_source_url')})"
+        price = _price_cell(r, res)
         if r.get("error"):
             rows.append([r["venue_id"], r["title"], r["url"], "CHYBA", r["error"]] + [""] * 9)
             continue
@@ -361,6 +405,8 @@ def main() -> None:
         cmd_list(out)
     elif cmd == "run":
         cmd_run(out)
+    elif cmd == "recheck":
+        cmd_recheck(pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]))
     elif cmd == "xlsx":
         cmd_xlsx(pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3]),
                  pathlib.Path(sys.argv[4]) if len(sys.argv) > 4 else None)
