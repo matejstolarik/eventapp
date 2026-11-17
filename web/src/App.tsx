@@ -5,6 +5,7 @@ import { setLastFetched, getLastFetched } from './core/store'
 import { BottomNav } from './components/BottomNav'
 import type { Tab } from './components/BottomNav'
 import { OfflineBanner } from './components/OfflineBanner'
+import { UpdatePrompt } from './components/UpdatePrompt'
 import { EventsPage } from './pages/EventsPage'
 import { MapPage } from './pages/MapPage'
 import { EventPage } from './pages/EventPage'
@@ -49,6 +50,7 @@ export default function App() {
     return 'map'
   })
   const [mapPendingSelect, setMapPendingSelect] = useState<MapPendingSelect>(null)
+  const [mapPanelOpen, setMapPanelOpen] = useState(false)
 
   // Hash routing
   const [route, setRoute] = useState<Route>(() => {
@@ -222,6 +224,7 @@ export default function App() {
               onEventOpen={openEvent}
               pendingSelect={mapPendingSelect}
               onPendingSelectHandled={() => setMapPendingSelect(null)}
+              onPanelOpenChange={setMapPanelOpen}
             />
           </div>
         )}
@@ -262,6 +265,8 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <UpdatePrompt lang={lang} visible={!isOverlay && !(isMapActive && mapPanelOpen)} />
 
       {!isOverlay && (
         <BottomNav active={activeTab} lang={lang} onChange={handleTabChange} />

@@ -99,6 +99,7 @@ export const en = {
     searchEvents: 'Search events',
     locationToastForSort: 'Allow location to sort by distance',
   },
+  update: { available: 'A new version is available', button: 'Update', close: 'Close' },
   comingSoon: 'Coming soon',
   offline: 'Offline. Data from',
   days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

@@ -33,9 +33,11 @@ interface Props {
   onEventOpen: (eventId: string) => void
   pendingSelect?: { venueId: string; date: string } | null
   onPendingSelectHandled?: () => void
+  /** Reports whether the event panel at the bottom is open (task 055: update card hides under it). */
+  onPanelOpenChange?: (open: boolean) => void
 }
 
-export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled }: Props) {
+export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled, onPanelOpenChange }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
@@ -397,6 +399,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const days = showNight ? getUpcomingDays(4, noonToday) : getUpcomingDays(5, curNow)
   const selectedDayLabel = formatDayLabel(selectedDay, lang, curNow)
   const panelOpen = panelVenue && panelEvents.length > 0
+  useEffect(() => { onPanelOpenChange?.(!!panelOpen) }, [panelOpen, onPanelOpenChange])
 
   const leftCount = selIdx > 0 ? selIdx : 0
   const rightCount = selIdx >= 0 && selIdx < sortedVenues.length - 1 ? sortedVenues.length - 1 - selIdx : 0

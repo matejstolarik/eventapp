@@ -99,6 +99,7 @@ export const cs = {
     searchEvents: 'Hledat akci',
     locationToastForSort: 'Pro řazení podle vzdálenosti povol polohu',
   },
+  update: { available: 'Je dostupná nová verze', button: 'Aktualizovat', close: 'Zavřít' },
   comingSoon: 'Připravujeme',
   offline: 'Offline. Data z',
   days: ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'],

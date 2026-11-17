@@ -17,6 +17,7 @@ Texty na snímkach sú po slovensky. Appka je primárne v češtine (SK a EN ako
 - **Appka tyká** („Pre teba“, „Hľadať miesto“).
 - **Štítky (tagy) vždy po anglicky, malými písmenami**, bez ohľadu na jazyk appky (`party`, `dj`, `techno`, `queer-friendly`).
 - **Spodná lišta je vždy viditeľná:** plávajúci tmavý pás (`#1C1C27`, výška 72, zaoblenie 36, 16 px od okrajov, 28 px od spodku). Aktívna záložka je ružová pilulka s ikonou a názvom, ostatné len sivé ikony. Záložky: **Mapa** (otvorí sa ako prvá), **Akcie**, **Miesta**, **Môj účet** (ikona osoby; vo v1 tam je zoznam „Idem“ a nastavenia).
+- **Aktualizácia appky** (task 055): appka hľadá novú verziu pri štarte, pri návrate do appky a každú hodinu. Keď je nová verzia, nad spodnou lištou (12 px nad ňou, 16 px od okrajov; nad obsahom a ovládaním mapy, pod panelmi zdola – pri otvorenom paneli akcie na mape sa neukazuje, ani na stránke akcie/miesta) je tmavá karta ako toast (`#2A2838`, zaoblenie 20): text „Je dostupná nová verzia“ (CZ „Je dostupná nová verze“, EN „A new version is available“), vpravo ružové tlačidlo „Aktualizovať“ (CZ „Aktualizovat“, EN „Update“; `#FF4D8D`, text `#1A0710`) a malý sivý krížik. Ťuk na tlačidlo → appka sa obnoví v novej verzii (stav ako po novom otvorení). Zavretá karta sa znova ukáže pri ďalšom návrate do appky, kým sa neaktualizuje. Testovací prepínač `?dbg=update` kartu ukáže bez novej verzie.
 
 ### Farby
 | Účel | Farba | Tmavá dvojica (text/ikona na farbe) |

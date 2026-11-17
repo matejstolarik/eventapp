@@ -99,6 +99,7 @@ export const sk = {
     searchEvents: 'Hľadať akciu',
     locationToastForSort: 'Na zoradenie podľa vzdialenosti povoľ polohu',
   },
+  update: { available: 'Je dostupná nová verzia', button: 'Aktualizovať', close: 'Zavrieť' },
   comingSoon: 'Pripravujeme',
   offline: 'Offline. Dáta z',
   days: ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So'],
