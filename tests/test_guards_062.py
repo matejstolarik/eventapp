@@ -87,6 +87,10 @@ def test_aliases_spelling_and_czech_forms():
     assert _ok("drum-and-bass", "Drum & bass night")
     assert _ok("drum-and-bass", "d&b DJ")
     assert _ok("rock", "česká rocková kapela")
+    assert _ok("rock", "přibylo zkreslených kytar a rockových vlivů")
+    assert _ok("hip-hop", "Vivere is a Prague-based rapper and producer")
+    assert _ok("electronic", "dark electronics and heavy subbass")
+    assert not _ok("rock", "rockabilly")
     assert _ok("electronic", "elektronická hudba")
     assert _ok("rnb", "R&B singer")
 
@@ -134,7 +138,20 @@ def test_exclamation_in_band_name_is_ok():
     text = "FIRE! je švédské trio saxofonisty Matse Gustafssona."
     assert description_problems(text, ["FIRE! (SE)", "FIRE!"]) == []
     assert description_problems("Skvělý večer!", ["FIRE!"]) == ["exclamation mark"]
-    assert description_problems(text) == ["exclamation mark"]
+    assert description_problems(text) == []          # '!' inside the sentence = a name
+    assert description_problems("Hraje skvěle! Přijďte.") == ["exclamation mark"]
+    assert description_problems("Nezapomeňte přijít!") == ["exclamation mark"]
+
+
+def test_exclamation_in_album_titles_is_ok():
+    # 062 measurement: Modeselektor and FIRE! album titles
+    assert description_problems("Vydali alba Hello Mom!, Happy Birthday! i Monkeytown.") == []
+    assert description_problems("Kapela vydala alba Exit! a Testament.") == []
+
+
+def test_czech_declension_of_o_genres():
+    assert _ok("techno", "Modeselektorův zvuk vznikl z berlínského raveu a techna.")
+    assert not _ok("techno", "technika zvuku")
 
 
 def test_validate_keeps_description_with_fire():

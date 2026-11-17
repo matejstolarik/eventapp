@@ -27,7 +27,7 @@ ALL_GENRES = MUSIC_GENRES | FILM_GENRES | STAGE_GENRES
 # Spelling variants not in genre_aliases.json (same word, other spelling /
 # Czech spelling of the same word).  Never a different genre.
 VARIANTS = {
-    "hip-hop": ["hip hop", "hiphop"],
+    "hip-hop": ["hip hop", "hiphop", "rapper", "raper", "raperka", "rapperka"],
     "drum-and-bass": ["drum and bass", "drum n bass", "drumnbass", "dnb", "d and b"],
     "rnb": ["r and b", "rnb", "rn b", "r n b"],
     "electronic": ["elektronick", "electronica", "elektronik"],
@@ -38,7 +38,9 @@ VARIANTS = {
 }
 
 # Czech / Slovak endings after a genre word ("rockový", "punku", "jazzová")
-_SUFFIX = r"(?:ov(?:a|á|é|ý|ou|ých|ého|ým|e|y|i|u|ej|ému)?|u|e|em|y|a|i|ie|y)?"
+# (text is compared after plain(): no diacritics, so "rockových" -> "rockovych");
+# English plural "s" ("electronics")
+_SUFFIX = r"(?:ov(?:a|e|y|ou|ych|eho|ym|ymi|i|u|ej|emu|ich|im)?|u|e|em|y|a|i|ie|s)?"
 
 
 def plain(s) -> str:
@@ -55,7 +57,12 @@ def _term_re(term: str, czech: bool = True) -> re.Pattern:
     # Czech stems ("elektronick") take any ending
     if term.endswith(("ick", "aln", "nik")):
         suffix = r"[a-z]*"
-    return re.compile(rf"(?<![a-z0-9]){re.escape(term)}{suffix}(?![a-z0-9])")
+    body = re.escape(term)
+    if czech and term.endswith("o") and " " not in term and len(term) >= 5:
+        # declension of -o words: "techna", "technu", "technem" (Czech)
+        body = re.escape(term[:-1]) + r"(?:o|a|u|em|ech)"
+        suffix = r"(?:ov(?:a|e|y|ou|ych|eho|ym|i|u|ej|emu)?)?"
+    return re.compile(rf"(?<![a-z0-9]){body}{suffix}(?![a-z0-9])")
 
 
 def genre_terms(genre: str, aliases: dict | None) -> list[str]:
@@ -127,13 +134,17 @@ def price_supported(price: str, support_text: str | None) -> tuple[bool, str]:
 
 
 def strip_names(text: str, names: list[str]) -> str:
-    """Remove words with '!' that belong to the title / an artist name."""
+    """Remove '!' that belongs to a name: words with '!' from the title / an
+    artist name (FIRE!), and any '!' inside a sentence -- followed by a
+    lower-case word, a comma etc. -- which is part of a title ("alba Exit! a
+    Testament", "Hello Mom!, Happy Birthday! i ...").  A '!' that ends a
+    sentence (end of text or a capital letter after it) stays."""
     for name in names:
         for word in re.findall(r"\S*!\S*", name or ""):
             word = word.strip(".,;:()[]\"'“”„")
             if word:
                 text = re.sub(re.escape(word), " ", text, flags=re.I)
-    return text
+    return re.sub(r"(?<=\w)!+(?=[\"'“”„)]?\s*(?:[,;:)]|[a-zà-ž0-9]))", "", text)
 
 
 _HALL_RE = re.compile(r"(?<![a-z])(sal[ae]?|salu|salem|stage|hall|mistnost\w*|miestnost\w*|"
