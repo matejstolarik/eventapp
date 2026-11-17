@@ -17,6 +17,7 @@ from pipeline.checks import run_checks
 from pipeline.classify import classify_events, apply_commercial_clubs
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
+from pipeline.enrich_ai import enrich_events_ai, genre_tables
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
 from pipeline.fetch import USER_AGENT
 
@@ -39,6 +40,9 @@ VENUES_PATH = pathlib.Path("data/venues.json")
 OVERRIDES_PATH = pathlib.Path("data/overrides.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
 STATE_OUT = pathlib.Path("site/pipeline_state.json")
+GENRE_ALIASES_PATH = pathlib.Path("data/genre_aliases.json")
+GENRE_ALIASES_OUT = pathlib.Path("site/genre_aliases.json")
+GENRE_PROPOSALS_OUT = pathlib.Path("site/genre_proposals.json")
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 
@@ -178,11 +182,23 @@ def main():
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
-    events = apply_commercial_clubs(events, venues)
     page_texts: dict[str, str] = {}
     events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
                                                   state=state, today=today,
                                                   page_texts=page_texts)
+    approved_aliases = {}
+    if GENRE_ALIASES_PATH.exists():
+        approved_aliases = json.loads(GENRE_ALIASES_PATH.read_text(encoding="utf-8"))
+    try:
+        events, web_stats = enrich_events_ai(events, venues, previous,
+                                             state if loaded_state is not None else None,
+                                             today, page_texts=page_texts,
+                                             aliases=approved_aliases)
+    except Exception as exc:   # never stop the daily run
+        log.warning("AI enrichment failed: %s", exc)
+        web_stats = {"skipped": f"error: {exc}"[:200], "warnings": []}
+    # commercial-club rule last: EPIC music events are always party (task 053)
+    events = apply_commercial_clubs(events, venues)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -215,6 +231,11 @@ def main():
 
     log.info("Wrote %d events to %s", len(events_out), EVENTS_OUT)
 
+    aliases, proposals = genre_tables(events_out, approved_aliases)
+    GENRE_ALIASES_OUT.write_text(json.dumps(aliases, ensure_ascii=False, indent=1), encoding="utf-8")
+    GENRE_PROPOSALS_OUT.write_text(json.dumps(proposals, ensure_ascii=False, indent=1),
+                                   encoding="utf-8")
+
     state = _prune_state(state, events_out)
     state["updated_at"] = generated_at
     STATE_OUT.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -223,7 +244,8 @@ def main():
     log.info("New events: %d (per venue %s)", new_total, new_per_venue)
 
     _write_job_summary(source_results, events_out, generated_at, capture.messages, ai_stats,
-                      enrich_stats, new_events=(new_total, new_per_venue, bool(previous)))
+                      enrich_stats, new_events=(new_total, new_per_venue, bool(previous)),
+                      web_stats=web_stats, proposals=proposals)
 
 
 def count_new_events(events: list[dict], previous: dict) -> tuple[int, dict[str, int]]:
@@ -239,7 +261,8 @@ def count_new_events(events: list[dict], previous: dict) -> tuple[int, dict[str,
 
 
 def _write_job_summary(source_results, events, generated_at, adapter_warnings=None,
-                       ai_stats=None, enrich_stats=None, new_events=None):
+                       ai_stats=None, enrich_stats=None, new_events=None,
+                       web_stats=None, proposals=None):
     """Write a Markdown job summary to GITHUB_STEP_SUMMARY if running in CI."""
     summary_path = os.getenv("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -377,8 +400,41 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
             "",
         ]
 
+    if web_stats is not None:
+        lines += _web_summary_lines(web_stats, proposals or [])
+
     with open(summary_path, "a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def _web_summary_lines(st: dict, proposals: list) -> list[str]:
+    """Job summary section of the AI enrichment with web search (task 054)."""
+    lines = ["### AI enrichment with web search (task 054)", ""]
+    for w in st.get("warnings") or []:
+        lines.append(f"- ⚠ {w}")
+    if st.get("skipped") and not st.get("enriched"):
+        lines += [f"- Skipped: {st['skipped']}"]
+    lines += [
+        f"- Provider: {st.get('provider', '–')} {st.get('model', '')}",
+        f"- **Searches this month: {st.get('month_searches', '?')} / {st.get('limit', '?')}**"
+        f" (this run: {st.get('searches', 0)})",
+        f"- **Run cost: ${st.get('cost_usd', 0):.4f}** (input {st.get('input_tokens', 0):,} /"
+        f" output {st.get('output_tokens', 0):,} tokens)",
+        f"- Events in 60 days: {st.get('window', 0)}, cached: {st.get('cached', 0)},"
+        f" enriched now: {st.get('enriched', 0)}, errors: {st.get('errors', 0)},"
+        f" waiting (limit): {st.get('skipped_limit', 0)},"
+        f" waiting (timeout/stop): {st.get('skipped_timeout', 0)}",
+        f"- Filled now: type changed {st.get('type_changed', 0)}, genres {st.get('genres', 0)},"
+        f" price {st.get('price', 0)}, time {st.get('time', 0)},"
+        f" description {st.get('description', 0)}, artists {st.get('artists', 0)},"
+        f" Spotify {st.get('spotify', 0)}",
+        f"- Prices dropped (not confirmed on the source page): {st.get('prices_dropped', 0)}",
+        f"- Genre proposals (>= 3 events, not shown in the app): {len(proposals)}"
+        + (": " + ", ".join(f"{p['name']} ({p['kind']}, {p['count']})" for p in proposals[:15])
+           if proposals else ""),
+        "",
+    ]
+    return lines
 
 
 if __name__ == "__main__":

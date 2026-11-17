@@ -70,6 +70,9 @@ jobs:
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # task 054: AI enrichment with web search (claude | gemini)
+          ENRICH_PROVIDER: claude
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python -m pipeline.main
 
       - name: Set up Node.js
