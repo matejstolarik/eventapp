@@ -8,7 +8,7 @@
 - overenie ceny od AI jedným GET na jej `source_url` (nový spôsob sťahovania, len na tento účel).
 - Gemini: projekt `eventapp` má platenú úroveň s predplatením ~100 Kč, **bez automatického dobíjania**; nič ďalšie neplatiť ani nezapínať. Ak kredit dôjde (HTTP 402), zastav Gemini a napíš to.
 
-**Čítaj:** report úlohy 052 (`docs/tasks/052-ai-cache-enrich-pilot.md`, sekcie Časť 3, Časť 4 – výsledky, Závery); `docs/data-model.md` časť o akcii; `docs/design.md` časť 7, body „Popis akcie“ a „Spotify (doplnenie 2026-11-17)“; kód `pipeline/enrich_pilot.py`, `pipeline/classify_ai.py`, `pipeline/detail_enrich.py`, adaptéry podnikov z časti 2.
+**Čítaj:** report úlohy 052 (`docs/tasks/052-ai-cache-enrich-pilot.md`, sekcie Časť 3, Časť 4 – výsledky, Závery); `docs/data-model.md` časť o akcii; `docs/design.md` časť 7, bod „Spotify (doplnenie 2026-11-17)“; kód `pipeline/enrich_pilot.py`, `pipeline/classify_ai.py`, `pipeline/detail_enrich.py`, adaptéry podnikov z časti 2.
 
 Každá časť vlastný commit. Rozhodnutia do `docs/decisions.md`.
 
@@ -34,8 +34,16 @@ Implementuj návrh z 052 (časť 3) do `data-model.md` a pipeline: `enrichment` 
 - Chyba AI alebo poskytovateľa nesmie zastaviť denný beh (varovanie, pokračovať bez doplnenia).
 - Job summary: hľadania tento mesiac / limit, cena behu, počty doplnených polí (typ zmenený, žánre, cena, čas, popis, Spotify), zahodené ceny.
 
+### 4b. Popis akcie od AI pri každej akcii (Matej 2026-11-17, schválené vrátane zmeny dátového modelu)
+- **Každá** akcia v rozsahu časti 4 dostane popis od AI v troch jazykoch v jednom volaní: `descriptions: { "cs": …, "sk": …, "en": … }` (nové pole v `data-model.md`). Čeština je hlavná, `sk` a `en` sú preklady toho istého textu.
+- Podklad: pôvodný popis zo zdroja (ostáva v dátach ako `description`, v appke sa nezobrazuje) + fakty z hľadania. Z pôvodného textu sa **preberajú fakty, nie vety** – nekopírovať ani neprehadzovať slová (autorské práva).
+- **Štýl:** 3–5 viet, vecný, informatívny, ide do hĺbky (kto to je, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne: krst, návrat, hostia). **Bez reklamných fráz** („nezmeškejte“, „legendární“, „nezapomenutelný“, „unikátní zážitek“), bez pátosu, bez výkričníkov a emoji, bez ceny, času a miesta (sú inde v appke). Len fakty zo zdrojov; čo sa nenašlo, sa nepíše (ani „pražská“, ak to zdroj neuvádza).
+- **Názvy žánrov sa neskloňujú ani nepočešťujú:** „techno“, „drum and bass“, „metalcore“, „afrobeats“ – nie „technové“, „drum and bassový“, „metalcorová“. (Napr. „album v žánri techno“ / „techno album“.)
+- **Vzor (schválený Matejom):** „Švédská kapela Allt z Karlskogy hraje progresivní metalcore a od svého vzniku v roce 2020 si vybudovala pověst skupiny, která staví koncerty jako audiovizuální příběh. Debut From The New World z roku 2024 je koncepční deska o kolapsu a přežití, ovlivněná zbrojním průmyslem v jejich rodném městě. Letos vydali u Century Media druhé album Ataraxia a v MeetFactory, kde v roce 2024 předskakovali Imminence, se teď představí jako hlavní hvězda. Večer otevřou německá kapela Avralize a švédští Bite Down.“ Vlož ho do promptu ako príklad.
+- `enrichment.description` so `source_urls`. Ak AI nemá dosť faktov (napr. len názov), napíše kratší popis z toho, čo má, alebo nič – nevymýšľa.
+
 ### 5. Appka
-- Popis od AI: pod popisom sivý text podľa `design.md` časť 7.
+- Popis akcie: zobraz `descriptions[jazyk appky]`, ak chýba `descriptions.cs`, ak chýba aj ten, doterajší `description`. Popis od AI sa v appke **neoznačuje**.
 - Tlačidlo Spotify: `artist_links[0].spotify_url`, ak existuje; inak doterajšie vyhľadávanie.
 - Cena sa už zobrazuje (`price_text`) – len over, že funguje s novými dátami.
 
@@ -43,4 +51,4 @@ Implementuj návrh z 052 (časť 3) do `data-model.md` a pipeline: `enrichment` 
 - `pytest -q`, `npm test` (`--reporter=dot`), build OK.
 - Denný beh ručne 2× po sebe. Z `site/events.json` posledného behu (s príkazom): počet akcií v 60 dňoch; s cenou, s časom, s popisom, so žánrami (pri hudobných), so `artist_links` – pred (dnešné dáta) a po; počet zmien typu; hľadania a cena oboch behov (druhý beh ≈ 0 hľadaní).
 - **Ručne over 10 náhodných doplnených akcií** proti webu (URL + čo tam je), aspoň 5 s cenou od AI.
-- Screenshot (Playwright, JPEG 390 × 844 do `docs/tasks/054/`): `stranka-akcie-ai-popis.jpg` (akcia s cenou a popisom od AI).
+- Screenshot (Playwright, JPEG 390 × 844 do `docs/tasks/054/`): `stranka-akcie-ai-popis.jpg` (akcia s cenou a popisom od AI, bez poznámky).
