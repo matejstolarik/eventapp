@@ -557,6 +557,7 @@
       "techno",
       "pop"
     ],
+    "commercial_club": true,
     "size": "medium",
     "capacity": 600,
     "features": [],

@@ -4,9 +4,16 @@ const CULTURE_FORMATS = new Set(['theatre', 'dance', 'talk', 'comedy', 'film', '
 
 export type EventIconKey = 'concert' | 'party' | 'dj' | 'film' | 'comedy' | 'dance' | 'culture'
 
-/** Returns the event type for color and icon, using priority:
+/** Returns the event type for color and icon.
+ * Task 053: if the AI gave `primary_format` (the main part of the event) and it is
+ * one of the event's formats, it decides. Otherwise priority:
  * party → dj → concert/music → culture formats → other */
-export function getEventType(formats: string[]): EventType {
+export function getEventType(formats: string[], primaryFormat?: string | null): EventType {
+  if (primaryFormat && formats.includes(primaryFormat)) return typeByPriority([primaryFormat])
+  return typeByPriority(formats)
+}
+
+function typeByPriority(formats: string[]): EventType {
   if (formats.includes('party')) return 'party'
   if (formats.includes('dj')) return 'dj'
   if (formats.includes('concert') || formats.includes('music')) return 'concert'
@@ -34,8 +41,8 @@ export const EVENT_TYPE_DARK: Record<EventType, string> = {
  * concert/party/dj use their own icons; culture uses a subtype icon:
  * film → film-clapper, comedy → vintage mic, dance → filled silhouette, else → theatre masks.
  * other → culture (masks). */
-export function eventIconKey(formats: string[]): EventIconKey {
-  const type = getEventType(formats)
+export function eventIconKey(formats: string[], primaryFormat?: string | null): EventIconKey {
+  const type = getEventType(formats, primaryFormat)
   if (type === 'party') return 'party'
   if (type === 'dj') return 'dj'
   if (type === 'concert') return 'concert'
@@ -58,16 +65,16 @@ export const EVENT_TYPE_TAG_TEXT: Record<EventType, string> = {
 /** Tags to display on the event card, map panel and venue programme.
  * Returns culture subtypes first, then genres; type formats (party/dj/concert/music) excluded.
  * Falls back to [eventType] string when nothing else is available. */
-export function eventTags(formats: string[], genres: string[]): string[] {
+export function eventTags(formats: string[], genres: string[], primaryFormat?: string | null): string[] {
   const cultureSubs = formats.filter(f => CULTURE_FORMATS.has(f))
   const tags = [...cultureSubs, ...genres]
   if (tags.length > 0) return tags
-  return [getEventType(formats)]
+  return [getEventType(formats, primaryFormat)]
 }
 
 /** First tag for the event detail page: concert/party/dj → type string; culture → first subtype; other → null */
-export function primaryTypeTag(formats: string[]): string | null {
-  const type = getEventType(formats)
+export function primaryTypeTag(formats: string[], primaryFormat?: string | null): string | null {
+  const type = getEventType(formats, primaryFormat)
   if (type === 'party' || type === 'dj' || type === 'concert') return type
   if (type === 'culture') return formats.find(f => CULTURE_FORMATS.has(f)) ?? null
   return null

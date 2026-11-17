@@ -19,12 +19,13 @@ VENUE = {
 VENUES = [VENUE]
 
 
-def _ev(id, title, method=None, formats=None, genres=None):
+def _ev(id, title, method=None, formats=None, genres=None, primary_format=None):
     ev = {
         "id": id,
         "title": title,
         "venue_id": "test-venue",
         "formats": list(formats or []),
+        "primary_format": primary_format,
         "genres": list(genres or []),
         "sources": [],
     }
@@ -215,3 +216,78 @@ def test_layer1_source_keyword_not_overwritten(mock_cls):
     # Only e3 classified by AI
     assert result[2]["formats"] == ["other"]
     assert result[2]["classification"]["method"] == "llm"
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_party_reason_stored_in_classification(mock_cls):
+    """Task 053: 'party' comes with a short reason stored in classification."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["dj", "party"], "genres": ["pop"],
+         "party_reason": "Erasmus party with open bar", "confidence": 0.8},
+    ])
+    events = [_ev("e1", "ERASMUS OPEN BAR")]
+    result, _ = classify_events_ai(events, VENUES)
+    assert result[0]["formats"] == ["dj", "party"]
+    assert result[0]["classification"]["reason"] == "Erasmus party with open bar"
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_party_without_reason_dropped(mock_cls):
+    """Task 053: 'party' without party_reason is dropped, other formats stay."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["dj", "party"], "genres": [], "confidence": 0.8},
+        {"event_index": 1, "formats": ["concert"], "party_reason": "irrelevant",
+         "genres": [], "confidence": 0.8},
+    ])
+    events = [_ev("e1", "TECHNO NIGHT"), _ev("e2", "Band")]
+    result, _ = classify_events_ai(events, VENUES)
+    assert result[0]["formats"] == ["dj"]
+    assert "reason" not in result[0]["classification"]
+    assert "reason" not in result[1]["classification"]
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_primary_format_from_ai(mock_cls):
+    """Task 053: AI returns primary_format; invalid one (not in formats) -> None."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["concert", "dj"], "primary_format": "concert",
+         "genres": [], "confidence": 0.8},
+        {"event_index": 1, "formats": ["dj"], "primary_format": "concert",
+         "genres": [], "confidence": 0.8},
+    ])
+    events = [_ev("e1", "Band + afterparty"), _ev("e2", "DJ night")]
+    result, _ = classify_events_ai(events, VENUES)
+    assert result[0]["primary_format"] == "concert"
+    assert result[1]["primary_format"] is None
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_cache_keeps_primary_format_and_reason(mock_cls):
+    client = MagicMock()
+    mock_cls.return_value = client
+    prev = [_ev("e1", "ERASMUS", method="llm", formats=["dj", "party"], primary_format="party")]
+    prev[0]["classification"]["reason"] = "Erasmus party"
+    result, stats = classify_events_ai([_ev("e1", "ERASMUS")], VENUES, previous_events=prev)
+    client.messages.create.assert_not_called()
+    assert result[0]["primary_format"] == "party"
+    assert result[0]["classification"]["reason"] == "Erasmus party"
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_old_llm_result_without_primary_key_reclassified(mock_cls):
+    """Task 053: LLM results from before primary_format existed go to the API once."""
+    mock_cls.return_value = _mock_client([
+        {"event_index": 0, "formats": ["dj"], "primary_format": "dj",
+         "genres": [], "confidence": 0.8},
+    ])
+    prev = [_ev("e1", "TECHNO NIGHT", method="llm", formats=["dj", "party"])]
+    del prev[0]["primary_format"]
+    result, stats = classify_events_ai([_ev("e1", "TECHNO NIGHT")], VENUES, previous_events=prev)
+    assert stats["cache_hits"] == 0
+    assert stats["api_calls"] == 1
+    assert result[0]["formats"] == ["dj"]
