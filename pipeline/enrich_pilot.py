@@ -568,6 +568,9 @@ def run_gemini(events, venues_map, budget):
         gm = cand.get("groundingMetadata") or {}
         queries = gm.get("webSearchQueries") or []
         chunks = [c.get("web", {}) for c in gm.get("groundingChunks") or []]
+        rec["candidate_keys"] = sorted(cand.keys())
+        rec["grounding_raw"] = gm
+        rec["answer_text"] = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", []))[:4000]
         rec["searches"] = len(queries)
         rec["search_queries"] = queries
         rec["grounding_sources"] = [{"title": c.get("title"), "uri": c.get("uri")} for c in chunks]
