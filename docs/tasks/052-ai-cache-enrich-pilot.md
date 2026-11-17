@@ -48,9 +48,9 @@ Testovacie JPEG presuň z `web/public/` mimo nasadzovaný priečinok (len pre te
 
 ## Report
 
-**Dátum:** 2026-11-17. **Stav: čiastočne hotové.** Kód všetkých častí je hotový a pushnutý. Chýbajú čísla z dvoch denných behov (časť 1) a výsledky pilotu (časť 4): z tohto prostredia sa nedajú spúšťať workflowy ani čítať ich logy a artefakty (nie je `gh` ani GitHub token) a lokálne nie sú API kľúče.
+**Dátum:** 2026-11-17. **Stav: hotové.** Gemini časť je zastavená podľa zadania (bezplatná úroveň nedovolí model s hľadaním, pozri časť 4). Prvá verzia reportu (`45015c6`) bola napísaná pred behmi. Behy a výsledky sú doplnené v sekcii „Doplnenie po behoch“ na konci.
 
-**Commity:** `ea69d91` (časť 1), `29187c2` (časť 2), `53c3b2f` (časť 5), `d491472` + `3a90a75` (časť 4), report v tomto commite.
+**Commity:** `ea69d91` (časť 1), `29187c2` (časť 2), `53c3b2f` (časť 5), `d491472` + `3a90a75` + `bdb81c5` + Spotify oprava v tomto commite (časť 4), report `45015c6` + tento commit.
 
 ### Časť 1 – AI cache (hotové v kóde, čaká na overenie behom)
 - Príčina potvrdená: `_build_ai_cache` vynechával LLM akcie s `dj`/`concert`/`music` bez `party`. V zverejnenom `events.json` (generated 2026-11-16 13:56) je takých **95** zo 199 LLM akcií. Tie išli do API pri každom behu.
@@ -154,3 +154,105 @@ Nové nepovinné pole akcie `enrichment`: mapa pole → pôvod. Je len pri údaj
 1. Pridať GitHub Secret `GEMINI_API_KEY` (kľúč z AI Studio, projekt bez billingu = bezplatná úroveň).
 2. Spustiť `Daily pipeline` 2× po sebe (workflow_dispatch) a potom `Enrich pilot (manual)`.
 3. Dať mi výsledky: buď nainštalovať a prihlásiť `gh` (`gh auth login`), alebo poslať job summary oboch denných behov a artefakt `enrich_pilot.json`. Potom doplním časť 1, tabuľku pilotu, overenie proti webu a ceny.
+
+_Bod „Čo treba od Mateja“ je splnený: Matej 2026-11-17 nastavil `gh` a `GEMINI_API_KEY`._
+
+### Doplnenie po behoch (2026-11-17)
+
+#### Časť 1 – dva denné behy po sebe (workflow_dispatch, commit s opravou)
+| Beh | Odkaz | Akcie pre AI | Cache hits | **Do API** | API volania | Cena | Nové akcie |
+|---|---|---|---|---|---|---|---|
+| 1 | [44057030643](https://github.com/matejstolarik/eventapp/actions/runs/44057030643) | 201 | 196 | **5** | 1 | $0.0003 | 8 |
+| 2 | [44058397207](https://github.com/matejstolarik/eventapp/actions/runs/44058397207) | 201 | 201 | **0** | 0 | $0 | 0 |
+
+Pred opravou (logy 12.–16. 11.) išlo do API 83–131 akcií na beh. 5 akcií v behu 1 sú nové akcie, ktoré vrstva 1 neurčila.
+Príkaz: `gh run view <id> -R matejstolarik/eventapp --log | Select-String "classify_ai\]|New events"`.
+Overenie `events.json` po behu 2 (generated `2026-11-17T10:52:52+01:00`): 374 akcií, z toho `llm` 201, `source` 121, `keyword` 52. `first_seen = 2026-11-17`: archa-plus 3, palac-akropolis 2, cross-club 1, fuchs2 1, bike-jesus 1 (spolu 8, sedí s riadkom „New events: 8“ z behu 1).
+Príkaz: `python -c "import json,collections; ev=json.load(open('run2.json',encoding='utf-8'))['events']; print(len(ev), collections.Counter((e.get('classification') or {}).get('method') for e in ev)); print(collections.Counter(e['venue_id'] for e in ev if e['first_seen'].startswith('2026-11-17')))"` (`run2.json` = zverejnený `events.json` po behu 2).
+
+#### Časť 4 – priebeh pilotu
+- **Beh A** [44057035854](https://github.com/matejstolarik/eventapp/actions/runs/44057035854): Claude 20× `APIConnectionError: Connection error.` Príčina: pilot neorezával kľúč (denná vrstva `classify_ai` ho orezáva `.strip()`), takže koncový znak nového riadku v secrete urobil neplatnú HTTP hlavičku. Opravené v `bdb81c5`.
+- **Gemini, presná odpoveď API:**
+  - `gemini-2.5-flash-lite` (beh A): `HTTP 404: "This model models/gemini-2.5-flash-lite is no longer available to new users. Please update your code to use models/gemini-3.5-flash-lite …"`
+  - `gemini-2.5-flash` (beh B): `HTTP 404: "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash …"`
+  - Podľa cenníka (aistudio.google.com/docs/pricing, 2026-11-17) majú Grounding with Google Search na bezplatnej úrovni len tieto dva modely 2.5. Pri `gemini-3.5-flash-lite`, `gemini-3.8-flash` a ostatných textových modeloch 3.x je na bezplatnej úrovni „Not available“ (5 000 hľadaní mesačne zadarmo je len pri platenej úrovni).
+  - **Gemini časť som preto podľa zadania zastavil.** Nič platené som nezapínal a hľadanie cez Gemini neprebehlo ani raz (0 tokenov, $0). Porovnanie Claude vs. Gemini sa spraviť nedá. Pokračovať sa dá len s billingom v Google projekte, a to je rozhodnutie pre Mateja.
+- **Beh B** [44057664658](https://github.com/matejstolarik/eventapp/actions/runs/44057664658) (artefakt `enrich-pilot-44057664658`): Claude prebehol pre všetkých 20 akcií bez chyby. Výber 20 akcií je rovnaký ako v tabuľke vyššie (`events.json` 2026-11-16 13:56).
+
+#### Časť 4 – výsledky Claude akcia po akcii
+Legenda: ✔ overené proti webu, ✗ nesprávne, ~ čiastočne, (–) neoverené. Gemini: pri všetkých akciách „nespustené (HTTP 404, pozri vyššie)“.
+
+| # | Akcia | Dnes typ / žánre | Claude typ / žánre (zdroj) | Cena (zdroj) | Čas (zdroj) | Interpreti / Spotify | Popis doplnený |
+|---|---|---|---|---|---|---|---|
+| 1 | Cross: KŘIŽOVATKA | dj,party / electronic | dj / drum-and-bass, hip-hop (odhad) ✔ | zdarma (crossclub.cz/cs/program/?…) ✔ | – | Blazetoise | nie (má popis) |
+| 2 | Fuchs2: HIGH SPEED FAIRYTALES | concert,dj,party / techno,electro,ebm,post-punk | dj / drum-and-bass, uk-garage, electronic (events.musicofourdesire.com/…) ✔ | – | – (má) | LIIA, Theya, DJ King Kobra, tmk ✔ | áno (musicofourdesire) |
+| 3 | Bike Jesus: ATHENA CHLEBOVÁ – KŘEST | concert,dj / ∅ | concert,dj / hip-hop (odhad) ✔ | 290 Kč (smsticket.cz/mista/3353-bike-jesus-praha) ✔ | 20:00 (smsticket) ✔ | Athena Chlebová, „Gambrz Reprs“ ~ (v názve REPRZ), Ventolin | áno (tanecnizona.cz, musicserver.cz) |
+| 4 | Akropolis: СОЮЗ (SOYUZ) | concert / ∅ | concert / folk, pop (odhad) ✔ | 400 Kč (goout.net/pl/sojuz-soyuz-by-pl/szgakiy/) ✔ | – (má) | СОЮЗ | áno (goout) ✔ obsah sedí |
+| 5 | MeetFactory: Good Times Only | concert / ∅ | concert / ∅ (odhad) | – | 20:00 (meetfactory.cz detail) (–) | Good Times Only, Blue Uandi | nie (má) |
+| 6 | EPIC: STUDENT WEDNESDAY | dj,party / ∅ | dj,party / ∅ (epicprague.com/en/program), dôvod party ✔ | ✗ nenašiel (web: BASIC 290 / VIP 500 Kč) | – (má) | ✗ nenašiel (web: IZZY, MUSTEE) | nie |
+| 7 | Archa+: ROAST slaví narozky | other / ∅ | talk, other (facebook.com/archaplusprague) ~ | ✗ nenašiel (web: vstup zdarma) | – (má) | ROAST | nie (má) |
+| 8 | Čitárna: Text-appeal vol. 28 | talk / ∅ | talk / ∅ (odhad) (–) | – | – (má) | – | nie (má) |
+| 9 | Forum Karlín: Omah Lay | concert / pop,hip-hop | concert / pop, hip-hop (odhad) | – | – (má) | Omah Lay, Spotify open.spotify.com/artist/5yOvAmpIR7hVxiS6Ls5DPO ✔ | nie (má) |
+| 10 | Kasárna: TAW: Lola | film / ∅ | film / ∅ (odhad) (–) | – | – | Mya Bollaers (režisérka) | nie (má) |
+| 11 | Roxy: COLORFACTORY | concert / ∅ | concert / ∅ (roxy.cz/events/detail/5169) ✔ | 990 Kč (roxy.cz/en/events/detail/5170 = EN verzia) ✔ | – (má) | Colorfactory | nie (má) |
+| 12 | Cross: KAVÁRNA KŘEST BOLDRIKOVO KNIHY | concert / ∅ | talk, dj (odhad) ✔ (krst knihy haiku + DJ Poeta) | – | – | Daniel Ďurech, Anna Uhlířová, DJ Poeta ✔ | nie (má) |
+| 13 | Fuchs2: FAMILY THERAPY | dj,party / techno,electro | dj / bassline, uk-garage (goout listing) ~ | **400 Kč ✗** – zdroj goout.net/en/prague/parties/leznyvlkkzj je zoznam párty **bez cien** | – (má) | Asher, Parashoot, Fahell, Zecco, Millo, FMLTHRPY | áno (zdroj je goout listing, line-up sedí s názvom) ~ |
+| 14 | Bike Jesus: .THEMAYREVOLUTION | concert / ∅ | concert / rock (odhad) (–) | – | – | .themayrevolution | áno (goout, rockforpeople.cz) (–) |
+| 15 | Akropolis: DIVADLO NIE | theatre / ∅ | theatre (odhad) (–) | – | – (má) | 7 mien z obsadenia (–) | nie (má) |
+| 16 | MeetFactory: Allt + Avralize + Bite Down | concert / indie,experimental | concert / metal (odhad) ✔ (web: metalcore, death-core) | ✗ nenašiel (web: „od 950 Kč“) | 20:00 (meetfactory.cz) ✔ | Allt, Avralize, Bite Down ✔ | nie (má) |
+| 17 | EPIC: ALMOST WEEKEND | dj,party / ∅ | dj,party / electronic (odhad), dôvod: mainstream EDM, bottle service ✔ | 250 / 400 Kč ✔ hodnota, **✗ zdroj** (epicprague.com/…/2076/weekend-warmup = iná akcia; správne je /2075/almost-weekend) | – (má) | Australan Beats ✔ | áno (zdroj 2076 ✗, obsah sedí s 2075) |
+| 18 | Archa+: Burkicom: Slunce | dance / ∅ | dance (odhad), 0 hľadaní | – | – (má) | Jana Burkiewiczová | nie (má) |
+| 19 | Kasárna: ANIMAGLAJZ | film,opening / ∅ | film (odhad) ✔ (web: projekcia animácií) | 100 CZK (kasarnakarlin.cz detail) ✔ | ✗ nenašiel (web: 19:00–20:30, akcia čas nemá) | – | nie (má) |
+| 20 | Cross: UP TONE w/ MARATHON | dj / ∅ | concert, dj / post-punk, shoegaze (crossclub.cz/cs/program/?…) ✔ | zdarma (fource.cz/cs/events/marathon-26/) ✔ | 20:00 (art.ceskatelevize.cz/…/uptone-marathon) ✔ | Marathon, Favorite Obsession, Zí ✔ | nie (má) |
+
+**Ručné overenie proti webu (14 akcií, 2026-11-17):**
+- crossclub.cz/cs/program/8718-krizovatka/: „Party – Hlavní stage“, 18.11. 20:00–05:00, „zdarma / free entry“, Blazetoise, Rap & DnB. V tom istom zozname je krst knihy haiku v Kavárni s Danielom Ďurechom, Annou Uhlířovou a DJ Poetom (#12).
+- fuchs2.cz/events/high-speed-fairytales…: 20.11. 23:00–06:00, DnB/broken beats/heavy bass. Cena sa neuvádza, je len odkaz na vstupenky na ra.co, ktorý Claude správne nepoužil.
+- smsticket.cz/mista/3353-bike-jesus-praha: „Athena Chlebová – křest alba Athentát“, 18.11.2026, 20:00, 290 Kč.
+- goout.net/pl/sojuz-soyuz-by-pl/szgakiy/: 23.2.2027 19:30, 400 CZK, Folk/Pop.
+- epicprague.com/program/2297/student-wednesday: 18.11. 22:00, BASIC 290 / VIP 500 Kč, DJ IZZY, MUSTEE, MAINSTREAM/EDM.
+- archa-plus.cz/…/953/…roast-slavi-narozky: narodeniny satirického podcastu ROAST (roast formát + karaoke), 30.11. 20:00, vstup zdarma.
+- open.spotify.com/artist/5yOvAmpIR7hVxiS6Ls5DPO: Omah Lay.
+- roxy.cz/events/detail/5169 a /en/…/5170: 19.11. 20:00, 990 Kč, koncert COLORFACTORY + Mia Rosa.
+- goout.net/en/prague/parties/leznyvlkkzj/: zoznam 4 párty (Family Therapy 4: Fuchs2, 21.11. 21:00) **bez cien**.
+- meetfactory.cz/…/pragokoncert-allt-avralize-bite-down: 19.11. 20:00, „od 950 Kč“, metalcore/death-core.
+- epicprague.com/program/2075/almost-weekend: 19.11. 22:00, BASIC 250 / VIP 400 Kč, Australan Beats, MAINSTREAM/EDM.
+- kasarnakarlin.cz/…/animaglajz…: 20.11. 19:00–20:30, „Admission: 100 CZK“, projekcia animácií zo Sutnarky.
+- crossclub.cz/cs/program/8698-up-tone-w-marathon/: 19.11. 20:00, vstupné „via FOURCE“, Marathon (post-punk/shoegaze), Favorite Obsession, Zí.
+- fource.cz/cs/events/marathon-26/: „Tenhle Marathon bude zadarmo“, nutná rezervácia.
+
+**Kto mal pravdu (overené akcie, nová definícia `party` braná ako správna):**
+- **Typ:** Claude 12 z 13 správne, 1 čiastočne (#7 ROAST: talk/other, vhodnejšie talk/comedy). Dnešné dáta sú pri tých istých 13 akciách správne v 5 (#3, #6, #11, #16, #17). Chyby dnes: #1, #2, #13 `party` pri DJ noci zameranej na hudbu; #12 a #20 `concert`/`dj` naopak; #19 navyše `opening`; #7 `other`.
+- **Žánre:** Claude doplnil žánre v 9 akciách, ktoré ich dnes nemajú alebo majú nesprávne. Overených je 7 a všetky sedia (#1, #2, #3, #4, #16 metal namiesto indie/experimental, #20; #13 bassline/uk-garage je pravdepodobné, priamo neoverené).
+- **Cena:** vrátil 9 cien, 7 správnych so správnym zdrojom (#1, #3, #4, #11, #19, #20 a #17 hodnotou), pri #17 je však zdroj iná akcia. **1 vymyslená** (#13: 400 Kč zo stránky, kde žiadna cena nie je). 3 ceny, ktoré na webe sú, nenašiel (#6, #7, #16). Presnosť vrátených cien je 7/9 a s overiteľným zdrojom 6/9.
+- **Čas:** 4 doplnené (#3, #5, #16, #20), overené 3, všetky správne. 1 nenájdený (#19 19:00). Pri #1 je 20:00 na stránke zdroja, ale Claude ho nevrátil.
+- **Spotify:** 1/1 správne (URL prišla s príponou `/discography`, ktorú kód teraz odstraňuje).
+- **Popis:** doplnený pri 6 zo 7 akcií bez popisu (#2, #3, #4, #13, #14, #17). Chýba pri #6. Pri #17 zdrojová URL ukazuje na inú akciu, obsah však sedí.
+- **ra.co:** 0 hodnôt so zdrojom ra.co (doménu blokuje nástroj a nič sa nemuselo zahodiť).
+
+**Závery pre produkciu (návrh, nič som nezaviedol):**
+1. Typ a žánre z AI s hľadaním sú výrazne lepšie ako dnešné. Nová definícia `party` funguje: pri EPIC `party` s dôvodom, pri Fuchs2 a Cross `dj`.
+2. Cenu nebrať naslepo: 1 z 9 bola vymyslená a 1 mala zdroj z inej akcie. Pred uložením treba overiť, že `source_url` je stránka tejto akcie a obsahuje číslo ceny (jeden GET na `source_url` a hľadanie hodnoty v texte). To je nový spôsob sťahovania, takže na to treba súhlas.
+3. Ceny sú často priamo na stránke podniku (#6 EPIC, #16 MeetFactory, #19 Kasárna). Lacnejšie a presnejšie je doplniť ich do adaptérov alebo `detail_enrich` ako hľadať cez AI.
+
+#### Cena pilotu
+| Poskytovateľ | Hľadania | Vstupné tokeny | Výstupné tokeny | $ |
+|---|---|---|---|---|
+| Claude `claude-haiku-5-5` (beh B) | 26 (strop 60; 3 akcie bez hľadania) | 478 445 | 26 779 | **$0.3212** (hľadania $0.26 + tokeny $0.061) |
+| Claude (beh A, chyba spojenia) | 0 | 0 | 0 | $0 |
+| Gemini | 0 (HTTP 404 pri prvom volaní) | 0 | 0 | $0. Bezplatná úroveň, ale modely s free groundingom (2.5 Flash/Flash-Lite, limit 500 RPD) nie sú pre nových používateľov dostupné. |
+
+Na akciu: **$0.016**, priemerne 1,3 hľadania. Hľadanie tvorí 81 % ceny.
+
+#### Odhad mesačných nákladov (z nameraných čísel)
+- Prírastok z časti 2: ~9,4 nových akcií za deň pri 11 podnikoch (meranie 11-09 až 11-15; beh 1 dnes: 8).
+- **11 podnikov:** 9,4 × 30 ≈ 280 akcií × $0.016 ≈ **$4.5 mesačne**.
+- **50 podnikov** (lineárne ×4,5): ≈ 1 270 akcií × $0.016 ≈ **$20 mesačne**.
+- Ak sa pridá overenie ceny cez GET (bez AI), cena sa nezmení. Ak sa hľadanie zopakuje pred akciou (napr. cena 7 dní vopred), náklady sa zhruba zdvojnásobia.
+- Predbežný odhad vyššie ($0.03–0.035 na akciu) bol nadsadený, lebo model hľadal menej, ako dovoľoval strop.
+
+#### Čo nefungovalo / ostáva otvorené
+- Gemini sa porovnať nedalo (HTTP 404, modely s free groundingom nie sú pre nových používateľov). Pokračovanie len s billingom: rozhodnutie pre Mateja.
+- Vymyslená cena (#13) a zdroj z inej akcie (#17): pred nasadením treba overovanie zdroja (bod 2 záverov).
+- Návrh dátového modelu (časť 3) čaká na schválenie. Nasadenie do denného behu čaká na ďalší súhlas.
+- Bez zmeny: Playwright spec súbory v `tests/playwright/` sa z `web/` nenačítajú (už pred touto úlohou).

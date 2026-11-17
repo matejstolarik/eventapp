@@ -302,10 +302,12 @@ def validate_result(raw: dict, ev: dict, seen_urls: set[str] | None = None) -> d
         if not _SPOTIFY_RE.match(url):
             dropped.append(f"spotify: not an artist URL ({url[:60]})")
             continue
-        if seen_urls is not None and url.split("?")[0] not in seen_urls:
+        if seen_urls is not None and not any(u.startswith(_SPOTIFY_RE.match(url).group(0))
+                                             for u in seen_urls):
             dropped.append(f"spotify: URL not in search results ({url[:60]})")
             continue
-        spot.append({"artist": s.get("artist"), "url": url.split("?")[0],
+        url = _SPOTIFY_RE.match(url).group(0)   # drop ?si=… and /discography etc.
+        spot.append({"artist": s.get("artist"), "url": url,
                      "source_url": s.get("source_url") or url})
     out["spotify"] = spot
 
