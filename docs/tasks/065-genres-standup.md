@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Schválené Matejom 2026-11-17** (vedľajší chat „žánre“ + hlavný chat). **Spusti až po 064** (064 časť 4 zavádza `psytrance` a `reggaeton`). Zobrazenie hierarchie vo filtri, zlúčené čipy a podtypy ako čipy **nie sú súčasťou** – prídu s návrhom Filtra.
+**Schválené Matejom 2026-11-17** (vedľajší chat „žánre“ + hlavný chat). **ZMENA 2026-11-17 (Matej, pred spustením): 065 ide pred 064.** `psytrance` a `reggaeton` ako samostatné žánre (pôvodne 064 časť 4) robí táto úloha: zrušiť mapovanie `psytrance → trance` a `reggaeton → latin`, pridať oba do zoznamu, varianty `psy trance`, `psychedelic trance` → `psytrance`. Zobrazenie hierarchie vo filtri, zlúčené čipy a podtypy ako čipy **nie sú súčasťou** – prídu s návrhom Filtra.
 
 **Čítaj:** `docs/ai-rules.md` B6, C (nové C7–C9), F, H; `docs/tasks/062/genres-review.md`; `data/genre_aliases.json`; zoznamy žánrov v `docs/data-model.md` (`genres`, `film_genres`, `stage_genres`); `pipeline/ai_guards.py` (poistka žánrov, aliasy, české tvary); `pipeline/genres_review.py`; v appke preklady žánrov a podtypov (`web/src/i18n/*`), mapovanie ikon typov.
 
@@ -17,7 +17,7 @@ Každá časť vlastný commit. Rozhodnutia do `docs/decisions.md`. Zmena dátov
 - `pop-punk`, `dance-punk`, `noise-punk` (punk); `doom-metal`, `sludge-metal`, `stoner-metal` (metal)
 - `hyperpop`, `dance-pop`, `alt-pop` (pop); `soul`, `neo-soul` (soul)
 - `classical`, `orchestral`, `soundtrack`, `country`, `chanson`
-- `psytrance` (trance), `reggaeton` (latin) – z 064, tu len rodič
+- `psytrance` (trance), `reggaeton` (latin)
 - `alternative` = len zastrešenie vo filtri (v hierarchii, nie ako štítok; poistka ho ako štítok zahodí)
 
 **Nové žánre – film** (rodič `film`): action, adventure, animation, biography, comedy, crime, documentary, drama, family, fantasy, history, horror, music, musical, mystery, romance, sci-fi, short, thriller, war, western, experimental, queer, cult-classic (kultové a legendárne filmy), arthouse (nezávislé, nízkorozpočtové, umelecké).

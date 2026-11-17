@@ -29,7 +29,8 @@ Príčiny z kódu (hlavný chat):
 ### 3. Overenie zrušenia akcie (Forum Karlín)
 - Pri prieskume AI (062) stránka Omah Lay (`forumkarlin.cz/udalost/omah-lay`, 18. 11.) ukazovala „ZRUŠENO“. `html_forum_karlin.py` má `status = "cancelled"` pri „ZRUŠENO“. Over v `events.json`, či má akcia `status: cancelled`, a v appke (Playwright, jedna snímka `docs/tasks/064/omah-lay.jpg`), ako sa zrušená akcia zobrazuje. Ak `status` nesedí, nájdi príčinu, neopravuj.
 
-### 4. Drobnosť: psytrance a reggaeton samostatné žánre (Matej 2026-11-17)
+### 4. ~~Drobnosť: psytrance a reggaeton~~ – **ZMENA 2026-11-17 (pred spustením): presunuté do 065, nerob.**
+(pôvodný text ponechaný)
 - Zrušiť mapovanie `psytrance → trance` a `reggaeton → latin` v `data/genre_aliases.json`, pridať `psytrance` a `reggaeton` do zoznamu žánrov (`docs/data-model.md`) a kde treba (preklady žánrov v appke). Pravopisné varianty (`psy trance`, `psychedelic trance` → `psytrance`). Platí od najbližšieho behu, bez prepočítania AI (ak sa mapovanie robí z uloženej surovej hodnoty, napíš to).
 
 ## Overenie a report
