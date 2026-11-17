@@ -1297,6 +1297,13 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     if counter is not None:
         stats["month_searches"] = counter["count"]
     stats["limit"] = month_limit
+    # task 062: dropped by guards, by kind (the job summary is not readable via API)
+    kinds: dict = {}
+    for d in stats["dropped"]:
+        k = d.split(": ", 1)[-1].split(" ", 1)[0].split(":", 1)[0].split("'", 1)[0]
+        kinds[k] = kinds.get(k, 0) + 1
+    log.info("enrich_ai dropped by kind: %s; review (venue in description): %d",
+             kinds, len(stats.get("review") or []))
     for w in stats["warnings"]:
         log.warning("%s", w)
     out = [out_by_id.get(e["id"], e) for e in events]
