@@ -97,6 +97,29 @@ def test_cache_hit_skips_api(mock_cls):
 
 @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
 @patch("pipeline.classify_ai.anthropic.Anthropic")
+def test_music_event_without_party_is_cached(mock_cls):
+    """Task 052: an LLM result without 'party' (e.g. a band concert) is reused,
+    not re-sent to the API on every run."""
+    client = MagicMock()
+    mock_cls.return_value = client
+
+    prev = [
+        _ev("e1", "Band Live", method="llm", formats=["concert"], genres=["rock"]),
+        _ev("e2", "DJ set", method="llm", formats=["dj"]),
+        _ev("e3", "Unknown music", method="llm", formats=["music"]),
+    ]
+    events = [_ev("e1", "Band Live"), _ev("e2", "DJ set"), _ev("e3", "Unknown music")]
+    result, stats = classify_events_ai(events, VENUES, previous_events=prev)
+
+    client.messages.create.assert_not_called()
+    assert stats["cache_hits"] == 3
+    assert stats["api_calls"] == 0
+    assert result[0]["formats"] == ["concert"]
+    assert result[1]["formats"] == ["dj"]
+
+
+@patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"})
+@patch("pipeline.classify_ai.anthropic.Anthropic")
 def test_changed_title_bypasses_cache(mock_cls):
     """Cache miss when event title changed — event goes to API."""
     mock_cls.return_value = _mock_client([

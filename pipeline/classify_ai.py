@@ -237,29 +237,25 @@ def _events_needing_ai(events: list[dict]) -> list[dict]:
     return result
 
 
-_MUSIC_FORMATS = frozenset({"dj", "concert", "music"})
-
-
 def _build_ai_cache(previous_events: list[dict]) -> dict:
-    """Build event_id → cached AI result from a previous pipeline output.
+    """Build event_id -> cached AI result from a previous pipeline output.
 
-    Events classified by LLM without 'party' in their formats are excluded from
-    the cache so the AI re-evaluates them for party on the next run.  This is a
-    one-time trigger: once the AI assigns (or withholds) 'party', the result is
-    cached normally on subsequent runs.
+    Every LLM-classified event is cached; it is re-sent to the API only when
+    its title changes (checked by the caller).
+
+    Task 052: the one-time 'party' re-evaluation trigger from task 020 was
+    removed.  It excluded music events without 'party' from the cache, but the
+    AI legitimately withholds 'party' for many of them, so the same ~90-130
+    events were re-classified on every run.
     """
     cache: dict[str, dict] = {}
     for ev in previous_events:
         cls = ev.get("classification")
         if not (cls and cls.get("method") == "llm"):
             continue
-        fmts = ev.get("formats", [])
-        # Skip music events whose party status has not yet been assessed by AI
-        if any(f in _MUSIC_FORMATS for f in fmts) and "party" not in fmts:
-            continue
         cache[ev["id"]] = {
             "title": ev.get("title"),
-            "formats": fmts,
+            "formats": ev.get("formats", []),
             "genres": ev.get("genres", []),
             "confidence": cls.get("confidence", 0.5),
         }
