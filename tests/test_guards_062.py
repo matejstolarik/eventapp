@@ -164,17 +164,20 @@ def test_validate_keeps_description_with_fire():
 
 # --- venue / hall in the description -> review --------------------------------
 
-def test_description_with_venue_goes_to_review():
+def test_description_with_venue_counted_not_reviewed():
+    """Task 063 (ai-rules F) supersedes 062: venue / hall may be mentioned,
+    counted in the log only, no needs_review."""
     venue = {"id": "forum-karlin", "name": "Forum Karlín"}
     raw = _raw([], {}, descriptions={"cs": "Koncert se koná ve Velkém sále."},
                description_source_urls=[URL])
     out = validate(raw, EV, None, AL, None, None, venue)
     assert out["descriptions"]                      # not dropped
-    assert out["needs_review"] and out["review"]
+    assert not out["needs_review"] and not out["review"] and out["venue_mentions"]
     raw["descriptions"] = {"cs": "V pražském Foru Karlín vystoupí poprvé."}
-    assert validate(raw, EV, None, AL, None, None, venue)["needs_review"]
+    out = validate(raw, EV, None, AL, None, None, venue)
+    assert not out["needs_review"] and out["venue_mentions"]
     raw["descriptions"] = {"cs": "Švédská kapela hraje metalcore."}
-    assert not validate(raw, EV, None, AL, None, None, venue)["needs_review"]
+    assert not validate(raw, EV, None, AL, None, None, venue)["venue_mentions"]
 
 
 def test_venue_mentions_unijazz():

@@ -407,12 +407,11 @@ def validate(raw: dict, ev: dict, seen_urls: set[str] | None,
         dropped.append("description_no_info: nothing usable left, no description")
         out["needs_review"] = True
         out["review"].append("no description: only sentences about missing information")
+    out["venue_mentions"] = []
     if clean and venue is not None:
-        # task 062: venue / hall in the description -> review, not dropped
-        hits = venue_mentions(clean["cs"], venue)
-        if hits:
-            out["needs_review"] = True
-            out["review"].append(f"description mentions venue / hall: {', '.join(hits)}")
+        # task 063 (ai-rules F): venue / hall may be mentioned; counted in the
+        # log only, no review (task 062 set needs_review)
+        out["venue_mentions"] = venue_mentions(clean["cs"], venue)
     out["description_source_urls"] = dsrc if clean else []
     out["dropped"] = dropped
     return out
@@ -1325,6 +1324,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 stats["dropped"].append(f"{ev['id']}: {d}")
             for d in res.get("review") or []:
                 stats.setdefault("review", []).append(f"{ev['id']}: {d}")
+            if res.get("venue_mentions"):
+                stats["venue_in_description"] = stats.get("venue_in_description", 0) + 1
             out_by_id[ev["id"]] = apply(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
             if ev["id"] in redo and rec.get("searches") == 0:
@@ -1366,8 +1367,9 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
     for d in stats["dropped"]:
         k = d.split(": ", 1)[-1].split(" ", 1)[0].split(":", 1)[0].split("'", 1)[0]
         kinds[k] = kinds.get(k, 0) + 1
-    log.info("enrich_ai dropped by kind: %s; review (venue in description): %d",
-             kinds, len(stats.get("review") or []))
+    log.info("enrich_ai dropped by kind: %s; review: %d; venue / hall in description "
+             "(no review, task 063): %d", kinds, len(stats.get("review") or []),
+             stats.get("venue_in_description", 0))
     for w in stats["warnings"]:
         log.warning("%s", w)
     out = [out_by_id.get(e["id"], e) for e in events]

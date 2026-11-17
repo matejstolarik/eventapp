@@ -13,7 +13,8 @@ Guards on AI results in code (task 062 part 1, docs/ai-rules.md C2, C3, D, F).
   that amount / word.
 - exclamation marks that are part of the event title or an artist name
   ("FIRE!") are ignored by the description check.
-- venue_mentions(): a description naming the venue or a hall goes to review.
+- venue_mentions(): venue / hall names in a description (task 063: counted in
+  the log only, no review -- ai-rules F allows them).
 - strip_no_info(): sentences about missing information are removed from the
   Czech description (task 063, ai-rules F).
 """
