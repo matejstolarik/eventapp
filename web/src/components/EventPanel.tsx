@@ -55,12 +55,12 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const dict = getDict(lang)
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
-  const eventType = getEventType(event.formats)
-  const iconKey = eventIconKey(event.formats)
+  const eventType = getEventType(event.formats, event.primary_format)
+  const iconKey = eventIconKey(event.formats, event.primary_format)
   const color = EVENT_TYPE_COLOR[eventType]
   const dark = EVENT_TYPE_DARK[eventType]
   const tagTextColor = EVENT_TYPE_TAG_TEXT[eventType]
-  const tags = eventTags(event.formats, event.genres)
+  const tags = eventTags(event.formats, event.genres, event.primary_format)
 
   const distStr = userLocation
     ? ' · ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)

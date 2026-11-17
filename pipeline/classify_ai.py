@@ -80,6 +80,14 @@ _CLASSIFY_TOOL = {
                             ),
                             "items": {"type": "string", "enum": sorted(VALID_GENRES)},
                         },
+                        "primary_format": {
+                            "type": "string",
+                            "enum": sorted(VALID_FORMATS),
+                            "description": (
+                                "The ONE format of the main part of the event (the main "
+                                "performer decides); must be one of formats."
+                            ),
+                        },
                         "party_reason": {
                             "type": "string",
                             "description": (
@@ -94,7 +102,7 @@ _CLASSIFY_TOOL = {
                             "description": "Confidence 0–1 for the format classification.",
                         },
                     },
-                    "required": ["event_index", "formats", "confidence"],
+                    "required": ["event_index", "formats", "primary_format", "confidence"],
                 },
             }
         },
@@ -129,6 +137,7 @@ Concert vs. dj — the MAIN performer decides:
 - Jam session, open mic = "concert".
 
 An event may have multiple formats (e.g. ["concert", "dj"] for a concert that becomes a club night).
+Always give primary_format: the one format of the main part of the event (e.g. ["concert", "dj"] concert with DJ afterparty → primary_format "concert").
 Prefer specific formats over "music" or "other".
 For genres, only add items you are confident about — empty list is fine.\
 """
@@ -173,7 +182,8 @@ def classify_events_ai(
         cached = ai_cache.get(event["id"])
         if cached and cached.get("title") == event.get("title"):
             _apply_ai_result(event, cached["formats"], cached.get("genres", []),
-                             cached["confidence"], cached.get("reason"))
+                             cached["confidence"], cached.get("reason"),
+                             cached.get("primary_format"))
             cache_hits += 1
         else:
             still_need.append(event)
@@ -264,12 +274,19 @@ def _build_ai_cache(previous_events: list[dict]) -> dict:
         cls = ev.get("classification")
         if not (cls and cls.get("method") == "llm"):
             continue
+        if "primary_format" not in ev:
+            # Task 053: classified before primary_format / the new party
+            # definition existed -> re-classify once.  Every event written by
+            # the new pipeline has the key (value may be null), so this ends
+            # after one successful run.
+            continue
         cache[ev["id"]] = {
             "title": ev.get("title"),
             "formats": ev.get("formats", []),
             "genres": ev.get("genres", []),
             "confidence": cls.get("confidence", 0.5),
             "reason": cls.get("reason"),
+            "primary_format": ev.get("primary_format"),
         }
     return cache
 
@@ -280,8 +297,10 @@ def _apply_ai_result(
     genres: list,
     confidence: float,
     reason: str | None = None,
+    primary_format: str | None = None,
 ) -> None:
     event["formats"] = formats
+    event["primary_format"] = primary_format if primary_format in formats else None
     if genres:
         event["genres"] = genres
     cls = {"method": "llm", "confidence": round(confidence, 2)}
@@ -322,8 +341,15 @@ def _apply_batch_results(batch: list[dict], results: list[dict]) -> None:
         if "party" not in fmts:
             reason = None
 
+        primary = entry.get("primary_format")
+        if primary not in fmts:
+            if primary:
+                log.warning("[classify_ai]: primary_format %r not in formats %s for '%s'",
+                            primary, fmts, event.get("title"))
+            primary = None
+
         if fmts:
-            _apply_ai_result(event, fmts, genres, confidence, reason)
+            _apply_ai_result(event, fmts, genres, confidence, reason, primary)
         else:
             log.warning("[classify_ai]: no valid formats in AI result for '%s'",
                         event.get("title"))

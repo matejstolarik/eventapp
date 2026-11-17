@@ -185,6 +185,35 @@ def _classify_one(event: dict, venue: dict, overrides: list[dict]) -> None:
     # else: formats stays empty, classification stays null
 
 
+MUSIC_FORMATS = frozenset({"concert", "dj", "music", "party"})
+
+
+def apply_commercial_clubs(events: list[dict], venues: list[dict]) -> list[dict]:
+    """Task 053: in a venue with ``commercial_club: true`` every music event is
+    a party.  Deterministic venue rule (layer 1, no AI decision).
+
+    Runs after the AI layer so that AI still supplies genres for these events
+    but cannot remove ``party``.  "music" is replaced by "party"; concert/dj
+    stay as secondary formats; ``primary_format`` = "party".
+    Manual overrides are left untouched.
+    """
+    commercial = {v["id"] for v in venues if v.get("commercial_club") is True}
+    for ev in events:
+        if ev.get("venue_id") not in commercial:
+            continue
+        if (ev.get("classification") or {}).get("method") == "manual":
+            continue
+        fmts = ev.get("formats") or []
+        if not any(f in MUSIC_FORMATS for f in fmts):
+            continue
+        new = [f for f in fmts if f != "music"]
+        if "party" not in new:
+            new.append("party")
+        ev["formats"] = new
+        ev["primary_format"] = "party"
+    return events
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

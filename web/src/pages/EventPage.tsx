@@ -84,8 +84,8 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
 
   const ev = event
   const venue = data.venues.find(v => v.id === ev.venue_id)
-  const eventType = getEventType(ev.formats)
-  const iconKey = eventIconKey(ev.formats)
+  const eventType = getEventType(ev.formats, ev.primary_format)
+  const iconKey = eventIconKey(ev.formats, ev.primary_format)
   const color = EVENT_TYPE_COLOR[eventType]
   const dark = EVENT_TYPE_DARK[eventType]
 
@@ -174,7 +174,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     }
   }
 
-  const primaryTag = primaryTypeTag(ev.formats)
+  const primaryTag = primaryTypeTag(ev.formats, ev.primary_format)
   // Remaining tags: culture subtypes (excluding primary) + genres
   const remainingTags = [
     ...ev.formats.filter(f => ['theatre','dance','talk','comedy','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),

@@ -72,6 +72,7 @@ def normalize_event(raw_event, previous_events: dict = None) -> "dict | None":
         "doors_time": raw_event.doors_time,
         "end_time": raw_event.end_time,
         "formats": raw_event.formats,
+        "primary_format": None,
         "genres": raw_event.genres,
         "character": raw_event.character,
         "artists": raw_event.artists,

@@ -70,8 +70,8 @@ function HeaderImage({ venue, et }: { venue: Venue; et: EventType }) {
 
 function EventThumbnail({ event }: { event: Event }) {
   const [err, setErr] = useState(false)
-  const et = getEventType(event.formats)
-  const iconKey = eventIconKey(event.formats)
+  const et = getEventType(event.formats, event.primary_format)
+  const iconKey = eventIconKey(event.formats, event.primary_format)
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
   if (!event.image_thumb || err) {
@@ -317,9 +317,9 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                 {/* Events in this group */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {events.map((ev) => {
-                    const evType = getEventType(ev.formats)
+                    const evType = getEventType(ev.formats, ev.primary_format)
                     const tagTextColor = EVENT_TYPE_TAG_TEXT[evType]
-                    const evTagList = eventTags(ev.formats, ev.genres)
+                    const evTagList = eventTags(ev.formats, ev.genres, ev.primary_format)
                     const allTags = [
                       ...(ev.start_time ? [{ label: ev.start_time, isTime: true }] : []),
                       ...evTagList.map(t => ({ label: t, isTime: false })),

@@ -43,6 +43,8 @@ export interface Event {
   doors_time: string | null
   end_time: string | null
   formats: string[]
+  /** Main part of the event from AI or commercial-club rule (task 053); decides the type */
+  primary_format?: string | null
   genres: string[]
   character: string[]
   artists: string[]

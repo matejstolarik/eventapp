@@ -164,8 +164,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       return data.venues.map(venue => {
         const events = getVenueEvents(data.events, venue.id, getToday(curNow), curNow, venue.character, venue.closing)
         const primary = getPrimaryEvent(events)
-        const eventType = primary ? getEventType(primary.formats) : 'other'
-        const iconKey = primary ? eventIconKey(primary.formats) : 'culture'
+        const eventType = primary ? getEventType(primary.formats, primary.primary_format) : 'other'
+        const iconKey = primary ? eventIconKey(primary.formats, primary.primary_format) : 'culture'
         return {
           venueId: venue.id, name: venue.name, eventType, iconKey,
           isFavorite: isFavorite(venue.id),
@@ -180,8 +180,8 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     return [...vm.entries()].map(([venueId, events]) => {
       const venue = venueById[venueId]!
       const primary = getPrimaryEvent(events)
-      const eventType = primary ? getEventType(primary.formats) : 'other'
-      const iconKey = primary ? eventIconKey(primary.formats) : 'culture'
+      const eventType = primary ? getEventType(primary.formats, primary.primary_format) : 'other'
+      const iconKey = primary ? eventIconKey(primary.formats, primary.primary_format) : 'culture'
       return {
         venueId, name: venue.name, eventType, iconKey,
         isFavorite: isFavorite(venueId),

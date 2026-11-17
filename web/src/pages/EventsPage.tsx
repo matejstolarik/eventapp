@@ -82,14 +82,14 @@ interface EventCardProps {
 }
 
 function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewFlag, animIn, onClick }: EventCardProps) {
-  const type = getEventType(event.formats)
-  const iconKey = eventIconKey(event.formats)
+  const type = getEventType(event.formats, event.primary_format)
+  const iconKey = eventIconKey(event.formats, event.primary_format)
   const color = EVENT_TYPE_COLOR[type]
   const dark = EVENT_TYPE_DARK[type]
   const tagTextColor = EVENT_TYPE_TAG_TEXT[type]
   const dateLabel = formatDayLabel(event.date, lang, now)
   const timeLabel = event.start_time ?? ''
-  const allTags = eventTags(event.formats, event.genres)
+  const allTags = eventTags(event.formats, event.genres, event.primary_format)
 
   return (
     <div

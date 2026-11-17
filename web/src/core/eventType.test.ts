@@ -145,3 +145,29 @@ describe('primaryTypeTag', () => {
     expect(primaryTypeTag(['dj', 'film'])).toBe('dj')
   })
 })
+
+describe('getEventType with primary_format (task 053)', () => {
+  it('primary_format decides between concert and dj', () => {
+    expect(getEventType(['concert', 'dj'], 'concert')).toBe('concert')
+    expect(getEventType(['concert', 'dj'], 'dj')).toBe('dj')
+    expect(getEventType(['concert', 'dj', 'party'], 'concert')).toBe('concert')
+  })
+  it('primary_format party', () => {
+    expect(getEventType(['dj', 'party'], 'party')).toBe('party')
+  })
+  it('falls back to priority without primary_format', () => {
+    expect(getEventType(['concert', 'dj'], null)).toBe('dj')
+    expect(getEventType(['concert', 'dj'], undefined)).toBe('dj')
+  })
+  it('ignores primary_format that is not among formats', () => {
+    expect(getEventType(['concert', 'dj'], 'party')).toBe('dj')
+  })
+  it('culture primary_format', () => {
+    expect(getEventType(['concert', 'film'], 'film')).toBe('culture')
+  })
+  it('icon and primary tag follow primary_format', () => {
+    expect(eventIconKey(['concert', 'dj'], 'concert')).toBe('concert')
+    expect(primaryTypeTag(['concert', 'dj'], 'concert')).toBe('concert')
+    expect(eventTags(['concert', 'dj'], [], 'concert')).toEqual(['concert'])
+  })
+})

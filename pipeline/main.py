@@ -13,7 +13,7 @@ from pipeline.adapters import api as api_adapter
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
-from pipeline.classify import classify_events
+from pipeline.classify import classify_events, apply_commercial_clubs
 from pipeline.classify_ai import classify_events_ai
 from pipeline.detail_enrich import enrich_missing_details
 from pipeline.thumbs import generate_thumbs, generate_event_thumbs
@@ -129,6 +129,7 @@ def main():
     events = dedup_events(events)
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
+    events = apply_commercial_clubs(events, venues)
     events, enrich_stats = enrich_missing_details(events, previous, venues)
     events = run_checks(events, previous)
 

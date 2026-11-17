@@ -48,6 +48,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `id`: slug, stabilný, nikdy sa nemení (odkazujú naň obľúbené v PWA).
 - `sources`: nesmie byť prázdne. Podnik bez zdroja akcií sa do `venues.json` nepridá.
 - `capacity`: nepovinné, len overené číslo.
+- `commercial_club`: nepovinné, `true` = komerčný klub; **každá** hudobná akcia (`concert`/`dj`/`music`) v ňom je `party` s `primary_format = "party"` (pravidlo pipeline `apply_commercial_clubs`, bez AI; task 053). Chýba = `false`. Nastavuje Matej ručne.
 - `lat`, `lng`: súradnice pre zobrazenie na mape. **Povinné** — podnik bez súradníc sa na mape nezobrazí. Zdroj: OSM Nominatim alebo mapa na webe podniku; vždy overiť adresou. Nový podnik bez súradníc sa do `venues.json` nepridá.
 - `description`: krátky popis podniku (2–4 vety, čistý text, bez prekladu, z webu podniku). `null` ak podnik nemá stránku „O nás" / „About" alebo tam popis nie je.
 - `description_url`: URL stránky, z ktorej popis pochádza. `null` ak `description` je `null`.
@@ -101,6 +102,7 @@ Definície nových štítkov:
   "doors_time": null,
   "end_time": null,
   "formats": ["dj"],
+  "primary_format": "dj",
   "genres": ["drum-and-bass", "techno"],
   "character": ["underground"],
   "artists": ["Zombie Cats", "Tanukichi"],
@@ -131,6 +133,7 @@ Polia:
 - `end_time`: nepovinné, ak akcia ide cez polnoc, `end_time` je menší ako `start_time`.
 - `formats` (viac naraz): `concert` (živí hudobníci na pódiu — kapela, sólo umelec, orchester, živý elektronický set), `dj`, `party` (veľká komerčná/mainstreamová párty, kam ľudia idú kvôli atmosfére, nie kvôli konkrétnej hudbe či interpretovi: komerčné kluby, Erasmus/študentské, hity 80./90., open bar, mainstreamové tematické večery; klubová noc zameraná na hudbu/DJ-ov je `dj`, nie `party`; mimo komerčných klubov len pri jasnom signáli, AI uvedie dôvod v `classification.reason`; v podniku s `commercial_club: true` je každá hudobná akcia `party`; task 053), `music` (hudobná akcia, pri ktorej sa nedá rozlíšiť concert vs. dj), `dance` (tanečné predstavenie), `talk` (čítanie, debata, prednáška, krst knihy, diskusia), `comedy` (stand-up), `workshop`, `theatre`, `opening` (vernisáž), `film`, `quiz` (hospodské kvízy), `other`.
   - **`concert` vs. `dj` rozhoduje hlavný interpret** (task 053): koncert s DJ afterparty = `concert` (afterparty môže ostať ako druhý formát `dj`); klubová noc s kapelami aj DJ-mi bez jasného hlavného interpreta = `dj`; rap/hip-hop naživo = `concert`; DJ set hudobníka = `dj`; jam session a open mic = `concert` (dočasne). Elektronický live set: zatiaľ bez pevného pravidla (rozhodne kolo označovania, task 053 časť 3).
+- `primary_format`: jeden formát hlavnej časti akcie (z `formats`), rozhoduje typ akcie pre farbu a ikonu (task 053). Určí ho AI vrstva 2 (hlavný interpret: koncert s DJ afterparty → `concert`) alebo pravidlo komerčného klubu (`party`). `null` ak ho pipeline neurčila (vrstva 1 zo sekcie/kľúčových slov, ručná oprava) – appka potom použije poradie `party` → `dj` → `concert`.
 - `genres`: z pevného zoznamu (zoznam treba dohodnúť).
 - `character`: zdedí sa od podniku, AI ho môže pre konkrétnu akciu prepísať (napr. retro noc v inak alternatívnom klube).
 - `price_text`: text tak, ako ho dáva zdroj. Ceny neparsujeme. `free` je odvodené (vstup zdarma áno/nie).
