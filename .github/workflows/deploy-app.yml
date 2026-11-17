@@ -44,6 +44,8 @@ jobs:
           curl -sf https://matejstolarik.github.io/eventapp/events.json -o site/events.json \
             && echo "events.json fetched" \
             || { echo "events.json not available yet, skipping"; exit 0; }
+          # task 054: pipeline state (price checks, monthly AI search counter)
+          curl -sf https://matejstolarik.github.io/eventapp/pipeline_state.json -o site/pipeline_state.json || echo "pipeline_state.json not available, skipping"
 
       - name: Fetch venue thumbnails (preserve pipeline images)
         # Download each image_thumb listed in events.json venues so the UI has them after a UI-only deploy.

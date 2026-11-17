@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import pathlib
+import urllib.error
 import urllib.request
 from zoneinfo import ZoneInfo
 
@@ -37,6 +38,7 @@ ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter,
 VENUES_PATH = pathlib.Path("data/venues.json")
 OVERRIDES_PATH = pathlib.Path("data/overrides.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
+STATE_OUT = pathlib.Path("site/pipeline_state.json")
 PRAGUE_TZ = ZoneInfo("Europe/Prague")
 
 
@@ -69,6 +71,50 @@ def load_previous_events() -> dict:
     return {e["id"]: _migrate_event(e) for e in data.get("events", [])}
 
 
+def load_state() -> dict | None:
+    """Load pipeline state kept between runs (task 054).
+
+    The state file is published next to events.json on GitHub Pages
+    (pipeline_state.json): detail-page price checks and the monthly AI search
+    counter.  Returns {} when there is no state yet (HTTP 404 / no local file)
+    and None when it could not be loaded for another reason — callers must
+    then not spend limited resources (AI searches), because the counter is
+    unknown.
+    """
+    url = os.getenv("PREVIOUS_EVENTS_URL")
+    if url:
+        state_url = url.rsplit("/", 1)[0] + "/" + STATE_OUT.name
+        try:
+            req = urllib.request.Request(state_url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                state = json.loads(resp.read())
+            log.info("Pipeline state loaded from %s", state_url)
+            return state if isinstance(state, dict) else None
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                log.info("Pipeline state not published yet — starting empty")
+                return {}
+            log.warning("Pipeline state not available (%s)", exc)
+            return None
+        except Exception as exc:
+            log.warning("Pipeline state not available (%s)", exc)
+            return None
+    if not STATE_OUT.exists():
+        return {}
+    try:
+        return json.loads(STATE_OUT.read_text(encoding="utf-8"))
+    except Exception as exc:
+        log.warning("Pipeline state unreadable (%s)", exc)
+        return None
+
+
+def _prune_state(state: dict, events: list[dict]) -> dict:
+    ids = {e["id"] for e in events}
+    state["detail_checked"] = {k: v for k, v in (state.get("detail_checked") or {}).items()
+                               if k in ids}
+    return state
+
+
 def _migrate_event(e: dict) -> dict:
     """Apply in-place migrations for schema changes (run once on load)."""
     # live → concert rename (task 019, 2026-11-08)
@@ -93,6 +139,9 @@ def main():
             overrides = json.load(f)
 
     previous = load_previous_events()
+    loaded_state = load_state()
+    state = dict(loaded_state or {})
+    today = datetime.datetime.now(PRAGUE_TZ).date().isoformat()
     all_raw = []
 
     # Per-source results: (venue_id, source_label, event_count, warning)
@@ -130,7 +179,10 @@ def main():
     events = classify_events(events, venues, overrides)
     events, ai_stats = classify_events_ai(events, venues, previous_list)
     events = apply_commercial_clubs(events, venues)
-    events, enrich_stats = enrich_missing_details(events, previous, venues)
+    page_texts: dict[str, str] = {}
+    events, enrich_stats = enrich_missing_details(events, previous, venues, check_prices=True,
+                                                  state=state, today=today,
+                                                  page_texts=page_texts)
     events = run_checks(events, previous)
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -162,6 +214,10 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
 
     log.info("Wrote %d events to %s", len(events_out), EVENTS_OUT)
+
+    state = _prune_state(state, events_out)
+    state["updated_at"] = generated_at
+    STATE_OUT.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
 
     new_total, new_per_venue = count_new_events(events_out, previous)
     log.info("New events: %d (per venue %s)", new_total, new_per_venue)
@@ -316,6 +372,8 @@ def _write_job_summary(source_results, events, generated_at, adapter_warnings=No
             f"- Cache hits: {enrich_stats.get('cache_hits', 0)}",
             f"- Skipped: {enrich_stats.get('skipped', 0)}",
             f"- Errors: {enrich_stats.get('errors', 0)}",
+            f"- Price found on event page: {enrich_stats.get('price_found', 0)}",
+            f"- Start time found on event page: {enrich_stats.get('time_found', 0)}",
             "",
         ]
 
