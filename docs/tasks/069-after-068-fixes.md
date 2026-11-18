@@ -2,6 +2,7 @@
 
 ## Zadanie
 
+> **Oprava 19:05:** šírka obrázka 112 px bol odhad hlavného chatu – neplatí; rozmer sa počíta (časť 3).
 > **Matej 19:00 – záväzné pre celú úlohu:** nič nevymýšľaj. Drž sa štýlu, ktorý appka má (existujúce komponenty, farby, písma, veľkosti, zaoblenia, medzery). Čo sa vracia (program podniku, Môj účet → Akcie, farebné štítky, plnofarebný štítok typu v detaile), **vráť presne tak, ako bolo pred 068** (`git show design-pre-068:…`), bez „vylepšení“. Ak niečo v zadaní nie je jasné, nepredpokladaj – spýtaj sa.
 
 > Jediné platné zadanie 069 (`069-event-row-x.md` je zlúčené sem a neplatí). Doplnok 19:00: obrázok v detaile max 50 % výšky obrazovky; príčina oddeľovača v časti 5.
@@ -23,7 +24,7 @@ Každá časť vlastný commit.
 ### 3. Riadok v Akciách (design.md blok večer po 068)
 - **Bez krúžku typu**; štítky farebným textom typu (`EVENT_TYPE_TAG_TEXT`) na `#2A2838`; bez štítkov jeden štítok s typom.
 - **Názov akcie 14 px** (Matej 19:00; hrúbka, písmo a farba ako dnes v appke), max. 2 riadky s „…“.
-- **Pevná výška riadku** = 2 riadky názvu + riadok „dátum · čas · miesto“ + riadok štítkov; obrázok výšky riadku, šírka 112 px, `cover`, zaoblenie 8; pri 1-riadkovom názve textový blok zvislo vycentrovaný; štítky jeden riadok s rozplynutím vpravo.
+- **Pevná výška riadku** = 2 riadky názvu + riadok „dátum · čas · miesto“ + riadok štítkov; **výška obrázka = výška textového bloku pri plnom riadku** (2 riadky názvu 14 px + riadok „dátum · čas · miesto“ + riadok štítkov vrátane medzier, s písmami a riadkovaním, ktoré appka používa – **vypočítaj, nevymýšľaj číslo**), **šírka = výška × 4/3** (náhľad 4 : 3 sa zobrazí celý, bez ďalšieho orezu), zaoblenie 8; výsledné px napíš do reportu a do design.md; pri 1-riadkovom názve textový blok zvislo vycentrovaný; štítky jeden riadok s rozplynutím vpravo.
 - **new** = biela pilulka vpravo hore na obrázku; **pre teba** = prvá pilulka v štítkoch (ružové iskry).
 
 ### 4. Karta na mape a stránka akcie
