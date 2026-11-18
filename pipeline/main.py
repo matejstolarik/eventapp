@@ -260,10 +260,16 @@ def main():
         venues_out.append(ve)
 
     # Generate event thumbnails (image_thumb) and detail copies (image_detail, task 066)
-    event_image_map = generate_event_images(events)
+    # task 067: listing image as fallback when the event-page image is broken
+    fallbacks = {k: v["listing"] for k, v in (state.get("detail_image") or {}).items()
+                 if isinstance(v, dict) and v.get("listing")}
+    used_fallback: dict[str, str] = {}
+    event_image_map = generate_event_images(events, fallbacks, used_fallback)
     events_out = []
     for ev in events:
         ev2 = dict(ev)
+        if ev2.get("id") in used_fallback:
+            ev2["image_url"] = used_fallback[ev2["id"]]
         thumb, detail = event_image_map.get(ev.get("id", ""), (None, None))
         ev2["image_thumb"] = thumb
         ev2["image_detail"] = detail

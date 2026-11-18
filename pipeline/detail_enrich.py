@@ -131,6 +131,10 @@ def enrich_missing_details(
         force_img = False
         if venue_id in images.DETAIL_IMAGE_VENUES and detail_url:
             cached_img = img_state.get(ev_id)
+            # task 067: listing image kept as the fallback when the page image
+            # cannot be decoded (EPIC serves truncated PNGs)
+            if cached_img is not None and ev.get("image_url"):
+                cached_img["listing"] = ev["image_url"]
             if cached_img and cached_img.get("url") == detail_url:
                 # no "image" key = the rule did not match the page: keep listing image
                 if "image" in cached_img:
@@ -268,9 +272,12 @@ def enrich_missing_details(
                 ev["description_source"] = "source"
         if force_img:
             found, img = images.detail_image(venue_id, html, detail_url)
+            listing_img = ev.get("image_url")
             if found:
                 ev["image_url"] = img
                 img_state[ev_id] = {"url": detail_url, "image": img}
+                if listing_img and listing_img != img:
+                    img_state[ev_id]["listing"] = listing_img
             else:
                 # rule did not match the page: keep the listing image
                 img_state[ev_id] = {"url": detail_url}

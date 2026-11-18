@@ -276,3 +276,38 @@ def test_page_status_real_archa_cancelled_page():
     html = (FIXTURES / "archa_detail_mat213_canceled.html").read_text(encoding="utf-8")
     m = sm.page_status(page_lines(html), "Mat213 – křest desky a medley největších hitů")
     assert m["status"] == "cancelled"
+
+
+# ── task 067 part 3: broken event-page image -> listing image ────────────────
+
+def test_broken_image_falls_back_to_listing(monkeypatch, tmp_path):
+    import io
+    from PIL import Image
+    from pipeline import thumbs
+    monkeypatch.setattr(thumbs, "EVENT_THUMB_DIR", tmp_path / "t")
+    monkeypatch.setattr(thumbs, "EVENT_DETAIL_DIR", tmp_path / "d")
+    buf = io.BytesIO()
+    Image.new("RGB", (620, 360), "red").save(buf, "JPEG")
+    good = buf.getvalue()
+    calls = []
+
+    def dl(url):
+        calls.append(url)
+        return b"\x89PNG\r\n\x1a\n truncated" if url.endswith(".png") else good
+
+    monkeypatch.setattr(thumbs, "_download", dl)
+    ev = {"id": "epic-x", "image_url": "https://epic/big.png"}
+    used = {}
+    res = thumbs.generate_event_images([ev], {"epic-x": "https://epic/list.jpg"}, used)
+    assert calls == ["https://epic/big.png", "https://epic/big.png", "https://epic/list.jpg"]
+    assert used == {"epic-x": "https://epic/list.jpg"}
+    assert res["epic-x"] == ("img/events/epic-x.jpg", "img/events/detail/epic-x.jpg")
+
+
+def test_broken_image_without_fallback_is_none(monkeypatch, tmp_path):
+    from pipeline import thumbs
+    monkeypatch.setattr(thumbs, "EVENT_THUMB_DIR", tmp_path / "t")
+    monkeypatch.setattr(thumbs, "EVENT_DETAIL_DIR", tmp_path / "d")
+    monkeypatch.setattr(thumbs, "_download", lambda url: b"broken")
+    res = thumbs.generate_event_images([{"id": "e", "image_url": "https://x/a.png"}])
+    assert res["e"] == (None, None)

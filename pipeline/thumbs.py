@@ -109,7 +109,25 @@ def generate_event_thumbs(events: list[dict]) -> dict[str, str | None]:
     return {eid: paths[0] for eid, paths in generate_event_images(events).items()}
 
 
-def generate_event_images(events: list[dict]) -> dict[str, tuple]:
+def _open_with_retry(image_url, fallback, missing, outputs, Image, io):
+    """Download + decode, one retry, then the fallback URL (task 067).
+    Returns (RGB image, URL used, outputs still missing for that URL)."""
+    last = None
+    for _ in range(2):
+        try:
+            data = _download(image_url)
+            return Image.open(io.BytesIO(data)).convert("RGB"), image_url, missing
+        except Exception as exc:
+            last = exc
+    if not fallback or fallback == image_url:
+        raise last
+    log.warning("thumbs: %s failed twice (%s) — using listing image %s", image_url, last, fallback)
+    data = _download(fallback)
+    return Image.open(io.BytesIO(data)).convert("RGB"), fallback, ["thumb", "detail"]
+
+
+def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
+                          used_fallback: "dict | None" = None) -> dict[str, tuple]:
     """Download each event image once and write two files:
 
       img/events/<id>.jpg         480×480 centre square (image_thumb)
@@ -120,6 +138,11 @@ def generate_event_images(events: list[dict]) -> dict[str, tuple]:
     next to it).  Max EVENT_DOWNLOAD_LIMIT downloads per run; deferred events
     keep files still valid for their URL, the rest get None.  Files of events
     no longer in the list are removed.
+
+    Task 067: an image that fails (download or decode, e.g. a truncated PNG)
+    is downloaded once more; when it fails again and fallbacks[event_id]
+    (the listing image) is given, that image is used instead and recorded in
+    used_fallback[event_id] (the caller sets image_url to it).
     """
     try:
         from PIL import Image
@@ -173,9 +196,11 @@ def generate_event_images(events: list[dict]) -> dict[str, tuple]:
             continue
 
         try:
-            data = _download(image_url)
+            src, image_url, missing = _open_with_retry(
+                image_url, (fallbacks or {}).get(eid), missing, outputs, Image, io)
             new_count += 1
-            src = Image.open(io.BytesIO(data)).convert("RGB")
+            if image_url != event.get("image_url") and used_fallback is not None:
+                used_fallback[eid] = image_url
             if "thumb" in missing:
                 w, h = src.size
                 side = min(w, h)
