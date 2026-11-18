@@ -23,7 +23,7 @@ from pipeline import research_store
 from pipeline import manual as manual_mod
 from pipeline.genres import finalize_genres, load_aliases, load_hierarchy
 from pipeline.price import parse_price
-from pipeline.thumbs import generate_thumbs, generate_event_thumbs
+from pipeline.thumbs import generate_thumbs, generate_event_images
 from pipeline.fetch import USER_AGENT
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -257,12 +257,14 @@ def main():
         ve["image_thumb"] = thumb_map.get(v.get("id", ""))
         venues_out.append(ve)
 
-    # Generate event thumbnails; annotate each event with image_thumb
-    event_thumb_map = generate_event_thumbs(events)
+    # Generate event thumbnails (image_thumb) and detail copies (image_detail, task 066)
+    event_image_map = generate_event_images(events)
     events_out = []
     for ev in events:
         ev2 = dict(ev)
-        ev2["image_thumb"] = event_thumb_map.get(ev.get("id", ""))
+        thumb, detail = event_image_map.get(ev.get("id", ""), (None, None))
+        ev2["image_thumb"] = thumb
+        ev2["image_detail"] = detail
         events_out.append(ev2)
 
     generated_at = datetime.datetime.now(PRAGUE_TZ).isoformat()
