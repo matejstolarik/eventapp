@@ -213,18 +213,6 @@ def build(summaries: list[dict], today: str, ignore: set[str] | None = None) -> 
                          f" akcií): {ex}")
         lines.append("")
 
-    # ---- 7. AI (before the folded part 6) ---------------------------------
-    week_searches = sum((s.get("ai") or {}).get("searches") or 0 for s in ok)
-    week_cost = sum((s.get("ai") or {}).get("cost_usd") or 0 for s in ok)
-    month = []
-    if ai.get("month_cost_usd") is not None:
-        month.append(f"${ai['month_cost_usd']:.2f} / ${ai.get('month_budget_usd') or 0:.2f}")
-    if ai.get("month_searches") is not None:
-        month.append(f"{ai['month_searches']} / {ai.get('search_limit')} hľadaní")
-    lines += ["### 7. AI", "",
-              f"- Týždeň: {week_searches} hľadaní, ${week_cost:.2f}",
-              f"- Mesiac {ai.get('month') or ''}: " + (", ".join(month) or "–"), ""]
-
     # ---- 6. for the main chat (folded) ---------------------------------------
     nosp = _union(ok, "no_spotify", today, ignore)
     unver = [u for u in latest.get("unverified_prices") or [] if u["id"] not in ignore]
@@ -248,7 +236,19 @@ def build(summaries: list[dict], today: str, ignore: set[str] | None = None) -> 
         lines.append("")
     if not (nosp or unver or review):
         lines += ["Nič.", ""]
-    lines += ["</details>", "",
+    # ---- 7. AI ---------------------------------
+    week_searches = sum((s.get("ai") or {}).get("searches") or 0 for s in ok)
+    week_cost = sum((s.get("ai") or {}).get("cost_usd") or 0 for s in ok)
+    month = []
+    if ai.get("month_cost_usd") is not None:
+        month.append(f"${ai['month_cost_usd']:.2f} / ${ai.get('month_budget_usd') or 0:.2f}")
+    if ai.get("month_searches") is not None:
+        month.append(f"{ai['month_searches']} / {ai.get('search_limit')} hľadaní")
+    ai_lines = ["### 7. AI", "",
+              f"- Týždeň: {week_searches} hľadaní, ${week_cost:.2f}",
+              f"- Mesiac {ai.get('month') or ''}: " + (", ".join(month) or "–"), ""]
+
+    lines += ["</details>", ""] + ai_lines + [
               f"_Pravidlá: `docs/report-rules.md`, ignorované: `data/report_ignore.json`."
               f" Behov v týždni: {len(ok)}._"]
     return title, "\n".join(lines) + "\n"
