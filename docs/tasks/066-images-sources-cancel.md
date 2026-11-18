@@ -18,7 +18,7 @@ Každá časť vlastný commit. Rozhodnutia do `docs/decisions.md`.
 - **Roxy:** celý banner `…-1400-500` zo stránky akcie namiesto štvorca `-crop-480-480` (príčina Xzibit). Zástupný `no-image-480-480.png` → `null`.
 - **MeetFactory:** `og:image` namiesto JSON-LD `image` 250 px.
 - **Forum Karlín:** `og:image` (originál) alebo najväčší `srcset`.
-- **Cross Club:** `420x0-` z detailu namiesto `150x150c-`; logo klubu → `null`.
+- **Cross Club:** **originál z odkazu lightboxu v detaile** (Matej 2026-11-18: `<a href="/files/2026/prosinec/sub.jpg" rel="lightbox">` na https://www.crossclub.cz/cs/program/8728-drum-and-bus-station-w-fourward-smooth-chris-su-7-mc-fedora/ – vysoké rozlíšenie; 064 skúšala len `/data/files/…`). Ak lightbox nie je, `420x0-`; logo klubu → `null`.
 - **Palác Akropolis:** `_web_event` z detailu, ak existuje.
 - **EPIC:** obrázok zo stránky akcie (`/upload/temp/events/…`) alebo zo zoznamu programu (Matej: každá akcia má obrázok, viď `https://www.epicprague.com/program`); vyber spoľahlivejšie, bez nových požiadaviek navyše, ak sa dá.
 - **Čítareň Unijazz:** 064 zistila, že `og:image` je spoločný obrázok webu. **Matej tvrdí, že takmer každá akcia má po rozkliknutí vlastný obrázok.** Over na 3–4 akciách v tele stránky (obsah článku, galéria, `wp-post-image`, `img` v `.entry-content`), nie len v metadátach; napíš URL a čo si našiel. Vlastný obrázok akcie brať; spoločný obrázok webu a logo → `null`.
