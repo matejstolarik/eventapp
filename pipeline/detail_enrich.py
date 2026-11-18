@@ -176,11 +176,14 @@ def enrich_missing_details(
                         ev["description_source"] = prev.get("description_source", "source")
                         needs_desc = False
                         filled = True
-                if needs_img and not force_img and prev.get("image_url") \
+                if needs_img and not ev.get("image_url") and prev.get("image_url") \
                         and not images.is_rejected(venue_id, prev["image_url"]):
+                    # with force_img this is only a fallback: the page is still
+                    # fetched for the bigger image unless the per-venue limit is hit
                     ev["image_url"] = prev["image_url"]
-                    needs_img = False
-                    filled = True
+                    if not force_img:
+                        needs_img = False
+                        filled = True
                 # price / time taken from the page in an earlier run (not AI values)
                 prev_ai = prev.get("enrichment") or {}
                 if needs_price and prev.get("price_text") and "price_text" not in prev_ai:

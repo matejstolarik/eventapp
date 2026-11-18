@@ -98,3 +98,18 @@ def test_detail_enrich_uses_rule_once_and_caches(monkeypatch):
     out, _ = de.enrich_missing_details([ev], {"r1": out[0]}, venues, state=state)
     assert out[0]["image_url"].endswith("-1400-500.png")
     assert len(calls) == 1  # cached in state["detail_image"]
+
+
+def test_detail_enrich_limit_keeps_previous_image(monkeypatch):
+    """Over the per-venue limit the page is not fetched; the image of the
+    previous run stays (Roxy has no image in the listing)."""
+    from pipeline import detail_enrich as de
+    monkeypatch.setattr(de, "NEW_DETAILS_PER_VENUE", 0)
+    monkeypatch.setattr(de.requests, "get", lambda *a, **k: (_ for _ in ()).throw(AssertionError("fetched")))
+    url = "https://www.roxy.cz/events/detail/1/x"
+    venues = [{"id": "roxy", "sources": [{"url": "https://www.roxy.cz/club/"}]}]
+    ev = {"id": "r2", "venue_id": "roxy", "title": "X", "sources": [{"url": url}],
+          "description": "d" * 20, "image_url": None}
+    prev = dict(ev, image_url="https://www.roxy.cz/upload/temp/x-crop-480-480.png")
+    out, _ = de.enrich_missing_details([ev], {"r2": prev}, venues, state={})
+    assert out[0]["image_url"] == prev["image_url"]
