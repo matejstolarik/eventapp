@@ -189,8 +189,9 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const heroCandidates = [ev.image_detail, ev.image_url].filter((x): x is string => !!x)
   const heroSrc = heroCandidates[heroErr] ? imgSrc(heroCandidates[heroErr]!) : null
   // Task 069: reserve the image box before the image loads (no layout jump).
-  // Known size only for image_detail; the image_url fallback sizes itself.
-  const heroSize = heroErr === 0 && ev.image_detail && ev.image_detail_size ? ev.image_detail_size : null
+  // image_detail is an uncropped resize of image_url, so its size also reserves the
+  // box for the image_url fallback (no collapse and jump when image_detail fails).
+  const heroSize = ev.image_detail && ev.image_detail_size ? ev.image_detail_size : null
   const backButton = (
     <button
       style={{

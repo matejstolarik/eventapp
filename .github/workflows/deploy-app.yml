@@ -78,8 +78,10 @@ jobs:
           done <<< "$THUMBS"
           echo "Venue thumbnails fetched: $COUNT"
 
-      - name: Fetch event thumbnails (preserve pipeline images)
-        # Download each image_thumb from events[] so the UI has them after a UI-only deploy.
+      - name: Fetch event thumbnails and detail images (preserve pipeline images)
+        # Download each image_thumb and image_detail from events[] so the UI has them after a
+        # UI-only deploy (image_detail added after task 071: without it the event page got a 404,
+        # fell back to image_url and flashed).
         # Missing files are skipped with a warning; failures never abort the deploy.
         run: |
           if [ ! -f site/events.json ]; then
@@ -89,7 +91,7 @@ jobs:
           THUMBS=$(python3 -c "
           import json, sys
           data = json.load(open('site/events.json'))
-          paths = [e['image_thumb'] for e in data.get('events', []) if e.get('image_thumb')]
+          paths = [e[k] for e in data.get('events', []) for k in ('image_thumb', 'image_detail') if e.get(k)]
           print('\n'.join(paths))
           " 2>/dev/null || true)
           if [ -z "$THUMBS" ]; then
@@ -107,7 +109,7 @@ jobs:
               echo "Warning: could not fetch $thumb"
             fi
           done <<< "$THUMBS"
-          echo "Event thumbnails fetched: $COUNT"
+          echo "Event images fetched: $COUNT"
 
       - name: Copy web app into site/
         # web/dist/ was built with base=/eventapp/, its index.html and assets go into site/.
