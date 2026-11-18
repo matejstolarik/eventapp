@@ -84,13 +84,20 @@ export function setStoredLanguage(lang: Language): void {
   safeSet('language', lang)
 }
 
+/** Task 072: first of cs / sk / en in the device's language list (in order), else en. */
+export function pickLanguage(languages: readonly string[]): Language {
+  for (const tag of languages) {
+    const base = tag.toLowerCase().split(/[-_]/)[0]
+    if (base === 'cs' || base === 'sk' || base === 'en') return base
+  }
+  return 'en'
+}
+
 export function detectLanguage(): Language {
   const stored = getStoredLanguage()
   if (stored) return stored
-  const nav = navigator.language ?? ''
-  if (nav.startsWith('sk')) return 'sk'
-  if (nav.startsWith('cs')) return 'cs'
-  return 'en'
+  const langs = navigator.languages?.length ? navigator.languages : [navigator.language ?? '']
+  return pickLanguage(langs)
 }
 
 // ── Events period ─────────────────────────────────────────────────────────

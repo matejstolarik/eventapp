@@ -3,6 +3,7 @@ import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
 import { joinDot, DOT_SEP } from '../core/dot'
 import { isGoing, toggleGoing } from '../core/store'
+import { PosterZoom } from '../components/PosterZoom'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate, tagLabel } from '../i18n'
 import { isEventLive } from '../core/events'
@@ -212,22 +213,22 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
       position: 'absolute', inset: 0, background: '#111118',
       overflowY: 'auto', zIndex: 50
     }}>
-      {/* Image (task 068/069): whole image uncropped, max 50 % of the screen
-          height, centred on #111118. With image_detail_size the box has its
-          final size from the first frame (dark area until the image arrives). */}
+      {/* Image (task 068/069/072): full width, max 50 % of the screen height;
+          a taller image is cropped from the bottom (centre top), the whole one
+          is behind "Plagát". With image_detail_size the box has its final size
+          from the first frame (dark area until the image arrives). */}
       {heroSrc ? (
-        <div style={{ position: 'relative', width: '100%', background: '#111118', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: '100%', background: '#111118' }}>
           <div style={heroSize ? {
-            position: 'relative', lineHeight: 0, background: '#1C1C27',
-            width: `min(100%, calc(50vh * ${heroSize[0]} / ${heroSize[1]}))`,
-            aspectRatio: `${heroSize[0]} / ${heroSize[1]}`,
-          } : { position: 'relative', lineHeight: 0, maxWidth: '100%' }}>
+            position: 'relative', lineHeight: 0, background: '#1C1C27', width: '100%',
+            aspectRatio: `${heroSize[0]} / ${heroSize[1]}`, maxHeight: '50vh',
+          } : { position: 'relative', lineHeight: 0, width: '100%' }}>
             <img
               src={heroSrc} alt=""
               onError={() => setHeroErr(e => e + 1)}
               style={heroSize
-                ? { display: 'block', width: '100%', height: '100%' }
-                : { display: 'block', maxWidth: '100%', maxHeight: '50vh', width: 'auto', height: 'auto' }}
+                ? { display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }
+                : { display: 'block', width: '100%', height: 'auto', maxHeight: '50vh', objectFit: 'cover', objectPosition: 'center top' }}
             />
             <button
               style={{
@@ -448,10 +449,9 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
             position: 'fixed', inset: 0, background: '#000', zIndex: 200,
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}
-          onClick={() => setShowPoster(false)}
         >
-          <img src={ev.image_url} alt={ev.title}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          {/* Task 072: zoomable; closes only via the back arrow and system back */}
+          <PosterZoom src={ev.image_url} alt={ev.title} />
           <button
             style={{
               position: 'absolute', top: 52, left: 16,

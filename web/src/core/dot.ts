@@ -10,3 +10,9 @@ export const DOT_SEP = ' · '
 export function joinDot(parts: ReadonlyArray<string | null | undefined | false>): string {
   return parts.filter((p): p is string => typeof p === 'string' && p.trim() !== '').join(DOT_SEP)
 }
+
+/** Task 072: "2026-11-21" -> "21. 11. 2026" (same in every language). */
+export function formatDateDMY(date: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  return m ? `${Number(m[3])}. ${Number(m[2])}. ${m[1]}` : date
+}

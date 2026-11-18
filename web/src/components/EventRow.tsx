@@ -114,7 +114,9 @@ export function TypeIconPill({ event, height = 20, background = '#2A2838', iconS
 
 /** One line of pills: the type icon first (task 070), then the event tags
  * with type-coloured text on #2A2838 (task 069; task 071: no fallback tag, an
- * event without tags shows only the icon pill). No wrapping: the line fades out on the right. */
+ * event without tags shows only the icon pill). Task 072: max 3 tags, only whole tags. */
+const MAX_ROW_TAGS = 3
+
 export function BadgeTagRow({ event, lang, height = 20, fontSize = 11, gap = 4 }: {
   event: Event; lang: Language
   height?: number; fontSize?: number; gap?: number
@@ -126,14 +128,13 @@ export function BadgeTagRow({ event, lang, height = 20, fontSize = 11, gap = 4 }
     fontSize, fontWeight: 500, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap',
     boxSizing: 'border-box', background: '#2A2838',
   }
+  // Task 072: at most 4 pills incl. the icon pill, no fade. flex-wrap with a
+  // one-line height hides a tag that does not fit whole: it wraps to the hidden
+  // second line, and flex line breaking is in order, so every tag after it too.
   return (
-    <div style={{
-      display: 'flex', gap, height, overflow: 'hidden',
-      WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
-      maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
-    }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: gap, rowGap: gap, height, overflow: 'hidden' }}>
       <TypeIconPill event={event} height={height} />
-      {tags.map(tag => (
+      {tags.slice(0, MAX_ROW_TAGS).map(tag => (
         <span key={tag} style={{ ...pill, color: tagText }}>{tagLabel(tag, lang)}</span>
       ))}
     </div>
