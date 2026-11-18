@@ -25,7 +25,7 @@ Každá časť vlastný commit.
 
 ### 4. Karta na mape a stránka akcie
 - Karta na mape: krúžok preč, štítky farebným textom typu; zvyšok z 068 ostáva.
-- Stránka akcie: krúžok preč; štítky farebné ako teraz (bez plnofarebného štítku typu, bez new a pre teba). Obrázok podľa časti 1, **najviac 50 % výšky obrazovky** (zmena z 70 %, Matej 18:55; celý obrázok na ťuk cez Plagát).
+- Stránka akcie: krúžok preč; **prvý štítok = plnofarebný štítok typu** (`koncert`, `párty`, `DJ`, pri kultúre podtyp; plná farba typu, tmavý text – presne ako pred 068, slúži ako legenda farieb; Matej 18:57), za ním štítky farebným textom typu; bez new a pre teba. Obrázok podľa časti 1, **najviac 50 % výšky obrazovky** (zmena z 70 %, Matej 18:55; celý obrázok na ťuk cez Plagát).
 
 ### 5. Oddeľovač „·“
 - Matej: medzery okolo bodky sú nerovnomerné (Miesta: chýba za bodkou; Akcie: chýba; karta na mape: chýba pred). **Koreňová príčina (z kódu):** medzera na začiatku alebo konci textu v položke `display:flex` sa zahodí – `EventRow.MetaLine` má `' · '` na konci prvého `span` (chýba medzera za bodkou), `EventPanel` má `' · 20:00'` na začiatku druhého `span` (chýba pred bodkou); over aj `VenuePage` (adresa · vzdialenosť), `EventPage` (`grep -rn "·" web/src`). Nájdi všetky miesta, kde sa skladá „x · y“, a nahraď **jednou spoločnou funkciou**: obyčajná medzera pred aj za „·“, žiadne extra okraje. Test. Skontroluj na snímkach.
