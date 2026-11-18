@@ -31,3 +31,15 @@ Spúšťa ich krok `Alerts` na konci `daily.yml` a `deploy-app.yml` (vždy, aj p
 - Denný beh zatvára len kľúče `workflow:daily`, `source:*`, `ai:*`; `deploy-app` len `workflow:deploy-app`.
 - Denný rozpočet behu (0,30 $) nie je upozornenie, je to bežné zastavenie.
 - Test: `workflow_dispatch` denného behu so vstupom `simulate_zero_source = <venue_id>` – zdroje podniku sa v zhrnutí zapíšu s 0 akciami (dáta sa nemenia).
+
+## Týždenný report (issue so štítkom `weekly-report`)
+
+Workflow `weekly-report.yml`: pondelok 05:43 UTC (6:43 / 7:43 Praha, po dennom behu) a `workflow_dispatch`. Číta zhrnutia za posledných 7 dní (dnes − 6 … dnes), trend porovnáva s posledným zhrnutím týždňa predtým. Nový report zatvorí predošlý otvorený report. Každý bod má ID `W<týždeň ISO>-<poradie>` (napr. `W48-03`), čísluje sa zhora nadol.
+
+1. **Stav** – „✅ Všetko v poriadku“ alebo najviac **3** problémy v tomto poradí: zlyhané behy v týždni; dni bez zhrnutia; zdroj s 0 akciami v poslednom behu; AI narazila na limit / HTTP 402; najviac 2 polia podniku výrazne horšie ako bežne (časť 3).
+2. **Podniky** – akcie v poslednom behu, nové za týždeň (súčet `new`), trend = rozdiel akcií oproti poslednému behu minulého týždňa, varovania = počet zdrojových varovaní v týždni.
+3. **Chýbajúce údaje** – pole podniku sa hlási, ak chýba pri **> 30 %** akcií, alebo je o **≥ 15 bodov** horšie ako bežný stav (medián podielu zo zhrnutí starších ako 7 dní). Podnik s menej ako **3** akciami (pri žánri hudobnými) sa neposudzuje. Zobrazí sa **8** riadkov (najprv „horšie ako bežne“, potom podľa podielu), ďalšie zbalené.
+4. **Na kontrolu** – najviac **10**: zahodená cena → zmena typu AI → nízka istota typu (< 0,6) → AI nič nenašla; len akcie od dnes, unikátne za týždeň, odkaz do appky a na zdroj.
+5. **Návrhy nových žánrov** – z posledného behu, **≥ 3** akcie, 3 príklady; Matej odpovie schváliť / zlúčiť s X / zamietnuť.
+6. **Na doplnenie v chate** (zbalené, pre hlavný chat) – interpreti nových koncertov/DJ nocí bez Spotify (za týždeň), ceny `verified: false` v najbližších 14 dňoch (posledný beh), všetky body na kontrolu vrátane zahodených žánrov.
+7. **AI** – hľadania a cena za týždeň; mesiac: cena / rozpočet, hľadania / limit (z posledného behu).

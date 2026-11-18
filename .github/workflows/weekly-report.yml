@@ -1,0 +1,38 @@
+name: Weekly report
+
+on:
+  schedule:
+    # Monday 05:43 UTC = 06:43 Prague winter (CET) / 07:43 summer (CEST),
+    # after the daily pipeline (04:17 UTC). Off the hour (Actions load at :00).
+    - cron: '43 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Restore run summaries
+        # written by daily.yml (task 057); restore only, never saved here
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/run_summaries
+          key: run-summaries-none
+          restore-keys: run-summaries-
+
+      - name: Create weekly report issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          URL=$(python -m pipeline.weekly_report)
+          echo "Weekly report: $URL"
+          echo "Weekly report: $URL" >> $GITHUB_STEP_SUMMARY
