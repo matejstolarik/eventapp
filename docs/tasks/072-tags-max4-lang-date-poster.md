@@ -34,3 +34,27 @@
 - Snímky JPEG 390 × 844 do `docs/tasks/072/`: `akcie-dnes.jpg`, `detail-plagat-na-vysku.jpg`, `detail-na-sirku.jpg`, `moj-ucet-akcie.jpg`, `moj-ucet-jazyk.jpg`, `plagat-zoom.jpg` (2,5× po dvojitom ťuknutí).
 - Test `detectLanguage` (napr. `['de-DE','cs-CZ']` → `cs`, `['de','sk-SK']` → `sk`, `['en-US','cs-CZ']` → `en`, `['de']` → `en`).
 - Report: čo hotové, otvorené body.
+
+## Report
+
+**2026-11-19**, commit `dcbf71f` (práca), report v nasledujúcom commite. Nasadenie `deploy-app` #47 (run 44420819104) – success. Pipeline sa nespúšťala (len `web/`), dátové čísla sa preto neuvádzajú.
+
+### Hotové
+1. **Riadok v Akciách** (`BadgeTagRow`): ikona + najviac 3 štítky, rozplynutie zrušené. Štítok, ktorý sa celý nezmestí, sa nezobrazí a ani žiadny za ním (`flex-wrap` s výškou jedného riadku, `overflow: hidden`). Poradie bez zmeny. `BadgeTagRow` sa používa len v riadku Akcií, karta na mape a program podniku sa nemenili.
+2. **Jazyk:** `pickLanguage(navigator.languages)` prejde celý zoznam v poradí, prvý z cs/sk/en, inak en; uložená voľba má prednosť. Poradie v Môj účet: čeština, slovenčina, angličtina.
+3. **Dátum v Môj účet → Akcie:** `21. 11. 2026` (`formatDateDMY`, bez úvodných núl, napr. `5. 12. 2026`).
+4. **Obrázok v detaile:** plná šírka, `aspect-ratio` z `image_detail_size` + `max-height: 50vh` (rámik vyhradený od prvého snímku), `object-fit: cover`, `object-position: center top`. Overené Playwrightom na 390 × 844: plagát na výšku 390 × 422 px (= 50 %), obrázok na šírku 390 × 204 px (celý).
+5. **Plagát:** nový komponent `PosterZoom` bez knižnice – dva prsty (1–4×), dvojité ťuknutie 1× / 2,5× v mieste ťuknutia, posun pri zoome, obrázok nevyjde z okrajov. Ťuk na plochu už nezatvára; zatvára šípka a systémové späť (história ako doteraz). Overené: jeden ťuk prekrytie nezavrie, dvojitý klik → `translate(0px, 183px) scale(2.5)`.
+
+### Testy a build
+- `npm test`: 14 súborov, 205 testov OK; nový `src/core/language.test.ts` (`['de-DE','cs-CZ']`→cs, `['de','sk-SK']`→sk, `['en-US','cs-CZ']`→en, `['de']`→en, `[]`→en; dátum).
+- `npm run build`: OK.
+
+### Snímky
+`tests/playwright/screenshots-072.spec.ts` (dáta a obrázky z Pages, čas 19. 11. 17:00, spustené z `web/` s `NODE_PATH=web/node_modules`) → `docs/tasks/072/`: `akcie-dnes.jpg`, `detail-plagat-na-vysku.jpg` (MeetFactory, Good Times Only, 796 × 1200), `detail-na-sirku.jpg` (Cross Club, Moordoor, 1200 × 627), `moj-ucet-akcie.jpg`, `moj-ucet-jazyk.jpg`, `plagat-zoom.jpg` (2,5× po dvojitom ťuknutí). Snímky som neposudzoval.
+
+### Rozhodnutia (zapísané v `decisions.md`)
+- Zoom bez knižnice (vlastné pointer events); štítky čisto v CSS bez merania v JS; dátum bez úvodných núl.
+
+### Otvorené
+- Priblíženie dvoma prstami je overené len logikou a dvojklikom myšou v Playwrighte, nie na skutočnom telefóne – treba vyskúšať na zariadení.
