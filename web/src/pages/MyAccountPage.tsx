@@ -3,6 +3,7 @@ import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
 import { getGoing, pruneGoing, setStoredLanguage } from '../core/store'
 import { isEventFinished } from '../core/events'
+import { joinDot } from '../core/dot'
 
 interface Props {
   data: EventsData | null
@@ -94,8 +95,7 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
                         {event.title}
                       </p>
                       <p style={{ fontSize: 13, color: '#B9B6CC' }}>
-                        {venue?.name ?? event.venue_id} · {event.date}
-                        {event.start_time ? ` · ${event.start_time}` : ''}
+                        {joinDot([venue?.name ?? event.venue_id, event.date, event.start_time])}
                       </p>
                     </div>
                   </button>

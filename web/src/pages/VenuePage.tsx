@@ -7,6 +7,7 @@ import type { EventIconKey } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getToday } from '../core/day'
+import { joinDot } from '../core/dot'
 import { IconChevronLeft, IconHeart, IconGlobe, IconInstagram, IconNavigate, EventTypeIcon } from '../icons'
 
 interface Props {
@@ -134,7 +135,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
     ? formatDistance(haversine(userLocation.lat, userLocation.lng, venue.lat, venue.lng), lang)
     : null
 
-  const addressLine = distStr ? `${venue.address} ${dict.venue.dot} ${distStr}` : venue.address
+  const addressLine = joinDot([venue.address, distStr])
 
   return (
     <div style={{
