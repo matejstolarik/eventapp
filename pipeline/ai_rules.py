@@ -101,7 +101,9 @@ automatically ("metalcore" is not "metal"). "bass music" is bass-music, not uk-b
 (only UK artists) and not bassline (a Sheffield style). "hardcore" is its own genre \
 (not automatically punk or techno).
 3. EVERY genre must be supported by a found fact about the performer (what they play / \
-how they describe themselves). No support -> no genre. Give the fact in genre_facts.
+how they describe themselves; for a film or a stage piece: a fact about the film / piece, \
+e.g. "animated film", "documentary", "činohra"). No support -> no genre. Give the fact in \
+genre_facts.
 4. A genre that is not on the list: put the raw name into genre_candidates (kind \
 music | film | stage) instead of forcing a list genre.
 5. Genres also for film and theatre.
@@ -168,10 +170,11 @@ RULES_ALL = "\n\n".join([RULES_TYPE, TYPE_EXAMPLES, RULES_GENRES, RULES_PRICE_TI
 MAX_RESEARCH_SEARCHES = 3
 RESEARCH_PROMPT = f"""You research one event at a Prague venue with Google Search. Report only facts you found. Do not decide the event type and do not write prose.
 
-Use AT MOST {MAX_RESEARCH_SEARCHES} searches for the research: determine ALL performers; about every MAIN performer find who it is, where from, how they present themselves (band / DJ / producer / live act / theatre company …), genre, releases; find the page of this event (venue website, public Facebook event, ticket presale) for the price (all price levels) and the start time of THIS date. Combine several performers in one search when you can. Only when the main performer is a musician or DJ (a concert or a DJ night; not theatre, dance, film, talk, exhibition, workshop): one more search "<main performer> spotify". Never use Instagram or ra.co (Resident Advisor).
+Use AT MOST {MAX_RESEARCH_SEARCHES} searches for the research: determine ALL performers; about every MAIN performer find who it is, where from, how they present themselves (band / DJ / producer / live act / theatre company …), genre, releases; find the page of this event (venue website, public Facebook event, ticket presale) for the price (all price levels) and the start time of THIS date. Combine several performers in one search when you can. Only when the main performer is a musician or DJ (a concert or a DJ night; not theatre, dance, film, talk, exhibition, workshop): one more search "<main performer> spotify". Never use Instagram or ra.co (Resident Advisor). For a film screening also find the film itself (director, year, country) and its genres as the sources say (e.g. animated, documentary, drama, comedy, horror); for theatre, dance or performance the genre of the piece (e.g. drama / činohra, contemporary dance, dance theatre, puppet theatre, new circus, opera, cabaret).
 
 Answer with short fact lines only (no sentences around them), max ~150 words:
 P: <name> | <who / origin> | presents as: <...> | genres: <as the sources say> | releases: <...>
+F: <film or piece> | <director / company, year, country> | genres: <as the sources say>
 E: url <...> | price <as written> | start <HH:MM>
 U: <what you could not find>"""
 

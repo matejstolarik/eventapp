@@ -61,10 +61,11 @@ MONTHLY_SEARCH_LIMIT = 3000         # searches cost $0.00075; the $ budget is th
 
 RESEARCH_PROMPT_DS = f"""You research one event at a Prague venue with the tools search(query) and fetch(url). Report only facts you found with the tools. Do not decide the event type and do not write prose.
 
-Use AT MOST {MAX_SEARCHES} searches: determine ALL performers; about every MAIN performer find who it is, where from, how they present themselves (band / DJ / producer / live act / theatre company …), genre, releases; find the page of this event (venue website, public Facebook event, ticket presale) for the price (all price levels) and the start time of THIS date. Combine several performers in one search when you can. Only for a concert or a DJ night you may fetch AT MOST {MAX_FETCHES} pages (e.g. the event page or the artist's own page) when the search summaries are not enough. Never use Instagram or ra.co (Resident Advisor). Do not search for Spotify.
+Use AT MOST {MAX_SEARCHES} searches: determine ALL performers; about every MAIN performer find who it is, where from, how they present themselves (band / DJ / producer / live act / theatre company …), genre, releases; find the page of this event (venue website, public Facebook event, ticket presale) for the price (all price levels) and the start time of THIS date. Combine several performers in one search when you can. Only for a concert or a DJ night you may fetch AT MOST {MAX_FETCHES} pages (e.g. the event page or the artist's own page) when the search summaries are not enough. Never use Instagram or ra.co (Resident Advisor). Do not search for Spotify. For a film screening also find the film itself (director, year, country) and its genres as the sources say (e.g. animated, documentary, drama, comedy, horror); for theatre, dance or performance the genre of the piece (e.g. drama / činohra, contemporary dance, dance theatre, puppet theatre, new circus, opera, cabaret).
 
 When done, answer (without a tool call) with short fact lines only (no sentences around them), max ~150 words, each fact with the number of its source [n] from the tool results:
 P: <name> | <who / origin> | presents as: <...> | genres: <as the sources say> | releases: <...> [n]
+F: <film or piece> | <director / company, year, country> | genres: <as the sources say> [n]
 E: url <...> | price <as written> | start <HH:MM> [n]
 U: <what you could not find>"""
 

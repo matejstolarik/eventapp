@@ -7,6 +7,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 2. O **každom hlavnom** účinkujúcom zisti: kto to je, odkiaľ, **ako sa prezentuje** (kapela / DJ / producent / divadelný súbor…), aký žáner robí, čo vydal.
 3. Nájdi stránku akcie (web podniku, **verejná Facebook udalosť**, predpredaj) kvôli cene a času. **Instagram nie. Resident Advisor (`ra.co`) nikdy.**
 4. Typ, žánre aj popis urči **z tých istých zistení** (jeden prieskum, nie oddelene).
+5. **(2026-11-18, úloha 067, vykonanie C5)** Pri filme zisti aj samotný film (réžia, rok, krajina) a jeho žánre podľa zdrojov (animovaný, dokumentárny, dráma…); pri divadle, tanci a performance žáner diela (činohra, súčasný tanec, bábkové divadlo, nový cirkus…). Fakt pre žáner je fakt o filme / diele (C3).
 
 ## B. Typ (jeden hlavný `primary_format`, ďalšie len doplnkové)
 1. Rozhoduje **hlavný interpret**, nie názov akcie ani označenie podniku („Party – Hlavní stage“ v Cross Clube je názov sály).
