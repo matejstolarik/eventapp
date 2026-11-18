@@ -1,0 +1,4 @@
+{
+ "_comment": "Task 057: items that alerts and the weekly report no longer show. Rules: docs/report-rules.md. Each entry: {\"id\": \"<venue>:<field> | <event_id> | genre:<name> | <venue>:source | <venue>/<source label>\", \"note\": \"why, date\"}.",
+ "ignore": []
+}

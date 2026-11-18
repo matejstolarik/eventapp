@@ -31,11 +31,16 @@ on:
         description: 'AI enrichment wall-clock limit in seconds (default 1500)'
         required: false
         default: ''
+      simulate_zero_source:
+        description: 'Test switch (task 057): venue id whose sources are recorded with 0 events in the run summary -> alert issue (events.json unchanged)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write     # task 057: alert issues
 
 jobs:
   pipeline:
@@ -123,6 +128,7 @@ jobs:
           ENRICH_FROM_RESEARCH: ${{ inputs.reenrich_from_research }}
           ENRICH_TIMEOUT_S: ${{ inputs.enrich_timeout_s }}
           RESEARCH_SEED: ${{ inputs.research_seed }}
+          ALERT_SIMULATE_ZERO: ${{ inputs.simulate_zero_source }}
         run: python -m pipeline.main
 
       - name: Set up Node.js
@@ -156,6 +162,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+
+      - name: Alerts (GitHub issues)
+        # task 057: failed run, source with 0 events / drop > 50 %, AI month limit.
+        # Also records the job result in today's run summary.
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -m pipeline.alerts --workflow daily --job-status ${{ job.status }}
 
       - name: Save run summaries
         if: always()
