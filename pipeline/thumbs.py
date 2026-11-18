@@ -12,9 +12,12 @@ THUMB_SIZE = 160
 THUMB_QUALITY = 80
 
 EVENT_THUMB_DIR = pathlib.Path("site/img/events")
-EVENT_THUMB_SIZE = 480          # task 066 (was 240); still a centre square
+EVENT_THUMB_W, EVENT_THUMB_H = 640, 480   # task 068: 4:3 (was 480 square, 240 before 066)
 EVENT_THUMB_QUALITY = 75
-EVENT_DOWNLOAD_LIMIT = 150
+# task 068: a source with w/h below this is a portrait (poster) and is shown
+# whole on a blurred, darkened fill of itself; everything else = centre 4:3 crop.
+PORTRAIT_MAX_RATIO = 0.8
+EVENT_DOWNLOAD_LIMIT = 400      # task 068: one-off recompute of all thumbs (normally 150)
 
 # task 066: uncropped copy for the event detail, longer side <= 1200 px
 EVENT_DETAIL_DIR = EVENT_THUMB_DIR / "detail"
@@ -34,8 +37,36 @@ def _hash_url(url: str) -> str:
 
 def _event_hash(url: str, kind: str) -> str:
     """Hash of the source URL plus output size, so a size change regenerates."""
-    size = EVENT_THUMB_SIZE if kind == "thumb" else EVENT_DETAIL_MAX
+    size = f"{EVENT_THUMB_W}x{EVENT_THUMB_H}r{PORTRAIT_MAX_RATIO}" if kind == "thumb" else EVENT_DETAIL_MAX
     return _hash_url(f"{url}|{kind}{size}")
+
+
+def make_event_thumb(src, Image, ImageFilter, ImageEnhance):
+    """640x480 thumb: portrait sources (w/h < PORTRAIT_MAX_RATIO) uncropped,
+    centred on a blurred and darkened copy of themselves; others centre-cropped
+    to 4:3.  Returns (image, "portrait" | "crop")."""
+    tw, th = EVENT_THUMB_W, EVENT_THUMB_H
+    w, h = src.size
+    if w / h < PORTRAIT_MAX_RATIO:
+        # fill: cover-crop the source to 4:3, blur strongly, darken
+        scale = max(tw / w, th / h)
+        bg = src.resize((max(tw, round(w * scale)), max(th, round(h * scale))), Image.LANCZOS)
+        left, top = (bg.width - tw) // 2, (bg.height - th) // 2
+        bg = bg.crop((left, top, left + tw, top + th))
+        bg = bg.filter(ImageFilter.GaussianBlur(24))
+        bg = ImageEnhance.Brightness(bg).enhance(0.45)
+        fw = max(1, round(w * th / h))
+        fg = src.resize((fw, th), Image.LANCZOS)
+        bg.paste(fg, ((tw - fw) // 2, 0))
+        return bg, "portrait"
+    target = tw / th
+    if w / h > target:              # wider than 4:3 -> cut the sides
+        cw, ch = round(h * target), h
+    else:                           # taller than 4:3 -> cut top and bottom
+        cw, ch = w, round(w / target)
+    left, top = (w - cw) // 2, (h - ch) // 2
+    img = src.crop((left, top, left + cw, top + ch)).resize((tw, th), Image.LANCZOS)
+    return img, "crop"
 
 
 def quote_url(url: str) -> str:
@@ -130,7 +161,7 @@ def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
                           used_fallback: "dict | None" = None) -> dict[str, tuple]:
     """Download each event image once and write two files:
 
-      img/events/<id>.jpg         480×480 centre square (image_thumb)
+      img/events/<id>.jpg         640×480 (image_thumb; see make_event_thumb)
       img/events/detail/<id>.jpg  uncropped, longer side <= 1200 px (image_detail)
 
     Returns {event_id: (thumb_path | None, detail_path | None)}.  A file is
@@ -145,7 +176,7 @@ def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
     used_fallback[event_id] (the caller sets image_url to it).
     """
     try:
-        from PIL import Image
+        from PIL import Image, ImageFilter, ImageEnhance
         import io
     except ImportError:
         log.warning("thumbs: Pillow not installed — skipping event thumbnail generation")
@@ -167,6 +198,7 @@ def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
 
     result: dict[str, tuple] = {}
     new_count = cache_count = error_count = deferred_count = 0
+    shapes = {"portrait": 0, "crop": 0}
 
     for event in events:
         eid = event.get("id", "")
@@ -202,11 +234,8 @@ def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
             if image_url != event.get("image_url") and used_fallback is not None:
                 used_fallback[eid] = image_url
             if "thumb" in missing:
-                w, h = src.size
-                side = min(w, h)
-                left, top = (w - side) // 2, (h - side) // 2
-                img = src.crop((left, top, left + side, top + side))
-                img = img.resize((EVENT_THUMB_SIZE, EVENT_THUMB_SIZE), Image.LANCZOS)
+                img, shape = make_event_thumb(src, Image, ImageFilter, ImageEnhance)
+                shapes[shape] += 1
                 img.save(outputs["thumb"][0], "JPEG", quality=EVENT_THUMB_QUALITY, optimize=True)
                 outputs["thumb"][1].write_text(_event_hash(image_url, "thumb"))
             if "detail" in missing:
@@ -223,8 +252,10 @@ def generate_event_images(events: list[dict], fallbacks: "dict | None" = None,
     total_size = sum(f.stat().st_size for d in (EVENT_THUMB_DIR, EVENT_DETAIL_DIR)
                      for f in d.glob("*.jpg"))
     log.info(
-        "event images: new=%d cache=%d errors=%d deferred=%d dir_size=%.1fMB",
+        "event images: new=%d cache=%d errors=%d deferred=%d dir_size=%.1fMB "
+        "(new thumbs: portrait=%d crop=%d)",
         new_count, cache_count, error_count, deferred_count, total_size / 1_048_576,
+        shapes["portrait"], shapes["crop"],
     )
     if deferred_count:
         log.warning("event images: %d downloads deferred (limit %d reached)",

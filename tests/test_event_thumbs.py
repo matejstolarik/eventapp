@@ -35,7 +35,7 @@ def test_thumbnail_dimensions(tmp_path, monkeypatch):
     thumb_path = tmp_path / "site" / "img" / "events" / "ev1.jpg"
     assert thumb_path.exists()
     img = Image.open(thumb_path)
-    assert img.size == (480, 480)
+    assert img.size == (640, 480)
     assert result["ev1"] == "img/events/ev1.jpg"
 
 
@@ -182,7 +182,7 @@ def test_detail_copy_uncropped(tmp_path, monkeypatch, size, expected):
         from pipeline.thumbs import generate_event_images
         generate_event_images([_make_event("evd")])
     assert Image.open(tmp_path / "site/img/events/detail/evd.jpg").size == expected
-    assert Image.open(tmp_path / "site/img/events/evd.jpg").size == (480, 480)
+    assert Image.open(tmp_path / "site/img/events/evd.jpg").size == (640, 480)
 
 
 def test_old_240_thumb_is_regenerated(tmp_path, monkeypatch):
@@ -198,4 +198,49 @@ def test_old_240_thumb_is_regenerated(tmp_path, monkeypatch):
         generate_event_images([_make_event("old")])
         generate_event_images([_make_event("old")])
         assert mock_open.call_count == 1
-    assert Image.open(d / "old.jpg").size == (480, 480)
+    assert Image.open(d / "old.jpg").size == (640, 480)
+
+
+# ── task 068: 4:3 thumb, portrait sources uncropped on a blurred fill ────────
+
+def _split_image(size):
+    """Left half red, right half blue; a white 4 px border marks the edges."""
+    w, h = size
+    img = Image.new("RGB", size, (220, 30, 30))
+    img.paste((30, 30, 220), (w // 2, 0, w, h))
+    for box in ((0, 0, w, 4), (0, h - 4, w, h), (0, 0, 4, h), (w - 4, 0, w, h)):
+        img.paste((255, 255, 255), box)
+    return img
+
+
+@pytest.mark.parametrize("size,kind", [
+    ((400, 600), "portrait"),   # 2:3 poster
+    ((400, 500), "crop"),       # 4:5 = 0.8, not below the limit
+    ((500, 500), "crop"),       # 1:1
+    ((1600, 900), "crop"),      # 16:9
+    ((1500, 500), "crop"),      # 3:1 banner
+])
+def test_thumb_rule_by_shape(size, kind):
+    from PIL import ImageFilter, ImageEnhance
+    from pipeline.thumbs import make_event_thumb
+    img, got = make_event_thumb(_split_image(size), Image, ImageFilter, ImageEnhance)
+    assert img.size == (640, 480)
+    assert got == kind
+    if kind == "portrait":
+        fw = round(size[0] * 480 / size[1])            # poster width in the thumb
+        x0 = (640 - fw) // 2
+        # whole poster visible: its white top and bottom border are in the thumb
+        assert img.getpixel((320, 1))[1] > 200
+        assert img.getpixel((320, 478))[1] > 200
+        # left and right of the poster: darkened fill, not black, not white
+        side = img.getpixel((x0 // 2, 240))
+        assert 5 < max(side) < 150
+    else:
+        # centre crop: both halves still present, white border not on all sides
+        assert img.getpixel((100, 240))[0] > 150      # red left
+        assert img.getpixel((540, 240))[2] > 150      # blue right
+
+
+def test_portrait_limit_constant():
+    from pipeline.thumbs import PORTRAIT_MAX_RATIO
+    assert PORTRAIT_MAX_RATIO == 0.8
