@@ -43,3 +43,23 @@ Pribudnú 4 kľúče ikon, všade, kde sa dnes ikona typu kreslí (piny na mape,
 - `npm test`, `npm run build`; číslo nasadenia (`deploy-app`).
 - Snímky JPEG 390 × 844 do `docs/tasks/071/`: `akcie-dnes.jpg` (s kultúrnou akciou), `mapa-karta.jpg`, `program-podniku.jpg`, `detail-cs.jpg` (stránka kultúrnej akcie s appkou v češtine – štítky po anglicky), a `ikony-3x.png` – všetkých 11 ikon (concert, party, dj, film, stand-up, dance, masky, talk, workshop, quiz, opening) zväčšené 3× na pine a v pilulke.
 - Report: čo hotové, zoznam zmazaných prekladov, otvorené body.
+
+## Report
+
+**2026-11-18**, commit `d586a67` (kód, testy, `decisions.md`, skript snímok) + commit tohto reportu a snímok. Len frontend: pipeline sa nespúšťal; nasadenie `Deploy web app` beh č. 45 (run 44379763929) – **success**. Dátové čísla sa podľa `CLAUDE.md` neuvádzajú.
+
+**Hotové**
+1. **Ikony** `talk`, `quiz`, `opening` (obrys, ťah 2) a `workshop` (plná, variant B, kľúč s obrysom vo farbe plochy `BG`) v `ICON_SVG` (`web/src/map/markers.ts`). Jeden zdroj pre piny, `TypeIconPill`, plochu bez obrázka v Akciách (`EventImage43`) aj `EventTypeIcon` (stránka akcie, Miesta, program podniku). `ICON_SVG` má nový parameter `bg`. `eventIconKey`: kultúrny `primary_format` rozhoduje, inak poradie film → stand-up → dance → talk → workshop → quiz → opening → masky; „other“ → masky.
+2. **Štítky podtypov** (`film`, `stand-up`, `dance`, `theatre`, `talk`, `workshop`, `quiz`, `opening`) sa v riadku Akcií, na karte na mape a v programe podniku nezobrazujú; `performance` ostáva. Náhradný štítok s názvom typu zrušený (akcia bez štítkov = len pilulka s ikonou). Stránka akcie (`primaryTypeTag`) a Môj účet bez zmeny.
+3. **Karta na mape:** `TypeIconPill` ako prvá pilulka riadku štítkov (výška 32 ako štítky karty, ikona 20 px).
+4. **Štítky po anglicky:** `tagLabel` číta vždy `en.tags` bez ohľadu na jazyk.
+   - Zmazané v `sk.ts` aj `cs.ts` (celý objekt `tags`, po 29 kľúčov): `talk`, `performance`, `physical-theatre`, `stand-up`, `action`, `adventure`, `animation`, `biography`, `comedy`, `crime`, `documentary`, `family`, `history`, `horror`, `musical`, `mystery`, `romance`, `short`, `war`, `cult-classic`, `arthouse`, `opera`, `puppet-theatre`, `improv`, `cabaret`, `new-circus`, `contemporary-dance`, `ballet`, `dance-theatre`.
+   - V `en.ts` zmazané `talk` (`talk & reading` → teraz `talk`), `performance`, `stand-up` (rovnaké ako kód); ostalo 7 popisov: `physical theatre`, `cult classic`, `puppet theatre`, `new circus`, `contemporary dance`, `dance theatre`, `short film`.
+   - Prehľad `web/src`: štítky akcie sa prekladajú len cez `tagLabel` (EventRow, EventPanel, VenuePage, EventPage) – teraz všade anglicky. Štítky charakteru podniku (`venue.character` vo VenuePage a PlacesPage) sa neprekladali ani predtým (surový kód). Iný preklad štítkov som nenašiel.
+
+**Rozhodnuté samostatne** (zapísané v `decisions.md`): workshop opticky zarovnaný bez zmeny tvaru – obrys 1,7–22 × 1,7–21 posunutý do stredu a zväčšený 1,06 (plná ikona pôsobila menšia než obrysové); veľkosť pilulky na karte mapy 32/20 px; v programe podniku je riadok štítkov vždy (nesie ikonu, aj keď akcia nemá čas ani štítky).
+
+**Overenie:** `npm test` – 202 testov OK (upravené testy `eventTags`, `eventIconKey`, `tagLabel`); `npm run build` OK.
+Snímky (`tests/playwright/screenshots-071.spec.ts`, dáta a obrázky z Pages, čas 18. 11. 17:00) v `docs/tasks/071/`: `akcie-dnes.jpg` (riadok „Uvedení hry – Andre miri cipa“, Archa+, talk), `mapa-karta.jpg` (Archa+), `program-podniku.jpg` (Archa+), `detail-cs.jpg` (Burkicom: Slunce, appka v češtine; očakávané štítky `dance`, `performance`, `physical theatre`), `ikony-3x.png` (11 ikon na pine a v pilulke, mierka 3×). Pozrel som len `ikony-3x.png` kvôli zarovnaniu workshopu; ostatné snímky som neposudzoval.
+
+**Otvorené:** nič.
