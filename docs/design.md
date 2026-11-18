@@ -135,6 +135,7 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 **Zmena 2026-11-18 večer po 068 (Matej) – platí pred blokom „riadok akcie A3“ nižšie, ktorý v týchto bodoch nahrádza:**
 - **Riadok A3 len v Akciách.** Program podniku (časť 6) a Môj účet → Akcie sú **presne ako pred 068** (stav tagu `design-pre-068`, vrátane farebných štítkov).
 - **Krúžok typu sa ruší všade** (zoznam, karta na mape, stránka akcie). **Typ nesie farebný text štítkov** (`EVENT_TYPE_TAG_TEXT`, tmavá pilulka `#2A2838`), ako pred 068; akcia bez štítkov má jeden štítok s názvom typu farebným textom.
+- **Názov akcie 14 px** (hrúbka a farba ako doteraz), max. 2 riadky s „…“.
 - **Pevná výška riadku:** riadok má vždy výšku pre **2 riadky názvu + 1 riadok „dátum · čas · miesto“ + 1 riadok štítkov**. Obrázok má **výšku riadku** a pevnú šírku 112 px (náhľad 4 : 3 sa doreže `object-fit: cover`), zaoblenie 8. Keď má názov 1 riadok, celý textový blok je **zvislo vycentrovaný** (ako teraz). Štítky v jednom riadku, vpravo sa **rozplynú** (fade), nezalamujú sa.
 - **Odznak new** = biela pilulka **vpravo hore na obrázku** (5 px od okrajov, 10/600). **Pre teba** ostáva ako prvá pilulka v riadku štítkov (ružové iskry `#FF4D8D`).
 - **Karta akcie na mape:** bez krúžku, štítky farebným textom typu; ostatné z 068 ostáva.
