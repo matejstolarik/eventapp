@@ -14,7 +14,7 @@ THUMB_QUALITY = 80
 EVENT_THUMB_DIR = pathlib.Path("site/img/events")
 EVENT_THUMB_SIZE = 480          # task 066 (was 240); still a centre square
 EVENT_THUMB_QUALITY = 75
-EVENT_DOWNLOAD_LIMIT = 400   # task 066: one-off for the 480 px + detail recompute (normally 150)
+EVENT_DOWNLOAD_LIMIT = 150
 
 # task 066: uncropped copy for the event detail, longer side <= 1200 px
 EVENT_DETAIL_DIR = EVENT_THUMB_DIR / "detail"
