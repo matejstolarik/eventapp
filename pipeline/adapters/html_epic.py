@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
+from pipeline import images
 
 log = logging.getLogger(__name__)
 
@@ -108,6 +109,13 @@ def _parse_item(venue, item, yesterday, cutoff):
             ticket_url = href
             break
 
+    # ── image (task 066): colour listing image 620×360 (a grey copy is the
+    # hover state); the event page's bigger image replaces it in detail_enrich.
+    image_url = None
+    raw = images._bg_url(item.select_one("a.program__item-image.m-color"))
+    if raw:
+        image_url = images._abs(raw, _BASE_URL + "/")
+
     return RawEvent(
         venue_id=venue["id"],
         title=title,
@@ -124,7 +132,7 @@ def _parse_item(venue, item, yesterday, cutoff):
         sold_out=None,
         room=None,
         ticket_url=ticket_url,
-        image_url=None,
+        image_url=image_url,
         source={
             "type": "html",
             "url": detail_href,

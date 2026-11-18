@@ -20,6 +20,10 @@ Limits:
   - standard robots.txt, rate limiting, 1 s between requests to same host
   - Resident Advisor (ra.co) is never fetched
   - Bike Jesus main-page source URL is skipped (not an individual event page)
+
+Task 066: for venues in pipeline.images.DETAIL_IMAGE_VENUES the event page is
+fetched once per event (within the same limit) for its bigger image; the
+choice is kept in state["detail_image"] and reused while the page URL stays.
 """
 
 import datetime
@@ -33,6 +37,7 @@ from pipeline.fetch import USER_AGENT, _robots_allowed, _rate_limit
 from pipeline.adapters.jsonld import (
     _all_ld_items, _is_event, _clean_description, _resolve_image,
 )
+from pipeline import images
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +89,9 @@ def enrich_missing_details(
     listing_urls = _build_listing_urls(venues)
     venue_desc_selectors = _build_venue_desc_selectors(venues)
     checked = (state if state is not None else {}).setdefault("detail_checked", {})
+    # task 066: image chosen from the event page by pipeline.images, per event:
+    # {event_id: {"url": detail_url, "image": image_url | None}}
+    img_state = (state if state is not None else {}).setdefault("detail_image", {})
 
     stats = {
         "fetched": 0,
@@ -101,18 +109,33 @@ def enrich_missing_details(
     for ev in events:
         venue_id = ev.get("venue_id", "")
         ev_id = ev.get("id", "")
+        sources = ev.get("sources", [])
+        detail_url = sources[0].get("url") if sources else None
+
+        # task 066: placeholders, logos and site-wide images are not event images
+        if images.is_rejected(venue_id, ev.get("image_url")):
+            ev = dict(ev)
+            ev["image_url"] = None
+        # task 066: venues whose event page has a bigger image than the listing
+        force_img = False
+        if venue_id in images.DETAIL_IMAGE_VENUES and detail_url:
+            cached_img = img_state.get(ev_id)
+            if cached_img and cached_img.get("url") == detail_url:
+                # no "image" key = the rule did not match the page: keep listing image
+                if "image" in cached_img:
+                    ev = dict(ev)
+                    ev["image_url"] = cached_img["image"]
+            else:
+                force_img = True
 
         needs_desc = not ev.get("description")
-        needs_img = not ev.get("image_url")
+        needs_img = force_img or not ev.get("image_url")
         needs_price = check_prices and venue_id in PRICE_VENUES and not ev.get("price_text")
         needs_time = check_prices and venue_id in TIME_VENUES and not ev.get("start_time")
 
         if not (needs_desc or needs_img or needs_price or needs_time):
             result.append(ev)
             continue
-
-        sources = ev.get("sources", [])
-        detail_url = sources[0].get("url") if sources else None
 
         if not detail_url:
             stats["skipped"] += 1
@@ -153,7 +176,8 @@ def enrich_missing_details(
                         ev["description_source"] = prev.get("description_source", "source")
                         needs_desc = False
                         filled = True
-                if needs_img and prev.get("image_url"):
+                if needs_img and not force_img and prev.get("image_url") \
+                        and not images.is_rejected(venue_id, prev["image_url"]):
                     ev["image_url"] = prev["image_url"]
                     needs_img = False
                     filled = True
@@ -225,7 +249,19 @@ def enrich_missing_details(
             if desc.strip().lower() != event_title.strip().lower():
                 ev["description"] = desc
                 ev["description_source"] = "source"
-        if needs_img and enriched.get("image_url"):
+        if force_img:
+            found, img = images.detail_image(venue_id, html, detail_url)
+            if found:
+                ev["image_url"] = img
+                img_state[ev_id] = {"url": detail_url, "image": img}
+            else:
+                # rule did not match the page: keep the listing image
+                img_state[ev_id] = {"url": detail_url}
+                if not ev.get("image_url") and enriched.get("image_url") \
+                        and not images.is_rejected(venue_id, enriched["image_url"]):
+                    ev["image_url"] = enriched["image_url"]
+        elif needs_img and enriched.get("image_url") \
+                and not images.is_rejected(venue_id, enriched["image_url"]):
             ev["image_url"] = enriched["image_url"]
 
         if needs_price or needs_time:

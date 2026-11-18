@@ -103,10 +103,14 @@ def test_price_from_previous_run_is_reused_but_not_ai_price():
           "description": "d" * 20, "image_url": "i", "price_text": None}
     prev = {"e1": dict(ev, price_text="BASIC: 250,-kč")}
     out, _ = enrich_missing_details([ev], prev, venues, check_prices=True,
-                                    state={"detail_checked": {"e1": "2026-11-16"}}, today="2026-11-17")
+                                    state={"detail_checked": {"e1": "2026-11-16"},
+                                           "detail_image": {"e1": {"url": url, "image": "i"}}},
+                                    today="2026-11-17")
     assert out[0]["price_text"] == "BASIC: 250,-kč"
     prev_ai = {"e1": dict(ev, price_text="300 Kč",
                           enrichment={"price_text": {"by": "ai_web", "source_url": url}})}
     out, _ = enrich_missing_details([ev], prev_ai, venues, check_prices=True,
-                                    state={"detail_checked": {"e1": "2026-11-16"}}, today="2026-11-17")
+                                    state={"detail_checked": {"e1": "2026-11-16"},
+                                           "detail_image": {"e1": {"url": url, "image": "i"}}},
+                                    today="2026-11-17")
     assert out[0]["price_text"] is None

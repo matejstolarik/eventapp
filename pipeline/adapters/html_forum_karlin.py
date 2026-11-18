@@ -25,6 +25,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
+from pipeline import images
 
 log = logging.getLogger(__name__)
 
@@ -144,8 +145,10 @@ def _parse_card(venue, card, section, yesterday, cutoff):
         return None
 
     # ── image ──────────────────────────────────────────────────────────────
+    # task 066: widest srcset candidate (1280×640) instead of the 600×300 src;
+    # the detail page's og:image (original) replaces it later.
     img_el = inner.select_one("img")
-    image_url = img_el.get("src") if img_el else None
+    image_url = (images.largest_srcset(img_el) or img_el.get("src")) if img_el else None
 
     # ── sold-out / sticker ─────────────────────────────────────────────────
     sold_out = None
@@ -233,12 +236,9 @@ def _enrich_from_detail(ev, html: str):
             if description:
                 description_source = "source"
 
-    # ── image_url: og:image (listing image already set; only fill if missing) ──
-    image_url = ev.image_url
-    if not image_url:
-        og_img = soup.find("meta", property="og:image")
-        if og_img and (og_img.get("content") or "").strip().startswith("http"):
-            image_url = og_img["content"].strip()
+    # ── image_url: og:image = original upload (task 066), else the listing image ──
+    found, og_url = images.detail_image(ev.venue_id, html, ev.source.get("url") or "")
+    image_url = og_url if found else ev.image_url
 
     # ── cancellation on the detail page ────────────────────────────────────
     status = ev.status

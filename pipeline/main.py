@@ -121,6 +121,8 @@ def _prune_state(state: dict, events: list[dict]) -> dict:
     ids = {e["id"] for e in events}
     state["detail_checked"] = {k: v for k, v in (state.get("detail_checked") or {}).items()
                                if k in ids}
+    state["detail_image"] = {k: v for k, v in (state.get("detail_image") or {}).items()
+                             if k in ids}
     return state
 
 

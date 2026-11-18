@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
+from pipeline import images
 
 log = logging.getLogger(__name__)
 
@@ -426,10 +427,13 @@ def _fetch_mec_detail_times(venue: dict, source_config: dict,
             if og_d:
                 description = og_d
                 description_source = "source"
-        if not image_url:
-            og_i = _og_meta(soup, "og:image")
-            if og_i and og_i.startswith("http"):
-                image_url = og_i
+        # task 066: the event's own image is the first slider image; og:image
+        # is the site-wide photo and the JSON-LD image the logo (-> None).
+        found, own = images.detail_image(venue["id"], html, detail_url)
+        if found:
+            image_url = own
+        else:
+            image_url = images.clean(venue["id"], image_url)
 
         updated.append(dataclasses.replace(
             ev,
