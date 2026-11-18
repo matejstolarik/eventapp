@@ -9,7 +9,7 @@
 ### 1. Ikona typu ako prvý štítok
 - **Naše ikony – presne tie isté ako na pinoch mapy** (`typeIconSvg` / rovnaké SVG; kultúra podľa podtypu: klapka, mikrofón stand-up, tanec, masky; koncert gitara, párty pohár, DJ gramofón). Žiadna iná sada ikon.
 - Vzhľad: pilulka ako ostatné štítky (`#2A2838`, rovnaká výška a zaoblenie), v nej len ikona vo farbe `EVENT_TYPE_TAG_TEXT` typu, veľkosť opticky zladená s textom štítkov (cca 12–13 px, ťah ako na pine), vycentrovaná. Za ňou štítky farebným textom typu ako teraz.
-- Kde: **riadok v Akciách**, **karta na mape**, **program podniku** (v programe podniku **len** pridať túto ikonu pred štítky, nič iné tam nemeniť).
+- Kde: **riadok v Akciách**, **program podniku** (v programe podniku **len** pridať túto ikonu pred štítky, nič iné tam nemeniť). **Na karte na mape nie** (Matej 19:42: ikony typu sú už na pinoch mapy).
 
 ### 2. Pre teba a new na obrázku
 - **Pre teba** = ikona iskier vo farbe appky `#FF4D8D` **bez pozadia**, s **jemným čiernym obrysom** (cca 1–1,5 px), **vľavo hore** na obrázku (5 px od okrajov). Obrys musí byť **hladký a súvislý okolo celého tvaru** (napr. tá istá SVG ikona pod ňou s čiernym `stroke` a `stroke-linejoin: round`, alebo `paint-order: stroke`), nie tieň, nie zubaté posuny `drop-shadow`. Over na snímke zväčšenej 3× – ak vyzerá hrubo alebo zubato, uprav.
@@ -23,6 +23,7 @@
 - Stránka akcie (detail), Môj účet, Miesta, mapa okrem karty.
 
 ## Overenie a report
-- `npm test`, `npm run build`; číslo nasadenia.
-- Snímky JPEG 390 × 844 do `docs/tasks/070/`: `akcie-dnes.jpg`, `mapa-karta.jpg` (akcia pre teba + new, ak je), `program-podniku.jpg`, a výrez obrázka s iskrami zväčšený 3× (`iskry-3x.png`) na tmavom aj svetlom plagáte.
+- `npm test`, `npm run build`; číslo nasadenia (`deploy-app`).
+- **Pipeline (`daily.yml`) nespúšťaj** – úloha mení len frontend, dáta sa nemenia; nasadenie appky ide cez `deploy-app` pri pushi do `web/`. Čísla v reporte netreba (Matej 19:42).
+- Snímky JPEG 390 × 844 do `docs/tasks/070/`: `akcie-dnes.jpg`, `mapa-karta.jpg` (akcia pre teba + new, ak je; bez ikony typu v štítkoch), `program-podniku.jpg`, a výrez obrázka s iskrami zväčšený 3× (`iskry-3x.png`) na tmavom aj svetlom plagáte.
 - Report: čo hotové, otvorené body.
