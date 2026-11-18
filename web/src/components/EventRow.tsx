@@ -16,12 +16,12 @@ export function imgSrc(path: string): string {
   return /^https?:/.test(path) ? path : `${BASE}${path}`
 }
 
-/** Type icon from the map pins (same SVG paths and stroke). */
-export function TypeIcon({ iconKey, color, size }: { iconKey: EventIconKey; color: string; size: number }) {
+/** Type icon from the map pins (same SVG paths and stroke). `bg` = surface under the icon (task 071, workshop). */
+export function TypeIcon({ iconKey, color, size, bg }: { iconKey: EventIconKey; color: string; size: number; bg?: string }) {
   return (
     <span
       style={{ display: 'flex', width: size, height: size, lineHeight: 0 }}
-      dangerouslySetInnerHTML={{ __html: typeIconSvg(iconKey, color, size) }}
+      dangerouslySetInnerHTML={{ __html: typeIconSvg(iconKey, color, size, bg) }}
     />
   )
 }
@@ -49,7 +49,7 @@ export function EventImage43({ event, width, height, radius = 12, eager = false,
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       ) : (
-        <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={EVENT_TYPE_COLOR[type]} size={40} />
+        <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={EVENT_TYPE_COLOR[type]} size={40} bg={EVENT_TYPE_DARK[type]} />
       )}
       {forYou && (
         <span style={{ position: 'absolute', top: 5, left: 5, zIndex: 2, display: 'flex', lineHeight: 0 }}
@@ -107,14 +107,14 @@ export function TypeIconPill({ event, height = 20, background = '#2A2838', iconS
       flex: 'none', height, padding: `0 ${Math.round(height * 0.3)}px`, borderRadius: height / 2,
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', background,
     }} aria-hidden="true">
-      <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={color} size={iconSize} />
+      <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={color} size={iconSize} bg={background} />
     </span>
   )
 }
 
 /** One line of pills: the type icon first (task 070), then the event tags
- * with type-coloured text on #2A2838 (task 069; without tags one tag with the
- * type, eventTags fallback). No wrapping: the line fades out on the right. */
+ * with type-coloured text on #2A2838 (task 069; task 071: no fallback tag, an
+ * event without tags shows only the icon pill). No wrapping: the line fades out on the right. */
 export function BadgeTagRow({ event, lang, height = 20, fontSize = 11, gap = 4 }: {
   event: Event; lang: Language
   height?: number; fontSize?: number; gap?: number

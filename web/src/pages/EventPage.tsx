@@ -249,7 +249,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         <div style={{ position: 'relative', width: '100%', paddingTop: '100%' }}>
           <div style={{ position: 'absolute', inset: 0, background: color, overflow: 'hidden' }}>
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <EventTypeIcon iconKey={iconKey} size={80} color={dark} />
+              <EventTypeIcon iconKey={iconKey} size={80} color={dark} bg={color} />
             </div>
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(17,17,24,0) 55%, #111118 100%)' }} />
           </div>

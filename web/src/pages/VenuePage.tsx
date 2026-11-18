@@ -83,7 +83,7 @@ function EventThumbnail({ event }: { event: Event }) {
         width: 56, height: 56, borderRadius: 12, background: bg, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center'
       }}>
-        <EventTypeIcon iconKey={iconKey} size={22} color={fg} />
+        <EventTypeIcon iconKey={iconKey} size={22} color={fg} bg={bg} />
       </div>
     )
   }
@@ -347,8 +347,9 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                           }}>
                             {ev.title}
                           </p>
-                          {/* Tags: one row, fade at right edge aligned with title end */}
-                          {allTags.length > 0 && (
+                          {/* Tags: one row, fade at right edge aligned with title end;
+                              always shown, it carries the type icon (task 071: no fallback tag) */}
+                          {(
                             <div style={{
                               position: 'relative', overflow: 'hidden', height: 22
                             }}>

@@ -1,4 +1,5 @@
 import type { EventIconKey } from '../core/eventType'
+import { typeIconSvg } from '../map/markers'
 
 interface IconProps {
   size?: number
@@ -96,7 +97,13 @@ export function IconCulture({ size = 18, color = 'currentColor', strokeWidth = D
   )
 }
 
-export function EventTypeIcon({ iconKey, size = 18, color = 'currentColor' }: { iconKey: EventIconKey } & IconProps) {
+/** Large type icon (event without image, venue fallbacks). Task 071: the new culture
+ * icons come from the pin icon set (ICON_SVG); `bg` = surface colour under the icon. */
+export function EventTypeIcon({ iconKey, size = 18, color = 'currentColor', bg }: { iconKey: EventIconKey; bg?: string } & IconProps) {
+  if (iconKey === 'talk' || iconKey === 'workshop' || iconKey === 'quiz' || iconKey === 'opening') {
+    return <span style={{ display: 'flex', width: size, height: size, lineHeight: 0 }}
+      dangerouslySetInnerHTML={{ __html: typeIconSvg(iconKey, color, size, bg) }} />
+  }
   if (iconKey === 'party') return <IconParty size={size} color={color} />
   if (iconKey === 'dj') return <IconDJ size={size} color={color} />
   if (iconKey === 'concert') return <IconConcert size={size} color={color} />

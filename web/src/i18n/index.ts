@@ -11,10 +11,10 @@ export function getDict(lang: Language): Dict {
   return dicts[lang]
 }
 
-/** Display label of an event tag (format or genre code) in the app language
- * (task 058); codes without a label are shown as they are. */
-export function tagLabel(tag: string, lang: Language): string {
-  const label = getDict(lang).tags[tag]
+/** Display label of an event tag (format or genre code). Task 071: always English,
+ * whatever the app language (`lang` kept for call sites); codes without a label are shown as they are. */
+export function tagLabel(tag: string, _lang: Language): string {
+  const label = en.tags[tag]
   if (label) return label
   return tag === 'alternative' ? 'alt' : tag
 }

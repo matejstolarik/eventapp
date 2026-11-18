@@ -99,7 +99,6 @@ export const sk = {
     searchEvents: 'Hľadať akciu',
     locationToastForSort: 'Na zoradenie podľa vzdialenosti povoľ polohu',
   },
-  tags: { talk: 'čítanie a diskusia', performance: 'performance', 'physical-theatre': 'fyzické divadlo', 'stand-up': 'stand-up', 'action': 'akčný', 'adventure': 'dobrodružný', 'animation': 'animovaný', 'biography': 'životopisný', 'comedy': 'komédia', 'crime': 'krimi', 'documentary': 'dokument', 'family': 'rodinný', 'history': 'historický', 'horror': 'horor', 'musical': 'muzikál', 'mystery': 'mysteriózny', 'romance': 'romantický', 'short': 'krátky film', 'war': 'vojnový', 'cult-classic': 'kultový', 'arthouse': 'artový', 'opera': 'opera', 'puppet-theatre': 'bábkové divadlo', 'improv': 'improvizácia', 'cabaret': 'kabaret', 'new-circus': 'nový cirkus', 'contemporary-dance': 'súčasný tanec', 'ballet': 'balet', 'dance-theatre': 'tanečné divadlo' } as Record<string, string>,
   price: { from: 'od', free: 'Zdarma', voluntary: 'Dobrovoľné vstupné', freeReservation: 'Zdarma, rezervácia', czk: 'Kč' },
   update: { available: 'Je dostupná nová verzia', button: 'Aktualizovať', close: 'Zavrieť' },
   comingSoon: 'Pripravujeme',

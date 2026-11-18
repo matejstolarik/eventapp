@@ -3,7 +3,7 @@ import type { Event, Venue, Language } from '../core/types'
 import { eventTags, getEventType, EVENT_TYPE_TAG_TEXT } from '../core/eventType'
 import { joinDot, DOT_SEP } from '../core/dot'
 import { haversine, formatDistance } from '../core/distance'
-import { EventImage43 } from './EventRow'
+import { EventImage43, TypeIconPill } from './EventRow'
 import { isNew, isForYou } from '../core/search'
 import { getFavorites } from '../core/store'
 import { tagLabel } from '../i18n'
@@ -135,16 +135,16 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         </div>
       </button>
 
-      {/* Tag row: event tags with type-coloured text (task 069); new / for you are on the image (070) */}
-      {tags.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <TagRow aria-label="Štítky akcie">
-            {tags.map(tag => (
-              <span key={tag} style={{ ...pill, background: '#2A2838', color: tagText }}>{tagLabel(tag, lang)}</span>
-            ))}
-          </TagRow>
-        </div>
-      )}
+      {/* Tag row: type icon pill first (task 071, as in Akcie), then event tags with
+          type-coloured text (task 069); new / for you are on the image (070) */}
+      <div style={{ marginTop: 12 }}>
+        <TagRow aria-label="Štítky akcie">
+          <TypeIconPill event={event} height={32} iconSize={20} />
+          {tags.map(tag => (
+            <span key={tag} style={{ ...pill, background: '#2A2838', color: tagText }}>{tagLabel(tag, lang)}</span>
+          ))}
+        </TagRow>
+      </div>
 
       {/* Dots for multiple events */}
       {events.length > 1 && (

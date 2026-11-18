@@ -99,7 +99,8 @@ export const en = {
     searchEvents: 'Search events',
     locationToastForSort: 'Allow location to sort by distance',
   },
-  tags: { talk: 'talk & reading', performance: 'performance', 'physical-theatre': 'physical theatre', 'stand-up': 'stand-up', 'cult-classic': 'cult classic', 'puppet-theatre': 'puppet theatre', 'new-circus': 'new circus', 'contemporary-dance': 'contemporary dance', 'dance-theatre': 'dance theatre', 'short': 'short film' } as Record<string, string>,
+  // Task 071: tags are English in every app language; only codes with a hyphen get a label
+  tags: { 'physical-theatre': 'physical theatre', 'cult-classic': 'cult classic', 'puppet-theatre': 'puppet theatre', 'new-circus': 'new circus', 'contemporary-dance': 'contemporary dance', 'dance-theatre': 'dance theatre', 'short': 'short film' } as Record<string, string>,
   price: { from: 'from', free: 'Free', voluntary: 'Pay what you want', freeReservation: 'Free, booking required', czk: 'CZK' },
   update: { available: 'A new version is available', button: 'Update', close: 'Close' },
   comingSoon: 'Coming soon',

@@ -45,7 +45,7 @@ function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
         width: size, height: size, borderRadius: radius, background: bg,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
       }}>
-        <EventTypeIcon iconKey={iconKey} size={Math.round(size * 0.45)} color={fg} />
+        <EventTypeIcon iconKey={iconKey} size={Math.round(size * 0.45)} color={fg} bg={bg} />
       </div>
     )
   }
