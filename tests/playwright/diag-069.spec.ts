@@ -9,15 +9,20 @@ const PAGES = 'https://matejstolarik.github.io/eventapp/'
 const OUT_DIR = path.resolve('D:/AI/eventapp/docs/tasks/069')
 const PHASE = process.env.PHASE ?? 'pred'
 const NOW = '2026-11-18T19:30:00'
-const IMG_DELAY = 900
+const IMG_DELAY = 1500
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })
 
 test('diag open event', async ({ page }) => {
   await page.clock.setFixedTime(NOW)
   await page.addInitScript(() => { localStorage.setItem('language', 'sk') })
-  await page.route('**/events.json', async (route: any) =>
-    route.fulfill({ response: await route.fetch({ url: PAGES + 'events.json' }) }))
+  // PHASE=pred: without image_detail_size the page behaves as before the fix
+  await page.route('**/events.json', async (route: any) => {
+    const resp = await route.fetch({ url: PAGES + 'events.json' })
+    const data = await resp.json()
+    if (PHASE === 'pred') for (const e of data.events) delete e.image_detail_size
+    route.fulfill({ response: resp, json: data })
+  })
   await page.route(/\/eventapp\/img\//, async (route: any) => {
     const rel = route.request().url().split('/eventapp/')[1]
     const resp = await route.fetch({ url: PAGES + rel })
@@ -43,7 +48,7 @@ test('diag open event', async ({ page }) => {
       const h = ov?.querySelector('h1') as HTMLElement | null
       const img = ov?.querySelector('img') as HTMLImageElement | null
       w.__log.push([Math.round(performance.now() - t0), h ? Math.round(h.getBoundingClientRect().top) : null, ov ? ov.scrollTop : null, img ? img.getBoundingClientRect().height : null])
-      if (performance.now() - t0 < 2500) requestAnimationFrame(tick)
+      if (performance.now() - t0 < 4000) requestAnimationFrame(tick)
     }
     w.__t0 = t0
     requestAnimationFrame(tick)
@@ -51,12 +56,15 @@ test('diag open event', async ({ page }) => {
   const rows = page.locator('[role="button"]')
   await rows.nth(3).click()
   const start = Date.now()
+  const taken: number[] = []
   for (const ms of [0, 100, 300, 800]) {
     const wait = ms - (Date.now() - start)
     if (wait > 0) await page.waitForTimeout(wait)
-    await page.screenshot({ path: path.join(OUT_DIR, `diag-${PHASE}-${ms}ms.jpg`), type: 'jpeg', quality: 80 })
+    taken.push(Date.now() - start)
+    await page.screenshot({ path: path.join(OUT_DIR, `diag-${PHASE}-${ms}ms.jpg`), type: 'jpeg', quality: 80, scale: 'css', animations: 'allow', caret: 'initial' })
   }
-  await page.waitForTimeout(1500)
+  console.log('SHOTS', PHASE, JSON.stringify(taken), 'done', Date.now() - start)
+  await page.waitForTimeout(2000)
   const log = await page.evaluate(() => (window as any).__log as number[][])
   // keep only frames where something changed
   const changes = log.filter((r, i) => i === 0 || r[1] !== log[i - 1][1] || r[2] !== log[i - 1][2] || r[3] !== log[i - 1][3])
