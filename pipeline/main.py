@@ -23,7 +23,7 @@ from pipeline import research_store
 from pipeline import manual as manual_mod
 from pipeline.genres import finalize_genres, load_aliases, load_hierarchy
 from pipeline.price import parse_price
-from pipeline.thumbs import generate_thumbs, generate_event_images
+from pipeline.thumbs import generate_thumbs, generate_event_images, event_detail_size
 from pipeline.fetch import USER_AGENT
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -273,6 +273,8 @@ def main():
         thumb, detail = event_image_map.get(ev.get("id", ""), (None, None))
         ev2["image_thumb"] = thumb
         ev2["image_detail"] = detail
+        # task 069: detail size so the event page can reserve the image space
+        ev2["image_detail_size"] = event_detail_size(ev2["id"]) if detail else None
         events_out.append(ev2)
 
     generated_at = datetime.datetime.now(PRAGUE_TZ).isoformat()

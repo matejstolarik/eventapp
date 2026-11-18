@@ -135,6 +135,22 @@ def generate_thumbs(venues: list[dict]) -> dict[str, str | None]:
     return result
 
 
+def event_detail_size(event_id: str) -> "list[int] | None":
+    """[width, height] of the written image_detail file (task 069), read from
+    the JPEG header; None when the file is missing or unreadable."""
+    path = EVENT_DETAIL_DIR / f"{event_id}.jpg"
+    if not path.exists():
+        return None
+    try:
+        from PIL import Image
+        with Image.open(path) as img:
+            w, h = img.size
+        return [int(w), int(h)]
+    except Exception as exc:
+        log.warning("thumbs: cannot read size of %s — %s", path, exc)
+        return None
+
+
 def generate_event_thumbs(events: list[dict]) -> dict[str, str | None]:
     """Thumbnail paths only ({event_id: path | None}); see generate_event_images."""
     return {eid: paths[0] for eid, paths in generate_event_images(events).items()}

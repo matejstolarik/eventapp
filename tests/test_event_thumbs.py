@@ -244,3 +244,15 @@ def test_thumb_rule_by_shape(size, kind):
 def test_portrait_limit_constant():
     from pipeline.thumbs import PORTRAIT_MAX_RATIO
     assert PORTRAIT_MAX_RATIO == 0.8
+
+
+@pytest.mark.parametrize("size,expected", [((2400, 800), [1200, 400]), ((800, 2400), [400, 1200])])
+def test_event_detail_size(tmp_path, monkeypatch, size, expected):
+    """Task 069: size of the written detail file (event page reserves space)."""
+    monkeypatch.chdir(tmp_path)
+    from pipeline.thumbs import generate_event_images, event_detail_size
+    with patch("urllib.request.urlopen") as mock_open:
+        _mock_urlopen(mock_open, _make_image_bytes(size=size))
+        generate_event_images([_make_event("evs")])
+    assert event_detail_size("evs") == expected
+    assert event_detail_size("missing") is None
