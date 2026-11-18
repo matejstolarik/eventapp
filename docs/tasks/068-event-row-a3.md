@@ -29,3 +29,42 @@
 - `npm test`, `npm run build`, `pytest -q`; číslo nasadenia a behu pipeline.
 - Snímky (Playwright, `tests/playwright/`, JPEG 390 × 844, skutočné `events.json` z Pages) do `docs/tasks/068/`: `akcie-dnes.jpg`, `akcie-scroll.jpg` (kompaktná lišta), `akcia-bez-obrazka.jpg` (ak je v dátach), `mapa-karta.jpg`, `program-podniku.jpg` (Cross Club alebo Archa+), `moje-akcie.jpg` (s 2 uloženými), `detail-banner.jpg` (široký obrázok, napr. Forum Karlín), `detail-plagat.jpg` (na výšku, napr. MeetFactory), `detail-bez-stitkov.jpg` (ak je v dátach).
 - Report: čo je hotové, odchýlky od design.md (ak nejaké) a prečo, príkaz na návrat, otvorené body.
+
+## Report
+
+**2026-11-18** · commity `6906356` (pipeline 4 : 3), `4aa3a88` (frontend, snímky, decisions; limit späť 150) · tag `design-pre-068` na `bd8f422` (pushnutý) · beh pipeline **44353927769** (úspech) · nasadenie appky **Deploy web app 44358005935** (úspech).
+
+**Návrat:**
+```bash
+git revert --no-edit 4aa3a88 6906356 && git push
+```
+(potom ďalší beh pipeline prepočíta náhľady naspäť na štvorec – limit treba znova jednorazovo zvýšiť na 400; alebo stav súborov z tagu: `git diff design-pre-068 -- web/src pipeline`).
+
+### Hotové
+1. **Náhľad 4 : 3** – `pipeline/thumbs.py`: `image_thumb` 640×480, `PORTRAIT_MAX_RATIO = 0.8`; na výšku (w/h < 0,8) celý plagát v strede na výplni (ten istý obrázok cover 4 : 3, blur 24 px, jas 0,45), ostatné stredový výrez 4 : 3. Hash obsahuje `640x480r0.8` (rovnaká cache logika ako 066). Limit jednorazovo **400** (o 250 viac), v behu 44353927769 `new=335 cache=0 errors=0 deferred=0 (portrait=35 crop=300)`, potom späť **150**. `image_detail` bez zmeny. Testy na syntetických obrázkoch 2 : 3, 4 : 5, 1 : 1, 16 : 9, 3 : 1 (`tests/test_event_thumbs.py`). `data-model.md` aktualizovaný.
+2. **Riadok A3** – nový `web/src/components/EventRow.tsx` (riadok, krúžok `TypeRing`, obrázok `EventImage43`, `BadgeTagRow`, `MetaLine`), použitý v Akciách, programe podniku a Môj účet → Akcie. Krúžok = presne SVG pinov (`typeIconSvg` v `map/markers.ts`), 28 / ikona 16 v `EVENT_TYPE_DARK`, obrys 2 px `#111118`, 6 px od rohu. new (biela) → pre teba (ružové iskry) → sivé štítky; nezmestené štítky miznú na konci. „dátum · čas · miesto“ na jednom riadku, skracuje sa len miesto. Bez obrázka plocha `EVENT_TYPE_DARK` s ikonou vo farbe typu, bez krúžku. Ostatné správanie Akcií nezmenené.
+3. **Karta na mape** – obrázok 4 : 3 šírka 120 s krúžkom, new / pre teba na začiatku riadku štítkov, sivé štítky, riadok „miesto · čas · vzdialenosť“ na jednom riadku.
+4. **Stránka akcie** – celý obrázok (`image_detail`, pri chybe `image_url`), max 70vh, vycentrovaný na `#111118`, bez stmavnutia; krúžok 36 / 20 vpravo hore 8 px; bez new / pre teba; všetky štítky farebným textom typu, plnofarebný štítok zrušený; bez štítkov jeden štítok s typom (`eventTags`). Tlačidlo Plagát ostáva (presunuté do pravého dolného rohu obrázka, 12 px).
+
+### Rozhodnutia (zapísané v `decisions.md`)
+- Ikona krúžku z pinov (React ikony v `web/src/icons` majú iné masky kultúry).
+- Karta na mape: štítky ostali veľké (32 px, posúvateľné) podľa časti 3, zmenená len farba a odznaky.
+- Program podniku: riadok A3 ukazuje aj meno miesta (rovnaký riadok podľa design 4) a cenu už nie – **na Matejovu kontrolu**, meno je na profile miesta nadbytočné.
+- Stránka akcie bez obrázka: ostal štvorec vo farbe typu s ikonou (design 7 tento prípad nemení), bez krúžku.
+
+### Čísla
+Príkaz (events.json z Pages po behu 44353927769, `generated_at 2026-11-18T18:16:58+01:00`; pomer strán z `image_detail` = pomer zdroja):
+```bash
+python -X utf8 picks068.py docs/tasks/068/picks.json   # skript v scratchpade, stiahne events.json + image_detail z https://matejstolarik.github.io/eventapp/
+```
+- 377 akcií, 335 s `image_thumb` aj `image_detail`; **na výšku (celé na výplni) 35**, **výrez 300**.
+- Príklady na výšku: `meetfactory-2027-04-02-fource-nieve-ella` 675×1200 (0,56), `archa-plus-2027-02-16-a-u-banger-factory-w-ursula-sereghy` 800×1200 (0,67), `citarna-unijazz-2026-11-26-syrovy-tony-katka-sarkozi` 848×1200 (0,71).
+- Príklady výrez: `meetfactory-2027-02-24-live-nation-jacob-banks` 960×1200 (0,80 – presne na hranici, výrez), `kasarna-karlin-2026-11-17-i-m-not-everything-i-want-to-be` 1200×1200 (1,00), `forum-karlin-2026-12-17-dalibor-janda` 1200×630 (1,90).
+
+### Overenie
+- `npm test` 199 passed, `npm run build` OK, `pytest -q` 627 passed.
+- Snímky (`tests/playwright/screenshots-068.spec.ts`, dáta a obrázky z Pages, čas 18. 11. 18:00) v `docs/tasks/068/`: `akcie-dnes.jpg`, `akcie-scroll.jpg`, `akcia-bez-obrazka.jpg` (`cross-club-2026-11-18-krizovatka`), `mapa-karta.jpg` (Kasárna Karlín, obľúbené → pre teba), `program-podniku.jpg` (Cross Club), `moje-akcie.jpg` (2 uložené Cross Club), `detail-banner.jpg` (`forum-karlin-2026-12-17-dalibor-janda`), `detail-plagat.jpg` (`meetfactory-2027-04-02-fource-nieve-ella`), `detail-bez-stitkov.jpg` (`kasarna-karlin-2026-11-22-clothing-swap`). Snímky som neposudzoval vizuálne (pravidlo CLAUDE.md) – kontrola dizajnu je na Matejovi.
+
+### Otvorené
+- Meno miesta v riadku programu podniku – ponechať / skryť?
+- Vizuálna kontrola krúžku (optické centrovanie, hrúbka ťahu pri 16 px) na snímkach.
