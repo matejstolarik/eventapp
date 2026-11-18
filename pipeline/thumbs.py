@@ -17,7 +17,7 @@ EVENT_THUMB_QUALITY = 75
 # task 068: a source with w/h below this is a portrait (poster) and is shown
 # whole on a blurred, darkened fill of itself; everything else = centre 4:3 crop.
 PORTRAIT_MAX_RATIO = 0.8
-EVENT_DOWNLOAD_LIMIT = 400      # task 068: one-off recompute of all thumbs (normally 150)
+EVENT_DOWNLOAD_LIMIT = 150      # task 068 ran once with 400 to recompute all thumbs
 
 # task 066: uncropped copy for the event detail, longer side <= 1200 px
 EVENT_DETAIL_DIR = EVENT_THUMB_DIR / "detail"

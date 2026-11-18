@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate, tagLabel } from '../i18n'
@@ -12,6 +12,7 @@ import {
   IconChevronLeft, IconExpand, IconCalendar,
   IconShare, IconSpotify, IconNavigate, IconPin, IconBookmark, EventTypeIcon
 } from '../icons'
+import { TypeRing, imgSrc } from '../components/EventRow'
 
 interface Props {
   eventId: string
@@ -28,6 +29,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const dict = getDict(lang)
   const event = data.events.find(e => e.id === eventId)
   const [going, setGoing] = useState(() => isGoing(eventId))
+  const [heroErr, setHeroErr] = useState(0)
   const [showPoster, setShowPoster] = useState(false)
   const posterHistoryRef = useRef(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -177,73 +179,70 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     }
   }
 
-  const primaryTag = primaryTypeTag(ev.formats, ev.primary_format)
-  // Remaining tags: culture subtypes (excluding primary) + genres
-  const remainingTags = [
-    ...ev.formats.filter(f => ['theatre','dance','talk','performance','stand-up','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
-    ...ev.genres,
-  ]
+  // Task 068: all tags with type-coloured text, no full-colour type tag;
+  // without tags one tag with the type name (eventTags fallback).
+  const tags = eventTags(ev.formats, ev.genres, ev.primary_format)
+  const heroCandidates = [ev.image_detail, ev.image_url].filter((x): x is string => !!x)
+  const heroSrc = heroCandidates[heroErr] ? imgSrc(heroCandidates[heroErr]!) : null
+  const backButton = (
+    <button
+      style={{
+        position: 'absolute', top: 52, left: 16,
+        width: 44, height: 44, borderRadius: 22,
+        background: 'rgba(17,17,24,0.7)', color: '#F4F2FF',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}
+      onClick={onBack}
+      aria-label={dict.event.back}
+    >
+      <IconChevronLeft size={22} />
+    </button>
+  )
 
   return (
     <div style={{
       position: 'absolute', inset: 0, background: '#111118',
       overflowY: 'auto', zIndex: 50
     }}>
-      {/* Poster/image */}
-      <div style={{ position: 'relative', width: '100%', paddingTop: '100%' }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: color, overflow: 'hidden'
-        }}>
-          {ev.image_url ? (
-            <img src={ev.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
+      {/* Image (task 068): whole image uncropped, max 70 % of the screen
+          height, centred on #111118; type ring at its top-right corner. */}
+      {heroSrc ? (
+        <div style={{ position: 'relative', width: '100%', background: '#111118', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ position: 'relative', lineHeight: 0, maxWidth: '100%' }}>
+            <img
+              src={heroSrc} alt=""
+              onError={() => setHeroErr(e => e + 1)}
+              style={{ display: 'block', maxWidth: '100%', maxHeight: '70vh', width: 'auto', height: 'auto' }}
+            />
+            <TypeRing event={ev} size={36} icon={20} style={{ top: 8, right: 8 }} />
+            <button
+              style={{
+                position: 'absolute', bottom: 12, right: 12,
+                height: 36, padding: '0 12px', borderRadius: 18,
+                background: 'rgba(17,17,24,0.7)', color: '#F4F2FF',
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 13, fontWeight: 600, lineHeight: 1
+              }}
+              onClick={() => setShowPoster(true)}
+              aria-label={dict.event.poster}
+            >
+              <IconExpand size={16} />
+              {dict.event.poster}
+            </button>
+          </div>
+          {backButton}
+        </div>
+      ) : (
+        <div style={{ position: 'relative', width: '100%', paddingTop: '100%' }}>
+          <div style={{ position: 'absolute', inset: 0, background: color, overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <EventTypeIcon iconKey={iconKey} size={80} color={dark} />
             </div>
-          )}
-          {/* Gradient */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(180deg, rgba(17,17,24,0) 55%, #111118 100%)'
-          }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(17,17,24,0) 55%, #111118 100%)' }} />
+          </div>
+          {backButton}
         </div>
-
-        {/* Back button */}
-        <button
-          style={{
-            position: 'absolute', top: 52, left: 16,
-            width: 44, height: 44, borderRadius: 22,
-            background: 'rgba(17,17,24,0.7)', color: '#F4F2FF',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}
-          onClick={onBack}
-          aria-label={dict.event.back}
-        >
-          <IconChevronLeft size={22} />
-        </button>
-
-        {/* Poster button */}
-        {ev.image_url && (
-          <button
-            style={{
-              position: 'absolute', bottom: 52, right: 16,
-              height: 36, padding: '0 12px', borderRadius: 18,
-              background: 'rgba(17,17,24,0.7)', color: '#F4F2FF',
-              display: 'flex', alignItems: 'center', gap: 6,
-              fontSize: 13, fontWeight: 600
-            }}
-            onClick={() => setShowPoster(true)}
-            aria-label={dict.event.poster}
-          >
-            <IconExpand size={16} />
-            {dict.event.poster}
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Content */}
       <div style={{ padding: '0 16px 100px' }}>
@@ -278,17 +277,10 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         </p>
 
         {/* Tags row — with bookmark on right when no price and no sold_out (case c) */}
-        {(primaryTag || remainingTags.length > 0) && (
+        {tags.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
             <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {primaryTag && (
-                <span style={{
-                  height: 24, padding: '0 10px', borderRadius: 12,
-                  background: color, color: dark, fontSize: 12, fontWeight: 600,
-                  display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
-                }}>{tagLabel(primaryTag, lang)}</span>
-              )}
-              {remainingTags.map(tag => (
+              {tags.map(tag => (
                 <span key={tag} style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
                   background: '#2A2838', color: EVENT_TYPE_TAG_TEXT[eventType], fontSize: 12, fontWeight: 600,

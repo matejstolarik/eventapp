@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import type { Event, Venue, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
+import { eventTags } from '../core/eventType'
 import { haversine, formatDistance } from '../core/distance'
-import { EventTypeIcon } from '../icons'
+import { EventImage43, SparkleIcon } from './EventRow'
+import { isNew, isForYou } from '../core/search'
+import { getFavorites } from '../core/store'
 import { tagLabel } from '../i18n'
 import { priceLabel } from '../core/eventText'
 
@@ -55,19 +57,20 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
-  const eventType = getEventType(event.formats, event.primary_format)
-  const iconKey = eventIconKey(event.formats, event.primary_format)
-  const color = EVENT_TYPE_COLOR[eventType]
-  const dark = EVENT_TYPE_DARK[eventType]
-  const tagTextColor = EVENT_TYPE_TAG_TEXT[eventType]
   const tags = eventTags(event.formats, event.genres, event.primary_format)
+  const now = new Date()
+  const newFlag = isNew(event, now)
+  const forYouFlag = isForYou(event, getFavorites())
+  const pill: React.CSSProperties = {
+    height: 32, padding: '0 14px', borderRadius: 16, fontSize: 14, fontWeight: 600,
+    display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
+  }
 
   const distStr = userLocation
     ? ' · ' + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
     : ''
 
   const timeStr = event.start_time ? ` · ${event.start_time}` : ''
-  const subtitle = `${venue.name}${timeStr}${distStr}`
   const priceStr = priceLabel(event, lang)
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -107,24 +110,9 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         onClick={() => onEventOpen(event.id)}
         aria-label="Otvoriť akciu"
       >
-        {/* Image or color placeholder */}
-        <div style={{
-          width: 88, height: 88, borderRadius: 18,
-          background: color, flexShrink: 0,
-          overflow: 'hidden', position: 'relative',
-        }}>
-          {event.image_thumb ? (
-            <img src={event.image_thumb} alt="" width={88} height={88} decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{
-              position: 'absolute', inset: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <EventTypeIcon iconKey={iconKey} size={36} color={dark} />
-            </div>
-          )}
-        </div>
-        <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
+        {/* 4:3 image with type ring (task 068) */}
+        <EventImage43 event={event} width={120} eager />
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
           <p style={{
             margin: 0,
             fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -135,22 +123,27 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
           }}>
             {event.title}
           </p>
-          <p style={{ margin: 0, fontSize: 14, color: '#B9B6CC' }}>{subtitle}</p>
+          {/* venue · time · distance, always one line; only the venue name is shortened */}
+          <div style={{ display: 'flex', minWidth: 0, whiteSpace: 'nowrap', fontSize: 14, color: '#B9B6CC' }}>
+            <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{venue.name}</span>
+            <span style={{ flexShrink: 0 }}>{timeStr}{distStr}</span>
+          </div>
           {priceStr && <p style={{ margin: 0, fontSize: 13, color: '#8B8AA0' }}>{priceStr}</p>}
         </div>
       </button>
 
-      {/* Tag row: culture subtypes + genres, dark pills, type text color; no type tag */}
-      {tags.length > 0 && (
+      {/* Tag row: "new", "for you", then grey event tags (task 068); no type tag */}
+      {(tags.length > 0 || newFlag || forYouFlag) && (
         <div style={{ marginTop: 12 }}>
           <TagRow aria-label="Štítky akcie">
+            {newFlag && <span style={{ ...pill, background: '#F4F2FF', color: '#111118' }}>new</span>}
+            {forYouFlag && (
+              <span style={{ ...pill, padding: '0 10px', background: '#2A2838' }} aria-label={lang === 'en' ? 'for you' : lang === 'cs' ? 'pro tebe' : 'pre teba'}>
+                <SparkleIcon size={18} color="#FF4D8D" />
+              </span>
+            )}
             {tags.map(tag => (
-              <span key={tag} style={{
-                height: 32, padding: '0 14px', borderRadius: 16,
-                background: '#2A2838', color: tagTextColor,
-                fontSize: 14, fontWeight: 600,
-                display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,
-              }}>{tagLabel(tag, lang)}</span>
+              <span key={tag} style={{ ...pill, background: '#2A2838', color: '#E4DEFF' }}>{tagLabel(tag, lang)}</span>
             ))}
           </TagRow>
         </div>

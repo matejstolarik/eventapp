@@ -1,13 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import type { EventsData, Language, Event } from '../core/types'
-import { getDict, formatDayLabel, tagLabel } from '../i18n'
+import type { EventsData, Language } from '../core/types'
+import { getDict } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew } from '../core/search'
 import { isNightMode, isNightEvent } from '../core/night'
-import { EventTypeIcon } from '../icons'
+import { EventRow, SparkleIcon } from '../components/EventRow'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
 
@@ -27,15 +26,6 @@ function eventCount(n: number, dict: ReturnType<typeof getDict>): string {
   if (n === 1) return `1 ${eventCountSg}`
   if (n >= 2 && n <= 4) return `${n} ${eventCountFw}`
   return `${n} ${eventCountPl}`
-}
-
-function SparkleIcon({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
-      <path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
-    </svg>
-  )
 }
 
 function SearchIcon() {
@@ -65,97 +55,9 @@ function FilterIcon() {
   )
 }
 
-interface EventCardProps {
-  event: Event
-  venue: { name: string; character: string[] } | undefined
-  lang: Language
-  now: Date
-  eager: boolean
-  baseUrl: string
-  forYouFlag: boolean
-  isNewFlag: boolean
-  animIn: boolean
-  onClick: () => void
-}
-
-function EventCard({ event, venue, lang, now, eager, baseUrl, forYouFlag, isNewFlag, animIn, onClick }: EventCardProps) {
-  const type = getEventType(event.formats, event.primary_format)
-  const iconKey = eventIconKey(event.formats, event.primary_format)
-  const color = EVENT_TYPE_COLOR[type]
-  const dark = EVENT_TYPE_DARK[type]
-  const tagTextColor = EVENT_TYPE_TAG_TEXT[type]
-  const dateLabel = formatDayLabel(event.date, lang, now)
-  const timeLabel = event.start_time ?? ''
-  const allTags = eventTags(event.formats, event.genres, event.primary_format)
-
-  return (
-    <div
-      style={{
-        minWidth: 0, cursor: 'pointer',
-        ...(animIn ? { animation: 'evCardIn 180ms ease-out both' } : {}),
-      }}
-      onClick={onClick} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onClick()}
-    >
-      <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', position: 'relative', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
-        {event.image_thumb ? (
-          <img
-            src={`${baseUrl}${event.image_thumb}`}
-            alt=""
-            width={120} height={120}
-            decoding="async"
-            loading={eager ? 'eager' : 'lazy'}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        ) : (
-          <EventTypeIcon iconKey={iconKey} size={40} color={dark} />
-        )}
-        {forYouFlag && (
-          <span style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#111118', color: '#F4F2FF', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-            <SparkleIcon size={11} color="#F4F2FF" />
-            {lang === 'en' ? 'for you' : lang === 'cs' ? 'pro tebe' : 'pre teba'}
-          </span>
-        )}
-        {isNewFlag && (
-          <span style={{ position: 'absolute', top: 6, right: 6, zIndex: 2, height: 18, padding: '0 6px', borderRadius: 9, background: '#F4F2FF', color: '#111118', fontSize: 10, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-            new
-          </span>
-        )}
-        {/* Tags overlay — only event tags, no venue character tags */}
-        {allTags.length > 0 && (
-          <div style={{ position: 'absolute', bottom: 6, left: 6, right: 0, zIndex: 1, display: 'flex', gap: 4, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(90deg,#000 80%,transparent)', maskImage: 'linear-gradient(90deg,#000 80%,transparent)' }}>
-            {allTags.map(tag => (
-              <span key={tag} style={{
-                flex: 'none', height: 18, padding: '0 6px', borderRadius: 9, fontSize: 10, fontWeight: 500, display: 'flex', alignItems: 'center',
-                background: 'rgba(17,17,24,0.9)', color: tagTextColor,
-              }}>
-                {tagLabel(tag, lang)}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.25, maxHeight: '2.5em', overflow: 'hidden', marginTop: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-        {event.title}
-      </div>
-
-      <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', color: '#8E8AA6', marginTop: 1 }}>
-        {dateLabel}{timeLabel ? ` · ${timeLabel}` : ''}
-      </div>
-
-      {venue && (
-        <div style={{ fontSize: 12, fontWeight: 400, color: '#8E8AA6', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
-          {venue.name}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh }: Props) {
   const dict = getDict(lang)
   const [now, setNow] = useState(() => new Date())
-  const baseUrl = import.meta.env.BASE_URL
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const headerSentinelRef = useRef<HTMLDivElement>(null)
@@ -593,19 +495,18 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         </div>
       ) : (
         <div style={{ padding: '14px 16px 100px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px 8px', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {events.map((event, idx) => (
-              <EventCard
+              <EventRow
                 key={event.id}
                 event={event}
-                venue={venueMap.get(event.venue_id)}
+                venueName={venueMap.get(event.venue_id)?.name}
                 lang={lang}
                 now={now}
-                eager={idx < 9}
-                baseUrl={baseUrl}
-                forYouFlag={isForYou(event, favorites)}
-                isNewFlag={isNew(event, now)}
-                animIn={animKey > 0 && idx < 12}
+                eager={idx < 6}
+                forYou={isForYou(event, favorites)}
+                isNew={isNew(event, now)}
+                animIn={animKey > 0 && idx < 8}
                 onClick={() => onEventOpen(event.id)}
               />
             ))}

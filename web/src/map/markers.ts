@@ -18,6 +18,12 @@ const ICON_SVG: Record<EventIconKey, (c: string) => string> = {
   culture: (c) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c3 1.5 7 1.5 10 0v6a5 5 0 0 1-10 0z"/><path d="M11 10h9v5a4.5 4.5 0 0 1-9 0"/></svg>`,
 }
 
+/** Pin icon SVG markup at another size (task 068: type ring in lists, event page).
+ * Same paths and stroke as the map pins, so the ring reads as the same sign. */
+export function typeIconSvg(key: EventIconKey, color: string, size: number): string {
+  return ICON_SVG[key](color).replace('width="22" height="22"', `width="${size}" height="${size}" aria-hidden="true"`)
+}
+
 const HEART_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="#111118" stroke="#111118" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.6L12 20l-7.5-7.4A5 5 0 1 1 12 6a5 5 0 1 1 7.5 6.6z"/></svg>`
 
 /** Inject a shared SVG <defs> block with the pin drop-shadow filter into document.body. */

@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
-import { getGoing, pruneGoing, setStoredLanguage } from '../core/store'
+import { getGoing, pruneGoing, setStoredLanguage, getFavorites } from '../core/store'
+import { isNew, isForYou } from '../core/search'
+import { EventRow } from '../components/EventRow'
 import { isEventFinished } from '../core/events'
 
 interface Props {
@@ -21,6 +23,7 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
 
   const venueMap = data ? new Map(data.venues.map(v => [v.id, v])) : new Map()
   const goingIds = getGoing()
+  const favorites = getFavorites()
   const goingEvents = data
     ? data.events
         .filter(e => {
@@ -65,42 +68,19 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
           {goingEvents.length === 0 ? (
             <p style={{ color: '#B9B6CC', fontSize: 15 }}>{dict.account.noGoing}</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {goingEvents.map(event => {
-                const venue = venueMap.get(event.venue_id)
-                return (
-                  <button
-                    key={event.id}
-                    style={{
-                      display: 'flex', gap: 12, padding: '12px 0',
-                      borderBottom: '1px solid #23232F', textAlign: 'left',
-                      background: 'none', cursor: 'pointer', color: '#F4F2FF',
-                      alignItems: 'center'
-                    }}
-                    onClick={() => onEventOpen(event.id)}
-                  >
-                    {event.image_thumb ? (
-                      <img src={event.image_thumb} alt="" width={56} height={56} decoding="async" style={{
-                        width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0
-                      }} />
-                    ) : (
-                      <div style={{
-                        width: 56, height: 56, borderRadius: 12,
-                        background: '#23232F', flexShrink: 0
-                      }} />
-                    )}
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                        {event.title}
-                      </p>
-                      <p style={{ fontSize: 13, color: '#B9B6CC' }}>
-                        {venue?.name ?? event.venue_id} · {event.date}
-                        {event.start_time ? ` · ${event.start_time}` : ''}
-                      </p>
-                    </div>
-                  </button>
-                )
-              })}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {goingEvents.map(event => (
+                <EventRow
+                  key={event.id}
+                  event={event}
+                  venueName={venueMap.get(event.venue_id)?.name ?? event.venue_id}
+                  lang={lang}
+                  now={now}
+                  isNew={isNew(event, now)}
+                  forYou={isForYou(event, favorites)}
+                  onClick={() => onEventOpen(event.id)}
+                />
+              ))}
             </div>
           )}
         </section>

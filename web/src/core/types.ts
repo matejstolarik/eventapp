@@ -64,6 +64,8 @@ export interface Event {
   ticket_url: string | null
   image_url: string | null
   image_thumb: string | null
+  /** Uncropped copy, longer side <= 1200 px (task 066); event page uses it (068) */
+  image_detail?: string | null
   description: string | null
   description_source: string | null
   /** AI description in three languages (task 054); cs is the main text */

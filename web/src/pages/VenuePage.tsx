@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
-import { getDict, tagLabel } from '../i18n'
-import { priceLabel } from '../core/eventText'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
+import { getDict } from '../i18n'
+import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
-import { isFavorite, toggleFavorite } from '../core/store'
+import { isFavorite, toggleFavorite, getFavorites } from '../core/store'
+import { isNew, isForYou } from '../core/search'
+import { EventRow } from '../components/EventRow'
 import { haversine, formatDistance } from '../core/distance'
 import { getToday } from '../core/day'
 import { IconChevronLeft, IconHeart, IconGlobe, IconInstagram, IconNavigate, EventTypeIcon } from '../icons'
@@ -69,35 +70,6 @@ function HeaderImage({ venue, et }: { venue: Venue; et: EventType }) {
   )
 }
 
-function EventThumbnail({ event }: { event: Event }) {
-  const [err, setErr] = useState(false)
-  const et = getEventType(event.formats, event.primary_format)
-  const iconKey = eventIconKey(event.formats, event.primary_format)
-  const bg = EVENT_TYPE_COLOR[et]
-  const fg = EVENT_TYPE_DARK[et]
-  if (!event.image_thumb || err) {
-    return (
-      <div style={{
-        width: 56, height: 56, borderRadius: 12, background: bg, flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center'
-      }}>
-        <EventTypeIcon iconKey={iconKey} size={22} color={fg} />
-      </div>
-    )
-  }
-  return (
-    <img
-      src={event.image_thumb}
-      alt={event.title}
-      width={56}
-      height={56}
-      decoding="async"
-      onError={() => setErr(true)}
-      style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }}
-    />
-  )
-}
-
 export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOpen, onGoToMap: _onGoToMap }: Props) {
   const dict = getDict(lang)
   const [descExpanded, setDescExpanded] = useState(false)
@@ -127,6 +99,8 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
   const et = venueEventType(venue)
   const today = getToday(new Date())
   const upcoming = getUpcomingEvents(data.events, venueId, today)
+  const now = new Date()
+  const favorites = getFavorites()
 
   const isFav = isFavorite(venueId)
 
@@ -284,108 +258,22 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
           <p style={{ color: '#B9B6CC', fontSize: 14 }}>{dict.venue.noProgram}</p>
         )}
 
-        {(() => {
-          const visible = upcoming.slice(0, showCount)
-          const groups: { date: string; events: Event[] }[] = []
-          for (const ev of visible) {
-            const last = groups[groups.length - 1]
-            if (last && last.date === ev.date) last.events.push(ev)
-            else groups.push({ date: ev.date, events: [ev] })
-          }
-          return groups.map(({ date, events }) => {
-            const d = new Date(date + 'T12:00:00')
-            const dayName = dict.days[d.getDay()].toUpperCase()
-            const dayNum = d.getDate()
-            const monthNum = d.getMonth() + 1
-            const rowH = 72 // approx height per event row
-            const groupH = events.length * rowH
-            return (
-              <div key={date} style={{ display: 'flex', borderTop: '1px solid #23232F' }}>
-                {/* Date column — vertically centered over entire group */}
-                <div style={{
-                  width: 52, flexShrink: 0, textAlign: 'center',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  justifyContent: 'center', minHeight: groupH, paddingTop: 10, paddingBottom: 10
-                }}>
-                  <div style={{ fontSize: 12, color: '#8E8AA6', fontWeight: 600 }}>{dayName}</div>
-                  <div style={{
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
-                    fontSize: 22, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.1
-                  }}>{dayNum}</div>
-                  <div style={{ fontSize: 12, color: '#8E8AA6' }}>{monthNum}.</div>
-                </div>
-
-                {/* Events in this group */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  {events.map((ev) => {
-                    const evType = getEventType(ev.formats, ev.primary_format)
-                    const tagTextColor = EVENT_TYPE_TAG_TEXT[evType]
-                    const evTagList = eventTags(ev.formats, ev.genres, ev.primary_format)
-                    const allTags = [
-                      ...(ev.start_time ? [{ label: ev.start_time, isTime: true }] : []),
-                      ...evTagList.map(t => ({ label: tagLabel(t, lang), isTime: false })),
-                    ]
-                    return (
-                      <div
-                        key={ev.id}
-                        onClick={() => onEventOpen(ev.id)}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 12,
-                          padding: '10px 0 10px 12px', cursor: 'pointer',
-                          WebkitTapHighlightColor: 'transparent',
-                        }}
-                      >
-                        {/* Event info */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{
-                            fontFamily: "'Bricolage Grotesque', sans-serif",
-                            fontSize: 16, fontWeight: 700, color: '#F4F2FF',
-                            margin: '0 0 4px', overflow: 'hidden',
-                            textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                          }}>
-                            {ev.title}
-                          </p>
-                          {/* Tags: one row, fade at right edge aligned with title end */}
-                          {allTags.length > 0 && (
-                            <div style={{
-                              position: 'relative', overflow: 'hidden', height: 22
-                            }}>
-                              <div style={{
-                                display: 'flex', gap: 5, alignItems: 'center',
-                                height: '100%', overflowX: 'hidden',
-                                WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
-                                maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
-                              }}>
-                                {allTags.map(({ label, isTime }) => (
-                                  <span key={label} style={{
-                                    height: 20, padding: '0 8px', borderRadius: 10,
-                                    background: isTime ? 'transparent' : '#1E1D2A',
-                                    color: isTime ? '#8E8AA6' : tagTextColor,
-                                    fontSize: 11, fontWeight: 600, flexShrink: 0,
-                                    display: 'inline-flex', alignItems: 'center'
-                                  }}>
-                                    {label === 'alternative' ? 'alt' : label}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {priceLabel(ev, lang) && (
-                            <p style={{ margin: '3px 0 0', fontSize: 12, color: '#8B8AA0', fontWeight: 500 }}>
-                              {priceLabel(ev, lang)}
-                            </p>
-                          )}
-                        </div>
-                        {/* Thumbnail */}
-                        <EventThumbnail event={ev} />
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })
-        })()}
+        {/* Programme: shared A3 row (task 068) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {upcoming.slice(0, showCount).map((ev, idx) => (
+            <EventRow
+              key={ev.id}
+              event={ev}
+              venueName={venue.name}
+              lang={lang}
+              now={now}
+              eager={idx < 4}
+              isNew={isNew(ev, now)}
+              forYou={isForYou(ev, favorites)}
+              onClick={() => onEventOpen(ev.id)}
+            />
+          ))}
+        </div>
 
         {upcoming.length > showCount && (
           <button
