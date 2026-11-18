@@ -134,6 +134,11 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 
 **Zmena 2026-11-18 19:31 (Matej, úloha 070) – doplnok k bloku nižšie:** (1) **ikona typu ako prvý štítok** – naše ikony z pinov, vo farbe `EVENT_TYPE_TAG_TEXT` na pilulke `#2A2838`, v riadku Akcií a v programe podniku (tam len ikona, nič iné); **na karte na mape nie** (19:42 – ikony typu sú na pinoch); (2) **pre teba** = ružové iskry `#FF4D8D` bez pozadia s jemným hladkým čiernym obrysom **vľavo hore na obrázku**, **new** vpravo hore – v Akciách aj na karte na mape (nie v riadku štítkov); (3) obrázok v riadku Akcií **120 × 90**, riadok 90 px. Detail akcie bez zmeny.
 
+**Zmena 2026-11-18 neskoro večer (Matej, úloha 070) – platí pred blokom „večer po 068“ nižšie, ktorý v týchto bodoch nahrádza:**
+- **Ikona typu ako prvý štítok** v riadku Akcií a v programe podniku (časť 6; tam len pridaná pred štítky, za čas, pilulka v štýle štítkov programu `#1E1D2A`): ikona pinu mapy (`typeIconSvg`, kultúra podľa podtypu) 13 px vo farbe `EVENT_TYPE_TAG_TEXT`, v pilulke ako ostatné štítky (`#2A2838`, výška 20, zaoblenie 10). **Na karte na mape nie** (ikony typu sú na pinoch).
+- **Pre teba** = iskry `#FF4D8D` 18 px **bez pozadia** s čiernym obrysom 1,25 px (tá istá ikona pod ňou širším čiernym ťahom, zaoblené spoje), **vľavo hore na obrázku** (5 px od okrajov). **new** ostáva vpravo hore na obrázku. Platí v Akciách aj na karte na mape (z riadku štítkov karty new aj pre teba zmizli).
+- **Riadok Akcií:** výška riadku aj obrázka **90 px**, obrázok **120 px** (4 : 3); textový blok (max. 80 px) zvislo vycentrovaný.
+
 **Zmena 2026-11-18 večer po 068 (Matej) – platí pred blokom „riadok akcie A3“ nižšie, ktorý v týchto bodoch nahrádza:**
 - **Riadok A3 len v Akciách.** Program podniku (časť 6) a Môj účet → Akcie sú **presne ako pred 068** (stav tagu `design-pre-068`, vrátane farebných štítkov).
 - **Krúžok typu sa ruší všade** (zoznam, karta na mape, stránka akcie). **Typ nesie farebný text štítkov** (`EVENT_TYPE_TAG_TEXT`, tmavá pilulka `#2A2838`), ako pred 068; akcia bez štítkov má jeden štítok s názvom typu farebným textom.

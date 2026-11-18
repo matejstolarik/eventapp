@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
+import { TypeIconPill } from '../components/EventRow'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
 import { getDict, tagLabel } from '../i18n'
 import { priceLabel } from '../core/eventText'
@@ -357,8 +358,11 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                                 WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
                                 maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
                               }}>
+                                {/* task 070: type icon (map pin icon) before the tags, after the time */}
+                                {!ev.start_time && <TypeIconPill event={ev} background="#1E1D2A" />}
                                 {allTags.map(({ label, isTime }) => (
-                                  <span key={label} style={{
+                                  <Fragment key={label}>
+                                  <span style={{
                                     height: 20, padding: '0 8px', borderRadius: 10,
                                     background: isTime ? 'transparent' : '#1E1D2A',
                                     color: isTime ? '#8E8AA6' : tagTextColor,
@@ -367,6 +371,8 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                                   }}>
                                     {label === 'alternative' ? 'alt' : label}
                                   </span>
+                                  {isTime && <TypeIconPill event={ev} background="#1E1D2A" />}
+                                  </Fragment>
                                 ))}
                               </div>
                             </div>

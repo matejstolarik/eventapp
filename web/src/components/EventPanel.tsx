@@ -3,7 +3,7 @@ import type { Event, Venue, Language } from '../core/types'
 import { eventTags, getEventType, EVENT_TYPE_TAG_TEXT } from '../core/eventType'
 import { joinDot, DOT_SEP } from '../core/dot'
 import { haversine, formatDistance } from '../core/distance'
-import { EventImage43, SparkleIcon } from './EventRow'
+import { EventImage43 } from './EventRow'
 import { isNew, isForYou } from '../core/search'
 import { getFavorites } from '../core/store'
 import { tagLabel } from '../i18n'
@@ -112,8 +112,8 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         onClick={() => onEventOpen(event.id)}
         aria-label="Otvoriť akciu"
       >
-        {/* 4:3 image (task 068; type ring removed in 069) */}
-        <EventImage43 event={event} width={120} eager />
+        {/* 4:3 image (task 068; type ring removed in 069; new + for you on the image in 070) */}
+        <EventImage43 event={event} width={120} eager isNew={newFlag} forYou={forYouFlag} lang={lang} />
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
           <p style={{
             margin: 0,
@@ -135,16 +135,10 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         </div>
       </button>
 
-      {/* Tag row: "new", "for you", then event tags with type-coloured text (task 069) */}
-      {(tags.length > 0 || newFlag || forYouFlag) && (
+      {/* Tag row: event tags with type-coloured text (task 069); new / for you are on the image (070) */}
+      {tags.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <TagRow aria-label="Štítky akcie">
-            {newFlag && <span style={{ ...pill, background: '#F4F2FF', color: '#111118' }}>new</span>}
-            {forYouFlag && (
-              <span style={{ ...pill, padding: '0 10px', background: '#2A2838' }} aria-label={lang === 'en' ? 'for you' : lang === 'cs' ? 'pro tebe' : 'pre teba'}>
-                <SparkleIcon size={18} color="#FF4D8D" />
-              </span>
-            )}
             {tags.map(tag => (
               <span key={tag} style={{ ...pill, background: '#2A2838', color: tagText }}>{tagLabel(tag, lang)}</span>
             ))}
