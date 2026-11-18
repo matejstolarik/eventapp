@@ -1,4 +1,6 @@
-# 069: Riadok akcie „X“ (nižší obrázok, farebné štítky, bez krúžku), návrat programu podniku a Môj účet, medzery pri „·“, preblikávanie detailu
+> **NEPLATÍ (2026-11-18 19:00, pred spustením) – zlúčené do `069-after-068-fixes.md`. Nerob podľa tohto súboru.** (Hlavný chat omylom zapísal dve zadania 069.)
+
+# 069 (neplatné): Riadok akcie „X“ (nižší obrázok, farebné štítky, bez krúžku), návrat programu podniku a Môj účet, medzery pri „·“, preblikávanie detailu
 
 ## Zadanie
 
