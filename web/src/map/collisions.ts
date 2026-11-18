@@ -1,5 +1,6 @@
 import type maplibregl from 'maplibre-gl'
 import { decidePairLabel } from './pairLabel'
+import { joinDot } from '../core/dot'
 
 export type MarkerEntry = { marker: maplibregl.Marker; el: HTMLElement }
 
@@ -86,7 +87,7 @@ export function checkNameCollisions(
             secondName = getVenueName(southId)
           }
 
-          combinedLabel.textContent = `${firstName} · ${secondName}`
+          combinedLabel.textContent = joinDot([firstName, secondName])
           combinedLabel.classList.add('is-active')
           combinedMarker.setLngLat([midLng, lowerLat])
 

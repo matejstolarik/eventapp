@@ -9,6 +9,7 @@ import { isNightMode, isNightEvent } from '../core/night'
 import { EventRow, SparkleIcon } from '../components/EventRow'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
+import { joinDot } from '../core/dot'
 
 interface Props {
   data: EventsData
@@ -324,7 +325,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     if (period.type === 'anytime') return ''
     const base = eventCount(events.length, dict)
     if (forYouActive) return `${base} ${dict.events.forYouInCount}`
-    if (hasFavorites && forYouCountInDisplay > 0) return `${base} · ${forYouCountInDisplay} ${dict.events.forYouInCount}`
+    if (hasFavorites && forYouCountInDisplay > 0) return joinDot([base, `${forYouCountInDisplay} ${dict.events.forYouInCount}`])
     return base
   }
 
