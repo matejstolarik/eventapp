@@ -129,3 +129,5 @@ Na `events.json` + `research/2026-11.json` behu 44172530495 by sa zmenili žánr
 **Stále otvorené:** bod 2 (13 popisov s podnikom v popise, možno odstránených neprávom; záloha v `docs/tasks/065/events-run44172530495.json`) a bod 4 (rodičia existujúcich podžánrov). Seed sa už ďalej nepoužíva; ďalšie behy čítajú cache + Pages.
 
 **Úloha 065: hotová (okrem rozhodnutí v bodoch 2 a 4).** Commity `94f997d`, `6f54fc5`, `01cd989`, `58eb222`, `1d01843`, `530d207`, doplnenie reportu v nasledujúcom commite.
+
+**Rozhodnutie Mateja 2026-11-18 k bodu 2:** „Nechaj tak“ – 13 popisov s podnikom v popise ostáva odstránených, neobnovujú sa.
