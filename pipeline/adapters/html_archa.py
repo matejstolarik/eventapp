@@ -9,6 +9,9 @@ Ticket states detected from the listing HTML:
   span.tag "vstup zdarma"  → free = True, sold_out = False
   button.goout-sale-button → sold_out = False (GoOut widget; no direct URL)
   a.btn-tickets "Připravujeme" → not yet on sale; sold_out = null
+  h2.canceled (date / title)  → status = cancelled (task 067; verified on
+      Mat213 27. 11. 2026, the detail page shows <span class="canceled">Zrušeno</span>)
+  short tag that is a cancel/postpone mark → pipeline.status_marks
 
 Program-section tags (stored in sources[].section):
   divadlo, hudba, film, tanec, debata, workshop
@@ -27,6 +30,7 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
+from pipeline import status_marks
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
 
@@ -204,6 +208,16 @@ def _parse_item(venue, item, section_override, yesterday, cutoff):
     elif item.select_one("button.goout-sale-button"):
         # GoOut widget button — tickets available but no direct purchase URL
         sold_out = False
+
+    # task 067: the listing marks a cancelled event with class "canceled"
+    # on the date and title headings
+    if item.select_one(".performance-title h2.canceled, .performance-date h2.canceled"):
+        status = "cancelled"
+    marks = status_marks.label_marks(tags)
+    if status == "scheduled" and marks["status"] in ("cancelled", "postponed"):
+        status = marks["status"]
+    if marks["sold_out"]:
+        sold_out = True
 
     return RawEvent(
         venue_id=venue["id"],

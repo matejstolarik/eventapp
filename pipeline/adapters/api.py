@@ -7,6 +7,7 @@ import datetime
 import logging
 import re
 
+from pipeline import status_marks
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
 
@@ -126,6 +127,11 @@ def _strapi_item_to_raw(item: dict, venue: dict, source_config: dict) -> "RawEve
 
     description = _clean_description(item.get("Description"))
 
+    # task 067: the API has no status field; Subtitle and Tag are short
+    # labels (title marks are read in pipeline.normalize)
+    marks = status_marks.label_marks([item.get("Subtitle"), item.get("Tag")])
+    status = marks["status"] if marks["status"] in ("cancelled", "postponed") else "scheduled"
+
     # sources[].url: bikejesus.com has no individual event pages; use venue website root.
     source_url = source_config.get("venue_url", "https://bikejesus.com")
 
@@ -142,7 +148,7 @@ def _strapi_item_to_raw(item: dict, venue: dict, source_config: dict) -> "RawEve
         artists=[],
         price_text=None,
         free=None,
-        sold_out=None,
+        sold_out=marks["sold_out"],
         room=None,
         ticket_url=ticket_url,
         image_url=None,
@@ -155,7 +161,7 @@ def _strapi_item_to_raw(item: dict, venue: dict, source_config: dict) -> "RawEve
             "section": source_config.get("section"),
         },
         flags=[],
-        status="scheduled",
+        status=status,
     )
 
 

@@ -258,12 +258,13 @@ def test_vstupne_code_5_cancelled():
     assert kafka.status == "cancelled"
 
 
-def test_vstupne_code_6_postponed_stays_scheduled():
+def test_vstupne_code_6_postponed():
+    # task 067: code 6 ("PŘELOŽENO!") = postponed (before: only logged)
     v = {**vstupne(), "40205": {"no": 6}}
     events = parse(VENUE, SOURCE, fixture("akropolis_hudba.html"), v, GENRE_HUDBA,
                    today=TEST_TODAY)
     kafka = next(e for e in events if "KAFKA" in e.title)
-    assert kafka.status == "scheduled"
+    assert kafka.status == "postponed"
 
 
 def test_vstupne_code_11_external_url():

@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
-from pipeline import images
+from pipeline import images, status_marks
 
 log = logging.getLogger(__name__)
 
@@ -215,7 +215,7 @@ def _wix_ld_to_raw(item: dict, venue: dict, page_url: str,
         artists=[],
         price_text=None,
         free=None,
-        sold_out=None,
+        sold_out=status_marks.ld_sold_out(item.get("offers")),
         room=None,
         ticket_url=None,
         image_url=image_url,
@@ -632,6 +632,7 @@ def _parse_kasarna_detail(venue: dict, source_config: dict,
         artists=[],
         price_text=None,
         free=None,
+        sold_out=status_marks.ld_sold_out(ld.get("offers")),
         ticket_url=None,
         image_url=_resolve_image(ld.get("image"), detail_url),
         description=description,
@@ -727,6 +728,7 @@ def _ld_to_raw(item: dict, venue: dict, base_url: str,
         artists=[],
         price_text=None,
         free=None,
+        sold_out=status_marks.ld_sold_out(item.get("offers")),
         ticket_url=None,  # offers.url points to the event page, not ticket sales
         image_url=_resolve_image(item.get("image"), base_url),
         description=description,
@@ -817,8 +819,13 @@ def _clean_description(val) -> "str | None":
 
 
 def _event_status(status_str) -> str:
-    if isinstance(status_str, str) and "cancel" in status_str.lower():
-        return "cancelled"
+    """schema.org eventStatus -> RawEvent status (task 067: also postponed;
+    EventRescheduled = new date already in startDate, only logged)."""
+    st = status_marks.ld_status(status_str)
+    if st in ("cancelled", "postponed"):
+        return st
+    if st == "rescheduled":
+        log.info("jsonld: eventStatus %s — kept as scheduled", status_str)
     return "scheduled"
 
 

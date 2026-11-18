@@ -22,6 +22,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
+from pipeline import status_marks
 from pipeline.fetch import make_fetcher, LimitExceeded
 from pipeline.models import RawEvent
 
@@ -109,6 +110,17 @@ def _parse_item(venue, item, yesterday, cutoff):
     if not title:
         return None
 
+    # ── task 067: postponed ───────────────────────────────────────────────
+    # The site's stylesheet has a ".front .postponed" element next to the
+    # date (no postponed event seen on the listing yet, 2026-11-18).  The
+    # title mark ("VYPRODÁNO:", "ZRUŠENO:") is read in pipeline.normalize.
+    status = "scheduled"
+    pp = item.select_one(".postponed")
+    if pp is not None:
+        kind, text = status_marks.label_kind(pp.get_text(" ", strip=True))
+        status = "cancelled" if kind == "cancelled" else "postponed"
+        log.info("%s [html/roxy] '%s' marked .postponed (%r)", venue["id"], title, text)
+
     # ── data-hashtags → formats + section ────────────────────────────────
     raw_tags = item.get("data-hashtags", "")
     formats, section = _parse_hashtags(raw_tags, venue["id"], title)
@@ -137,7 +149,7 @@ def _parse_item(venue, item, yesterday, cutoff):
             "section": section,
         },
         flags=[],
-        status="scheduled",
+        status=status,
     )
 
 

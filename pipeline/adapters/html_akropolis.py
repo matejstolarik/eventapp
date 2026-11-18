@@ -17,7 +17,7 @@ Code meanings from the `data` attribute of `.kas_box6` HTML elements
   3  → "VSTUP VOLNÝ!" — free entry
   4  → "JIŽ BRZY…!" — not yet on sale
   5  → "ZRUŠENO!" — cancelled; verified via kas_box6 data attribute
-  6  → "PŘELOŽENO! ►" — postponed (no specific date yet)
+  6  → "PŘELOŽENO! ►" — status postponed (task 067; before: only logged)
   9  → "prodej ukončen" — sales ended
   10 → "prodej na místě" — sold at the door
   11 → "KUP TEĎ!" via external URL (vstupne_6 entry has a `url` field)
@@ -240,8 +240,11 @@ def _parse_item(item, venue, base_url, no, section, ticket_page_id,
             log.debug("%s [html/akropolis] '%s' not yet on sale (vstupne code 4)",
                       venue["id"], title)
         elif state_no == _POSTPONED:
-            log.warning("%s [html/akropolis] '%s' postponed (vstupne code 6) — keeping as scheduled",
-                        venue["id"], title)
+            # task 067: "PŘELOŽENO!" without a date on the listing = postponed
+            # (a new date appears as a separate listing entry)
+            status = "postponed"
+            log.info("%s [html/akropolis] '%s' postponed (vstupne code 6)",
+                     venue["id"], title)
         elif state_no is not None:
             log.warning("%s [html/akropolis] '%s' unknown vstupne code %s",
                         venue["id"], title, state_no)

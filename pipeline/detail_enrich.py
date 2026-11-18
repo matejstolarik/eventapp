@@ -37,7 +37,7 @@ from pipeline.fetch import USER_AGENT, _robots_allowed, _rate_limit
 from pipeline.adapters.jsonld import (
     _all_ld_items, _is_event, _clean_description, _resolve_image,
 )
-from pipeline import images
+from pipeline import images, status_marks
 
 log = logging.getLogger(__name__)
 
@@ -55,6 +55,13 @@ PRICE_VENUES = frozenset({
 # Venues whose adapter often has no start time but the event page has it.
 TIME_VENUES = frozenset({"cross-club"})
 PRICE_RECHECK_DAYS = 7
+# Task 067: pages of events in the next 7 days are fetched again once a day
+# for a cancellation / postponement mark (within NEW_DETAILS_PER_VENUE).
+# Venues whose listing (or ticket API) already carries the status every run
+# are not re-checked: Forum Karlín, Archa+, Akropolis (vstupne codes), Bike
+# Jesus (API, no event pages).
+STATUS_RECHECK_DAYS = 7
+STATUS_LIST_VENUES = frozenset({"forum-karlin", "archa-plus", "palac-akropolis", "bike-jesus"})
 PAGE_TEXT_MAX = 6000
 
 _BLOCK_TAGS = ["p", "div", "br", "li", "tr", "td", "th", "h1", "h2", "h3", "h4",
@@ -92,6 +99,8 @@ def enrich_missing_details(
     # task 066: image chosen from the event page by pipeline.images, per event:
     # {event_id: {"url": detail_url, "image": image_url | None}}
     img_state = (state if state is not None else {}).setdefault("detail_image", {})
+    # task 067: {event_id: date of the last status check of the event page}
+    status_checked = (state if state is not None else {}).setdefault("status_checked", {})
 
     stats = {
         "fetched": 0,
@@ -100,6 +109,8 @@ def enrich_missing_details(
         "errors": 0,
         "price_found": 0,
         "time_found": 0,
+        "status_checks": 0,
+        "status_found": 0,
     }
 
     # Count new fetches per venue to enforce the per-venue limit
@@ -132,8 +143,11 @@ def enrich_missing_details(
         needs_img = force_img or not ev.get("image_url")
         needs_price = check_prices and venue_id in PRICE_VENUES and not ev.get("price_text")
         needs_time = check_prices and venue_id in TIME_VENUES and not ev.get("start_time")
+        # task 067: events in the next days: page re-checked once a day for a
+        # cancellation that appears later on the same URL
+        needs_status = check_prices and _needs_status_check(ev, status_checked, today)
 
-        if not (needs_desc or needs_img or needs_price or needs_time):
+        if not (needs_desc or needs_img or needs_price or needs_time or needs_status):
             result.append(ev)
             continue
 
@@ -196,12 +210,12 @@ def enrich_missing_details(
                     filled = True
                 if filled:
                     stats["cache_hits"] += 1
-                if not (needs_desc or needs_img or needs_price or needs_time):
+                if not (needs_desc or needs_img or needs_price or needs_time or needs_status):
                     result.append(ev)
                     continue
 
         # Price/time only: do not re-fetch a page checked in the last days
-        if not needs_desc and not needs_img and _checked_recently(checked.get(ev_id), today):
+        if not needs_desc and not needs_img and not needs_status                 and _checked_recently(checked.get(ev_id), today):
             result.append(ev)
             continue
 
@@ -284,14 +298,62 @@ def enrich_missing_details(
         if page_texts is not None:
             page_texts[ev_id] = page_text(html)
 
+        # task 067: cancellation / postponement marks on the event page
+        if venue_id not in STATUS_LIST_VENUES:
+            if needs_status:
+                stats["status_checks"] += 1
+            if today:
+                status_checked[ev_id] = today
+            ev = _apply_page_status(ev, html, stats)
+
         result.append(ev)
 
     log.info(
-        "detail_enrich: fetched=%d cache_hits=%d skipped=%d errors=%d price_found=%d time_found=%d",
+        "detail_enrich: fetched=%d cache_hits=%d skipped=%d errors=%d price_found=%d "
+        "time_found=%d status_checks=%d status_found=%d",
         stats["fetched"], stats["cache_hits"], stats["skipped"], stats["errors"],
-        stats["price_found"], stats["time_found"],
+        stats["price_found"], stats["time_found"], stats["status_checks"], stats["status_found"],
     )
     return result, stats
+
+
+def _needs_status_check(ev: dict, status_checked: dict, today: "str | None") -> bool:
+    """Event in the next STATUS_RECHECK_DAYS days whose page was not checked today."""
+    if not today or ev.get("status", "scheduled") != "scheduled":
+        return False
+    if ev.get("venue_id") in STATUS_LIST_VENUES:
+        return False
+    if status_checked.get(ev.get("id", "")) == today:
+        return False
+    try:
+        days = (datetime.date.fromisoformat(ev.get("date", "")) -
+                datetime.date.fromisoformat(today)).days
+    except ValueError:
+        return False
+    return 0 <= days <= STATUS_RECHECK_DAYS
+
+
+def _apply_page_status(ev: dict, html: str, stats: dict) -> dict:
+    """Set status cancelled / postponed (and sold_out) from marks on the page.
+    Never turns a cancelled or postponed event back to scheduled."""
+    soup = BeautifulSoup(html, "html.parser")
+    ld = [i for i in _all_ld_items(soup) if _is_event(i)]
+    marks = status_marks.page_status(page_lines(html), ev.get("title", ""), ld)
+    url = (ev.get("sources") or [{}])[0].get("url")
+    if marks["status"] in ("cancelled", "postponed") and ev.get("status", "scheduled") == "scheduled":
+        ev = dict(ev)
+        ev["status"] = marks["status"]
+        stats["status_found"] += 1
+        log.warning("detail_enrich: %s -> %s (page mark %r, %s)",
+                    ev.get("id"), marks["status"], marks["mark"], url)
+    elif marks["status"] == "rescheduled":
+        log.warning("detail_enrich: %s rescheduled mark %r on %s — kept as %s",
+                    ev.get("id"), marks["mark"], url, ev.get("status"))
+    if marks["sold_out"] and ev.get("sold_out") is not True:
+        ev = dict(ev)
+        ev["sold_out"] = True
+        log.info("detail_enrich: %s sold out (page mark)", ev.get("id"))
+    return ev
 
 
 def _checked_recently(last: "str | None", today: "str | None") -> bool:
