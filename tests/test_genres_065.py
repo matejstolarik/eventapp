@@ -83,7 +83,8 @@ def test_slug_strips_diacritics():
     (["hard-techno", "techno", "house"], ["hard-techno", "house"]),
     (["grunge", "rock"], ["grunge", "rock"]),
     (["alternative-rock", "rock"], ["alternative-rock"]),
-    (["metalcore", "metal"], ["metalcore", "metal"]),     # no hierarchy entry
+    (["metalcore", "metal"], ["metalcore"]),               # task 066: metalcore -> metal
+    (["jungle", "drum-and-bass"], ["jungle", "drum-and-bass"]),  # parent name not contained
 ])
 def test_c7_contained_parent_removed(genres, expected):
     assert drop_contained_parents(genres, HIER) == expected
@@ -173,3 +174,14 @@ def test_genre_tables_skip_ignored():
         {"raw": "goa trance", "kind": "music", "maps_to": None}]}} for i in range(3)]
     _, props = E.genre_tables(evs, {})
     assert [p["name"] for p in props] == ["goa trance"]
+
+
+@pytest.mark.parametrize("genre,parents", [
+    ("tech-house", ["house"]), ("death-metal", ["metal"]), ("metalcore", ["metal"]),
+    ("grindcore", ["metal", "punk"]), ("goregrind", ["grindcore"]), ("jungle", ["drum-and-bass"]),
+    ("dubstep", ["bass-music"]), ("uk-bass", ["bass-music"]), ("bassline", ["uk-garage"]),
+    ("dancehall", ["reggae"]), ("dub", ["reggae"]), ("ebm", ["industrial"]),
+    ("orchestral", ["classical"]),
+])
+def test_066_parents_of_older_subgenres(genre, parents):
+    assert HIER[genre] == parents

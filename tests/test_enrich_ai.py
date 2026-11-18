@@ -143,7 +143,7 @@ def test_enrich_fills_empty_fields_with_provenance():
     assert ev["descriptions"]["cs"] == DESC_CS
     assert ev["description"] == "Puvodni popis." and ev["description_source"] == "source"
     assert ev["classification"]["method"] == "llm+web"
-    assert ev["genres"] == ["metal", "metalcore"]
+    assert ev["genres"] == ["metalcore"]  # task 066: metalcore -> metal, C7 drops the contained parent
     enr = ev["enrichment"]
     assert enr["run"]["checked_at"] == TODAY
     assert enr["price_text"] == {"by": "ai_web", "model": "claude-haiku-5-5",

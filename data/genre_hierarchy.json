@@ -201,5 +201,45 @@
  ],
  "dance-theatre": [
   "dance"
+ ],
+ "tech-house": [
+  "house"
+ ],
+ "death-metal": [
+  "metal"
+ ],
+ "metalcore": [
+  "metal"
+ ],
+ "grindcore": [
+  "metal",
+  "punk"
+ ],
+ "goregrind": [
+  "grindcore"
+ ],
+ "jungle": [
+  "drum-and-bass"
+ ],
+ "dubstep": [
+  "bass-music"
+ ],
+ "uk-bass": [
+  "bass-music"
+ ],
+ "bassline": [
+  "uk-garage"
+ ],
+ "dancehall": [
+  "reggae"
+ ],
+ "dub": [
+  "reggae"
+ ],
+ "ebm": [
+  "industrial"
+ ],
+ "orchestral": [
+  "classical"
  ]
 }
