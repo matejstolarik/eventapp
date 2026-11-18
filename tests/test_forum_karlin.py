@@ -248,3 +248,34 @@ def test_minimal_detail_no_ticket_url():
     assert enriched.ticket_url is None
     assert enriched.start_time == "21:00"
     assert enriched.doors_time is None
+
+
+# ── 066: cancellation markers (Omah Lay, saved 2026-11-18) ──────────────────────
+
+def _omah_listing():
+    evs = parse_listing(VENUE, SOURCE, fixture("forumkarlin_program_20261118.html"),
+                        today=datetime.date(2026, 11, 18))
+    return {e.title: e for e in evs}
+
+
+def test_066_listing_cancel_class_and_text():
+    evs = _omah_listing()
+    assert evs["Omah Lay"].status == "cancelled"
+    # class "event cancel" + "<p>The Next Chapter<br>ZRUŠENO</p>"
+    assert evs["Original ENIGMA Voices Symphonic"].status == "cancelled"
+    others = [e for t, e in evs.items()
+              if t not in ("Omah Lay", "Original ENIGMA Voices Symphonic")]
+    assert others and all(e.status == "scheduled" for e in others)
+
+
+def test_066_detail_cancel_markers():
+    ev = _stub_event(title="Omah Lay", date="2026-11-18", status="scheduled")
+    out = parse_detail(ev, fixture("forumkarlin_detail_omah_lay.html"))
+    assert out.status == "cancelled"
+    assert out.start_time == "20:00"
+
+
+def test_066_detail_without_markers_keeps_status():
+    ev = _stub_event(status="scheduled")
+    out = parse_detail(ev, fixture("forumkarlin_detail_shinedown.html"))
+    assert out.status == "scheduled"

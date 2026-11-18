@@ -8,6 +8,9 @@ Ticket URLs come from #sellers .btn_static a on the detail page.  The first
 link is used; if several sellers are listed all of them are listed in logs.
 
 Sold-out / sticker state is read from .nalepka .msg on the listing card.
+Cancellation is also marked by the "cancel" class on the card
+(<div class="event cancel">) and a <p>ZRUŠENO</p> under the date; on the detail
+page by <div id="event" class="cancel"> and <p class="zmena">ZRUŠENO</p>.
 
 Detail pages are fetched for every event within the yesterday–+180 day window.
 max_requests should cover 1 (listing) + number of in-window events.
@@ -155,6 +158,11 @@ def _parse_card(venue, card, section, yesterday, cutoff):
         elif "ZRUŠENO" in msg or "CANCELLED" in msg:
             status = "cancelled"
         # "JIŽ BRZY" = not yet on sale; sold_out stays None
+    if "cancel" in (card.get("class") or []):
+        status = "cancelled"
+    for p in inner.find_all("p"):
+        if _is_cancel_text(p.get_text("\n", strip=True)):
+            status = "cancelled"
 
     return RawEvent(
         venue_id=venue["id"],
@@ -232,9 +240,25 @@ def _enrich_from_detail(ev, html: str):
         if og_img and (og_img.get("content") or "").strip().startswith("http"):
             image_url = og_img["content"].strip()
 
+    # ── cancellation on the detail page ────────────────────────────────────
+    status = ev.status
+    event_el = soup.find(id="event")
+    if event_el is not None and "cancel" in (event_el.get("class") or []):
+        status = "cancelled"
+    for p in soup.select("p.zmena"):
+        if _is_cancel_text(p.get_text("\n", strip=True)):
+            status = "cancelled"
+
     return dataclasses.replace(ev, start_time=start_time, doors_time=doors_time,
                                ticket_url=ticket_url, description=description,
-                               description_source=description_source, image_url=image_url)
+                               description_source=description_source, image_url=image_url,
+                               status=status)
+
+
+def _is_cancel_text(text: str) -> bool:
+    """True if any line of the text is exactly a cancellation word (e.g. "ZRUŠENO")."""
+    lines = [ln.strip().upper() for ln in (text or "").splitlines()]
+    return any(ln in ("ZRUŠENO", "ZRUŠENO!", "CANCELLED", "CANCELED") for ln in lines)
 
 
 def _og_text(soup: BeautifulSoup, prop: str) -> "str | None":
