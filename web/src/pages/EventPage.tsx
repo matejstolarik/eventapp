@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
-import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
+import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
+import { joinDot, DOT_SEP } from '../core/dot'
 import { isGoing, toggleGoing } from '../core/store'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate, tagLabel } from '../i18n'
@@ -12,7 +13,7 @@ import {
   IconChevronLeft, IconExpand, IconCalendar,
   IconShare, IconSpotify, IconNavigate, IconPin, IconBookmark, EventTypeIcon
 } from '../icons'
-import { TypeRing, imgSrc } from '../components/EventRow'
+import { imgSrc } from '../components/EventRow'
 
 interface Props {
   eventId: string
@@ -95,11 +96,10 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   const dateLabel = formatEventDate(ev.date, lang)
   const description = eventDescription(ev, lang)
   const price = priceLabel(ev, lang)
-  const timePart = ev.start_time ? ` · ${ev.start_time}` : ''
-  const metaLine = `${dateLabel}${timePart}`
+  const metaLine = joinDot([dateLabel, ev.start_time])
 
   const distStr = userLocation && venue
-    ? ` · ${formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)}`
+    ? DOT_SEP + formatDistance(haversine(venue.lat, venue.lng, userLocation.lat, userLocation.lng), lang)
     : ''
 
   const sourceUrl = ev.sources[0]?.url ?? '#'
@@ -179,11 +179,18 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     }
   }
 
-  // Task 068: all tags with type-coloured text, no full-colour type tag;
-  // without tags one tag with the type name (eventTags fallback).
-  const tags = eventTags(ev.formats, ev.genres, ev.primary_format)
+  // Task 069: tags exactly as before 068 - first the full-colour type tag
+  // (legend of the colours), then culture subtypes and genres with type-coloured text.
+  const primaryTag = primaryTypeTag(ev.formats, ev.primary_format)
+  const remainingTags = [
+    ...ev.formats.filter(f => ['theatre','dance','talk','performance','stand-up','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
+    ...ev.genres,
+  ]
   const heroCandidates = [ev.image_detail, ev.image_url].filter((x): x is string => !!x)
   const heroSrc = heroCandidates[heroErr] ? imgSrc(heroCandidates[heroErr]!) : null
+  // Task 069: reserve the image box before the image loads (no layout jump).
+  // Known size only for image_detail; the image_url fallback sizes itself.
+  const heroSize = heroErr === 0 && ev.image_detail && ev.image_detail_size ? ev.image_detail_size : null
   const backButton = (
     <button
       style={{
@@ -204,17 +211,23 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
       position: 'absolute', inset: 0, background: '#111118',
       overflowY: 'auto', zIndex: 50
     }}>
-      {/* Image (task 068): whole image uncropped, max 70 % of the screen
-          height, centred on #111118; type ring at its top-right corner. */}
+      {/* Image (task 068/069): whole image uncropped, max 50 % of the screen
+          height, centred on #111118. With image_detail_size the box has its
+          final size from the first frame (dark area until the image arrives). */}
       {heroSrc ? (
         <div style={{ position: 'relative', width: '100%', background: '#111118', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative', lineHeight: 0, maxWidth: '100%' }}>
+          <div style={heroSize ? {
+            position: 'relative', lineHeight: 0, background: '#1C1C27',
+            width: `min(100%, calc(50vh * ${heroSize[0]} / ${heroSize[1]}))`,
+            aspectRatio: `${heroSize[0]} / ${heroSize[1]}`,
+          } : { position: 'relative', lineHeight: 0, maxWidth: '100%' }}>
             <img
               src={heroSrc} alt=""
               onError={() => setHeroErr(e => e + 1)}
-              style={{ display: 'block', maxWidth: '100%', maxHeight: '70vh', width: 'auto', height: 'auto' }}
+              style={heroSize
+                ? { display: 'block', width: '100%', height: '100%' }
+                : { display: 'block', maxWidth: '100%', maxHeight: '50vh', width: 'auto', height: 'auto' }}
             />
-            <TypeRing event={ev} size={36} icon={20} style={{ top: 8, right: 8 }} />
             <button
               style={{
                 position: 'absolute', bottom: 12, right: 12,
@@ -277,10 +290,17 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
         </p>
 
         {/* Tags row — with bookmark on right when no price and no sold_out (case c) */}
-        {tags.length > 0 && (
+        {(primaryTag || remainingTags.length > 0) && (
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 12 }}>
             <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {tags.map(tag => (
+              {primaryTag && (
+                <span style={{
+                  height: 24, padding: '0 10px', borderRadius: 12,
+                  background: color, color: dark, fontSize: 12, fontWeight: 600,
+                  display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap'
+                }}>{tagLabel(primaryTag, lang)}</span>
+              )}
+              {remainingTags.map(tag => (
                 <span key={tag} style={{
                   height: 24, padding: '0 10px', borderRadius: 12,
                   background: '#2A2838', color: EVENT_TYPE_TAG_TEXT[eventType], fontSize: 12, fontWeight: 600,

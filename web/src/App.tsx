@@ -277,6 +277,7 @@ export default function App() {
         <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 50 }}>
           {isOffline && <OfflineBanner lang={lang} lastFetched={lastFetched} />}
           <EventPage
+            key={(route as { page: 'event'; eventId: string }).eventId}
             eventId={(route as { page: 'event'; eventId: string }).eventId}
             data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
             lang={lang}
