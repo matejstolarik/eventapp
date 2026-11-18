@@ -25,6 +25,7 @@ from pipeline.genres import finalize_genres, load_aliases, load_hierarchy
 from pipeline.price import parse_price
 from pipeline.thumbs import generate_thumbs, generate_event_images, event_detail_size
 from pipeline.fetch import USER_AGENT
+from pipeline import run_summary
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -300,6 +301,16 @@ def main():
 
     new_total, new_per_venue = count_new_events(events_out, previous)
     log.info("New events: %d (per venue %s)", new_total, new_per_venue)
+
+    # task 057: daily numbers for alerts and the weekly report
+    try:
+        summary = run_summary.build(events_out, previous, source_results, today, generated_at,
+                                    ai_stats=ai_stats, web_stats=web_stats, proposals=proposals,
+                                    warnings=capture.messages,
+                                    simulate_zero=run_summary.simulate_zero_venue())
+        log.info("Run summary written to %s", run_summary.save(summary))
+    except Exception as exc:   # never stop the daily run
+        log.warning("run summary not written: %s", exc)
 
     _write_job_summary(source_results, events_out, generated_at, capture.messages, ai_stats,
                       enrich_stats, new_events=(new_total, new_per_venue, bool(previous)),

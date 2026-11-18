@@ -15,3 +15,6 @@ pw-output/
 
 # Task 064 crop review sheet (third-party images, local only)
 docs/tasks/064/sheet/
+
+# Task 057: run summaries (kept by the Actions cache, not committed)
+data/cache/

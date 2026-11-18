@@ -321,6 +321,33 @@ Zverejnený na GitHub Pages vedľa `events.json` (pipeline ho načíta z `PREVIO
 - `ai_searches`: počet webových hľadaní AI v kalendárnom mesiaci (limit 400 pri Claude; pri DeepSeek 3 000, skutočný limit je rozpočet v $). Ak sa stav nedá načítať (iná chyba ako 404), AI doplnenie sa v tom behu nespustí.
 - `ai_cost` (task 062, DeepSeek): súčet ceny AI (zaradenie + doplnenie) za kalendárny mesiac v $ a počet behov. Rozpočet behu = min(0,30 $, 3 $ − `usd`); po prekročení sa AI zastaví, beh pokračuje. Nový mesiac začína od 0.
 
+## Zhrnutie denného behu (`data/cache/run_summaries/<YYYY-MM-DD>.json`, task 057)
+
+Jeden súbor na deň (pražský dátum; ďalší beh v ten istý deň ho prepíše), posledných 60 dní. Nie je v repe ani na Pages: drží ho cache GitHub Actions (`daily.yml`, kľúč `run-summaries-*`). Číta ho `pipeline.alerts` (upozornenia) a `pipeline.weekly_report` (týždenný report). Nie je pre appku.
+```json
+{ "date": "2026-11-19", "generated_at": "2026-11-19T05:31:00+01:00",
+  "success": true, "has_previous": true, "events": 377, "new": 12, "gone": 2,
+  "venues": { "roxy": { "events": 45, "new": 3, "gone": 0, "music_events": 40,
+      "missing": { "image": 0, "time": 2, "price": 10, "genre": 1, "description": 0 },
+      "sources": [{ "label": "rss", "events": 45, "warning": null }] } },
+  "ai": { "provider": "deepseek", "searches": 120, "month_searches": 991, "search_limit": 3000,
+          "cost_usd": 0.12, "month": "2026-11", "month_cost_usd": 1.37, "month_budget_usd": 3.0,
+          "type_changed": 4, "nothing_found": 1, "prices_dropped": 2, "low_confidence": 8,
+          "search_limit_reached": false, "http_402": false },
+  "review": [{ "id": "…", "venue_id": "…", "title": "…", "date": "…", "source_url": "…",
+               "kind": "price_dropped", "detail": "price '300 Kč': not on page" }],
+  "no_spotify": [{ "id": "…", "…": "…", "artists": ["Band X"] }],
+  "unverified_prices": [{ "id": "…", "…": "…", "price_text": "300 Kč", "price_source": "…" }],
+  "genre_proposals": [{ "name": "shoegaze", "kind": "music", "count": 3, "examples": [{ "id": "…" }] }],
+  "warnings": ["…"] }
+```
+- `success`: výsledok celého jobu (zapíše krok upozornení na konci `daily.yml`); pri zlyhaní pred zápisom zhrnutia vznikne len `{ date, generated_at, success: false }`.
+- `sources[].warning`: `null` / `zero_events` / `error` (ako v job summary). `new` = id nebolo v predošlom behu; `gone` = akcia z predošlého behu s dátumom od dnes, ktorá zmizla.
+- `missing`: počet akcií bez poľa – `image` (`image_url`), `time` (`start_time`), `price` (bez `price_text`/`price` a nie `free: true`), `genre` (len hudobné akcie `concert`/`dj`/`party`/`music`; základ `music_events`), `description`.
+- `review[].kind`: `ai_nothing` (AI hľadala, nedoplnila nič), `low_confidence` (typ od AI s `confidence` < 0,6), `price_dropped`, `genres_dropped` (zahodené ochranami AI v tomto behu), `type_changed` (`old` → `new` formáty v tomto behu).
+- `no_spotify`: nové akcie s typom `concert`/`dj`, prví dvaja interpreti bez `artist_links`. `unverified_prices`: cena od AI s `verified: false` v najbližších 14 dňoch.
+- Testovací prepínač `ALERT_SIMULATE_ZERO=<venue_id>` (vstup `simulate_zero_source` v `daily.yml`): zdroje podniku sa v zhrnutí zapíšu s 0 akciami; `events.json` sa nemení.
+
 ## Formát výstupu
 
 ```json

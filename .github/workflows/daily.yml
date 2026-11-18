@@ -100,6 +100,14 @@ jobs:
           key: research-${{ github.run_id }}
           restore-keys: research-
 
+      - name: Restore run summaries
+        # task 057: daily numbers of the last 60 days (alerts, weekly report)
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/run_summaries
+          key: run-summaries-${{ github.run_id }}
+          restore-keys: run-summaries-
+
       - name: Run pipeline
         env:
           PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
@@ -148,3 +156,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+
+      - name: Save run summaries
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/run_summaries
+          key: run-summaries-${{ github.run_id }}

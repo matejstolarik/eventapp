@@ -1137,6 +1137,9 @@ def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None,
         new = vals["formats"]
         if set(new) != set(ev.get("formats") or []):
             count("type_changed")
+            if stats is not None:     # task 057: ids for the weekly report
+                stats.setdefault("type_changed_ids", []).append(
+                    {"id": ev.get("id"), "old": list(ev.get("formats") or []), "new": list(new)})
         ev["formats"] = new
         ev["primary_format"] = vals.get("primary_format") if vals.get("primary_format") in new else None
         f = enr["formats"]
