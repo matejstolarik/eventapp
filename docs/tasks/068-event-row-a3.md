@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-> **Doplnok 2026-11-18 15:35 (Matej, pred spustením):** odznaky pre teba a new nie sú na obrázku, ale prvé v riadku štítkov (pre teba = ružové iskry, vždy prvé; potom new). Riadok dátum · čas · miesto vždy na jednom riadku. Platí aj pre kartu na mape.
+> **Doplnok 2026-11-18 15:35 (Matej, pred spustením):** odznaky pre teba a new nie sú na obrázku, ale prvé v riadku štítkov (**new prvé** – doplnok 15:50, potom pre teba s ružovými iskrami). Riadok dátum · čas · miesto vždy na jednom riadku. Platí aj pre kartu na mape.
 
 **Schválené Matejom 2026-11-18** (návrh v chate, varianty A/B/A2/A3; zvolené A3 s krúžkom typu). **Spusti až po 067.** Dizajn je zapísaný v `docs/design.md` (commit `75242c7`): časť 4 blok „Zmena 2026-11-18 – riadok akcie A3“, časť 7 „Zmena 2026-11-18“. Appka má byť **takmer 1:1 podľa design.md**; čo nie je jasné alebo nejde, zastav sa a spýtaj Mateja.
 
@@ -15,7 +15,7 @@
 - `image_thumb` akcie: **stredový výrez 4 : 3, 640 × 480** (namiesto štvorca 480). Rovnaká cache/hash logika ako v 066; jednorazovo zvýš limit, aby sa prepočítali všetky (napíš o koľko), potom vráť. `image_detail` bez zmeny. `data-model.md` aktualizuj.
 
 ### 2. Riadok A3 (Akcie, program podniku, Môj účet → Akcie)
-- Jeden spoločný komponent riadku podľa design.md 4 (blok 2026-11-18): obrázok 4 : 3 vľavo (45 %), názov, „dátum · čas · miesto“, sivé štítky; krúžok typu v ľavom hornom rohu obrázka; odznaky pre teba (pilulka s ružovými iskrami `#FF4D8D`, vždy prvá) a new (biela pilulka, za pre teba) na začiatku riadku štítkov, nie na obrázku (design.md zmena 2026-11-18, doplnok 15:35); riadok „dátum · čas · miesto“ vždy na jednom riadku, skracuje sa len miesto; bez obrázka plocha `EVENT_TYPE_DARK` s ikonou.
+- Jeden spoločný komponent riadku podľa design.md 4 (blok 2026-11-18): obrázok 4 : 3 vľavo (45 %), názov, „dátum · čas · miesto“, sivé štítky; krúžok typu v ľavom hornom rohu obrázka; odznaky **new** (biela pilulka, vždy prvá) a **pre teba** (pilulka s ružovými iskrami `#FF4D8D`, za new) na začiatku riadku štítkov, nie na obrázku (design.md zmena 2026-11-18, doplnok 15:35); riadok „dátum · čas · miesto“ vždy na jednom riadku, skracuje sa len miesto; bez obrázka plocha `EVENT_TYPE_DARK` s ikonou.
 - **Krúžok typu:** použi **tie isté ikony ako piny na mape** (rovnaké SVG/komponent, kultúra podľa podtypu), nie novú sadu. Má pôsobiť elegantne a ako súčasť appky: ikona opticky vycentrovaná, ťah ako na pine, správny kontrast ikony na všetkých štyroch farbách, obrys 2 px `#111118` aby bol čitateľný na svetlých aj farebných plagátoch.
 - Ostatné správanie Akcií ostáva (obdobie, Pre teba, Nové, hľadanie, zoradenie, kompaktná lišta pri scrolle, šípka navrch, obnovenie potiahnutím, prázdny stav).
 
@@ -23,7 +23,7 @@
 - Podľa design.md 3 + blok 2026-11-18: obrázok 4 : 3 (šírka 120) s krúžkom typu, sivé štítky. Ostatné (šípky, ťahanie medzi akciami, bodky) bez zmeny.
 
 ### 4. Stránka akcie
-- Podľa design.md 7 „Zmena 2026-11-18“: celý obrázok bez orezu (`image_detail`, záloha `image_url`), max 70 % výšky obrazovky, vycentrovaný na `#111118`; krúžok typu vpravo hore (36 / ikona 20); štítky s farebným textom typu, **bez prvého plnofarebného štítku typu**; bez štítkov jeden štítok s názvom typu. Tlačidlo Plagát ostáva.
+- Podľa design.md 7 „Zmena 2026-11-18“: celý obrázok bez orezu (`image_detail`, záloha `image_url`), max 70 % výšky obrazovky, vycentrovaný na `#111118`; krúžok typu tesne v pravom hornom rohu obrázka (36 / ikona 20, 8 px od okrajov); **v detaile bez odznakov new a pre teba**; štítky s farebným textom typu, **bez prvého plnofarebného štítku typu**; bez štítkov jeden štítok s názvom typu. Tlačidlo Plagát ostáva.
 
 ## Overenie a report
 - `npm test`, `npm run build`, `pytest -q`; číslo nasadenia a behu pipeline.
