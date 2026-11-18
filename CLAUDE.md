@@ -25,6 +25,10 @@ App that shows events (concerts, parties, culture) at the user's favourite venue
 - Tasks are tracked in `docs/tasks/` — each task is a file `NNN-name.md`. Run `git pull` before starting a task.
 - **At the end of every task**, write `## Report` in the task file with: date + commit hashes, what is done, decisions made independently and why, numbers (computed from `site/events.json` of the latest pipeline run — always include the command used), verification against the web (specific URLs and values), what remains open or was not finished. Commit and push the report together with the work. Write only: task number, done/not done, commit hash.
 - **Do not report intermediate results as final.** Numbers and results in the closing report must come from `events.json` from the latest pipeline run.
+- **When to run the pipeline (Matej 2026-11-18):**
+  - Task changes only the app (`web/`): do not run the pipeline (`daily.yml`). Verify only the app deploy (`deploy-app`). No data numbers needed in the report.
+  - Task changes data: run the pipeline once at the end and wait for it once. Run it again only if the run failed or a fix after it changes the data.
+  - Fixes during work: test locally on saved samples (`tests/` fixtures, cache), not with full GitHub runs.
 - **`docs/` is the single source of truth** for all technical matters. `decisions.md` and `docs/tasks/` are append-only — old entries are never deleted or rewritten. A change to a decision = a new row that supersedes the old one.
 
 ## Rules
