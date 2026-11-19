@@ -17,7 +17,7 @@ Spoľahlivosť: **oficiálny** = web podniku, prevádzkovateľa, provozní řád
 | Fuchs2 (`fuchs2`) | 650 | nenájdené v tomto prieskume | 013: selection.cz/en/venues/fuchs2 | Ponechať |
 | Cross Club (`cross-club`) | 250 | nenájdené (oficiálne číslo nie je) | – | 250 schválil Matej v 013, zdroj v `notes` nie je; ponechať, doplniť „podľa Mateja“ |
 | Bike Jesus (`bike-jesus`) | 280 | do 280 (sekundárny) | kdykam.com/en/venue/bike-jesus-praha-165/ | Sedí |
-| Kasárna Karlín (`kasarna-karlin`) | null | Garáže 150 sedenie / 300 stánie, Bazén 60–90 (oficiálny, projekt pre MHMP); dvor neznámy | eud-vis.praha.eu (Podrobný popis projektu Kasárna Karlín) | Návrh **300** (najväčší vnútorný priestor so zdrojom); od 2025 max. 3 koncerty ročne na dvore |
+| Kasárna Karlín (`kasarna-karlin`) | null | Garáže 150 sedenie / 300 stánie, Bazén 60–90 (oficiálny, projekt pre MHMP); dvor neznámy | [Podrobný popis projektu Kasárna Karlín](https://eud-vis.praha.eu/pub/deska/6000004/4/6000003%23MHMPAWO0A020%23MHMP0BTA07MH%230/6000003%23MHMPAWO0A020%23MHMP0BT9Q9G0/Podrobný_popis_projektu_Kasárna_Karlín_anonymizovany.pdf) (eud-vis.praha.eu) | Návrh **300** (najväčší vnútorný priestor so zdrojom); od 2025 max. 3 koncerty ročne na dvore |
 | Čítárna Unijazz (`citarna-unijazz`) | null → 70 (073) | sál s barem cca 70, salonek 10–15 (oficiálny) | citarna.unijazz.cz/pronajem-prostor/ | Nájdené v úlohe 073 na oficiálnom webe |
 
 ## Navrhnuté a budúce podniky
