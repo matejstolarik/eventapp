@@ -13,6 +13,14 @@ search (ENRICH_FROM_RESEARCH = "all" or comma-separated event ids).
 Pages are rebuilt on every run, so each run loads the files of the last
 KEEP_MONTHS months from the published site and writes them back.  This
 covers the 60-day enrichment window; older months drop off.
+
+Task 074: a weekly backup in the repo (data/research_backup/<YYYY-MM>.json,
+same format, text and links only), written by weekly-report.yml:
+
+    python -m pipeline.research_store backup
+
+When Pages + cache give fewer records than the backup, `load` merges the
+backup too and logs a warning.
 """
 
 import datetime
@@ -20,6 +28,7 @@ import json
 import logging
 import os
 import pathlib
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -29,6 +38,7 @@ from pipeline.fetch import USER_AGENT
 log = logging.getLogger(__name__)
 
 RESEARCH_DIR = pathlib.Path("site/research")
+BACKUP_DIR = pathlib.Path("data/research_backup")      # task 074
 KEEP_MONTHS = 3
 
 
@@ -133,23 +143,69 @@ def load(today: str) -> dict:
         elif pages_n < local_n:
             log.warning("research %s: Pages has %d records, local copy %d (merged)",
                         m, pages_n, local_n)
+    backup = _read_dir(BACKUP_DIR, today)
+    if len(backup) > len(store):        # task 074: Pages + cache lost records
+        log.warning("research store: Pages + cache gave %d records, repo backup has %d;"
+                    " backup merged", len(store), len(backup))
+        for rec in backup.values():
+            _merge(store, {"events": [rec]})
     log.info("research store: %d records loaded", len(store))
     return store
 
 
-def save(store: dict, today: str) -> dict:
-    """Write site/research/<YYYY-MM>.json; returns {month: bytes}."""
+def _read_dir(directory: pathlib.Path, today: str) -> dict:
+    """id -> record from <directory>/<YYYY-MM>.json of the kept months."""
+    store: dict = {}
+    for m in reversed(months(today)):
+        f = directory / f"{m}.json"
+        if f.exists():
+            try:
+                _merge(store, json.loads(f.read_text(encoding="utf-8")))
+            except (OSError, ValueError) as exc:
+                log.warning("research %s: %s not readable (%s)", m, f, exc)
+    return store
+
+
+def save(store: dict, today: str, directory: pathlib.Path | None = None) -> dict:
+    """Write <directory>/<YYYY-MM>.json (default site/research); returns
+    {month: bytes}."""
+    directory = directory or RESEARCH_DIR
     keep = set(months(today))
     by_month: dict = {}
     for rec in store.values():
         m = (rec.get("processed") or today)[:7]
         if m in keep:
             by_month.setdefault(m, []).append(rec)
-    RESEARCH_DIR.mkdir(parents=True, exist_ok=True)
+    directory.mkdir(parents=True, exist_ok=True)
     sizes = {}
     for m, recs in sorted(by_month.items()):
         recs.sort(key=lambda r: r["id"])
         text = json.dumps({"month": m, "events": recs}, ensure_ascii=False, indent=1)
-        (RESEARCH_DIR / f"{m}.json").write_text(text, encoding="utf-8")
+        (directory / f"{m}.json").write_text(text, encoding="utf-8")
         sizes[m] = len(text.encode("utf-8"))
     return sizes
+
+
+def backup(today: str, directory: pathlib.Path | None = None) -> int:
+    """Task 074: write the stored research (Pages + cache + current backup)
+    into the repo backup; month files no longer kept are removed.  Only the
+    research records (text and links), nothing else.  Returns the number of
+    records."""
+    directory = directory or BACKUP_DIR
+    store = load(today)
+    save(store, today, directory)
+    keep = {f"{m}.json" for m in months(today)}
+    for f in directory.glob("*.json"):
+        if f.name not in keep:
+            f.unlink()
+    n = sum(1 for r in store.values() if (r.get("processed") or today)[:7] in set(months(today)))
+    log.info("research backup: %d records in %s", n, directory)
+    return n
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    if sys.argv[1:] != ["backup"]:
+        sys.exit("usage: python -m pipeline.research_store backup")
+    from zoneinfo import ZoneInfo
+    backup(datetime.datetime.now(ZoneInfo("Europe/Prague")).date().isoformat())

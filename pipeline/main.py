@@ -227,6 +227,14 @@ def main():
         web_stats["budget"] = {"run_limit_usd": ai_budget.limit,
                                "run_spent_usd": round(ai_budget.spent, 4),
                                "month": cost["month"], "month_spent_usd": cost["usd"]}
+    # task 074: DeepSeek account balance after the AI step (alert below $0.20)
+    if (os.environ.get("ENRICH_PROVIDER") or "").strip().lower() == "deepseek":
+        try:
+            from pipeline.deepseek import balance_usd
+            web_stats["balance_usd"] = balance_usd()
+            log.info("DeepSeek balance: %s USD", web_stats["balance_usd"])
+        except Exception as exc:   # never stop the daily run
+            log.warning("DeepSeek balance not available: %s", exc)
     try:
         web_stats["research_bytes"] = research_store.save(research, today)
     except OSError as exc:

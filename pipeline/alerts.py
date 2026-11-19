@@ -6,7 +6,10 @@ Raised only for:
   - a source with 0 events, or with fewer than DROP_RATIO x the median of
     its last MEDIAN_RUNS runs (key  source:<venue>/<label>),
   - the monthly AI limit used up: search limit, month budget, HTTP 402
-    (key  ai:limit).
+    (key  ai:limit),
+  - DeepSeek account balance below LOW_CREDIT_USD (key  ai:low-credit,
+    task 074); closed after a top-up, kept as it is when the balance is
+    unknown in a run.
 One open issue per key: while it is open, a repeated problem adds a comment;
 when the problem is gone, the run closes the issue with a comment.
 Rules and ignore list: docs/report-rules.md, data/report_ignore.json.
@@ -33,6 +36,7 @@ LABEL = "alert"
 MEDIAN_RUNS = 7
 DROP_RATIO = 0.5
 BUDGET_EPS_USD = 0.005
+LOW_CREDIT_USD = 0.20
 IGNORE_PATH = pathlib.Path("data/report_ignore.json")
 MARKER = re.compile(r"<!-- alert-key: (.+?) -->")
 WORKFLOW_NAMES = {"daily": "Denný beh pipeline", "deploy-app": "Nasadenie appky"}
@@ -102,6 +106,16 @@ def ai_alerts(latest: dict) -> list[dict]:
                    + ". AI doplnenie sa zastavilo, beh pokračuje bez neho.")]
 
 
+def low_credit_alerts(latest: dict) -> list[dict]:
+    bal = (latest.get("ai") or {}).get("balance_usd")
+    if bal is None or bal >= LOW_CREDIT_USD:
+        return []
+    return [_alert("ai:low-credit", f"⚠ AI: nízky kredit DeepSeek (${bal:.2f})",
+                   f"Beh {latest['date']}: zostatok kreditu DeepSeek je **${bal:.2f}**"
+                   f" (hranica ${LOW_CREDIT_USD:.2f}). Treba dobiť, inak sa AI doplnenie"
+                   " zastaví (HTTP 402). Upozornenie sa zavrie po dobití.")]
+
+
 def workflow_alert(workflow: str, run_url: str | None) -> dict:
     name = WORKFLOW_NAMES.get(workflow, workflow)
     link = f" Beh: {run_url}" if run_url else ""
@@ -123,7 +137,10 @@ def compute(workflow: str, job_status: str, latest: dict | None, history: list[d
     if workflow == "daily" and latest and latest.get("venues"):
         alerts += source_alerts(latest, history, ignore)
         alerts += ai_alerts(latest)
-        scope |= {"source:", "ai:"}
+        alerts += low_credit_alerts(latest)
+        scope |= {"source:", "ai:limit"}
+        if (latest.get("ai") or {}).get("balance_usd") is not None:
+            scope.add("ai:low-credit")      # balance unknown -> leave the issue open
     return alerts, scope
 
 

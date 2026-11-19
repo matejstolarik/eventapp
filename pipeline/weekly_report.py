@@ -246,7 +246,11 @@ def build(summaries: list[dict], today: str, ignore: set[str] | None = None) -> 
         month.append(f"{ai['month_searches']} / {ai.get('search_limit')} hľadaní")
     ai_lines = ["### 7. AI", "",
               f"- Týždeň: {week_searches} hľadaní, ${week_cost:.2f}",
-              f"- Mesiac {ai.get('month') or ''}: " + (", ".join(month) or "–"), ""]
+              f"- Mesiac {ai.get('month') or ''}: " + (", ".join(month) or "–")]
+    bal = next(((s.get("date"), s["ai"]["balance_usd"]) for s in reversed(ok)
+                if (s.get("ai") or {}).get("balance_usd") is not None), None)
+    ai_lines += [f"- Zostatok DeepSeek: ${bal[1]:.2f} ({bal[0]})" if bal
+                 else "- Zostatok DeepSeek: –", ""]     # task 074
 
     lines += ["</details>", ""] + ai_lines + [
               f"_Pravidlá: `docs/report-rules.md`, ignorované: `data/report_ignore.json`."

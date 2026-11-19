@@ -187,6 +187,7 @@ def build(events: list[dict], previous: dict, source_results: list[tuple], today
         "low_confidence": sum(1 for r in review if r["kind"] == "low_confidence"),
         "search_limit_reached": any("search limit" in t and "reached" in t for t in texts),
         "http_402": any("HTTP 402" in t for t in texts),
+        "balance_usd": web_stats.get("balance_usd"),     # task 074; None = unknown
     }
 
     return {

@@ -333,7 +333,7 @@ Jeden súbor na deň (pražský dátum; ďalší beh v ten istý deň ho prepí�
   "ai": { "provider": "deepseek", "searches": 120, "month_searches": 991, "search_limit": 3000,
           "cost_usd": 0.12, "month": "2026-11", "month_cost_usd": 1.37, "month_budget_usd": 3.0,
           "type_changed": 4, "nothing_found": 1, "prices_dropped": 2, "low_confidence": 8,
-          "search_limit_reached": false, "http_402": false },
+          "search_limit_reached": false, "http_402": false, "balance_usd": 1.76 },
   "review": [{ "id": "…", "venue_id": "…", "title": "…", "date": "…", "source_url": "…",
                "kind": "price_dropped", "detail": "price '300 Kč': not on page" }],
   "no_spotify": [{ "id": "…", "…": "…", "artists": ["Band X"] }],
@@ -342,6 +342,7 @@ Jeden súbor na deň (pražský dátum; ďalší beh v ten istý deň ho prepí�
   "warnings": ["…"] }
 ```
 - `success`: výsledok celého jobu (zapíše krok upozornení na konci `daily.yml`); pri zlyhaní pred zápisom zhrnutia vznikne len `{ date, generated_at, success: false }`.
+- `ai.balance_usd` (task 074): zostatok kreditu DeepSeek v USD po AI kroku (`GET /user/balance`, `total_balance` položky USD); `null` = nezistený (iný poskytovateľ, chyba, bez kľúča).
 - `sources[].warning`: `null` / `zero_events` / `error` (ako v job summary). `new` = id nebolo v predošlom behu; `gone` = akcia z predošlého behu s dátumom od dnes, ktorá zmizla.
 - `missing`: počet akcií bez poľa – `image` (`image_url`), `time` (`start_time`), `price` (bez `price_text`/`price` a nie `free: true`), `genre` (len hudobné akcie `concert`/`dj`/`party`/`music`; základ `music_events`), `description`.
 - `review[].kind`: `ai_nothing` (AI hľadala, nedoplnila nič), `low_confidence` (typ od AI s `confidence` < 0,6), `price_dropped`, `genres_dropped` (zahodené ochranami AI v tomto behu), `type_changed` (`old` → `new` formáty v tomto behu).

@@ -98,6 +98,32 @@ def token_cost(hit: int, miss: int, out: int, peak: bool) -> float:
     return hit * ph + miss * pm + out * po
 
 
+def balance_usd(key: str | None = None, timeout: int = 15, opener=None) -> float | None:
+    """Account balance in USD (task 074), GET /user/balance
+    (api-docs.deepseek.com/api/get-user-balance): `balance_infos[]` with
+    `currency` (CNY / USD) and `total_balance` (string, granted + topped up).
+    None when the key is missing, the call fails or there is no USD entry;
+    never raises (a failure must not stop the run)."""
+    key = key if key is not None else os.environ.get("DEEPSEEK_API_KEY")
+    if not key:
+        return None
+    req = urllib.request.Request(API + "/user/balance", method="GET",
+                                 headers={"Authorization": f"Bearer {key}",
+                                          "Accept": "application/json",
+                                          "User-Agent": USER_AGENT})
+    try:
+        with (opener or urllib.request.urlopen)(req, timeout=timeout) as resp:
+            data = json.loads(resp.read())
+        for info in data.get("balance_infos") or []:
+            if str(info.get("currency")).upper() == "USD":
+                return round(float(info["total_balance"]), 4)
+        log.warning("DeepSeek balance: no USD entry in %s",
+                    [i.get("currency") for i in data.get("balance_infos") or []])
+    except Exception as exc:   # HTTP error, timeout, bad JSON
+        log.warning("DeepSeek balance not available: %s", str(exc)[:200])
+    return None
+
+
 class Budget:
     """Shared spend counter of one run (thread safe)."""
 

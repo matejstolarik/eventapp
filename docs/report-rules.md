@@ -26,9 +26,10 @@ Spúšťa ich krok `Alerts` na konci `daily.yml` a `deploy-app.yml` (vždy, aj p
 | `workflow:daily`, `workflow:deploy-app` | job skončil inak ako `success` | ďalší úspešný beh toho istého workflowu |
 | `source:<venue>/<label>` | zdroj vrátil 0 akcií (aj chyba zdroja), alebo menej ako **50 %** mediánu posledných **7** behov (presne polovica nie je pokles) | ďalší denný beh, v ktorom problém nie je |
 | `ai:limit` | HTTP 402 od AI, minutý mesačný limit hľadaní, alebo mesačná cena AI ≥ rozpočet (3 $) − 0,005 $ | ďalší denný beh bez toho |
+| `ai:low-credit` | zostatok kreditu DeepSeek < **0,20 $** (task 074) | denný beh so zisteným zostatkom ≥ 0,20 $ (pri nezistenom zostatku ostáva otvorené) |
 
 - Kľúč je v tele issue (`<!-- alert-key: … -->`). Kým je issue s kľúčom otvorené, opakovaný problém pridá komentár „Stále trvá“, nové issue nevznikne.
-- Denný beh zatvára len kľúče `workflow:daily`, `source:*`, `ai:*`; `deploy-app` len `workflow:deploy-app`.
+- Denný beh zatvára len kľúče `workflow:daily`, `source:*`, `ai:limit`, `ai:low-credit` (to len pri zistenom zostatku); `deploy-app` len `workflow:deploy-app`.
 - Denný rozpočet behu (0,30 $) nie je upozornenie, je to bežné zastavenie.
 - Test: `workflow_dispatch` denného behu so vstupom `simulate_zero_source = <venue_id>` – zdroje podniku sa v zhrnutí zapíšu s 0 akciami (dáta sa nemenia).
 
@@ -42,4 +43,4 @@ Workflow `weekly-report.yml`: pondelok 05:43 UTC (6:43 / 7:43 Praha, po dennom b
 4. **Na kontrolu** – najviac **10**: zahodená cena → zmena typu AI → nízka istota typu (< 0,6) → AI nič nenašla; len akcie od dnes, unikátne za týždeň, odkaz do appky a na zdroj.
 5. **Návrhy nových žánrov** – z posledného behu, **≥ 3** akcie, 3 príklady; Matej odpovie schváliť / zlúčiť s X / zamietnuť.
 6. **Na doplnenie v chate** (zbalené, pre hlavný chat) – interpreti nových koncertov/DJ nocí bez Spotify (za týždeň), ceny `verified: false` v najbližších 14 dňoch (posledný beh), všetky body na kontrolu vrátane zahodených žánrov.
-7. **AI** – hľadania a cena za týždeň; mesiac: cena / rozpočet, hľadania / limit (z posledného behu).
+7. **AI** – hľadania a cena za týždeň; mesiac: cena / rozpočet, hľadania / limit (z posledného behu); zostatok DeepSeek z posledného behu, kde bol zistený (task 074).

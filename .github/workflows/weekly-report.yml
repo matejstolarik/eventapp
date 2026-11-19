@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # task 074: weekly research backup commit
   issues: write
 
 jobs:
@@ -36,3 +36,32 @@ jobs:
           URL=$(python -m pipeline.weekly_report)
           echo "Weekly report: $URL"
           echo "Weekly report: $URL" >> $GITHUB_STEP_SUMMARY
+
+      - name: Restore stored AI research
+        # task 074: same cache as daily.yml (task 065); restore only
+        if: always()
+        uses: actions/cache/restore@v4
+        with:
+          path: site/research
+          key: research-none
+          restore-keys: research-
+
+      - name: Back up AI research into the repo
+        # task 074: data/research_backup/<YYYY-MM>.json from Pages + cache
+        # (+ the current backup); commit only when the content changed
+        if: always()
+        env:
+          PREVIOUS_EVENTS_URL: https://matejstolarik.github.io/eventapp/events.json
+        run: |
+          python -m pipeline.research_store backup
+          git add -A data/research_backup
+          if git diff --cached --quiet; then
+            echo "Research backup: no change" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: research backup"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+          echo "Research backup committed" >> $GITHUB_STEP_SUMMARY
