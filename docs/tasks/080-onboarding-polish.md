@@ -14,7 +14,7 @@
 | Miesta – podnadpis | Označ svoje obľúbené. | Označ svá oblíbená. | Pick your favourites. |
 | Názov v Môj účet a nadpis stránky (nahrádza „Tvoje preferencie“) | Preferencie akcií | Preference akcí | Event preferences |
 | Toast po preskočení | Nastaviť to môžeš kedykoľvek v Môj účet → Preferencie akcií. | Nastavit to můžeš kdykoli v Můj účet → Preference akcí. | You can set this up anytime in My account → Event preferences. |
-| Toast po uložení preferencií | Uložené | Uloženo | Saved |
+| ~~Toast po uložení preferencií~~ (**zrušené 16:35, Matej** – žiadny toast) | ~~Uložené~~ | ~~Uloženo~~ | ~~Saved~~ |
 
 Ostatné texty z 079 bez zmeny.
 
@@ -35,7 +35,7 @@ Ostatné texty z 079 bez zmeny.
 
 ### 6. Preferencie akcií (stránka)
 - Poradie sekcií: **Typy → Žánre → Obľúbené miesta** (miesta naposledy, sú najdlhšie). Zoznam miest celý ako doteraz (s hľadaním), bez skracovania.
-- Hore v hlavičke vpravo okrúhle tlačidlo len s **ikonou fajky** (44 px, štýl tlačidiel hlavičky – `#23232F`, ikona `#F4F2FF`); hlavička sa posúva so stránkou (nie je prilepená). Ťuk → stránka sa zavrie (ako Späť) a toast „Uložené“. Ukladá sa ďalej hneď pri každej zmene; tlačidlo je pre pocit istoty.
+- Hore v hlavičke vpravo okrúhle tlačidlo len s **ikonou fajky** (44 px, štýl tlačidiel hlavičky – `#23232F`, ikona `#F4F2FF`); hlavička sa posúva so stránkou (nie je prilepená). Ťuk → stránka sa zavrie (ako Späť), ~~a toast „Uložené“~~ **bez toastu** (zmena 16:35, Matej: Späť ukladá tiež, bez správy – toast len pri fajke by mýlil). Ukladá sa ďalej hneď pri každej zmene; tlačidlo je pre pocit istoty.
 
 ## Overenie a report
 - `npm test -- --reporter=dot` (trasenie/neprechod pri prázdnom výbere, Pre teba bez preferencií = prázdny stav so správou, poradie sekcií), `npm run build`; nasadenie `deploy-app` (číslo behu). Dáta sa nemenia.
