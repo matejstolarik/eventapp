@@ -24,7 +24,7 @@
 
 ## Report
 
-**2026-11-19**, kód + testy + snímky v commite uvedenom nižšie (report v tom istom commite). Len frontend – pipeline sa nespúšťala (`CLAUDE.md`).
+**2026-11-19**, commit `2a8740a` (kód, testy, snímky, rozhodnutie, report), doplnenie nasadenia v nasledujúcom commite. Len frontend – pipeline sa nespúšťala (`CLAUDE.md`).
 
 ### Hotové
 - **Žánre kultúry** (`web/src/core/filter.ts`): nové pole `cultureGenres` (`podtyp:žáner`), `eventCultureGenres` (žáner, ktorého priamy rodič je podtyp akcie), `activeCultureGenres` (platí len pri zapnutej Kultúre a vybratom podtype), `availableCultureGenres` (riadky v poradí podtypov). Skupina Žáner = jedno ALEBO: hudobné žánre (len akcie koncert/párty/DJ) + platné žánre kultúry. Počty pri čipoch `counts.cultureGenres`, odznak ráta platné žánre kultúry. `parseFilter` načíta starý filter z 075 (bez poľa → `[]`), neplatné kľúče zahodí.
@@ -42,7 +42,7 @@
 - `npm run build`: OK.
 - Playwright `tests/playwright/screenshots-076.spec.ts` (dáta z Pages, čas 2026-11-19 17:00): 2 passed. `docs/tasks/076/riadky.json`: Akcie, Najbližších 30 dní, film + theatre → riadok film 9 čipov (animation 5, comedy 4, drama 2, family 2, …), riadok theatre 1 čip (physical theatre 1); po zapnutí jedného žánru filmu odznak **3**. Profil `cross-club` ukazuje `alternative`, text `alt` sa nenachádza.
 - Snímky (JPEG 390 × 844) v `docs/tasks/076/`: `filter-film-divadlo.jpg`, `miesto-alternative.jpg` (neprezerané – pravidlo kreditov).
-- Nasadenie `deploy-app`: doplnené nižšie po pushi.
+- Nasadenie **Deploy web app #50** (run 44516849467): **success** (kód v `2a8740a`). Na Pages bundle `assets/index-CUov8MT2.js` obsahuje `cultureGenres` a `filter-culture-genres-` (overené `curl`).
 
 ### Otvorené
 - Rozhodnutia 1–3 na potvrdenie Matejom.
