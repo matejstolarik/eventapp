@@ -59,11 +59,32 @@ export function eventIconKey(formats: string[], primaryFormat?: string | null): 
   if (type === 'dj') return 'dj'
   if (type === 'concert') return 'concert'
   if (type === 'other') return 'culture'
+  const sub = cultureSubtype(formats, primaryFormat)
+  return (sub && CULTURE_ICON[sub]) || 'culture'
+}
+
+/** Culture subtypes offered by the filter (task 075), in display order. */
+export const CULTURE_SUBTYPES = ['film', 'theatre', 'talk', 'workshop', 'quiz', 'opening', 'dance', 'stand-up'] as const
+export type CultureSubtype = typeof CULTURE_SUBTYPES[number]
+const SUBTYPE_SET = new Set<string>(CULTURE_SUBTYPES)
+
+/** The culture subtype of an event — the same rule that picks its icon (task 075):
+ * a culture `primary_format` decides (performance → none); else the first of
+ * film → stand-up → dance → talk → workshop → quiz → opening; else theatre.
+ * Null for non-culture events, `other` and culture without a known subtype. */
+export function cultureSubtype(formats: string[], primaryFormat?: string | null): CultureSubtype | null {
+  if (getEventType(formats, primaryFormat) !== 'culture') return null
   if (primaryFormat && formats.includes(primaryFormat) && CULTURE_FORMATS.has(primaryFormat)) {
-    return CULTURE_ICON[primaryFormat] ?? 'culture'
+    return SUBTYPE_SET.has(primaryFormat) ? primaryFormat as CultureSubtype : null
   }
   const sub = CULTURE_ICON_ORDER.find(f => formats.includes(f))
-  return sub ? CULTURE_ICON[sub] : 'culture'
+  if (sub) return sub as CultureSubtype
+  return formats.includes('theatre') ? 'theatre' : null
+}
+
+/** Icon key of a culture subtype (filter chips; same icons as the pins). */
+export function subtypeIconKey(sub: CultureSubtype): EventIconKey {
+  return CULTURE_ICON[sub] ?? 'culture'
 }
 
 /** Tag text color — lighter purple for concert so text stays legible on dark bg */

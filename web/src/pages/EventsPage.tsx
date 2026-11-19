@@ -10,6 +10,12 @@ import { EventRow, SparkleIcon } from '../components/EventRow'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
 import { joinDot } from '../core/dot'
+import { matchesFilter, isDefaultFilter, filterBadgeCount, DEFAULT_FILTER, type EventFilter, type FilterItem } from '../core/filter'
+import { FilterButton } from '../components/FilterButton'
+import { FilterSheet } from '../components/FilterSheet'
+import { FilterEmptyCard } from '../components/FilterEmptyCard'
+import { getPeriodRange } from '../core/period'
+import { formatDayLabel } from '../i18n'
 
 interface Props {
   data: EventsData
@@ -18,6 +24,9 @@ interface Props {
   onEventOpen: (eventId: string) => void
   registerScrollToTop?: (fn: () => void) => void
   onRefresh?: () => Promise<void>
+  /** Task 075: shared filter (Mapa and Akcie) */
+  filter?: EventFilter
+  onFilterChange?: (f: EventFilter) => void
 }
 
 
@@ -46,17 +55,7 @@ function CloseIcon() {
   )
 }
 
-function FilterIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
-      <circle cx="16" cy="7" r="2" />
-      <circle cx="10" cy="17" r="2" />
-    </svg>
-  )
-}
-
-export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh }: Props) {
+export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh, filter = DEFAULT_FILTER, onFilterChange }: Props) {
   const dict = getDict(lang)
   const [now, setNow] = useState(() => new Date())
 
@@ -174,12 +173,25 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     return evts
   }, [data.events, period, debouncedQuery, now.getTime(), venueMap]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const events = useMemo(() => {
+  // Results of everything except the filter (Pre teba, Nové, period, search) — base for the filter panel
+  const chipEvents = useMemo(() => {
     let evts = periodSearchEvents
     if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
     if (isNewActive) evts = evts.filter(e => isNew(e, now))
+    return evts
+  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime()]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filterActive = !isDefaultFilter(filter)
+  const events = useMemo(() => {
+    const evts = filterActive ? chipEvents.filter(e => matchesFilter(e, venueMap.get(e.venue_id), filter)) : chipEvents
     return sortEvents(evts, venueLocations, sort, userLocationState, venueCapacities)
-  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocationState, venueCapacities]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chipEvents, filterActive, filter, venueMap, venueLocations, sort, userLocationState, venueCapacities])
+
+  const [showFilterSheet, setShowFilterSheet] = useState(false)
+  const filterItems: FilterItem[] = useMemo(
+    () => showFilterSheet ? chipEvents.map(event => ({ event, venue: venueMap.get(event.venue_id) })) : [],
+    [showFilterSheet, chipEvents, venueMap],
+  )
 
   const forYouCountInDisplay = useMemo(() => {
     if (forYouActive || !hasFavorites) return 0
@@ -187,17 +199,18 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   }, [events, forYouActive, hasFavorites, favorites])
 
   // Scroll to top + animate on filter change
-  const prevFilterRef = useRef({ period, forYouActive, isNewActive, sort, debouncedQuery })
+  const prevFilterRef = useRef({ period, forYouActive, isNewActive, sort, debouncedQuery, filter })
   useEffect(() => {
     const prev = prevFilterRef.current
     const changed = prev.period !== period || prev.forYouActive !== forYouActive ||
-      prev.isNewActive !== isNewActive || prev.sort !== sort || prev.debouncedQuery !== debouncedQuery
-    prevFilterRef.current = { period, forYouActive, isNewActive, sort, debouncedQuery }
+      prev.isNewActive !== isNewActive || prev.sort !== sort || prev.debouncedQuery !== debouncedQuery ||
+      prev.filter !== filter
+    prevFilterRef.current = { period, forYouActive, isNewActive, sort, debouncedQuery, filter }
     if (changed) {
       scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
       setAnimKey(k => k + 1)
     }
-  }, [period, forYouActive, isNewActive, sort, debouncedQuery])
+  }, [period, forYouActive, isNewActive, sort, debouncedQuery, filter])
 
   useEffect(() => {
     if (!isNight && period.type === 'night') setPeriod({ type: 'today' })
@@ -324,9 +337,33 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     ...(isSingleDay ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
     { id: 'size', label: dict.events.sortSize, selected: sort === 'size' },
   ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance, dict.events.sortSize]) // eslint-disable-line react-hooks/exhaustive-deps
-  const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== ''
+  const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== '' || filterActive
   const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
+
+  // Task 075: empty result caused by the filter -> card with "Najbližšie" and "Zrušiť filter"
+  const filterEmpty = filterActive && isEmpty && chipEvents.length > 0 && !isForYouNoFavs
+  const nearestDate = useMemo(() => {
+    if (!filterEmpty || period.type === 'anytime') return null
+    const end = getPeriodRange(period, now).to
+    if (!end) return null
+    const dates = [...new Set(data.events.map(e => e.date))].filter(d => d > end).sort()
+    for (const d of dates) {
+      let evts = getEventsForPeriod(data.events, { type: 'custom', from: d, to: d }, now)
+      if (debouncedQuery.trim()) evts = evts.filter(e => matchesSearch(debouncedQuery, e, venueMap.get(e.venue_id)))
+      if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
+      if (isNewActive) evts = evts.filter(e => isNew(e, now))
+      if (evts.some(e => matchesFilter(e, venueMap.get(e.venue_id), filter))) return d
+    }
+    return null
+  }, [filterEmpty, period, now.getTime(), data.events, debouncedQuery, forYouActive, isNewActive, favorites, venueMap, filter]) // eslint-disable-line react-hooks/exhaustive-deps
+  const fDict = dict.filter
+  const filterEmptyText = period.type === 'today' ? fDict.emptyToday
+    : period.type === 'tomorrow' ? fDict.emptyTomorrow
+    : period.type === 'night' ? fDict.emptyNight
+    : period.type === 'anytime' ? fDict.emptyAnytime
+    : isSingleDayPeriod(period) ? fDict.emptyDay
+    : fDict.emptyPeriod
 
   function countRowText(): string {
     if (period.type === 'anytime') return ''
@@ -417,9 +454,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         >
           <SearchIcon />
         </button>
-        <button style={{ flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#FF4D8D', color: '#1A0710', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Filter">
-          <FilterIcon />
-        </button>
+        <FilterButton badge={filterBadgeCount(filter)} label={dict.map.filter} onClick={() => setShowFilterSheet(true)} />
       </div>}
 
       {/* Full header — scrolls away with content */}
@@ -465,9 +500,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
               <div style={{ width: 40, flex: 'none' }} />
             </div>
           </div>
-          <button style={{ marginLeft: 8, flex: 'none', width: 44, height: 44, borderRadius: 22, border: 0, background: '#FF4D8D', color: '#1A0710', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Filter">
-            <FilterIcon />
-          </button>
+          <FilterButton badge={filterBadgeCount(filter)} label={dict.map.filter} onClick={() => setShowFilterSheet(true)} style={{ marginLeft: 8 }} />
         </div>
 
         {/* Count + sort row */}
@@ -484,7 +517,22 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       </div>
 
       {/* Grid or empty state */}
-      {isEmpty ? (
+      {filterEmpty ? (
+        isVisible !== false && !showFilterSheet ? (
+          <FilterEmptyCard
+            text={filterEmptyText}
+            nearestLabel={nearestDate ? `${fDict.nearest}: ${formatDayLabel(nearestDate, lang, now)}` : null}
+            onNearest={() => {
+              if (!nearestDate) return
+              const p: Period = { type: 'custom', from: nearestDate, to: nearestDate }
+              setPeriod(p)
+              if (searchOpen) setSearchPreviousPeriod(p)
+            }}
+            clearLabel={fDict.clear}
+            onClear={() => onFilterChange?.(DEFAULT_FILTER)}
+          />
+        ) : null
+      ) : isEmpty ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '48px 32px' }}>
           <p style={{ margin: 0, fontSize: 16, color: '#B9B6CC', textAlign: 'center' }}>
             {isForYouNoFavs ? dict.events.noFavoriteVenues
@@ -492,7 +540,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
               : dict.events.emptyOther}
           </p>
           {isForYouNoFavs ? null : isFilterActive ? (
-            <button style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setForYouActive(false); setIsNewActive(false); if (searchOpen) closeSearch() }}>
+            <button style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setForYouActive(false); setIsNewActive(false); onFilterChange?.(DEFAULT_FILTER); if (searchOpen) closeSearch() }}>
               {dict.events.clearFilters}
             </button>
           ) : (
@@ -543,6 +591,19 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
           onItemSelect={handlePeriodItemSelect}
           onCalendarSelect={handleCalendarSelect}
           onClose={() => setShowPeriodSheet(false)}
+        />
+      )}
+
+      {showFilterSheet && (
+        <FilterSheet
+          lang={lang}
+          mode="events"
+          items={filterItems}
+          allEvents={data.events}
+          venues={data.venues}
+          filter={filter}
+          onChange={f => onFilterChange?.(f)}
+          onClose={() => setShowFilterSheet(false)}
         />
       )}
 

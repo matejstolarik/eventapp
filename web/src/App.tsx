@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from './core/types'
 import { detectLanguage } from './core/store'
-import { setLastFetched, getLastFetched } from './core/store'
+import { setLastFetched, getLastFetched, getStoredFilter, setStoredFilter } from './core/store'
+import type { EventFilter } from './core/filter'
 import { BottomNav } from './components/BottomNav'
 import type { Tab } from './components/BottomNav'
 import { OfflineBanner } from './components/OfflineBanner'
@@ -51,6 +52,9 @@ export default function App() {
   })
   const [mapPendingSelect, setMapPendingSelect] = useState<MapPendingSelect>(null)
   const [mapPanelOpen, setMapPanelOpen] = useState(false)
+  // Task 075: one filter for Mapa and Akcie, stored locally
+  const [filter, setFilter] = useState<EventFilter>(getStoredFilter)
+  useEffect(() => { setStoredFilter(filter) }, [filter])
 
   // Hash routing
   const [route, setRoute] = useState<Route>(() => {
@@ -225,6 +229,8 @@ export default function App() {
               pendingSelect={mapPendingSelect}
               onPendingSelectHandled={() => setMapPendingSelect(null)}
               onPanelOpenChange={setMapPanelOpen}
+              filter={filter}
+              onFilterChange={setFilter}
             />
           </div>
         )}
@@ -240,6 +246,8 @@ export default function App() {
               lang={lang}
               isVisible={activeTab === 'events' && !isOverlay}
               onEventOpen={openEvent}
+              filter={filter}
+              onFilterChange={setFilter}
               registerScrollToTop={fn => { eventsScrollTopRef.current = fn }}
               onRefresh={() => refreshData(true).catch(() => { throw new Error('refresh failed') })}
             />

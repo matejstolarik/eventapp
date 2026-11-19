@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/eventapp/',
+  // Task 075: the app imports data/genre_hierarchy.json from the repo root
+  server: { fs: { allow: ['..'] } },
   plugins: [
     react(),
     VitePWA({

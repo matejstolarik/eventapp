@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'web/**'
+      - 'data/genre_hierarchy.json'
   workflow_dispatch:
 
 permissions:

@@ -1,7 +1,8 @@
 import type maplibregl from 'maplibre-gl'
 import type { Language } from '../core/types'
 import { getDict } from '../i18n'
-import { IconChevronDown, IconFilter, IconLocation } from '../icons'
+import { IconChevronDown, IconLocation } from '../icons'
+import { FilterButton } from '../components/FilterButton'
 import { AllFavsToggle } from '../components/AllFavsToggle'
 
 interface TopBarProps {
@@ -13,11 +14,12 @@ interface TopBarProps {
   onDaySelectorOpen: () => void
   onFavoritesChange: (val: boolean) => void
   onFilterClick: () => void
+  filterBadge: number
 }
 
 export function MapTopBar({
   lang, selectedDayLabel, showFavorites, toggleRef, toggleWidth,
-  onDaySelectorOpen, onFavoritesChange, onFilterClick,
+  onDaySelectorOpen, onFavoritesChange, onFilterClick, filterBadge,
 }: TopBarProps) {
   const dict = getDict(lang)
   const togglePad = toggleWidth < 160 ? '0 6px' : toggleWidth < 200 ? '0 8px' : '0 14px'
@@ -56,18 +58,7 @@ export function MapTopBar({
         style={{ flex: 1, minWidth: 0 }}
       />
 
-      <button
-        style={{
-          width: 44, height: 44, borderRadius: 22,
-          background: '#FF4D8D', color: '#1A0710',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          border: 'none', cursor: 'pointer',
-        }}
-        aria-label={dict.map.filter}
-        onClick={onFilterClick}
-      >
-        <IconFilter size={20} color="#1A0710" />
-      </button>
+      <FilterButton badge={filterBadge} label={dict.map.filter} onClick={onFilterClick} />
     </div>
   )
 }
@@ -101,34 +92,6 @@ export function MapCompass({ bearing, lang, mapRef }: CompassProps) {
         <circle cx="12" cy="12" r="1.6" fill="#111118" />
       </svg>
     </button>
-  )
-}
-
-interface FilterToastProps {
-  visible: boolean
-  panelOpen: boolean
-  lang: Language
-}
-
-export function MapFilterToast({ visible, panelOpen, lang }: FilterToastProps) {
-  const dict = getDict(lang)
-  if (!visible) return null
-  return (
-    <div style={{
-      position: 'absolute',
-      bottom: panelOpen ? 230 : 112,
-      left: '50%', transform: 'translateX(-50%)',
-      background: '#1C1C27', color: '#F4F2FF',
-      padding: '10px 20px', borderRadius: 20,
-      fontSize: 14, fontWeight: 500, zIndex: 30,
-      boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-      border: '1px solid #2E2D3C',
-      whiteSpace: 'nowrap',
-      fontFamily: "'Outfit', sans-serif",
-      pointerEvents: 'none',
-    }}>
-      {dict.map.filterComingSoon}
-    </div>
   )
 }
 

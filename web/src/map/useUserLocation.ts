@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
-import { visibleEvents } from '../core/visible'
+import { visibleEvents, type VisibleOpts } from '../core/visible'
 import { haversine } from '../core/distance'
 import { isFavorite, setLastKnownLocation } from '../core/store'
 import type { EventsData } from '../core/types'
@@ -12,10 +12,12 @@ interface UseUserLocationOptions {
   showFavoritesRef: React.MutableRefObject<boolean>
   isVisibleRef: React.MutableRefObject<boolean>
   isVisible: boolean
+  /** Task 075: the filter applies to the initial view too */
+  eventFilterRef?: React.MutableRefObject<VisibleOpts['eventFilter']>
 }
 
 export function useUserLocation({
-  mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible,
+  mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible, eventFilterRef,
 }: UseUserLocationOptions) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locationLoading, setLocationLoading] = useState(false)
@@ -115,7 +117,7 @@ export function useUserLocation({
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude: lat, longitude: lng } = pos.coords
         const curNow = new Date()
-        const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite })
+        const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite, eventFilter: eventFilterRef?.current })
         const activeVenues = dataRef.current.venues.filter(v => vm.has(v.id))
         if (activeVenues.length === 0) return
         const nearest = activeVenues.reduce((best, v) =>

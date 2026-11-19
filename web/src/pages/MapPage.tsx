@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { EventsData, Language } from '../core/types'
+import type { EventsData, Language, Event, Venue } from '../core/types'
 import { getEventType, eventIconKey } from '../core/eventType'
 import { getVenueEvents, getPrimaryEvent, isEventPulsing } from '../core/events'
-import { getToday, toDateString, getUpcomingDays } from '../core/day'
+import { getToday, toDateString, getUpcomingDays, getYesterday, isTomorrow } from '../core/day'
 import { isFavorite } from '../core/store'
-import { visibleEvents } from '../core/visible'
+import { visibleEvents, nearestVisibleDay } from '../core/visible'
+import { matchesFilter, isDefaultFilter, filterBadgeCount, DEFAULT_FILTER, type EventFilter, type FilterItem } from '../core/filter'
+import { FilterSheet } from '../components/FilterSheet'
+import { FilterEmptyCard } from '../components/FilterEmptyCard'
+import { getDict } from '../i18n'
 import { formatDayLabel } from '../i18n'
 import { loadMapStyle, MAP_MIN_ZOOM } from '../map/mapStyle'
 import { initPinShadows } from '../map/markers'
@@ -18,7 +22,7 @@ import { syncMarkers } from '../map/markerSync'
 import { useNightMode, usePendingSelect } from '../map/useNightMode'
 import { useUserLocation } from '../map/useUserLocation'
 import {
-  MapTopBar, MapCompass, MapFilterToast, MapLocationButton, MapAttribution, MapArrowButtons,
+  MapTopBar, MapCompass, MapLocationButton, MapAttribution, MapArrowButtons,
 } from '../map/MapControls'
 import { EventPanel } from '../components/EventPanel'
 import { DaySelector } from '../components/DaySelector'
@@ -35,9 +39,12 @@ interface Props {
   onPendingSelectHandled?: () => void
   /** Reports whether the event panel at the bottom is open (task 055: update card hides under it). */
   onPanelOpenChange?: (open: boolean) => void
+  /** Task 075: shared filter (Mapa and Akcie) */
+  filter?: EventFilter
+  onFilterChange?: (f: EventFilter) => void
 }
 
-export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled, onPanelOpenChange }: Props) {
+export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSelect, onPendingSelectHandled, onPanelOpenChange, filter = DEFAULT_FILTER, onFilterChange }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const markersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement }>>(new Map())
@@ -51,11 +58,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [panelKey, setPanelKey] = useState(0)
   const [panelAnimated, setPanelAnimated] = useState(false)
   const [bearing, setBearing] = useState(0)
-  const [showFilterMsg, setShowFilterMsg] = useState(false)
+  const [showFilterSheet, setShowFilterSheet] = useState(false)
 
   const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement; timerId: ReturnType<typeof setTimeout>; cancelled: boolean }>>(new Map())
   const updateMarkersRef = useRef<() => void>(() => {})
-  const filterMsgTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isVisibleRef = useRef(isVisible)
   const selectedVenueIdRef = useRef<string | null>(null)
   const dataRef = useRef(data)
@@ -80,6 +86,14 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   useEffect(() => { selectedDayRef.current = selectedDay }, [selectedDay])
   useEffect(() => { showFavoritesRef.current = showFavorites }, [showFavorites])
   useEffect(() => { isVisibleRef.current = isVisible }, [isVisible])
+
+  // Task 075: events that pass the filter (undefined = default filter, nothing to check)
+  const eventFilter = useMemo(
+    () => isDefaultFilter(filter) ? undefined : (e: Event, v: Venue) => matchesFilter(e, v, filter),
+    [filter],
+  )
+  const eventFilterRef = useRef(eventFilter)
+  eventFilterRef.current = eventFilter
 
   // Night mode hook
   const showNight = useNightMode({ data, selectedDayRef, pendingPanelOpenRef, setSelectedDay })
@@ -178,7 +192,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
       })
     }
 
-    const vm = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite })
+    const vm = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite, eventFilter })
     return [...vm.entries()].map(([venueId, events]) => {
       const venue = venueById[venueId]!
       const primary = getPrimaryEvent(events)
@@ -192,7 +206,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         lat: venue.lat, lng: venue.lng,
       }
     })
-  }, [data, selectedDay, showFavorites])
+  }, [data, selectedDay, showFavorites, eventFilter])
 
   const updateMarkers = useCallback(() => {
     const map = mapRef.current
@@ -228,7 +242,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
   // User location hook
   const { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch } =
-    useUserLocation({ mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible })
+    useUserLocation({ mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible, eventFilterRef })
 
   // Init map
   useEffect(() => {
@@ -358,16 +372,14 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   }, [])
 
   function handleFilterClick() {
-    if (filterMsgTimerRef.current) clearTimeout(filterMsgTimerRef.current)
-    setShowFilterMsg(true)
-    filterMsgTimerRef.current = setTimeout(() => setShowFilterMsg(false), 2500)
+    setShowFilterSheet(true)
   }
 
   // Sorted venues for ‹ › navigation (by longitude: west → east)
   const curNow = new Date()
   const venueMap = Object.fromEntries(data.venues.map(v => [v.id, v]))
   const panelVenue = selectedVenueId ? venueMap[selectedVenueId] : null
-  const visibleMapForPanel = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite })
+  const visibleMapForPanel = visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite, eventFilter })
   const panelEvents = panelVenue ? (visibleMapForPanel.get(panelVenue.id) ?? []) : []
   const sortedVenues = [...data.venues
     .filter(v => visibleMapForPanel.has(v.id))
@@ -401,6 +413,22 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const panelOpen = panelVenue && panelEvents.length > 0
   useEffect(() => { onPanelOpenChange?.(!!panelOpen) }, [panelOpen, onPanelOpenChange])
 
+  // Task 075: filter panel items (results before the filter) and empty result card
+  const filterItems: FilterItem[] = showFilterSheet
+    ? [...visibleEvents(data, selectedDay, curNow, { favoritesOnly: showFavorites, isFavorite }).entries()]
+      .flatMap(([vid, evs]) => evs.map(event => ({ event, venue: venueMap[vid] })))
+    : []
+  const filterEmpty = isVisible && !!eventFilter && visibleMapForPanel.size === 0 && !showFilterSheet
+  const nearestDay = filterEmpty
+    ? nearestVisibleDay(data, selectedDay === NIGHT_DAY ? getYesterday(curNow) : selectedDay, curNow,
+      { favoritesOnly: showFavorites, isFavorite, eventFilter })
+    : null
+  const fDict = getDict(lang).filter
+  const filterEmptyText = selectedDay === NIGHT_DAY ? fDict.emptyNight
+    : selectedDay === calendarToday ? fDict.emptyToday
+    : isTomorrow(selectedDay, curNow) ? fDict.emptyTomorrow
+    : fDict.emptyDay
+
   const leftCount = selIdx > 0 ? selIdx : 0
   const rightCount = selIdx >= 0 && selIdx < sortedVenues.length - 1 ? sortedVenues.length - 1 - selIdx : 0
 
@@ -417,11 +445,33 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         onDaySelectorOpen={() => setShowDaySelector(true)}
         onFavoritesChange={setShowFavorites}
         onFilterClick={handleFilterClick}
+        filterBadge={filterBadgeCount(filter)}
       />
 
       <MapCompass bearing={bearing} lang={lang} mapRef={mapRef} />
 
-      <MapFilterToast visible={showFilterMsg} panelOpen={!!panelOpen} lang={lang} />
+      {filterEmpty && (
+        <FilterEmptyCard
+          text={filterEmptyText}
+          nearestLabel={nearestDay ? `${fDict.nearest}: ${formatDayLabel(nearestDay, lang, curNow)}` : null}
+          onNearest={() => nearestDay && setSelectedDay(nearestDay)}
+          clearLabel={fDict.clear}
+          onClear={() => onFilterChange?.(DEFAULT_FILTER)}
+        />
+      )}
+
+      {showFilterSheet && (
+        <FilterSheet
+          lang={lang}
+          mode="venues"
+          items={filterItems}
+          allEvents={data.events}
+          venues={data.venues}
+          filter={filter}
+          onChange={f => onFilterChange?.(f)}
+          onClose={() => setShowFilterSheet(false)}
+        />
+      )}
 
       <MapLocationButton
         lang={lang}

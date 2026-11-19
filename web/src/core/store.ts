@@ -1,5 +1,6 @@
 import type { Language, EventsData } from './types'
 import { isEventFinished } from './events'
+import { parseFilter, serializeFilter, type EventFilter } from './filter'
 
 function safeGet(key: string): string | null {
   try { return localStorage.getItem(key) } catch { return null }
@@ -145,6 +146,17 @@ export function getStoredEventsFilters(): { forYou: boolean; isNew: boolean } {
 
 export function setStoredEventsFilters(filters: { forYou: boolean; isNew: boolean }): void {
   safeSet('eventsFilters', JSON.stringify(filters))
+}
+
+// ── Filter (task 075) ─────────────────────────────────────────────────────
+
+/** One filter for Mapa and Akcie, kept until the user changes or clears it. */
+export function getStoredFilter(): EventFilter {
+  return parseFilter(safeGet('filter'))
+}
+
+export function setStoredFilter(f: EventFilter): void {
+  safeSet('filter', serializeFilter(f))
 }
 
 // ── Last fetched ───────────────────────────────────────────────────────────
