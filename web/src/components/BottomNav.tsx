@@ -4,6 +4,9 @@ import { IconMap, IconList, IconBuilding, IconPerson } from '../icons'
 
 export type Tab = 'map' | 'events' | 'places' | 'account'
 
+/** Task 079: Akcie first (design.md 1). */
+export const TAB_ORDER: Tab[] = ['events', 'map', 'places', 'account']
+
 interface Props {
   active: Tab
   lang: Language
@@ -13,12 +16,13 @@ interface Props {
 export function BottomNav({ active, lang, onChange }: Props) {
   const dict = getDict(lang)
 
-  const tabs: { id: Tab; label: string; Icon: React.FC<{ size?: number; color?: string }> }[] = [
-    { id: 'map', label: dict.nav.map, Icon: IconMap },
+  const all: { id: Tab; label: string; Icon: React.FC<{ size?: number; color?: string }> }[] = [
     { id: 'events', label: dict.nav.events, Icon: IconList },
+    { id: 'map', label: dict.nav.map, Icon: IconMap },
     { id: 'places', label: dict.nav.places, Icon: IconBuilding },
     { id: 'account', label: dict.nav.account, Icon: IconPerson }
   ]
+  const tabs = TAB_ORDER.map(id => all.find(t => t.id === id)!)
 
   return (
     <nav

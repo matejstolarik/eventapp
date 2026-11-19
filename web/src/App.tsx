@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from './core/types'
-import { detectLanguage } from './core/store'
+import { detectLanguage, shouldShowOnboarding, setOnboardingPending } from './core/store'
 import { setLastFetched, getLastFetched, getStoredFilter, setStoredFilter } from './core/store'
 import type { EventFilter } from './core/filter'
 import { BottomNav } from './components/BottomNav'
@@ -13,13 +13,21 @@ import { EventPage } from './pages/EventPage'
 import { VenuePage } from './pages/VenuePage'
 import { PlacesPage } from './pages/PlacesPage'
 import { MyAccountPage } from './pages/MyAccountPage'
+import { OnboardingPage } from './pages/OnboardingPage'
+import { PreferencesPage } from './pages/PreferencesPage'
 import { getDict } from './i18n'
 
 type Route =
   | { page: Tab }
   | { page: 'event'; eventId: string }
   | { page: 'venue'; venueId: string }
+  | { page: 'preferences' }
 
+// Debug switch for screenshots/tests: ?dbg=onboarding always shows the onboarding.
+const DEBUG_ONBOARDING = typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).get('dbg') === 'onboarding'
+
+/** Task 079: Akcie is the first tab and the start page (empty hash); the map has its own hash. */
 export function parseHash(hash: string): Route {
   const path = hash.replace(/^#\//, '')
   if (path.startsWith('akcia/')) {
@@ -29,9 +37,17 @@ export function parseHash(hash: string): Route {
     return { page: 'venue', venueId: path.slice(7) }
   }
   if (path === 'miesta') return { page: 'places' }
-  if (path === 'akcie') return { page: 'events' }
+  if (path === 'mapa') return { page: 'map' }
   if (path === 'ucet') return { page: 'account' }
-  return { page: 'map' }
+  if (path === 'preferencie') return { page: 'preferences' }
+  return { page: 'events' }
+}
+
+/** Tab shown for a route (overlays keep the tab underneath; preferences belong to My account). */
+export function tabOfRoute(r: Route): Tab {
+  if (r.page === 'map' || r.page === 'places' || r.page === 'account' || r.page === 'events') return r.page
+  if (r.page === 'preferences') return 'account'
+  return 'events'
 }
 
 
@@ -43,13 +59,13 @@ export default function App() {
   const [isOffline, setIsOffline] = useState(false)
   const [lastFetched, setLastFetchedState] = useState<Date | null>(null)
   const [lang, setLang] = useState<Language>(detectLanguage)
-  const [activeTab, setActiveTab] = useState<Tab>(() => {
-    const r = parseHash(window.location.hash)
-    if (r.page === 'places') return 'places'
-    if (r.page === 'events') return 'events'
-    if (r.page === 'account') return 'account'
-    return 'map'
+  const [activeTab, setActiveTab] = useState<Tab>(() => tabOfRoute(parseHash(window.location.hash)))
+  // Task 079: onboarding only on a new install (decided before any state is written)
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    if (shouldShowOnboarding()) { setOnboardingPending(); return true }
+    return DEBUG_ONBOARDING
   })
+  const [skipToast, setSkipToast] = useState(false)
   const [mapPendingSelect, setMapPendingSelect] = useState<MapPendingSelect>(null)
   const [mapPanelOpen, setMapPanelOpen] = useState(false)
   // Task 075: one filter for Mapa and Akcie, stored locally
@@ -66,8 +82,8 @@ export default function App() {
   const mapMountedRef = useRef(false)
   const eventsMountedRef = useRef(false)
   const accountMountedRef = useRef(false)
-  if (data !== null) mapMountedRef.current = true
-  if (activeTab === 'events') eventsMountedRef.current = true
+  if (data !== null && !showOnboarding) mapMountedRef.current = true
+  if (activeTab === 'events' && !showOnboarding) eventsMountedRef.current = true
   if (activeTab === 'account') accountMountedRef.current = true
 
   useEffect(() => {
@@ -75,10 +91,7 @@ export default function App() {
       const r = parseHash(window.location.hash)
       setRoute(r)
       // Sync activeTab from hash for tab pages
-      if (r.page === 'places') setActiveTab('places')
-      else if (r.page === 'events') setActiveTab('events')
-      else if (r.page === 'account') setActiveTab('account')
-      else if (r.page === 'map') setActiveTab('map')
+      if (r.page === 'places' || r.page === 'events' || r.page === 'account' || r.page === 'map') setActiveTab(r.page)
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
@@ -95,8 +108,10 @@ export default function App() {
       window.location.hash = '/akcie'
     } else if (newRoute.page === 'account') {
       window.location.hash = '/ucet'
+    } else if (newRoute.page === 'preferences') {
+      window.location.hash = '/preferencie'
     } else {
-      window.location.hash = '/'
+      window.location.hash = '/mapa'
     }
     setRoute(newRoute)
   }
@@ -121,8 +136,20 @@ export default function App() {
     if (window.history.length > 1) {
       window.history.back()
     } else {
-      navigate({ page: 'map' })
+      navigate({ page: 'events' })
     }
+  }
+
+  function openPreferences() {
+    setSkipToast(false)
+    navigate({ page: 'preferences' })
+  }
+
+  function closeOnboarding(skipped: boolean) {
+    setShowOnboarding(false)
+    setActiveTab('events')
+    if (parseHash(window.location.hash).page !== 'events') window.location.hash = '/akcie'
+    if (skipped) setSkipToast(true)
   }
 
   function goToMap(venueId: string, date: string) {
@@ -150,9 +177,7 @@ export default function App() {
     } else if (tab === 'account') {
       window.location.hash = '/ucet'
     } else if (tab === 'map') {
-      if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
-        window.location.hash = '/'
-      }
+      window.location.hash = '/mapa'
     }
   }
 
@@ -208,7 +233,7 @@ export default function App() {
   }
 
   // Map is active when on map tab and not on overlay page
-  const isOverlay = route.page === 'event' || route.page === 'venue'
+  const isOverlay = route.page === 'event' || route.page === 'venue' || route.page === 'preferences'
   const isMapActive = !isOverlay && activeTab === 'map'
 
   return (
@@ -250,6 +275,7 @@ export default function App() {
               onFilterChange={setFilter}
               registerScrollToTop={fn => { eventsScrollTopRef.current = fn }}
               onRefresh={() => refreshData(true).catch(() => { throw new Error('refresh failed') })}
+              onOpenPreferences={openPreferences}
             />
           </div>
         )}
@@ -269,6 +295,7 @@ export default function App() {
               lang={lang}
               onLangChange={newLang => setLang(newLang)}
               onEventOpen={openEvent}
+              onOpenPreferences={openPreferences}
             />
           </div>
         )}
@@ -297,6 +324,26 @@ export default function App() {
         </div>
       )}
 
+      {/* Task 079: My account -> Your preferences */}
+      {route.page === 'preferences' && (
+        <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 55 }}>
+          <PreferencesPage
+            data={data ?? { schema_version: 1, generated_at: '', venues: [], events: [] }}
+            lang={lang}
+            onBack={goBack}
+          />
+        </div>
+      )}
+
+      {/* Task 079: onboarding on a new install, above everything */}
+      {showOnboarding && data && (
+        <OnboardingPage data={data} lang={lang} onClose={closeOnboarding} />
+      )}
+
+      {skipToast && !isOverlay && (
+        <SkipToast text={dict.onboarding.skipToast} onTap={openPreferences} onHide={() => setSkipToast(false)} />
+      )}
+
       {/* Venue profile renders as overlay above everything */}
       {route.page === 'venue' && (
         <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 55 }}>
@@ -313,5 +360,21 @@ export default function App() {
         </div>
       )}
     </div>
+  )
+}
+
+/** Short toast after skipping the onboarding (design 7c); tap -> Your preferences. */
+function SkipToast({ text, onTap, onHide }: { text: string; onTap: () => void; onHide: () => void }) {
+  useEffect(() => {
+    const id = setTimeout(onHide, 5000)
+    return () => clearTimeout(id)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div role="status" data-testid="onb-skip-toast" onClick={onTap} style={{
+      position: 'fixed', left: 16, right: 16, bottom: 28 + 72 + 12, zIndex: 40,
+      background: '#2A2838', color: '#F4F2FF', borderRadius: 20, padding: '12px 16px',
+      fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, lineHeight: 1.35,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.5)', cursor: 'pointer',
+    }}>{text}</div>
   )
 }

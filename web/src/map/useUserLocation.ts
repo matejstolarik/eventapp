@@ -110,29 +110,47 @@ export function useUserLocation({
     )
   }
 
+  /** Show the position; fly there only when it is within 2 km of an active venue. */
+  function applyInitialPosition(map: maplibregl.Map, pos: GeolocationPosition) {
+    const { latitude: lat, longitude: lng } = pos.coords
+    const curNow = new Date()
+    const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite, eventFilter: eventFilterRef?.current })
+    const activeVenues = dataRef.current.venues.filter(v => vm.has(v.id))
+    if (activeVenues.length === 0) return
+    const nearest = activeVenues.reduce((best, v) =>
+      haversine(lat, lng, v.lat, v.lng) < haversine(lat, lng, best.lat, best.lng) ? v : best
+    )
+    if (haversine(lat, lng, nearest.lat, nearest.lng) <= 2) {
+      map.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 })
+      lastKnownLocationRef.current = { lat, lng }
+      setLastKnownLocation({ lat, lng })
+      setUserLocation({ lat, lng })
+      startWatch()
+    }
+  }
+
   // Initial view: check if geolocation already granted
   function tryInitialLocation(map: maplibregl.Map) {
     navigator.permissions?.query({ name: 'geolocation' }).then(perm => {
       if (perm.state !== 'granted') return
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude: lat, longitude: lng } = pos.coords
-        const curNow = new Date()
-        const vm = visibleEvents(dataRef.current, selectedDayRef.current, curNow, { favoritesOnly: showFavoritesRef.current, isFavorite, eventFilter: eventFilterRef?.current })
-        const activeVenues = dataRef.current.venues.filter(v => vm.has(v.id))
-        if (activeVenues.length === 0) return
-        const nearest = activeVenues.reduce((best, v) =>
-          haversine(lat, lng, v.lat, v.lng) < haversine(lat, lng, best.lat, best.lng) ? v : best
-        )
-        if (haversine(lat, lng, nearest.lat, nearest.lng) <= 2) {
-          map.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 })
-          lastKnownLocationRef.current = { lat, lng }
-          setLastKnownLocation({ lat, lng })
-          setUserLocation({ lat, lng })
-          startWatch()
-        }
-      }, () => {}, { timeout: 5000 })
+      navigator.geolocation.getCurrentPosition(pos => applyInitialPosition(map, pos), () => {}, { timeout: 5000 })
     }).catch(() => {})
   }
+
+  // Task 079: the app starts in Akcie, so the location is asked for the first
+  // time the map is opened, if it was neither granted nor denied yet.
+  const askedRef = useRef(false)
+  useEffect(() => {
+    if (!isVisible || askedRef.current || !navigator.geolocation) return
+    askedRef.current = true
+    navigator.permissions?.query({ name: 'geolocation' }).then(perm => {
+      if (perm.state !== 'prompt') return
+      navigator.geolocation.getCurrentPosition(pos => {
+        const map = mapRef.current
+        if (map) applyInitialPosition(map, pos)
+      }, () => {}, { timeout: 8000, maximumAge: 60000 })
+    }).catch(() => {})
+  }, [isVisible]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch }
 }

@@ -1,27 +1,33 @@
 import { describe, it, expect } from 'vitest'
-import { parseHash } from './App'
+import { parseHash, tabOfRoute } from './App'
+import { TAB_ORDER } from './components/BottomNav'
 
-describe('parseHash — tab navigation', () => {
-  it('empty hash → map', () => {
-    expect(parseHash('')).toEqual({ page: 'map' })
-    expect(parseHash('#/')).toEqual({ page: 'map' })
-    expect(parseHash('#')).toEqual({ page: 'map' })
+describe('parseHash — tab navigation (task 079: Akcie first)', () => {
+  it('empty hash → events (start page)', () => {
+    expect(parseHash('')).toEqual({ page: 'events' })
+    expect(parseHash('#/')).toEqual({ page: 'events' })
+    expect(parseHash('#')).toEqual({ page: 'events' })
   })
 
-  it('map tab hash → map', () => {
-    expect(parseHash('#/')).toEqual({ page: 'map' })
+  it('map has its own hash', () => {
+    expect(parseHash('#/mapa')).toEqual({ page: 'map' })
+  })
+
+  it('old events hash still works', () => {
+    expect(parseHash('#/akcie')).toEqual({ page: 'events' })
   })
 
   it('places tab hash → places', () => {
     expect(parseHash('#/miesta')).toEqual({ page: 'places' })
   })
 
-  it('events tab hash → events', () => {
-    expect(parseHash('#/akcie')).toEqual({ page: 'events' })
-  })
-
   it('account tab hash → account', () => {
     expect(parseHash('#/ucet')).toEqual({ page: 'account' })
+  })
+
+  it('preferences overlay', () => {
+    expect(parseHash('#/preferencie')).toEqual({ page: 'preferences' })
+    expect(tabOfRoute({ page: 'preferences' })).toBe('account')
   })
 
   it('event overlay hash → event with id', () => {
@@ -32,43 +38,19 @@ describe('parseHash — tab navigation', () => {
     expect(parseHash('#/miesto/cross-club')).toEqual({ page: 'venue', venueId: 'cross-club' })
   })
 
-  // Tab transition: each tab from each other
-  describe('tab transitions from map', () => {
-    it('map → places', () => {
-      expect(parseHash('#/miesta')).toMatchObject({ page: 'places' })
-    })
-    it('map → events (hash stays as map if no event hash)', () => {
-      // events tab doesn't change hash — stays at map hash
-      expect(parseHash('#/')).toMatchObject({ page: 'map' })
-    })
-    it('map → account (hash stays as map if no account hash)', () => {
-      expect(parseHash('#/')).toMatchObject({ page: 'map' })
-    })
+  it('unknown hash → events fallback', () => {
+    expect(parseHash('#/unknown-path')).toEqual({ page: 'events' })
   })
 
-  describe('tab transitions from places', () => {
-    it('places → map', () => {
-      expect(parseHash('#/')).toMatchObject({ page: 'map' })
-    })
-    it('places → events', () => {
-      expect(parseHash('#/')).toMatchObject({ page: 'map' }) // events doesn't set a unique hash
-    })
-    it('places → account', () => {
-      expect(parseHash('#/')).toMatchObject({ page: 'map' }) // account doesn't set a unique hash
-    })
+  it('start tab is events; deep links open events tab underneath', () => {
+    expect(tabOfRoute(parseHash(''))).toBe('events')
+    expect(tabOfRoute(parseHash('#/akcia/x'))).toBe('events')
+    expect(tabOfRoute(parseHash('#/mapa'))).toBe('map')
   })
+})
 
-  describe('overlay routes do not affect tabs', () => {
-    it('event overlay keeps page="event"', () => {
-      const r = parseHash('#/akcia/some-event-id')
-      expect(r.page).toBe('event')
-    })
-    it('venue overlay keeps page="venue"', () => {
-      const r = parseHash('#/miesto/kasarna-karlin')
-      expect(r.page).toBe('venue')
-    })
-    it('unknown hash → map fallback', () => {
-      expect(parseHash('#/unknown-path')).toEqual({ page: 'map' })
-    })
+describe('bottom nav order (task 079)', () => {
+  it('Akcie, Mapa, Miesta, Môj účet', () => {
+    expect(TAB_ORDER).toEqual(['events', 'map', 'places', 'account'])
   })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeText, matchesSearch, isForYou, isNew } from './search'
+import { normalizeText, matchesSearch, isForYou, isNew, hasAnyPrefs, type ForYouPrefs } from './search'
 import { isSingleDayPeriod } from './period'
 import type { Event, Venue } from './types'
 
@@ -90,19 +90,77 @@ describe('matchesSearch', () => {
   })
 })
 
-describe('isForYou', () => {
-  it('matches event in favorite venue', () => {
-    const e = makeEvent({ venue_id: 'cross-club' })
-    expect(isForYou(e, new Set(['cross-club', 'fuchs2']))).toBe(true)
+describe('isForYou (task 079)', () => {
+  const P = (o: Partial<ForYouPrefs> = {}): ForYouPrefs => ({ favorites: new Set(), types: [], subtypes: [], genres: [], ...o })
+  const dj = (o: Partial<Event> = {}) => makeEvent({ formats: ['dj'], genres: [], ...o })
+  const concert = (o: Partial<Event> = {}) => makeEvent({ formats: ['concert'], genres: [], ...o })
+  const culture = (fmt: string, o: Partial<Event> = {}) => makeEvent({ formats: [fmt], genres: [], ...o })
+
+  it('no preferences at all → nothing', () => {
+    expect(isForYou(dj({ venue_id: 'cross-club', genres: ['techno'] }), P())).toBe(false)
+    expect(hasAnyPrefs(P())).toBe(false)
   })
 
-  it('no match when venue not in favorites', () => {
-    const e = makeEvent({ venue_id: 'archa' })
-    expect(isForYou(e, new Set(['cross-club']))).toBe(false)
+  it('no types (skipped): favourite venue, any type (old behaviour)', () => {
+    const p = P({ favorites: new Set(['cross-club']) })
+    expect(isForYou(dj({ venue_id: 'cross-club' }), p)).toBe(true)
+    expect(isForYou(culture('workshop', { venue_id: 'cross-club' }), p)).toBe(true)
+    expect(isForYou(dj({ venue_id: 'archa' }), p)).toBe(false)
   })
 
-  it('empty favorites', () => {
-    expect(isForYou(makeEvent(), new Set())).toBe(false)
+  it('no types: genre match counts too, any type', () => {
+    const p = P({ genres: ['punk'] })
+    expect(isForYou(concert({ venue_id: 'archa', genres: ['post-punk'] }), p)).toBe(true)
+    expect(isForYou(concert({ venue_id: 'archa', genres: ['jazz'] }), p)).toBe(false)
+  })
+
+  it('type not selected → no, even in a favourite venue', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj'] })
+    expect(isForYou(concert({ venue_id: 'cross-club' }), p)).toBe(false)
+  })
+
+  it('workshop in a favourite venue without culture selected → no', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj', 'concert'] })
+    expect(isForYou(culture('workshop', { venue_id: 'cross-club' }), p)).toBe(false)
+  })
+
+  it('DJ + techno in a non-favourite venue → yes', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj'], genres: ['techno'] })
+    expect(isForYou(dj({ venue_id: 'archa', genres: ['techno'] }), p)).toBe(true)
+    expect(isForYou(dj({ venue_id: 'archa', genres: ['house'] }), p)).toBe(false)
+  })
+
+  it('music in a favourite venue without genre match → yes', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['party'] })
+    expect(isForYou(makeEvent({ formats: ['party'], venue_id: 'cross-club' }), p)).toBe(true)
+  })
+
+  it('genre matched via umbrella (post-punk → punk)', () => {
+    const p = P({ types: ['concert'], genres: ['punk'] })
+    expect(isForYou(concert({ genres: ['post-punk'] }), p)).toBe(true)
+  })
+
+  it('only types, no venues and no genres → nothing from music', () => {
+    const p = P({ types: ['concert', 'dj', 'party'] })
+    expect(isForYou(dj({ genres: ['techno'] }), p)).toBe(false)
+    expect(isForYou(concert({ genres: ['rock'] }), p)).toBe(false)
+  })
+
+  it('culture with subtypes → subtype must match, venue does not matter', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['culture'], subtypes: ['film', 'talk'] })
+    expect(isForYou(culture('film', { venue_id: 'archa' }), p)).toBe(true)
+    expect(isForYou(culture('theatre', { venue_id: 'cross-club' }), p)).toBe(false)
+  })
+
+  it('culture without subtypes → culture in a favourite venue only', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['culture'] })
+    expect(isForYou(culture('film', { venue_id: 'cross-club' }), p)).toBe(true)
+    expect(isForYou(culture('film', { venue_id: 'archa' }), p)).toBe(false)
+  })
+
+  it('culture genre in prefs does not pull in music genres for culture', () => {
+    const p = P({ types: ['culture'], genres: ['techno'] })
+    expect(isForYou(culture('film', { genres: ['techno'] }), p)).toBe(false)
   })
 })
 

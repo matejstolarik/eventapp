@@ -3,10 +3,13 @@ import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
 import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
-import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getFavorites, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
-import { matchesSearch, isForYou, isNew } from '../core/search'
+import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
+import { matchesSearch, isForYou, isNew, hasAnyPrefs } from '../core/search'
+import { useForYouPrefs } from '../core/useForYouPrefs'
+import { SetupPromptCard } from '../components/SetupPromptCard'
 import { isNightMode, isNightEvent } from '../core/night'
-import { EventRow, SparkleIcon } from '../components/EventRow'
+import { EventRow } from '../components/EventRow'
+import { ForYouChip, chipStyle } from '../components/ForYouChip'
 import { SelectorSheet, InfinityIcon, CalendarIcon, ChevronDown, type SheetItem } from '../components/SelectorSheet'
 import { PullRefreshIndicator } from '../components/PullRefreshIndicator'
 import { joinDot } from '../core/dot'
@@ -27,6 +30,8 @@ interface Props {
   /** Task 075: shared filter (Mapa and Akcie) */
   filter?: EventFilter
   onFilterChange?: (f: EventFilter) => void
+  /** Task 079: open My account → Your preferences */
+  onOpenPreferences?: () => void
 }
 
 
@@ -55,7 +60,7 @@ function CloseIcon() {
   )
 }
 
-export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh, filter = DEFAULT_FILTER, onFilterChange }: Props) {
+export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollToTop, onRefresh, filter = DEFAULT_FILTER, onFilterChange, onOpenPreferences }: Props) {
   const dict = getDict(lang)
   const [now, setNow] = useState(() => new Date())
 
@@ -138,8 +143,13 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
 
   const [userLocationState, setUserLocationState] = useState(() => getLastKnownLocation())
   const [locationToast, setLocationToast] = useState(false)
-  const favorites = useMemo(() => getFavorites(), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const hasFavorites = favorites.size > 0
+  // Task 079: Pre teba from favourites + preferences; follows changes made elsewhere
+  const favorites = useForYouPrefs()
+  const hasFavorites = hasAnyPrefs(favorites)
+  const [setupPrompt, setSetupPrompt] = useState(false)
+  // Pre teba stays off while there is nothing to pick from (no preferences)
+  useEffect(() => { if (forYouActive && !hasFavorites) setForYouActive(false) }, [forYouActive, hasFavorites])
+  useEffect(() => { if (hasFavorites || isVisible === false) setSetupPrompt(false) }, [hasFavorites, isVisible])
 
   const venueMap = useMemo(() => {
     const m = new Map<string, (typeof data.venues)[0]>()
@@ -291,7 +301,10 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     searchDebounceRef.current = setTimeout(() => setDebouncedQuery(value), 150)
   }
 
-  function toggleForYou() { setForYouActive(v => !v) }
+  function toggleForYou() {
+    if (!forYouActive && !hasFavorites) { setSetupPrompt(true); return }
+    setForYouActive(v => !v)
+  }
   function toggleIsNew() { setIsNewActive(v => !v) }
 
   const periodItems: SheetItem[] = useMemo(() => {
@@ -338,11 +351,10 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     { id: 'size', label: dict.events.sortSize, selected: sort === 'size' },
   ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance, dict.events.sortSize]) // eslint-disable-line react-hooks/exhaustive-deps
   const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== '' || filterActive
-  const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
 
   // Task 075: empty result caused by the filter -> card with "Najbližšie" and "Zrušiť filter"
-  const filterEmpty = filterActive && isEmpty && chipEvents.length > 0 && !isForYouNoFavs
+  const filterEmpty = filterActive && isEmpty && chipEvents.length > 0
   const nearestDate = useMemo(() => {
     if (!filterEmpty || period.type === 'anytime') return null
     const end = getPeriodRange(period, now).to
@@ -372,12 +384,6 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     return base
   }
 
-  const chipStyle = (active: boolean) => ({
-    height: 40, padding: '0 14px', borderRadius: 20 as const, border: 0 as const,
-    background: active ? '#FF4D8D' : '#23232F', color: active ? '#1A0710' : '#B9B6CC',
-    fontFamily: 'Outfit,sans-serif', fontSize: 14, fontWeight: 500,
-    display: 'flex' as const, alignItems: 'center' as const, gap: 6, whiteSpace: 'nowrap' as const, flex: 'none' as const, cursor: 'pointer' as const,
-  })
 
   return (
     <div ref={scrollRef} style={{ position: 'absolute', inset: 0, fontFamily: "'Outfit', sans-serif", color: '#F4F2FF', overflowY: 'auto', overscrollBehaviorY: 'contain' }}>
@@ -439,9 +445,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
             >
               {periodLabel}<ChevronDown />
             </button>
-            <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
-              <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
-            </button>
+            <ForYouChip active={forYouActive} label={dict.events.forYou} onClick={toggleForYou} />
             <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
             <div style={{ width: 40, flex: 'none' }} />
           </div>
@@ -492,9 +496,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
               <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
                 {periodLabel}<ChevronDown />
               </button>
-              <button style={chipStyle(forYouActive)} onClick={toggleForYou}>
-                <SparkleIcon size={16} color={forYouActive ? '#1A0710' : '#B9B6CC'} />{dict.events.forYou}
-              </button>
+              <ForYouChip active={forYouActive} label={dict.events.forYou} onClick={toggleForYou} />
               <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
               <div style={{ width: 40, flex: 'none' }} />
             </div>
@@ -534,11 +536,10 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       ) : isEmpty ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '48px 32px' }}>
           <p style={{ margin: 0, fontSize: 16, color: '#B9B6CC', textAlign: 'center' }}>
-            {isForYouNoFavs ? dict.events.noFavoriteVenues
-              : (isEmpty && period.type === 'today' && !isFilterActive) ? dict.events.emptyToday
+            {(isEmpty && period.type === 'today' && !isFilterActive) ? dict.events.emptyToday
               : dict.events.emptyOther}
           </p>
-          {isForYouNoFavs ? null : isFilterActive ? (
+          {isFilterActive ? (
             <button style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setForYouActive(false); setIsNewActive(false); onFilterChange?.(DEFAULT_FILTER); if (searchOpen) closeSearch() }}>
               {dict.events.clearFilters}
             </button>
@@ -638,6 +639,15 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
             ))}
           </div>
         </>
+      )}
+      {setupPrompt && (
+        <SetupPromptCard
+          text={dict.prefs.forYouEmpty}
+          button={dict.prefs.forYouEmptyButton}
+          closeLabel={dict.update.close}
+          onAction={() => { setSetupPrompt(false); onOpenPreferences?.() }}
+          onClose={() => setSetupPrompt(false)}
+        />
       )}
     </div>
   )

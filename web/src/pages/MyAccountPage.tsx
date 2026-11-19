@@ -4,15 +4,18 @@ import { getDict } from '../i18n'
 import { getGoing, pruneGoing, setStoredLanguage } from '../core/store'
 import { isEventFinished } from '../core/events'
 import { joinDot, formatDateDMY } from '../core/dot'
+import { SparkleIcon } from '../components/EventRow'
 
 interface Props {
   data: EventsData | null
   lang: Language
   onLangChange: (lang: Language) => void
   onEventOpen: (eventId: string) => void
+  /** Task 079: My account → Your preferences */
+  onOpenPreferences: () => void
 }
 
-export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) {
+export function MyAccountPage({ data, lang, onLangChange, onEventOpen, onOpenPreferences }: Props) {
   const dict = getDict(lang)
   const now = new Date()
 
@@ -57,6 +60,17 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen }: Props) 
         }}>
           {dict.account.title}
         </h1>
+
+        {/* Task 079: Your preferences */}
+        <button data-testid="account-preferences" onClick={onOpenPreferences} style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32,
+          padding: '14px 16px', borderRadius: 16, border: 0, background: '#1C1C27', color: '#F4F2FF',
+          fontFamily: "'Outfit', sans-serif", fontSize: 17, fontWeight: 600, textAlign: 'left', cursor: 'pointer',
+        }}>
+          <SparkleIcon size={18} color="#FF4D8D" />
+          <span style={{ flex: 1 }}>{dict.prefs.title}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
 
         {/* Going list */}
         <section style={{ marginBottom: 32 }}>

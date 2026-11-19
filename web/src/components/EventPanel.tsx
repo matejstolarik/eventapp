@@ -5,7 +5,7 @@ import { joinDot, DOT_SEP } from '../core/dot'
 import { haversine, formatDistance } from '../core/distance'
 import { EventImage43, TypeIconPill } from './EventRow'
 import { isNew, isForYou } from '../core/search'
-import { getFavorites } from '../core/store'
+import { useForYouPrefs } from '../core/useForYouPrefs'
 import { tagLabel } from '../i18n'
 import { priceLabel } from '../core/eventText'
 
@@ -55,6 +55,7 @@ function TagRow({ children, 'aria-label': ariaLabel }: { children: React.ReactNo
 export function EventPanel({ events, venue, lang, userLocation, className, onClose: _onClose, onEventOpen }: Props) {
   // venue is used for distance; character tags are shown only on the venue profile page
   const [currentIdx, setCurrentIdx] = useState(0)
+  const forYouPrefs = useForYouPrefs()
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
 
   const event = events[Math.min(currentIdx, events.length - 1)]!
@@ -62,7 +63,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const tagText = EVENT_TYPE_TAG_TEXT[getEventType(event.formats, event.primary_format)]
   const now = new Date()
   const newFlag = isNew(event, now)
-  const forYouFlag = isForYou(event, getFavorites())
+  const forYouFlag = isForYou(event, forYouPrefs)
   const pill: React.CSSProperties = {
     height: 32, padding: '0 14px', borderRadius: 16, fontSize: 14, fontWeight: 600,
     display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,

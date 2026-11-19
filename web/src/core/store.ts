@@ -1,6 +1,8 @@
 import type { Language, EventsData } from './types'
 import { isEventFinished } from './events'
-import { parseFilter, serializeFilter, type EventFilter } from './filter'
+import { parseFilter, serializeFilter, FILTER_TYPES, type EventFilter, type FilterType } from './filter'
+import { CULTURE_SUBTYPES, type CultureSubtype } from './eventType'
+import type { ForYouPrefs } from './search'
 
 function safeGet(key: string): string | null {
   try { return localStorage.getItem(key) } catch { return null }
@@ -29,6 +31,7 @@ export function toggleFavorite(venueId: string): boolean {
     favs.add(venueId)
   }
   safeSet('favorites', JSON.stringify([...favs]))
+  notifyPreferencesChanged()
   return favs.has(venueId)
 }
 
@@ -170,4 +173,76 @@ export function getLastFetched(): Date | null {
   if (!raw) return null
   const ts = parseInt(raw, 10)
   return isNaN(ts) ? null : new Date(ts)
+}
+
+// ── Preferences (task 079) ────────────────────────────────────────────────
+
+/** Pre teba preferences besides favourite venues (those stay in `favorites`). */
+export interface Preferences {
+  types: FilterType[]
+  subtypes: CultureSubtype[]
+  /** Umbrella music genres, at most MAX_PREF_GENRES */
+  genres: string[]
+}
+
+export const MAX_PREF_GENRES = 5
+export const EMPTY_PREFERENCES: Preferences = { types: [], subtypes: [], genres: [] }
+
+export function parsePreferences(raw: string | null): Preferences {
+  if (!raw) return EMPTY_PREFERENCES
+  try {
+    const p = JSON.parse(raw) as Partial<Preferences>
+    const arr = (v: unknown) => Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
+    return {
+      types: FILTER_TYPES.filter(t => arr(p.types).includes(t)),
+      subtypes: CULTURE_SUBTYPES.filter(s => arr(p.subtypes).includes(s)),
+      genres: arr(p.genres).slice(0, MAX_PREF_GENRES),
+    }
+  } catch { return EMPTY_PREFERENCES }
+}
+
+export function getPreferences(): Preferences {
+  return parsePreferences(safeGet('preferences'))
+}
+
+export function setPreferences(p: Preferences): void {
+  safeSet('preferences', JSON.stringify(p))
+  notifyPreferencesChanged()
+}
+
+export const PREFERENCES_EVENT = 'eventapp:preferences'
+
+/** Favourites or preferences changed: pages showing Pre teba recompute. */
+export function notifyPreferencesChanged(): void {
+  try { window.dispatchEvent(new Event(PREFERENCES_EVENT)) } catch { /* ignore */ }
+}
+
+// ── Onboarding (task 079) ─────────────────────────────────────────────────
+
+/** Keys an existing install has written; any of them = not a new install. */
+export const EXISTING_STATE_KEYS = [
+  'favorites', 'going', 'filter', 'eventsPeriod', 'eventsFilters', 'language', 'eventsLastFetched', 'preferences',
+] as const
+
+/** Onboarding shows only on a new install: no done flag and no earlier state. */
+export function shouldShowOnboarding(get: (key: string) => string | null = safeGet): boolean {
+  if (get('onboardingDone')) return false
+  // Started but not finished (app closed midway): show again, although state keys exist by now
+  if (get('onboardingPending')) return true
+  return EXISTING_STATE_KEYS.every(k => get(k) === null)
+}
+
+/** Mark the onboarding as started, before the app writes any other state. */
+export function setOnboardingPending(): void {
+  safeSet('onboardingPending', '1')
+}
+
+export function setOnboardingDone(): void {
+  safeSet('onboardingDone', '1')
+  try { localStorage.removeItem('onboardingPending') } catch { /* ignore */ }
+}
+
+/** Favourites + preferences in the shape isForYou takes. */
+export function getForYouPrefs(): ForYouPrefs {
+  return { favorites: getFavorites(), ...getPreferences() }
 }

@@ -31,7 +31,7 @@ function venueEventType(venue: Venue): EventType {
 }
 
 interface VenuePhotoProps { venue: Venue; size: number; radius: number }
-function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
+export function VenuePhoto({ venue, size, radius }: VenuePhotoProps) {
   const [err, setErr] = useState(false)
   const et = venueEventType(venue)
   const iconKey: EventIconKey = et === 'other' ? 'culture' : et as EventIconKey
