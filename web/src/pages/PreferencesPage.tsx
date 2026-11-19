@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
 import { getPreferences, setPreferences, type Preferences } from '../core/store'
-import { preferenceGenres, hasMusicType } from '../core/preferences'
+import { preferenceGenres, hasMusicType, PREF_SECTION_ORDER } from '../core/preferences'
 import { useForYouPrefs } from '../core/useForYouPrefs'
 import { PlaceSearch, PlacesList, placesFor, TypesPicker, GenresPicker, GenreCounter } from '../components/PrefPickers'
 
-// My account → Your preferences (docs/design.md 7c, task 079): the onboarding's
-// three pickers one under another; every change is saved at once.
+// My account → Event preferences (docs/design.md 7c, tasks 079, 080): the onboarding's
+// three pickers one under another (types, genres, places); every change is saved at once.
 
 interface Props {
   data: EventsData
@@ -27,6 +27,8 @@ function SectionTitle({ title, sub, right }: { title: string; sub: string; right
   )
 }
 
+const sectionStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 16 }
+
 export function PreferencesPage({ data, lang, onBack }: Props) {
   const dict = getDict(lang)
   const t = dict.onboarding
@@ -38,37 +40,53 @@ export function PreferencesPage({ data, lang, onBack }: Props) {
 
   function change(p: Preferences) { setPrefsState(p); setPreferences(p) }
 
+  const showGenres = prefs.types.length === 0 || hasMusicType(prefs)
+
   return (
     <div data-testid="preferences-page" style={{
       position: 'absolute', inset: 0, overflowY: 'auto', overscrollBehaviorY: 'contain',
       fontFamily: "'Outfit', sans-serif", color: '#F4F2FF',
     }}>
-      <div style={{ padding: '12px 16px 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+      {/* Header scrolls with the page; the tick closes it like Back (every change is already saved, task 080) */}
+      <div style={{ padding: '12px 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
         <button onClick={onBack} aria-label={dict.prefs.back} style={{
           width: 44, height: 44, marginLeft: -10, border: 0, background: 'transparent', color: '#F4F2FF',
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
         </button>
+        <button data-testid="preferences-done" onClick={onBack} aria-label={dict.prefs.done} style={{
+          width: 44, height: 44, borderRadius: 22, border: 0, background: '#23232F', color: '#F4F2FF', flex: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>
+        </button>
       </div>
-      <div style={{ padding: '4px 16px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <h1 style={{ margin: '0 0 4px', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 700 }}>{dict.prefs.title}</h1>
-
-        <SectionTitle title={t.placesTitle} sub={t.placesSub} />
-        <PlaceSearch value={query} placeholder={dict.places.search} onChange={setQuery} />
-        <PlacesList venues={places} favorites={favorites} />
-
-        <div style={{ height: 8 }} />
-        <SectionTitle title={t.typesTitle} sub={t.typesSub} />
-        <TypesPicker lang={lang} prefs={prefs} onChange={change} />
-
-        {(prefs.types.length === 0 || hasMusicType(prefs)) && (
-          <>
-            <div style={{ height: 8 }} />
-            <SectionTitle title={t.genresTitle} sub={t.genresSub} right={<GenreCounter n={prefs.genres.length} />} />
-            <GenresPicker lang={lang} genres={genres} prefs={prefs} onChange={change} />
-          </>
-        )}
+      <div style={{ padding: '4px 16px 40px', display: 'flex', flexDirection: 'column', gap: 40 }}>
+        <h1 style={{ margin: '0 0 -20px', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 700 }}>{dict.prefs.title}</h1>
+        {PREF_SECTION_ORDER.map(sec => (
+          <Fragment key={sec}>
+            {sec === 'types' && (
+              <section data-testid="pref-section-types" style={sectionStyle}>
+                <SectionTitle title={t.typesTitle} sub={t.typesSub} />
+                <TypesPicker lang={lang} prefs={prefs} onChange={change} />
+              </section>
+            )}
+            {sec === 'genres' && showGenres && (
+              <section data-testid="pref-section-genres" style={sectionStyle}>
+                <SectionTitle title={t.genresTitle} sub={t.genresSub} right={<GenreCounter n={prefs.genres.length} />} />
+                <GenresPicker lang={lang} genres={genres} prefs={prefs} onChange={change} />
+              </section>
+            )}
+            {sec === 'places' && (
+              <section data-testid="pref-section-places" style={sectionStyle}>
+                <SectionTitle title={t.placesTitle} sub={t.placesSub} />
+                <PlaceSearch value={query} placeholder={dict.places.search} onChange={setQuery} />
+                <PlacesList venues={places} favorites={favorites} />
+              </section>
+            )}
+          </Fragment>
+        ))}
       </div>
     </div>
   )

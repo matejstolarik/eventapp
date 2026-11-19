@@ -324,7 +324,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Task 079: My account -> Your preferences */}
+      {/* Task 079: My account -> Event preferences */}
       {route.page === 'preferences' && (
         <div style={{ position: 'fixed', inset: 0, background: '#111118', zIndex: 55 }}>
           <PreferencesPage
@@ -363,7 +363,7 @@ export default function App() {
   )
 }
 
-/** Short toast after skipping the onboarding (design 7c); tap -> Your preferences. */
+/** Short toast after skipping the onboarding (design 7c); tap -> Event preferences. */
 function SkipToast({ text, onTap, onHide }: { text: string; onTap: () => void; onHide: () => void }) {
   useEffect(() => {
     const id = setTimeout(onHide, 5000)

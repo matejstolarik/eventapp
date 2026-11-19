@@ -3,7 +3,7 @@ import { filterTypeOf, eventUmbrellas, toggleIn, type FilterType } from './filte
 import type { CultureSubtype } from './eventType'
 import { MAX_PREF_GENRES, type Preferences } from './store'
 
-// Task 079: helpers for the onboarding and My account → Your preferences.
+// Task 079: helpers for the onboarding and My account → Event preferences.
 
 /** Umbrella music genres (concert, DJ, party; no culture subtypes) with at
  * least one event, most events first; ties alphabetically. */
@@ -36,4 +36,20 @@ export function togglePrefSubtype(p: Preferences, s: CultureSubtype): Preference
 /** Genres step only when a music type is selected. */
 export function hasMusicType(p: Preferences): boolean {
   return p.types.some(t => t !== 'culture')
+}
+
+/** Task 080: a pick step's Next needs at least one pick (otherwise the button shakes). */
+export type PickStep = 'places' | 'types' | 'genres'
+export function stepHasPick(step: PickStep, p: Preferences, favorites: Set<string>): boolean {
+  if (step === 'places') return favorites.size > 0
+  if (step === 'types') return p.types.length > 0
+  return p.genres.length > 0
+}
+
+/** Task 080: section order on the Event preferences page (places last, the longest). */
+export const PREF_SECTION_ORDER = ['types', 'genres', 'places'] as const
+
+/** Task 080: Pre teba is on but there are no preferences → empty list with the set-up message. */
+export function forYouNeedsSetup(forYouActive: boolean, hasPrefs: boolean): boolean {
+  return forYouActive && !hasPrefs
 }

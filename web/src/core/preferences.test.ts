@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { preferenceGenres, togglePrefGenre, togglePrefType, hasMusicType } from './preferences'
+import { preferenceGenres, togglePrefGenre, togglePrefType, hasMusicType, stepHasPick, PREF_SECTION_ORDER, forYouNeedsSetup } from './preferences'
 import { shouldShowOnboarding, parsePreferences, EMPTY_PREFERENCES, MAX_PREF_GENRES } from './store'
 import type { Event } from './types'
 
@@ -51,5 +51,25 @@ describe('preference toggles', () => {
     expect(parsePreferences('{"types":["dj","x"],"subtypes":["film","y"],"genres":["a","b","c","d","e","f"]}'))
       .toEqual({ types: ['dj'], subtypes: ['film'], genres: ['a', 'b', 'c', 'd', 'e'] })
     expect(parsePreferences('nope')).toEqual(EMPTY_PREFERENCES)
+  })
+})
+
+describe('task 080', () => {
+  const none = new Set<string>()
+  it('Next without a pick does not advance (each pick step)', () => {
+    expect(stepHasPick('places', EMPTY_PREFERENCES, none)).toBe(false)
+    expect(stepHasPick('places', EMPTY_PREFERENCES, new Set(['bike-jesus']))).toBe(true)
+    expect(stepHasPick('types', EMPTY_PREFERENCES, new Set(['bike-jesus']))).toBe(false)
+    expect(stepHasPick('types', { ...EMPTY_PREFERENCES, types: ['dj'] }, none)).toBe(true)
+    expect(stepHasPick('genres', { ...EMPTY_PREFERENCES, types: ['dj'] }, none)).toBe(false)
+    expect(stepHasPick('genres', { ...EMPTY_PREFERENCES, genres: ['techno'] }, none)).toBe(true)
+  })
+  it('Event preferences sections: types, genres, places', () => {
+    expect([...PREF_SECTION_ORDER]).toEqual(['types', 'genres', 'places'])
+  })
+  it('Pre teba without preferences = empty list with the set-up message', () => {
+    expect(forYouNeedsSetup(true, false)).toBe(true)
+    expect(forYouNeedsSetup(true, true)).toBe(false)
+    expect(forYouNeedsSetup(false, false)).toBe(false)
   })
 })

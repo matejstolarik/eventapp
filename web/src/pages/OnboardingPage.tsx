@@ -3,14 +3,14 @@ import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
 import { EVENT_TYPE_COLOR } from '../core/eventType'
 import { getPreferences, setPreferences, setOnboardingDone, setStoredPeriod, type Preferences } from '../core/store'
-import { preferenceGenres, hasMusicType } from '../core/preferences'
+import { preferenceGenres, hasMusicType, stepHasPick, type PickStep } from '../core/preferences'
 import { useForYouPrefs } from '../core/useForYouPrefs'
 import {
   TypeCircle, PlaceSearch, PlacesList, placesFor, TypesPicker, GenresPicker, GenreCounter, PREF_TYPE_ORDER, reducedMotion,
 } from '../components/PrefPickers'
 import { ForYouChip } from '../components/ForYouChip'
 import { FilterButton } from '../components/FilterButton'
-import { SparkleIcon } from '../components/EventRow'
+import { OutlinedSparkleIcon } from '../components/EventRow'
 
 // Onboarding on a new install (docs/design.md 7c, task 079).
 
@@ -48,28 +48,41 @@ function Title({ title, sub, right }: { title: string; sub: string; right?: Reac
   )
 }
 
-/** Abstract list row for the done-screen previews: type colour + grey bars. */
+/** Skeleton event row for the done-screen previews (task 080): image in the type
+ * colour (optional ✦ badge top left, like the real row), two grey text bars.
+ * Identical in both cards. */
 function MiniRow({ color, sparkle = false }: { color: string; sparkle?: boolean }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 18 }}>
-      <span style={{ width: 22, height: 16, borderRadius: 4, background: color, flex: 'none' }} />
-      <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span style={{ height: 5, width: '70%', borderRadius: 3, background: '#3A3A50' }} />
-        <span style={{ height: 4, width: '45%', borderRadius: 2, background: '#2E2D3C' }} />
+    <div data-testid="onb-mini-row" style={{ display: 'flex', alignItems: 'center', gap: 8, height: 22 }}>
+      <span style={{ position: 'relative', width: 30, height: 22, borderRadius: 5, background: color, flex: 'none' }}>
+        {sparkle && (
+          <span data-testid="onb-mini-sparkle" style={{ position: 'absolute', top: 2, left: 2, display: 'flex', lineHeight: 0 }}>
+            <OutlinedSparkleIcon size={10} color={PINK} outlinePx={1} />
+          </span>
+        )}
       </span>
-      <span style={{ width: 12, display: 'flex', flex: 'none' }}>{sparkle && <SparkleIcon size={12} color={PINK} />}</span>
+      <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <span style={{ height: 5, width: '75%', borderRadius: 3, background: '#3A3A50' }} />
+        <span style={{ height: 4, width: '50%', borderRadius: 2, background: '#2E2D3C' }} />
+      </span>
     </div>
   )
 }
 
-const ROWS = [EVENT_TYPE_COLOR.dj, EVENT_TYPE_COLOR.concert, EVENT_TYPE_COLOR.culture, EVENT_TYPE_COLOR.party]
+const ROW_GAP = 7
+const FOR_YOU_ROWS = [EVENT_TYPE_COLOR.dj, EVENT_TYPE_COLOR.concert, EVENT_TYPE_COLOR.culture, EVENT_TYPE_COLOR.party]
+// Filter: 4 rows -> the 2 rows of one type (same colours as on the left)
+const FILTER_ROWS = [EVENT_TYPE_COLOR.dj, EVENT_TYPE_COLOR.concert, EVENT_TYPE_COLOR.dj, EVENT_TYPE_COLOR.culture]
+const FILTER_KEPT = [EVENT_TYPE_COLOR.dj, EVENT_TYPE_COLOR.dj]
+/** Same left column in both done cards; the control is centred in it. */
+const DONE_LEFT_COL = 116
 
-function DoneCard({ control, preview, text }: { control: React.ReactNode; preview: React.ReactNode; text: string }) {
+function DoneCard({ control, preview, text, testId }: { control: React.ReactNode; preview: React.ReactNode; text: string; testId: string }) {
   return (
-    <div style={{ background: '#1C1C27', borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ flex: 'none' }}>{control}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>{preview}</div>
+    <div data-testid={testId} style={{ background: '#1C1C27', borderRadius: 16, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `${DONE_LEFT_COL}px minmax(0, 1fr)`, columnGap: 14, alignItems: 'center' }}>
+        <div data-testid="onb-done-control" style={{ display: 'flex', justifyContent: 'center' }}>{control}</div>
+        <div style={{ minWidth: 0 }}>{preview}</div>
       </div>
       <p style={{ margin: 0, fontSize: 14, lineHeight: 1.4, color: '#E4E2EE' }}>{text}</p>
     </div>
@@ -86,6 +99,7 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
   const [query, setQuery] = useState('')
   const { favorites } = useForYouPrefs()
   const [reduced] = useState(reducedMotion)
+  const [shake, setShake] = useState(0)
 
   const genres = useMemo(() => preferenceGenres(data.events), [data.events])
   const places = useMemo(() => placesFor(data.venues, query), [data.venues, query])
@@ -104,7 +118,17 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
     if (s === 'types') return 'places'
     return 'welcome'
   }
-  function go(s: Step, d: 1 | -1) { setDir(d); setStep(s) }
+  function go(s: Step, d: 1 | -1) { setDir(d); setShake(0); setStep(s) }
+
+  // Task 080: Next without a pick shakes (~300 ms) and vibrates gently; no step change.
+  function next() {
+    if (!stepHasPick(step as PickStep, prefs, favorites)) {
+      setShake(n => n + 1)
+      try { navigator.vibrate?.(30) } catch { /* not supported */ }
+      return
+    }
+    go(nextOf(step), 1)
+  }
 
   // System Back: previous step; on the welcome screen like Skip (design 7c).
   const stateRef = useRef({ step, confirmSkip })
@@ -154,9 +178,11 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
       <button data-testid="onb-step-skip" style={textBtn} onClick={() => go(nextOf(step), 1)}>{t.skip}</button>
     </div>
   )
-  const footer = (label: string, onClick: () => void, testId: string) => (
+  const footer = (label: string, onClick: () => void, testId: string, shakeN = 0) => (
     <div style={{ flex: 'none', padding: '12px 0 calc(16px + env(safe-area-inset-bottom))' }}>
-      <button data-testid={testId} style={primaryBtn} onClick={onClick}>{label}</button>
+      <button key={shakeN} data-testid={testId} data-shake={shakeN > 0 ? shakeN : undefined} style={{
+        ...primaryBtn, animation: shakeN > 0 && !reduced ? 'onbShake 300ms ease-in-out' : undefined,
+      }} onClick={onClick}>{label}</button>
     </div>
   )
 
@@ -209,19 +235,21 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
       <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '40px 0 4px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <h1 style={{ margin: '0 0 4px', fontFamily: HEAD, fontSize: 32, fontWeight: 700, color: '#F4F2FF' }}>{t.doneTitle}</h1>
         <DoneCard
+          testId="onb-done-for-you"
           control={<ForYouChip active label={dict.events.forYou} inert />}
-          preview={<div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {ROWS.map((c, i) => <MiniRow key={i} color={c} sparkle={i === 0 || i === 2} />)}
+          preview={<div style={{ display: 'flex', flexDirection: 'column', gap: ROW_GAP }}>
+            {FOR_YOU_ROWS.map((c, i) => <MiniRow key={i} color={c} sparkle={i === 0 || i === 2} />)}
           </div>}
           text={t.doneForYou}
         />
         <DoneCard
+          testId="onb-done-filter"
           control={<div style={{ pointerEvents: 'none' }} aria-hidden="true"><FilterButton badge={0} label={dict.map.filter} onClick={() => {}} /></div>}
           preview={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>{ROWS.map((c, i) => <MiniRow key={i} color={c} />)}</div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, alignSelf: 'flex-start' }}>
-              <MiniRow color={ROWS[0]} /><MiniRow color={ROWS[3]} />
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: ROW_GAP }}>{FILTER_ROWS.map((c, i) => <MiniRow key={i} color={c} />)}</div>
+            <svg data-testid="onb-filter-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: ROW_GAP }}>
+              {FILTER_KEPT.map((c, i) => <MiniRow key={i} color={c} />)}
             </div>
           </div>}
           text={t.doneFilter}
@@ -240,6 +268,8 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
         @keyframes onbInR { from { opacity: 0; transform: translateX(28px) } to { opacity: 1; transform: none } }
         @keyframes onbInL { from { opacity: 0; transform: translateX(-28px) } to { opacity: 1; transform: none } }
         @keyframes onbFade { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes onbShake { 0%, 100% { transform: none } 20% { transform: translateX(-8px) } 40% { transform: translateX(7px) } 60% { transform: translateX(-5px) } 80% { transform: translateX(3px) } }
+        @media (prefers-reduced-motion: reduce) { [data-testid="onb-next"] { animation: none !important } }
         @media (prefers-reduced-motion: reduce) { [data-onb-anim] { animation: none !important } }
       `}</style>
       <div key={step} data-onb-anim data-testid={`onb-step-${step}`} style={{
@@ -253,7 +283,7 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
             <button data-testid="onb-skip" style={textBtn} onClick={() => setConfirmSkip(true)}>{t.skip}</button>
           </div>
         )}
-        {(step === 'places' || step === 'types' || step === 'genres') && footer(t.next, () => go(nextOf(step), 1), 'onb-next')}
+        {(step === 'places' || step === 'types' || step === 'genres') && footer(t.next, next, 'onb-next', shake)}
         {step === 'done' && footer(t.doneButton, () => finish(false), 'onb-finish')}
       </div>
 

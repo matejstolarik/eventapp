@@ -11,7 +11,7 @@ import { IconHeart } from '../icons'
 import { VenuePhoto } from '../pages/PlacesPage'
 
 // Task 079 (design.md 7c): the three preference pickers shared by the onboarding
-// and My account → Your preferences.
+// and My account → Event preferences.
 
 export const PREF_TYPE_ORDER: FilterType[] = ['concert', 'dj', 'party', 'culture']
 const TYPE_ICON: Record<FilterType, EventIconKey> = { concert: 'concert', party: 'party', dj: 'dj', culture: 'culture' }
@@ -72,7 +72,7 @@ export function PlacesList({ venues, favorites }: { venues: Venue[]; favorites: 
             style={{
               display: 'flex', alignItems: 'center', gap: 12, height: 44, padding: 0, border: 0,
               background: 'transparent', color: '#F4F2FF', cursor: 'pointer', textAlign: 'left',
-              WebkitTapHighlightColor: 'transparent', fontFamily: "'Outfit', sans-serif",
+              WebkitTapHighlightColor: 'transparent', outline: 'none', fontFamily: "'Outfit', sans-serif",
             }}>
             <VenuePhoto venue={v} size={32} radius={16} />
             <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
@@ -96,6 +96,7 @@ function PrefChip({ label, on, disabled = false, icon, onClick, testId }: {
       height: 34, padding: icon ? '0 13px 0 10px' : '0 13px', borderRadius: 17, border: 0,
       background: bg, color: on ? '#1A0710' : '#E4DEFF', fontWeight: on ? 700 : 500,
       opacity: disabled ? 0.4 : 1, cursor: disabled ? 'default' : 'pointer',
+      outline: 'none', WebkitTapHighlightColor: 'transparent',
       fontFamily: "'Outfit', sans-serif", fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
     }}>
       {icon && <SvgIcon k={icon} color={on ? '#1A0710' : EVENT_TYPE_COLOR.culture} bg={bg} size={16} />}
@@ -118,14 +119,16 @@ export function TypesPicker({ lang, prefs, onChange }: { lang: Language; prefs: 
         const on = prefs.types.includes(type)
         const culture = type === 'culture'
         return (
-          <div key={type} data-testid={`pref-type-${type}`} style={{
-            borderRadius: 16, background: '#1C1C27', border: `1.5px solid ${on ? PINK : '#2E2D3C'}`,
-            transition: reduced ? 'none' : 'border-color 150ms',
+          <div key={type} data-testid={`pref-type-${type}`} data-on={on || undefined} style={{
+            // Task 080: the outline is an inset ring on the card's own layer (no 1.5 px
+            // border), so a deselected card repaints fully, without a pink remnant.
+            borderRadius: 16, background: '#1C1C27', boxShadow: `inset 0 0 0 1.5px ${on ? PINK : '#2E2D3C'}`,
+            transform: 'translateZ(0)', overflow: 'hidden',
           }}>
             <button aria-pressed={on} onClick={() => onChange(togglePrefType(prefs, type))} style={{
               width: '100%', display: 'flex', alignItems: culture ? 'center' : 'flex-start', gap: 12, padding: '12px 14px',
               border: 0, background: 'transparent', color: '#F4F2FF', textAlign: 'left', cursor: 'pointer',
-              fontFamily: "'Outfit', sans-serif", WebkitTapHighlightColor: 'transparent',
+              fontFamily: "'Outfit', sans-serif", WebkitTapHighlightColor: 'transparent', outline: 'none',
             }}>
               <TypeCircle type={type} size={32} />
               <span style={{ flex: 1, minWidth: 0 }}>
@@ -143,7 +146,8 @@ export function TypesPicker({ lang, prefs, onChange }: { lang: Language; prefs: 
             {culture && (
               <div data-testid="pref-subtypes" style={{
                 display: 'grid', gridTemplateRows: on ? '1fr' : '0fr', opacity: on ? 1 : 0,
-                transition: reduced ? 'none' : 'grid-template-rows 250ms cubic-bezier(.2,.8,.2,1), opacity 250ms',
+                visibility: on ? 'visible' : 'hidden',
+                transition: reduced ? 'none' : on ? 'grid-template-rows 250ms cubic-bezier(.2,.8,.2,1), opacity 250ms' : 'grid-template-rows 250ms cubic-bezier(.2,.8,.2,1), opacity 250ms, visibility 0s 250ms',
               }}>
                 <div style={{ overflow: 'hidden', minHeight: 0 }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 14px 14px' }}>

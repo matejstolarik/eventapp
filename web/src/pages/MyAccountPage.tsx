@@ -11,7 +11,7 @@ interface Props {
   lang: Language
   onLangChange: (lang: Language) => void
   onEventOpen: (eventId: string) => void
-  /** Task 079: My account → Your preferences */
+  /** Task 079: My account → Event preferences */
   onOpenPreferences: () => void
 }
 
@@ -61,7 +61,7 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen, onOpenPre
           {dict.account.title}
         </h1>
 
-        {/* Task 079: Your preferences */}
+        {/* Task 079: Event preferences */}
         <button data-testid="account-preferences" onClick={onOpenPreferences} style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32,
           padding: '14px 16px', borderRadius: 16, border: 0, background: '#1C1C27', color: '#F4F2FF',

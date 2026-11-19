@@ -6,7 +6,8 @@ import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRan
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
 import { matchesSearch, isForYou, isNew, hasAnyPrefs } from '../core/search'
 import { useForYouPrefs } from '../core/useForYouPrefs'
-import { SetupPromptCard } from '../components/SetupPromptCard'
+import { ForYouSetupCard } from '../components/ForYouSetupCard'
+import { forYouNeedsSetup } from '../core/preferences'
 import { isNightMode, isNightEvent } from '../core/night'
 import { EventRow } from '../components/EventRow'
 import { ForYouChip, chipStyle } from '../components/ForYouChip'
@@ -30,7 +31,7 @@ interface Props {
   /** Task 075: shared filter (Mapa and Akcie) */
   filter?: EventFilter
   onFilterChange?: (f: EventFilter) => void
-  /** Task 079: open My account → Your preferences */
+  /** Task 079: open My account → Event preferences */
   onOpenPreferences?: () => void
 }
 
@@ -146,10 +147,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   // Task 079: Pre teba from favourites + preferences; follows changes made elsewhere
   const favorites = useForYouPrefs()
   const hasFavorites = hasAnyPrefs(favorites)
-  const [setupPrompt, setSetupPrompt] = useState(false)
-  // Pre teba stays off while there is nothing to pick from (no preferences)
-  useEffect(() => { if (forYouActive && !hasFavorites) setForYouActive(false) }, [forYouActive, hasFavorites])
-  useEffect(() => { if (hasFavorites || isVisible === false) setSetupPrompt(false) }, [hasFavorites, isVisible])
+  // Task 080: Pre teba switches on even without preferences; the list then shows the set-up card
+  const forYouSetup = forYouNeedsSetup(forYouActive, hasFavorites)
 
   const venueMap = useMemo(() => {
     const m = new Map<string, (typeof data.venues)[0]>()
@@ -302,7 +301,6 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   }
 
   function toggleForYou() {
-    if (!forYouActive && !hasFavorites) { setSetupPrompt(true); return }
     setForYouActive(v => !v)
   }
   function toggleIsNew() { setIsNewActive(v => !v) }
@@ -518,7 +516,11 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       </div>
 
       {/* Grid or empty state */}
-      {filterEmpty ? (
+      {forYouSetup ? (
+        <div style={{ minHeight: 'calc(100dvh - 330px)', display: 'flex', alignItems: 'center', padding: '24px 16px 112px', boxSizing: 'border-box' }}>
+          <ForYouSetupCard text={dict.prefs.forYouEmpty} button={dict.prefs.forYouEmptyButton} onSetUp={() => onOpenPreferences?.()} />
+        </div>
+      ) : filterEmpty ? (
         isVisible !== false && !showFilterSheet ? (
           <FilterEmptyCard
             text={filterEmptyText}
@@ -639,15 +641,6 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
             ))}
           </div>
         </>
-      )}
-      {setupPrompt && (
-        <SetupPromptCard
-          text={dict.prefs.forYouEmpty}
-          button={dict.prefs.forYouEmptyButton}
-          closeLabel={dict.update.close}
-          onAction={() => { setSetupPrompt(false); onOpenPreferences?.() }}
-          onClose={() => setSetupPrompt(false)}
-        />
       )}
     </div>
   )
