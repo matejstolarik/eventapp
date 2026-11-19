@@ -269,6 +269,18 @@ describe('culture genres (task 076)', () => {
     expect(availableGenres(all, ['concert', 'party', 'dj', 'culture'], [], H).sort()).toEqual(['house', 'techno'])
     expect(availableCultureGenres(all, ['film'], [], H)[0]!.keys).not.toContain('film:jazz')
   })
+  it('talk is an umbrella too (task 078, real hierarchy): row of talk genres when talk is selected', () => {
+    const slam = ev('sl', { formats: ['talk', 'dj'], primary_format: 'talk', genres: ['slam-poetry', 'techno'] })
+    const launch = ev('bl', { formats: ['talk'], genres: ['book-launch'] })
+    const plainTalk = ev('pt', { formats: ['talk'], genres: [] })
+    const evs = [slam, launch, plainTalk, horrorFilm]
+    expect(availableCultureGenres(evs, ['film'], [], GENRE_HIERARCHY).map(r => r.subtype)).toEqual(['film'])
+    const rows = availableCultureGenres(evs, ['talk'], [], GENRE_HIERARCHY)
+    expect(rows.map(r => r.subtype)).toEqual(['talk'])
+    expect(rows[0]!.keys.sort()).toEqual(['talk:book-launch', 'talk:slam-poetry'])   // genres without events are not shown
+    const fl = f({ types: ['culture'], subtypes: ['talk'], cultureGenres: ['talk:slam-poetry'] })
+    expect(evs.filter(e => matchesFilter(e, v1, fl, GENRE_HIERARCHY)).map(e => e.id)).toEqual(['sl'])
+  })
   it('a music genre does not select a culture event', () => {
     expect(pass(f({ genres: ['jazz'] }))).toEqual([])
     expect(pass(f({ genres: ['techno'] }))).toEqual(['te'])

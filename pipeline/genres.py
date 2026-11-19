@@ -52,11 +52,17 @@ STAGE_GENRES = frozenset({
     # task 065 (Matej 2026-11-17)
     "drama", "musical", "opera", "puppet-theatre", "improv", "cabaret", "new-circus",
     "experimental", "contemporary-dance", "ballet", "dance-theatre",
+    # task 078 (Matej 2026-11-19), parent: the culture subtype `talk`
+    "slam-poetry", "reading", "book-launch", "lecture", "discussion",
 })
+# Talk genres (task 078, ai-rules C10): only events with the `talk` format
+# carry them; they come from approved phrases (data/genre_aliases.json) in the
+# event text and the stored research (talk_genres_from_text).
+TALK_GENRES = frozenset({"slam-poetry", "reading", "book-launch", "lecture", "discussion"})
 ALL_GENRES = MUSIC_GENRES | FILM_GENRES | STAGE_GENRES
 # Umbrellas used only as parents in the hierarchy (filter), never as a label
 # (ai-rules C8, C9): `alternative`, and the culture subtypes.
-UMBRELLAS = frozenset({"alternative", "film", "theatre", "dance"})
+UMBRELLAS = frozenset({"alternative", "film", "theatre", "dance", "talk"})
 NOT_A_LABEL = frozenset({"alternative"})
 
 # Renamed codes (old -> new); applied to all genres in the output.
@@ -150,3 +156,29 @@ def finalize_genres(genres: list | None, hierarchy: dict | None = None) -> list:
         hierarchy = load_hierarchy()
     out = [g for g in rename_genres(genres) if g not in NOT_A_LABEL]
     return drop_contained_parents(out, hierarchy)
+
+
+# Words between the words of a multi-word talk phrase ("křest první knihy",
+# task 078): at most this many.
+TALK_PHRASE_GAP = 2
+
+
+def _talk_phrase_re(phrase: str) -> re.Pattern:
+    words = phrase.lower().split()
+    gap = r"(?:\W+\w+){0,%d}\W+" % TALK_PHRASE_GAP
+    return re.compile(r"(?<!\w)" + gap.join(re.escape(w) for w in words) + r"(?!\w)")
+
+
+def talk_genres_from_text(texts: list, aliases: dict | None) -> list[str]:
+    """Task 078 (ai-rules C10): talk genres whose approved phrase
+    (data/genre_aliases.json entries pointing to a talk genre) occurs in the
+    texts.  Case-insensitive, whole words; order = order of TALK_GENRES in the
+    aliases file.  Only for events with the `talk` format (caller checks)."""
+    text = "\n".join(str(x) for x in texts if x).lower()
+    out = []
+    for raw, target in (aliases or {}).items():
+        targets = target if isinstance(target, list) else [target]
+        for g in targets:
+            if g in TALK_GENRES and g not in out and _talk_phrase_re(raw).search(text):
+                out.append(g)
+    return out

@@ -1,5 +1,5 @@
 {
- "_comment": "Task 065 (Matej 2026-11-17, docs/ai-rules.md C7): subgenre -> parents. Used by the filter and Pre teba; a parent is never added to the labels automatically. Parents are genres or umbrellas (alternative, film, theatre, dance; pipeline/genres.py UMBRELLAS). experimental has no parent: it is also a top-level music genre.",
+ "_comment": "Task 065 (Matej 2026-11-17, docs/ai-rules.md C7): subgenre -> parents. Used by the filter and Pre teba; a parent is never added to the labels automatically. Parents are genres or umbrellas (alternative, film, theatre, dance, talk; pipeline/genres.py UMBRELLAS). experimental has no parent: it is also a top-level music genre.",
  "hard-techno": [
   "techno"
  ],
@@ -243,5 +243,20 @@
  ],
  "orchestral": [
   "classical"
+ ],
+ "slam-poetry": [
+  "talk"
+ ],
+ "reading": [
+  "talk"
+ ],
+ "book-launch": [
+  "talk"
+ ],
+ "lecture": [
+  "talk"
+ ],
+ "discussion": [
+  "talk"
  ]
 }

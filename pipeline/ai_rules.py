@@ -6,7 +6,7 @@ Shared by AI classification (classify_ai.py, no web) and AI enrichment
 sync with docs/ai-rules.md; a new rule there = a change here.
 """
 
-from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES
+from pipeline.genres import FILM_GENRES, MUSIC_GENRES, STAGE_GENRES, TALK_GENRES
 
 FORMATS = ["concert", "dj", "party", "music", "dance", "talk", "stand-up", "workshop",
            "theatre", "film", "opening", "quiz", "performance", "other"]
@@ -92,7 +92,7 @@ and DJs after her -> concert, dj secondary."""
 RULES_GENRES = f"""\
 GENRES: ordered from the MAIN genre. Music genres from this list: \
 {sorted(MUSIC_GENRES)}; film: {sorted(FILM_GENRES) or "(no list yet)"}; theatre / \
-dance / performance: {sorted(STAGE_GENRES)}.
+dance / performance: {sorted(STAGE_GENRES - TALK_GENRES)}; talk (set by the pipeline from phrases in the event text, do not return them): {sorted(TALK_GENRES)}.
 1. Compound names: main genre first ("ambient techno" -> techno, ambient; "mainstage" \
 -> edm, electronic; "oldies" -> oldies, + pop only if it fits).
 2. Use a list genre only for the same genre or its spelling variant / synonym \
@@ -109,7 +109,7 @@ music | film | stage) instead of forcing a list genre.
 5. Genres also for film and theatre.
 6. Umbrella genres of the scene are allowed (latin, afro). Do not add a parent genre next to its subgenre when the subgenre's name contains it ("doom-metal", not "doom-metal, metal"); a different parent stays only when it is supported (trap + hip-hop).
 7. Never give "alternative" as a genre. Give "rock" only for rock that is not more specific; a specific subgenre wins ("dad rock" -> classic-rock).
-8. Culture: the subtype (film, theatre, dance, stand-up) is the umbrella; no stage genre "comedy", "stand-up" or "performance"."""
+8. Culture: the subtype (film, theatre, dance, talk, stand-up) is the umbrella; no stage genre "comedy", "stand-up" or "performance"."""
 
 # docs/ai-rules.md D, E
 RULES_PRICE_TIME = """\

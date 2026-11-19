@@ -1,5 +1,5 @@
 {
- "_comment": "Approved mappings raw genre -> our genre (or list, main first). Only synonyms and spelling variants (Matej 2026-11-17, docs/ai-rules.md C); spelling variants like 'drum and bass', 'dream pop' are matched automatically (pipeline/genres.py). Task 065 (Matej 2026-11-17): psytrance and reggaeton are own genres; 'doom' alone is never mapped (string band Freshwater Dogs).",
+ "_comment": "Approved mappings raw genre -> our genre (or list, main first). Only synonyms and spelling variants (Matej 2026-11-17, docs/ai-rules.md C); spelling variants like 'drum and bass', 'dream pop' are matched automatically (pipeline/genres.py). Task 065 (Matej 2026-11-17): psytrance and reggaeton are own genres; 'doom' alone is never mapped (string band Freshwater Dogs). Task 078 (Matej 2026-11-19): talk genres only from phrases, never 'slam' alone; they apply only to events with the talk format (ai-rules C10).",
  "rap": "hip-hop",
  "hiphop": "hip-hop",
  "d&b": "drum-and-bass",
@@ -58,5 +58,20 @@
  ],
  "glitch pop": "pop",
  "šanson": "chanson",
- "současný tanec": "contemporary-dance"
+ "současný tanec": "contemporary-dance",
+ "slam poetry": "slam-poetry",
+ "poetry slam": "slam-poetry",
+ "autorské čtení": "reading",
+ "autorské čítanie": "reading",
+ "čtení": "reading",
+ "křest knihy": "book-launch",
+ "krst knihy": "book-launch",
+ "book launch": "book-launch",
+ "přednáška": "lecture",
+ "prednáška": "lecture",
+ "lecture": "lecture",
+ "diskuse": "discussion",
+ "diskusia": "discussion",
+ "debata": "discussion",
+ "panel": "discussion"
 }

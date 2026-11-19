@@ -51,7 +51,8 @@ from pipeline.ai_rules import (DECIDE_PROMPT, RESEARCH_PROMPT, RESEARCH_RETRY, R
                                TRANSLATE_PROMPT)
 from pipeline.ai_guards import (genre_supported, price_supported, strip_names, strip_no_info,
                                 venue_mentions)
-from pipeline.genres import FILM_GENRES, STAGE_GENRES, finalize_genres, map_genre
+from pipeline.genres import (FILM_GENRES, STAGE_GENRES, TALK_GENRES, finalize_genres, map_genre,
+                             talk_genres_from_text)
 from pipeline.price import parse_price
 
 log = logging.getLogger(__name__)
@@ -289,6 +290,12 @@ def genres_from_raw(raw_genres: list, raw_cands: list, genre_facts: dict | None,
             # Company & PAST) may also carry music genres
             mapped = map_genre(rawname, "music", aliases)
             kind = "music" if mapped else kind
+        if mapped and set(mapped) <= TALK_GENRES:
+            # task 078 (ai-rules C10): talk genres come only from phrases in the
+            # event text / research (apply_talk_genres), never from the model
+            dropped.append(f"genre {rawname.lower()}: talk genre only from text")
+            return
+        mapped = [g for g in mapped if g not in TALK_GENRES]
         if kind in (own_kind, "music") and mapped and (own_kind or kind == "music"):
             for g in mapped:
                 raw_of.setdefault(g, []).append(rawname.lower())
@@ -1116,6 +1123,40 @@ def fill_primary_from_research(events: list[dict], research: dict | None) -> int
     return n
 
 
+def apply_talk_genres(events: list[dict], research: dict | None,
+                      aliases: dict | None) -> list[str]:
+    """Task 078 (ai-rules C10): talk genres from approved phrases in the
+    title, description and the stored research facts (no API call), only for
+    events with the `talk` format; other events lose them.  Manual genres stay.
+    Talk genres go first when talk is the primary format.  Changes events in
+    place; returns the ids of changed events."""
+    changed = []
+    for ev in events:
+        enr = ev.get("enrichment") or {}
+        if (enr.get("genres") or {}).get("by") == "manual":
+            continue
+        old = list(ev.get("genres") or [])
+        rest = [g for g in old if g not in TALK_GENRES]
+        found = []
+        if "talk" in (ev.get("formats") or []):
+            rec = (research or {}).get(ev["id"]) or {}
+            found = talk_genres_from_text([ev.get("title"), ev.get("description"),
+                                           rec.get("facts")], aliases)
+        new = found + rest if ev.get("primary_format") == "talk" else rest + found
+        if new == old:
+            continue
+        ev["genres"] = new
+        if found and "genres" not in enr and not old:
+            f = enr.get("formats") or {}
+            ev.setdefault("enrichment", {})["genres"] = _prov(
+                f.get("by", "ai_text"), f.get("model"), f.get("checked_at"),
+                source_url=f.get("source_url"), confidence=f.get("confidence"))
+        elif not new and "genres" in enr:
+            enr.pop("genres")
+        changed.append(ev["id"])
+    return changed
+
+
 def apply_enrichment(ev: dict, enr: dict, vals: dict, stats: dict | None = None,
                      keep_genres: bool | None = None) -> dict:
     """Apply AI values to empty fields only; source values win (their
@@ -1503,6 +1544,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
         log.warning("%s", w)
     out = [out_by_id.get(e["id"], e) for e in events]
     stats["primary_from_research"] = fill_primary_from_research(out, research)
+    stats["talk_genres"] = apply_talk_genres(out, research, aliases)
+    log.info("enrich_ai: talk genres (task 078) changed on %d events", len(stats["talk_genres"]))
     log.info("enrich_ai: window=%d cached=%d enriched=%d errors=%d searches=%d month=%s/%d cost=$%.4f",
              stats["window"], stats["cached"], stats["enriched"], stats["errors"],
              stats["searches"], stats.get("month_searches"), month_limit, stats["cost_usd"])
