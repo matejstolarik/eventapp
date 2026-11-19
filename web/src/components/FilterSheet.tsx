@@ -78,6 +78,85 @@ function Section({ title, right, children }: { title: string; right?: React.Reac
   )
 }
 
+const HELP_ORDER: FilterType[] = ['concert', 'dj', 'party', 'culture']
+
+/** "?" next to TYP AKCIE (task 077): outline circle, #8E8AA6, text-sized, 44 px tap area. */
+function HelpButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} aria-label={label} data-testid="filter-type-help" style={{
+      width: 44, height: 44, margin: '-15px 0 -15px -8px', padding: 0, border: 0, background: 'transparent',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', alignSelf: 'center',
+    }}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2.2"
+        strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+        <path d="M12 17h.01" />
+      </svg>
+    </button>
+  )
+}
+
+/** Card explaining the event types, above the filter panel (task 077). */
+function TypeHelpCard({ lang, reduced, closing, onDismiss }: {
+  lang: Language; reduced: boolean; closing: boolean; onDismiss: () => void
+}) {
+  const t = getDict(lang).filter
+  const [shown, setShown] = useState(reduced)
+  useEffect(() => {
+    if (reduced) return
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)))
+    return () => cancelAnimationFrame(id)
+  }, [reduced])
+  const open = shown && !closing
+  const tr = (p: string) => reduced ? 'none' : `${p} ${ANIM_MS}ms cubic-bezier(.2,.8,.2,1)`
+  return (
+    <>
+      <div onClick={onDismiss} style={{
+        position: 'fixed', inset: 0, zIndex: 103, background: 'rgba(8,8,12,0.5)',
+        opacity: open ? 1 : 0, transition: tr('opacity'),
+      }} />
+      <div role="dialog" aria-label={t.typeHelpLabel} data-testid="filter-type-help-card" style={{
+        position: 'fixed', left: 16, right: 16, top: '50%', zIndex: 104, maxWidth: 420, margin: '0 auto',
+        maxHeight: 'calc(100% - 48px)', overflowY: 'auto', boxSizing: 'border-box',
+        background: '#1C1C27', border: '1px solid #2E2D3C', borderRadius: 16,
+        padding: '14px 16px 16px', fontFamily: "'Outfit', sans-serif", color: '#F4F2FF',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+        opacity: open ? 1 : 0,
+        transform: open ? 'translate3d(0, -50%, 0) scale(1)' : 'translate3d(0, calc(-50% + 12px), 0) scale(0.97)',
+        transition: reduced ? 'none' : `${tr('opacity')}, ${tr('transform')}`,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '-8px -10px -6px 0' }}>
+          <button onClick={onDismiss} aria-label={t.typeHelpClose} data-testid="filter-type-help-close" style={{
+            width: 44, height: 44, padding: 0, border: 0, background: 'transparent', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8E8AA6" strokeWidth="2"
+              strokeLinecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {HELP_ORDER.map(type => (
+            <div key={type} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{
+                width: 32, height: 32, borderRadius: 16, border: `1.5px solid ${EVENT_TYPE_COLOR[type]}`, boxSizing: 'border-box',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+              }}>
+                <Icon k={TYPE_ICON[type]} color={EVENT_TYPE_COLOR[type]} bg="#1C1C27" />
+              </span>
+              <p style={{ margin: 0, fontSize: 14, lineHeight: 1.4, color: '#E4E2EE' }}>
+                <b style={{ fontWeight: 700, color: EVENT_TYPE_COLOR[type] }}>{t.types[type]}</b>
+                <br />{t.typeHelp[type]}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p style={{ margin: '16px 0 0', fontSize: 13, lineHeight: 1.4, fontStyle: 'italic', color: '#8E8AA6' }}>{t.typeHelpNote}</p>
+      </div>
+    </>
+  )
+}
+
 export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onChange, onClose }: Props) {
   const dict = getDict(lang)
   const t = dict.filter
@@ -88,6 +167,10 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
   const [dragging, setDragging] = useState(false)
   const [genresExpanded, setGenresExpanded] = useState(false)
   const historyPushedRef = useRef(false)
+  const [helpVisible, setHelpVisible] = useState(false)
+  const [helpClosing, setHelpClosing] = useState(false)
+  const helpPushedRef = useRef(false)
+  const ignorePopRef = useRef(false)
   const closedRef = useRef(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ startY: number; active: boolean; fromHeader: boolean } | null>(null)
@@ -151,11 +234,33 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
       historyPushedRef.current = true
     }
     function onPopState() {
+      if (ignorePopRef.current) { ignorePopRef.current = false; return }
+      // Back with the type help card open closes only the card (task 077)
+      if (helpPushedRef.current) { helpPushedRef.current = false; hideHelp(); return }
       if (historyPushedRef.current) { historyPushedRef.current = false; finishClose() }
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function openHelp() {
+    if (helpVisible) return
+    history.pushState({ filterTypeHelp: true }, '')
+    helpPushedRef.current = true
+    setHelpClosing(false)
+    setHelpVisible(true)
+  }
+
+  function hideHelp() {
+    setHelpClosing(true)
+    setTimeout(() => { setHelpVisible(false); setHelpClosing(false) }, reduced ? 0 : ANIM_MS)
+  }
+
+  function dismissHelp() {
+    if (helpClosing) return
+    if (helpPushedRef.current) { helpPushedRef.current = false; ignorePopRef.current = true; history.back() }
+    hideHelp()
+  }
 
   function requestClose() {
     if (historyPushedRef.current) { historyPushedRef.current = false; history.back() }
@@ -252,7 +357,7 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
             WebkitOverflowScrolling: 'touch', padding: '0 16px 8px',
             display: 'flex', flexDirection: 'column', gap: 22,
           }}>
-          <Section title={t.type}>
+          <Section title={t.type} right={<HelpButton label={t.typeHelpLabel} onClick={openHelp} />}>
             {FILTER_TYPES.map(typeChip)}
             {filter.types.includes('culture') && (
               <div data-testid="filter-subtypes" style={{
@@ -341,6 +446,7 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
           }}>{mode === 'venues' ? t.showVenues(counts.total) : t.showEvents(counts.total)}</button>
         </div>
       </section>
+      {helpVisible && <TypeHelpCard lang={lang} reduced={reduced} closing={helpClosing} onDismiss={dismissHelp} />}
     </>,
     document.body,
   )

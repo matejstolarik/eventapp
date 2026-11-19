@@ -46,6 +46,16 @@ describe('genre hierarchy', () => {
   it('culture subtype umbrellas (film, theatre, dance) are not genre chips', () => {
     expect(eventUmbrellas(ev('a', { genres: ['drama', 'horror'] }), H)).toEqual([])
   })
+  it('punk chip includes post-punk and post-hardcore (task 077, real hierarchy)', () => {
+    expect(GENRE_HIERARCHY['post-punk']).toEqual(['alternative', 'punk'])
+    expect(GENRE_HIERARCHY['post-hardcore']).toEqual(['alternative', 'punk'])
+    const iceage = ev('iceage', { formats: ['concert'], genres: ['post-punk'] })
+    const ph = ev('ph', { formats: ['concert'], genres: ['post-hardcore'] })
+    const g = f({ types: ['concert'], genres: ['punk'] })
+    expect(matchesFilter(iceage, v1, g, GENRE_HIERARCHY)).toBe(true)
+    expect(matchesFilter(ph, v1, g, GENRE_HIERARCHY)).toBe(true)
+    expect(matchesFilter(iceage, v1, f({ genres: ['alternative'] }), GENRE_HIERARCHY)).toBe(true)
+  })
   it('loads data/genre_hierarchy.json without the comment key', () => {
     expect(GENRE_HIERARCHY['hard-techno']).toEqual(['techno'])
     expect(GENRE_HIERARCHY['_comment']).toBeUndefined()

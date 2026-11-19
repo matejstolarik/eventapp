@@ -39,6 +39,7 @@ def test_alias_targets_are_list_genres():
     ("grunge", ["rock", "alternative"]), ("indie", ["alternative"]), ("doom-metal", ["metal"]),
     ("psytrance", ["trance"]), ("reggaeton", ["latin"]), ("neo-soul", ["soul"]),
     ("drama", ["film", "theatre"]), ("ballet", ["dance"]), ("cult-classic", ["film"]),
+    ("post-punk", ["alternative", "punk"]), ("post-hardcore", ["alternative", "punk"]),  # task 077
 ])
 def test_hierarchy_examples(genre, parents):
     assert HIER[genre] == parents
@@ -85,6 +86,8 @@ def test_slug_strips_diacritics():
     (["alternative-rock", "rock"], ["alternative-rock"]),
     (["metalcore", "metal"], ["metalcore"]),               # task 066: metalcore -> metal
     (["jungle", "drum-and-bass"], ["jungle", "drum-and-bass"]),  # parent name not contained
+    (["punk", "post-punk"], ["post-punk"]),                # task 077: post-punk -> punk
+    (["post-hardcore", "punk"], ["post-hardcore", "punk"]),  # "punk" not in the name
 ])
 def test_c7_contained_parent_removed(genres, expected):
     assert drop_contained_parents(genres, HIER) == expected

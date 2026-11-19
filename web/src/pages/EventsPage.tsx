@@ -366,7 +366,6 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     : fDict.emptyPeriod
 
   function countRowText(): string {
-    if (period.type === 'anytime') return ''
     const base = eventCount(events.length, dict)
     if (forYouActive) return `${base} ${dict.events.forYouInCount}`
     if (hasFavorites && forYouCountInDisplay > 0) return joinDot([base, `${forYouCountInDisplay} ${dict.events.forYouInCount}`])
