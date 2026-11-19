@@ -20,7 +20,9 @@ Kontext: pole `capacity` už existuje (úlohy 013, 019; „len overené číslo�
 - Poradie: `capacity` podniku **zostupne**; pri rovnakej kapacite podľa dátumu a času začiatku (ako zoradenie podľa času); podniky s `capacity = null` **na konci**, medzi sebou podľa času.
 - Bez nadpisov a bez zobrazenia čísla kapacity v riadku. Voľba sa pamätá ako ostatné zoradenia.
 
-### 3. Najviac 4 štítky bez rozplynutia aj na karte na mape a v programe podniku
+### 3. ~~Najviac 4 štítky bez rozplynutia aj na karte na mape a v programe podniku~~
+> **ZRUŠENÉ – NEROBIŤ (Matej 2026-11-19 01:29).** Hlavný chat si zle vyložil Matejovo „jo“. Karta na mape a program podniku ostávajú bez zmeny.
+
 - Matej 01:27 („jo“ na otázku zo 072): pravidlo z 072 pre riadok Akcií (najviac 4 pilulky vrátane ikony typu, bez rozplynutia, nezmestený štítok sa nezobrazí) platí aj na **karte na mape** a v **programe podniku**. Použi to isté riešenie ako v 072 (`BadgeTagRow` alebo jeho logiku); vzhľad štítkov v programe podniku (farby, veľkosť) bez zmeny.
 
 ### 4. Pipeline
@@ -28,5 +30,5 @@ Kontext: pole `capacity` už existuje (úlohy 013, 019; „len overené číslo�
 
 ## Overenie a report
 - `npm test` (test zoradenia: rôzne kapacity, rovnaká kapacita → čas, `null` na konci), `npm run build`, `pytest -q`; číslo behu a nasadenia.
-- Snímky JPEG 390 × 844 do `docs/tasks/073/`: `akcie-velkost.jpg` (obdobie Najbližších 7 dní, zoradenie veľkosť), `zoradit-ponuka.jpg` (otvorená ponuka s tromi položkami), `mapa-karta.jpg`, `program-podniku.jpg`.
+- Snímky JPEG 390 × 844 do `docs/tasks/073/`: `akcie-velkost.jpg` (obdobie Najbližších 7 dní, zoradenie veľkosť), `zoradit-ponuka.jpg` (otvorená ponuka s tromi položkami).
 - Report: zmenené kapacity so zdrojmi, čo sa našlo na oficiálnych weboch, otvorené body.
