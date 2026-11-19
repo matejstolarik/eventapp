@@ -209,6 +209,18 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
   - **Kalendár na Androide:** najprv systémové „pridať udalosť“ (výber kalendárnej appky v telefóne); ak sa nič neotvorí, stiahne sa `.ics`. Odkaz na calendar.google.com sa nepoužíva (v PWA otvára web).
 
 ## 7b. Filter (`09-filter.png`, Matej 2026-11-10)
+**Zmena 2026-11-19 (Matej, úloha 075) – platí pred zvyškom tejto časti, kde sa líši; kresba `09-filter.png` je základ, rozdiely sú len tieto:**
+- **Poradie sekcií:** Typ akcie → (podtypy kultúry) → Žáner → Charakter miesta → Veľkosť miesta → Cena. Sekcie s rovnakým vzhľadom čipov ako na kresbe.
+- **Podtypy kultúry:** keď je **Kultúra zapnutá**, pod riadkom typov sa ukáže tmavší blok (`#22212F`, zaoblenie 14) s čipmi podtypov `film`, `theatre`, `talk`, `workshop`, `quiz`, `opening`, `dance`, `stand-up` – neutrálne čipy, vľavo naša ikona podtypu vo farbe kultúry (`#C6F432`; v zapnutom čipe tmavá), s počtom ako ostatné. **Nič nevybraté = celá kultúra**; vybraté podtypy = len tie (ALEBO). Keď je Kultúra vypnutá, blok zmizne a voľby podtypov sa pamätajú. Podtypy sa počítajú do odznaku ako štítky.
+- **Žáner = len zastrešujúce žánre** (rodičia podľa `data/genre_hierarchy.json`; žáner bez rodiča je sám sebe zastrešením). Čip rodiča zahŕňa všetky jeho podžánre (počet aj výsledok). Podžánre sa vo filtri nezobrazujú ani nerozbaľujú (konkrétny žáner je na akcii a nájde sa hľadaním). Rovnaký názov naprieč druhmi (napr. `drama` pre film aj divadlo) = jeden čip. **Ukazujú sa len žánre, ktoré majú akcie zapnutých typov** (pri vypnutej hudbe nie hudobné). 12 najčastejších + „Všetky (N) ›“ ako na kresbe.
+- **Charakter miesta** a **Veľkosť miesta** (malé / stredné / veľké) = **dve samostatné sekcie**. Typ miesta sa nerobí.
+- **Cena:** jeden čip **zadarmo** (akcia s `free = true`, t. j. zdroj výslovne uvádza vstup zdarma; akcia bez ceny nie je zadarmo). Cenový interval nie (málo cien).
+- **Typy ostávajú ako 2026-11-10:** predvolene všetky zapnuté, používateľ vypína (Matej 2026-11-19 potvrdil; „prvý ťuk vyberie len tento typ“ zamietnuté ako neintuitívne).
+- **Filter sa pamätá aj po zatvorení appky** (lokálne úložisko), kým ho používateľ nezmení alebo nezruší.
+- **Pin na mape podľa filtra:** pin miesta má ikonu a farbu podľa akcií, ktoré prešli filtrom (napr. vypnutý Koncert → pin podniku s koncertom aj DJ večerom ukáže DJ).
+- **Pohyb:** panel **plynulo vyjde zdola a zíde dole** (krátko, ~200–250 ms, bez trhania; pri `prefers-reduced-motion` okamžite). Obsah panela sa posúva plynulo prstom (natívny posun, bez zasekávania pri desiatkach čipov), tlačidlo „Zobraziť N“ ostáva dole viditeľné.
+- **Do filtra nepatrí:** Obľúbené (mapa), Pre teba a Nové (Akcie), deň/obdobie, hľadanie, zoradenie – majú vlastné ovládanie. Pre teba a preferencie („Čo máš rád“) sa robia s onboardingom; filter má vždy prednosť pred Pre teba.
+
 - Panel zdola (výška ~85 % obrazovky, `#1C1C27`, zaoblenie hore 28), nad stmavenou mapou/zoznamom. Nadpis **Filter**, vpravo „Zrušiť všetko“. Obsah sa posúva, tlačidlo dole je stále viditeľné.
 - **Typ akcie:** Koncert, Párty, DJ, Kultúra ako čipy s ikonou typu; zapnutý = plná farba typu, vypnutý = farebný obrys a farebná ikona. **Slúži zároveň ako legenda farieb.**
 - **Žáner:** 12 najčastejších + „Všetky (N) ›“ rozbalí ostatné. **Charakter miesta**, **Veľkosť miesta** (Malé / Stredné / Veľké).
