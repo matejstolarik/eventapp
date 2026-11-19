@@ -37,3 +37,34 @@
 - `pytest -q`, `npm test`, `npm run build`; číslo behu.
 - Z publikovaného `events.json`: koľko akcií má `post-punk`/`post-hardcore`, koľko stratilo štítok `punk` (príkaz uveď), či Iceage prejde filtrom koncert + punk (test alebo výpočet).
 - Snímky JPEG 390 × 844 do `docs/tasks/077/`: `akcie-kedykolvek.jpg` (riadok s počtom), `filter-typy-help.jpg` (otvorená karta vysvetlenia, slovenčina).
+
+## Report
+
+**2026-11-19**, commit `cb65843` (hierarchia, appka, testy, rozhodnutie), report a snímky v nasledujúcom commite. Pipeline **Daily pipeline #53** (run 44521929731): **success**, `events.json` vygenerovaný 2026-11-19 13:22:46; appka nasadená **Deploy web app #51** (success, `cb65843`).
+
+### Hotové
+1. **Hierarchia** (`data/genre_hierarchy.json`): `post-punk` a `post-hardcore` → `alternative` + `punk`. `hardcore`, `grindcore` bez zmeny.
+   - C7 (`drop_contained_parents`) odstráni `punk` **len pri `post-punk`** (`punk` je v názve). Pri `post-hardcore` sa `punk` ponechá – `punk` nie je podreťazec `post-hardcore` (pravidlo je podľa názvu, rovnako `trap` + `hip-hop`). Testy v `tests/test_genres_065.py`.
+   - Filter: čip `punk` nájde `post-punk` aj `post-hardcore` (test v `filter.test.ts` so skutočnou hierarchiou, akcia ako Iceage: koncert + `post-punk` prejde filtrom koncert + punk).
+2. **Počet pri Kedykoľvek** (`EventsPage.tsx` `countRowText`): riadok pod lištou ukazuje počet pri každom období (snímka: „368 akcií“; 4 z 372 akcií sú v čase snímky 19. 11. 17:00 už minulé). Pre teba bez zmeny.
+3. **Vysvetlenie typov** (`FilterSheet.tsx`, kľúče `typeHelpLabel`, `typeHelpClose`, `typeHelp`, `typeHelpNote` v `i18n/sk|cs|en.ts`): „?“ (obrys kruhu `#8E8AA6`, 14 px, ťukacia plocha 44 × 44 – overené Playwrightom) vedľa TYP AKCIE; karta nad panelom s ikonou a farbou typu, názvom tučne, textom a vetou dole kurzívou. Zatvorí ťuk mimo, krížik, systémové Späť (zatvorí len kartu, Filter ostane; ďalšie Späť zavrie Filter). 220 ms ako panel, `prefers-reduced-motion` okamžite. Texty presne podľa zadania.
+
+### Rozhodnutia (samostatne, v `docs/decisions.md`)
+- Vzhľad karty nad rámec zadania: v strede obrazovky, `#1C1C27` s obrysom `#2E2D3C`, zaoblenie 16, stmavenie pozadia, ikona typu v obryse kruhu farby typu, názov farbou typu; poradie Koncert, DJ, Párty, Kultúra ako v tabuľke zadania.
+- `punk` pri `post-hardcore` ostáva (vyplýva z C7, viď vyššie).
+
+### Čísla (z publikovaného `events.json` behu #53)
+Príkaz: `python count077.py after.json before.json` (scratchpad skript; `after.json` = `curl https://matejstolarik.github.io/eventapp/events.json` po behu #53, `before.json` = to isté pred behom, beh z 076):
+- akcií 372; `post-punk` **10**, `post-hardcore` **1**.
+- štítok `punk` stratila **1** akcia: `palac-akropolis-2026-11-26-divo-institute-the-wilderness-sk-dalsi` (pred: `punk, blues, rock, techno, post-punk, shoegaze, experimental`, po: bez `punk`). Žiadna akcia už nemá `punk` + `post-punk`.
+- Iceage (`Live Nation: Iceage`, formats `concert`, genres `indie, post-punk`): rodičia vedú k `punk` → prejde filtrom koncert + punk (výpočet v skripte + test).
+
+### Overenie
+- `pytest -q`: **654 passed**. `npm test`: **241 passed** (15 súborov). `npm run build`: OK.
+- Playwright `tests/playwright/screenshots-077.spec.ts` (dáta z Pages po behu #53, čas 19. 11. 17:00, z `web/` s `NODE_PATH=web/node_modules`): 2 passed – počet pri Kedykoľvek, texty karty, plocha „?“ ≥ 44 px, Späť/krížik/ťuk mimo.
+- Snímky (JPEG 390 × 844) v `docs/tasks/077/`: `akcie-kedykolvek.jpg`, `filter-typy-help.jpg` (neprezerané – pravidlo kreditov).
+- Na Pages bundle `assets/index-P5KQJcqZ.js` obsahuje `filter-type-help-card`, „kvôli čomu tam ľudia idú“ a `"post-punk":["alternative","punk"]` (overené `curl`).
+
+### Otvorené
+- Vzhľad karty (rozhodnutie vyššie) na potvrdenie Matejom podľa snímky.
+- Plynulosť animácie na telefóne neoverená.
