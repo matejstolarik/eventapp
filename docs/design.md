@@ -19,6 +19,8 @@ Texty na snímkach sú po slovensky. Appka je primárne v češtine (SK a EN ako
 - **Spodná lišta je vždy viditeľná:** plávajúci tmavý pás (`#1C1C27`, výška 72, zaoblenie 36, 16 px od okrajov, 28 px od spodku). Aktívna záložka je ružová pilulka s ikonou a názvom, ostatné len sivé ikony. Záložky: **Mapa** (otvorí sa ako prvá), **Akcie**, **Miesta**, **Môj účet** (ikona osoby; vo v1 tam je zoznam „Idem“ a nastavenia).
 - **Aktualizácia appky** (task 055): appka hľadá novú verziu pri štarte, pri návrate do appky a každú hodinu. Keď je nová verzia, nad spodnou lištou (12 px nad ňou, 16 px od okrajov; nad obsahom a ovládaním mapy, pod panelmi zdola – pri otvorenom paneli akcie na mape sa neukazuje, ani na stránke akcie/miesta) je tmavá karta ako toast (`#2A2838`, zaoblenie 20): text „Je dostupná nová verzia“ (CZ „Je dostupná nová verze“, EN „A new version is available“), vpravo ružové tlačidlo „Aktualizovať“ (CZ „Aktualizovat“, EN „Update“; `#FF4D8D`, text `#1A0710`) a malý sivý krížik. Ťuk na tlačidlo → appka sa obnoví v novej verzii (stav ako po novom otvorení). Zavretá karta sa znova ukáže pri ďalšom návrate do appky, kým sa neaktualizuje. Testovací prepínač `?dbg=update` kartu ukáže bez novej verzie.
 
+- **Zmena 2026-11-19 (Matej, úloha 079): poradie záložiek Akcie, Mapa, Miesta, Môj účet; appka sa otvorí v Akciách** (nahrádza „Mapa otvorí sa ako prvá“). Poloha sa pýta pri prvom otvorení mapy.
+
 ### Farby
 | Účel | Farba | Tmavá dvojica (text/ikona na farbe) |
 |---|---|---|
@@ -116,6 +118,8 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - **Predvolene Dnes**; appka si pamätá naposledy vybrané obdobie (lokálne).
 
 **Pre teba:** akcia v obľúbenom mieste alebo so žánrom/štítkom z preferencií používateľa (preferencie zatiaľ nie sú, dovtedy len obľúbené miesta). Vypnuté = všetky akcie, akcie pre teba majú na obrázku odznak **pre teba**. Zapnuté = len akcie pre teba.
+
+**Zmena 2026-11-19 (Matej, úloha 079) – nové pravidlo Pre teba (nahrádza „obľúbené miesto = pre teba“):** preferencie = obľúbené miesta (srdiečka), typy (koncert, DJ, párty, kultúra + podtypy kultúry), zastrešujúce hudobné žánre (najviac 5). Akcia je pre teba, keď: (1) **typ sedí vždy** – ak má používateľ vybraté typy a typ akcie medzi nimi nie je, akcia pre teba nie je (ani v obľúbenom mieste); bez vybratých typov sa typ nekontroluje; (2) **hudba** (koncert, DJ, párty): obľúbené miesto **alebo** zastrešujúci žáner akcie medzi obľúbenými žánrami; (3) **kultúra:** podtyp akcie medzi vybratými podtypmi; kultúra bez vybratého podtypu → kultúrna akcia v obľúbenom mieste; (4) bez akýchkoľvek preferencií nie je pre teba nič. Zapínač Obľúbené (mapa) ďalej ukazuje všetko z obľúbených miest. Pre teba samo nič neskrýva (len odznak), pri zapnutom čipe ukáže len akcie pre teba; filter má prednosť.
 **Nové:** akcia s `first_seen` za posledných 7 dní. Na obrázku biely odznak **new** (vždy anglicky); zapnutý čip ukáže len nové.
 
 **Zoradenie** sa vyberá **malou ponukou priamo pod „Zoradiť“** (dve položky, rýchly výber, nie panel zdola; **ťuk na položku ponuku hneď zavrie**; Späť ju zatvorí; Matej 2026-11-16 večer): **dátum** (predvolené; pri jednodňovom období – Dnes, Zajtra, Iný dátum s jedným dňom – sa volá **čas**, radí sa rovnako podľa dátumu a času začiatku) a **vzdialenosť**. **Bez nadpisov dní** pri akomkoľvek období a zoradení: mriežka ide súvisle bez medzier v riadkoch, dátum nesie každá karta (Matej 2026-11-15). Cena príde po doplnení cien v dátach.
@@ -239,6 +243,21 @@ Jeden zoznam akcií (mriežka) a nad ním filtre, ktoré sa dajú ľubovoľne ko
 - **Odznak na tlačidle Filter** = počet zapnutých štítkov (žáner, charakter, veľkosť) + 1, ak sú niektoré typy vypnuté. Predvolený stav (všetky typy, žiadne štítky) = bez odznaku. „Zrušiť všetko“ vráti predvolený stav.
 - **Poradie čipov:** Typ akcie má pevné poradie (legenda). **Žáner a Charakter** zoradené podľa počtu výsledkov (najviac prvé, 0 na koniec). Poradie sa určí **pri otvorení panela** a počas klikania sa nemení (čipy neskáču pod prstom); zapnuté čipy ostávajú tam, kde sú. Do 12 viditeľných žánrov sa berú tie s najväčším počtom.
 - Dole ružové tlačidlo **„Zobraziť N akcií“** (na mape „Zobraziť N miest“). Počet aktívnych filtrov ako odznak na tlačidle Filter v lište.
+
+## 7c. Onboarding a preferencie (Matej 2026-11-19, úloha 079; návrh v chate, kresba nie je v `docs/design/`)
+
+Len pri **novej inštalácii** (nie pre existujúcich používateľov). Cieľ: nastaviť Pre teba a na konci vysvetliť rozdiel Pre teba vs. Filter. **Žiadne ultimátne vety** („bez toho nebude fungovať“) – motivovať tým, čo z toho používateľ má. Štýl appky (tmavé pozadie, Bricolage nadpisy, Outfit text, ružová farba appky na hlavné tlačidlo a výber). Obrazovky kompaktné, bez veľkých prázdnych plôch.
+
+1. **Uvítanie (vycentrované):** rad štyroch kruhov s ikonami typov vo farbách typov, nadpis „Kam dnes večer?“, pod ním dve vety, dole ružové „Začať“ a pod ním sivé „Preskočiť“ (s potvrdením).
+2. **Miesta:** hore bodky postupu (3 kroky výberu) v strede, vpravo „Preskočiť“; nadpis + podnadpis; biele pole hľadania „Hľadať miesto“; kompaktný zoznam miest abecedne (riadok ~40 px: malý obrázok miesta, názov, srdiečko vpravo – ružové vybraté, sivé nevybraté; srdiečko = obľúbené miesto v appke). Dole „Ďalej“.
+3. **Typy:** karty Koncert, DJ, Párty, Kultúra pod sebou (ikona typu vo farbe typu, názov, vysvetlenie z karty typov vo Filtri, krúžok výberu vpravo; vybratá karta ružový obrys). **Kultúra nemá vysvetlenie; ťuk ju vyberie a plynulo rozbalí čipy podtypov** (~250 ms, výška + priehľadnosť; `prefers-reduced-motion` bez animácie); druhý ťuk na kartu ju zruší a zbalí.
+4. **Žánre:** len ak je vybratý koncert, DJ alebo párty (inak sa krok preskočí). Nadpis vľavo, **počítadlo „n/5“ ako odznak vpravo na riadku nadpisu** (sivý pri 0, ružový od 1), podnadpis; čipy zastrešujúcich hudobných žánrov (štítky po anglicky), ktoré majú aspoň jednu akciu, zoradené podľa počtu akcií; po 5 vybratých sú ostatné stlmené a nedajú sa vybrať.
+5. **Koniec:** nadpis „Hotovo“, dve tmavé karty: (a) skutočný čip ✦ Pre teba + malá abstraktná ukážka zoznamu, kde niektoré riadky majú iskru a žiadny nezmizne, pod tým veta o Pre teba; (b) skutočné tlačidlo Filtra + ukážka, ako sa zoznam zúži (4 riadky → 2), pod tým veta o Filtri; sivá veta o Môj účet; ružové tlačidlo → Akcie (Dnes).
+
+Prechod medzi krokmi: posun do strany ~200 ms. Späť = predošlý krok; na uvítaní ako „Preskočiť“. „Preskočiť“ v kroku 2–4 preskočí len ten krok (bez otázky). „Preskočiť“ na uvítaní ukáže potvrdenie (panel/dialóg v štýle appky); po potvrdení krátky toast s odkazom na Môj účet.
+
+**Môj účet → „Tvoje preferencie“:** riadok, ktorý otvorí obrazovku s rovnakými tromi výbermi (miesta, typy s rozbaľovacou kultúrou, žánre s limitom 5) pod sebou; ukladá sa hneď.
+**Pre teba bez preferencií:** ťuk na čip Pre teba, keď používateľ nemá žiadne obľúbené miesto, typ ani žáner → čip sa nezapne, ukáže sa karta ako pri aktualizácii (`#2A2838`, nad lištou) s textom a ružovým tlačidlom „Nastaviť“ → Tvoje preferencie.
 
 ## 8. Čo nie je nakreslené (navrhni v rovnakom štýle a ukáž Matejovi)
 Výber dňa a kalendár (urobené v 028/029 bez kresby), Môj účet / zoznam Idem, onboarding, prázdne stavy (žiadne akcie v deň, žiadne obľúbené), načítavanie a offline.
