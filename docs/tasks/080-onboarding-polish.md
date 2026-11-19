@@ -46,3 +46,29 @@ Ostatné texty z 079 bez zmeny.
 ## Overenie a report
 - `npm test -- --reporter=dot` (trasenie/neprechod pri prázdnom výbere, Pre teba bez preferencií = prázdny stav so správou, poradie sekcií), `npm run build`; nasadenie `deploy-app` (číslo behu). Dáta sa nemenia.
 - Snímky JPEG 390 × 844 (Playwright, skript z 079) do `docs/tasks/080/`: `onb-1-welcome.jpg`, `onb-2-places.jpg`, `onb-3-types-deselected.jpg` (DJ a kultúra vybraté a znova zrušené – bez čiar), `onb-5-done.jpg`, `onb-skip-confirm.jpg`, `events-for-you-empty.jpg` (bez preferencií, Pre teba zapnuté), `preferences.jpg` (hore s fajkou).
+
+## Report
+
+**2026-11-19**, commit `4de9449` (appka, testy, Playwright skript, snímky, decisions), report v nasledujúcom commite. Mení len appku → pipeline sa nespúšťal, dáta bez zmeny. Nasadenie **Deploy web app #54** (run 44558906987): **success**, `4de9449`; na Pages je balík `assets/index-Dp3OXJOl.js` (obsahuje „Preferencie akcií“, „Označ svoje obľúbené“, `for-you-setup`, `onbShake`).
+
+### Hotové
+1. **Texty** (sk, cs, en) presne podľa tabuľky: uvítanie, potvrdenie preskočenia, podnadpis miest, „Preferencie akcií“ (riadok v Môj účet aj nadpis stránky), toast po preskočení. Toast po uložení nie je (zrušený).
+2. **Ďalej bez výberu** (miesta, typy, žánre): tlačidlo sa zatrasie 300 ms do strán, `navigator.vibrate(30)` (v `try`, bez chyby, keď nie je); krok sa nemení. `prefers-reduced-motion`: len vibrácia. Logika `stepHasPick` v `core/preferences.ts`.
+3. **Ružové zvyšky:** obrys karty typu je vnútorný `box-shadow` na vlastnej vrstve namiesto 1,5 px `border`; zbalené podtypy `visibility: hidden`; tlačidlá kariet, čipov a srdiečok bez `outline` a tap highlight. Test: po vybratí a zrušení DJ a kultúry je obrys rovnaký ako pri nikdy nevybratej karte a výška podtypov 0.
+4. **Hotovo:** obe karty rovnaká mriežka (ľavý stĺpec 116 px, tlačidlo v strede: čip Pre teba / skutočné okrúhle tlačidlo Filtra 44 px), vpravo ukážka, veta pod tým zarovnaná vľavo. Riadky ukážok rovnaké (22 px, obrázok vo farbe typu, 2 pruhy). Pre teba: 4 riadky, ✦ vľavo hore na obrázku 2 zo 4. Filter: 4 riadky → šípka → 2 riadky (tie isté 2 DJ), zvislo v strede.
+5. **Pre teba bez preferencií:** čip sa zapne, v strede zoznamu karta `ForYouSetupCard` (štýl `FilterEmptyCard`) s textom a ružovým „Nastaviť“ → Preferencie akcií. Karta nad lištou (`SetupPromptCard`) zmazaná. Po nastavení a návrate sa zoznam prepočíta (overené v Playwright: po výbere miesta a typu a fajke karta zmizne). Prázdny stav s preferenciami bez zmeny.
+6. **Preferencie akcií:** poradie Typy → Žánre → Obľúbené miesta (celý zoznam s hľadaním), v hlavičke vpravo okrúhle tlačidlo s fajkou (44 px, `#23232F`, ikona `#F4F2FF`), hlavička sa posúva so stránkou; ťuk = zavrieť ako Späť, bez toastu.
+
+### Rozhodnutia (samostatne, v `docs/decisions.md`)
+- Uložené zapnuté Pre teba bez preferencií sa už nevypína (nahrádza rozhodnutie 079) – zobrazí kartu Nastaviť.
+- Karta Nastaviť má prednosť pred prázdnym stavom filtra.
+- „Výber“ v kroku miest = aspoň jedno obľúbené miesto (aj z predošla).
+- Príčina ružového zvyšku je odhad (zlomkový okraj + zbaľovanie v Chrome); oprava odstraňuje všetky možné zdroje (okraj, outline, tap highlight, viditeľnosť podtypov). Na skutočnom telefóne som neoveroval.
+
+### Overenie
+- `npm test -- --reporter=dot` (z `web/`): **16 súborov, 264 testov passed** (nové: neprechod pri prázdnom výbere v každom kroku, poradie sekcií, Pre teba bez preferencií = karta). `npm run build` OK.
+- Playwright `tests/playwright/screenshots-080.spec.ts` (z `web/`, `NODE_PATH=web/node_modules`, dáta z Pages, čas 19. 11. 19:00): **3 passed** – trasenie a zostanie v kroku (miesta, typy, žánre), bez zvyšku po zrušení, Hotovo (rovnaký ľavý stĺpec, 4 riadky / 2 iskry, 4 → 2), toast „…Preferencie akcií.“, Pre teba bez preferencií → karta v strede (y 367–462 px z 844), poradie sekcií, fajka zavrie.
+- Snímky v `docs/tasks/080/`: `onb-1-welcome.jpg`, `onb-2-places.jpg`, `onb-3-types-deselected.jpg`, `onb-5-done.jpg`, `onb-skip-confirm.jpg`, `events-for-you-empty.jpg`, `preferences.jpg`. Podľa pravidiel som ich neprezeral – vzhľad posúdi Matej.
+
+### Otvorené
+- Vibrácia a ružový zvyšok na skutočnom telefóne neoverené (Playwright nevibruje; zvyšok sa v Chromiu nedá spoľahlivo vyvolať).
