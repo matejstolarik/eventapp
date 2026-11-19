@@ -92,7 +92,7 @@ export function getEventsForPeriod(events: Event[], period: Period, now: Date): 
   })
 }
 
-export type SortMode = 'date' | 'distance'
+export type SortMode = 'date' | 'distance' | 'size'
 
 function compareDatetime(a: Event, b: Event): number {
   if (a.date !== b.date) return a.date.localeCompare(b.date)
@@ -105,10 +105,23 @@ export function sortEvents(
   events: Event[],
   venueLocations: Map<string, { lat: number; lng: number }>,
   sort: SortMode,
-  userLocation: { lat: number; lng: number } | null
+  userLocation: { lat: number; lng: number } | null,
+  venueCapacities?: Map<string, number | null | undefined>
 ): Event[] {
   const sorted = [...events]
-  if (sort === 'distance' && userLocation) {
+  if (sort === 'size') {
+    // Venue capacity descending, ties by start; venues without capacity last
+    sorted.sort((a, b) => {
+      const aCap = venueCapacities?.get(a.venue_id) ?? null
+      const bCap = venueCapacities?.get(b.venue_id) ?? null
+      if (aCap !== bCap) {
+        if (aCap === null) return 1
+        if (bCap === null) return -1
+        return bCap - aCap
+      }
+      return compareDatetime(a, b)
+    })
+  } else if (sort === 'distance' && userLocation) {
     sorted.sort((a, b) => {
       const aLoc = venueLocations.get(a.venue_id)
       const bLoc = venueLocations.get(b.venue_id)

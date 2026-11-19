@@ -18,7 +18,7 @@ Spoľahlivosť: **oficiálny** = web podniku, prevádzkovateľa, provozní řád
 | Cross Club (`cross-club`) | 250 | nenájdené (oficiálne číslo nie je) | – | 250 schválil Matej v 013, zdroj v `notes` nie je; ponechať, doplniť „podľa Mateja“ |
 | Bike Jesus (`bike-jesus`) | 280 | do 280 (sekundárny) | kdykam.com/en/venue/bike-jesus-praha-165/ | Sedí |
 | Kasárna Karlín (`kasarna-karlin`) | null | Garáže 150 sedenie / 300 stánie, Bazén 60–90 (oficiálny, projekt pre MHMP); dvor neznámy | eud-vis.praha.eu (Podrobný popis projektu Kasárna Karlín) | Návrh **300** (najväčší vnútorný priestor so zdrojom); od 2025 max. 3 koncerty ročne na dvore |
-| Čítárna Unijazz (`citarna-unijazz`) | null | nenájdené | – | Ostáva `null` |
+| Čítárna Unijazz (`citarna-unijazz`) | null → 70 (073) | sál s barem cca 70, salonek 10–15 (oficiálny) | citarna.unijazz.cz/pronajem-prostor/ | Nájdené v úlohe 073 na oficiálnom webe |
 
 ## Navrhnuté a budúce podniky
 

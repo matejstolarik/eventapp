@@ -79,6 +79,7 @@ export const cs = {
     sortDate: 'datum',
     sortTime: 'čas',
     sortDistance: 'vzdálenost',
+    sortSize: 'velikost',
     eventCountSg: 'akce',
     eventCountFw: 'akce',
     eventCountPl: 'akcí',

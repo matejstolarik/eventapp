@@ -154,6 +154,12 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     return m
   }, [data.venues])
 
+  const venueCapacities = useMemo(() => {
+    const m = new Map<string, number | null>()
+    for (const v of data.venues) m.set(v.id, v.capacity ?? null)
+    return m
+  }, [data.venues])
+
   const periodSearchEvents = useMemo(() => {
     let evts = getEventsForPeriod(data.events, period, now)
     if (period.type === 'night') {
@@ -172,8 +178,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     let evts = periodSearchEvents
     if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
     if (isNewActive) evts = evts.filter(e => isNew(e, now))
-    return sortEvents(evts, venueLocations, sort, userLocationState)
-  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocationState]) // eslint-disable-line react-hooks/exhaustive-deps
+    return sortEvents(evts, venueLocations, sort, userLocationState, venueCapacities)
+  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueLocations, sort, userLocationState, venueCapacities]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const forYouCountInDisplay = useMemo(() => {
     if (forYouActive || !hasFavorites) return 0
@@ -316,7 +322,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const sortItems: SheetItem[] = useMemo(() => [
     { id: 'date', label: sortDateLabel, selected: sort === 'date' },
     ...(isSingleDay ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
-  ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance]) // eslint-disable-line react-hooks/exhaustive-deps
+    { id: 'size', label: dict.events.sortSize, selected: sort === 'size' },
+  ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance, dict.events.sortSize]) // eslint-disable-line react-hooks/exhaustive-deps
   const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== ''
   const isForYouNoFavs = forYouActive && !hasFavorites
   const isEmpty = events.length === 0
@@ -467,7 +474,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2, position: 'relative' }}>
           <span>{countRowText()}</span>
           <button ref={sortBtnRef} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={openSortMenu}>
-            {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : dict.events.sortDistance}</b>
+            {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : sort === 'size' ? dict.events.sortSize : dict.events.sortDistance}</b>
             <ChevronDown size={14} />
           </button>
         </div>

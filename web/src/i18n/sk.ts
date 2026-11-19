@@ -79,6 +79,7 @@ export const sk = {
     sortDate: 'dátum',
     sortTime: 'čas',
     sortDistance: 'vzdialenosť',
+    sortSize: 'veľkosť',
     eventCountSg: 'akcia',
     eventCountFw: 'akcie',
     eventCountPl: 'akcií',

@@ -39,7 +39,7 @@
       }
     ],
     "active": true,
-    "notes": null,
+    "notes": "Kapacita podľa Mateja (úloha 013), bez zdroja.",
     "closing": {
       "mon": "04:00",
       "tue": "05:00",
@@ -129,7 +129,7 @@
       "indie"
     ],
     "size": null,
-    "capacity": null,
+    "capacity": 300,
     "features": [
       "open-air",
       "seasonal"
@@ -147,7 +147,7 @@
       }
     ],
     "active": true,
-    "notes": null,
+    "notes": "Kapacita: Garáže 300 stánie / 150 sedenie, projekt Kasárna Karlín pre MHMP (eud-vis.praha.eu, Podrobný popis projektu Kasárna Karlín); najväčší vnútorný priestor so zdrojom; dvor bez čísla.",
     "closing": null
   },
   {
@@ -176,7 +176,7 @@
       "experimental"
     ],
     "size": "small",
-    "capacity": null,
+    "capacity": 70,
     "features": null,
     "description": "V našem 'útulném obýváčku' najdete útočiště každý den kromě neděle, ať už potřebujete místo pro studium nebo si chcete jen tak popovídat s přáteli. Několikrát týdně navíc připravujeme klubový program – autorská čtení, přednášky a besedy, filmové projekce i koncerty a divadelní představení. K tomu každý měsíc otevíráme novou výstavu a přijít můžete i na pravidelný šachový turnaj.",
     "description_url": "https://citarna.unijazz.cz/about/",
@@ -196,7 +196,7 @@
       }
     ],
     "active": true,
-    "notes": null,
+    "notes": "Kapacita: citarna.unijazz.cz/pronajem-prostor/ (\"sál s barem pro cca 70 lidí\").",
     "closing": null
   },
   {
@@ -458,7 +458,7 @@
       "electronic"
     ],
     "size": "large",
-    "capacity": 3800,
+    "capacity": 3000,
     "features": [],
     "description": "Forum Karlín se stalo synonymem pro špičkové kulturní a společenské akce v Praze. Tento moderní multifunkční prostor představuje unikátní koncept, který v hlavním městě nemá obdoby. Díky své impozantní kapacitě pro tisíce návštěvníků je Forum Karlín ideálním místem pro velkolepé koncerty, konference, televizní přenosy i gala večery.",
     "description_url": "https://www.forumkarlin.cz/o-nas/",
@@ -474,7 +474,7 @@
       }
     ],
     "active": true,
-    "notes": "Kapacita: Cvent (3800 stanie, 1800 sedenie).",
+    "notes": "Kapacita: prague.eu/cs/objevujte/forum-karlin/ (\"s kapacitou až 3000 osob\") a prevádzkovateľ Bestsport (prazsky.denik.cz, \"kapacitou asi 3000 osob\"). Predtým 3800 z Cvent (sekundárny zdroj; 3800 stánie, 1800 sedenie).",
     "closing": null
   },
   {

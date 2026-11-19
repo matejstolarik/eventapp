@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getPeriodRange, getEventsForPeriod, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod } from './period'
+import { getPeriodRange, getEventsForPeriod, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, sortEvents } from './period'
 import type { Event } from './types'
 
 // Sunday 2026-11-15 18:00 (after 5am → "today" = 2026-11-15)
@@ -176,4 +176,38 @@ describe('isSingleDayPeriod', () => {
   it('next30 is multi-day', () => expect(isSingleDayPeriod({ type: 'next30' })).toBe(false))
   it('anytime is multi-day', () => expect(isSingleDayPeriod({ type: 'anytime' })).toBe(false))
   it('custom range is multi-day', () => expect(isSingleDayPeriod({ type: 'custom', from: '2026-11-16', to: '2026-11-20' })).toBe(false))
+})
+
+describe('sortEvents size', () => {
+  const ev = (id: string, venue_id: string, date: string, start_time: string | null): Event => ({
+    id, venue_id, title: id, date, start_time, end_time: null, doors_time: null,
+    formats: [], genres: [], character: [], artists: [],
+    price_text: null, free: null, sold_out: null, room: null,
+    ticket_url: null, image_url: null, image_thumb: null,
+    description: null, description_source: null,
+    sources: [], classification: null,
+    first_seen: date, last_seen: date,
+    status: 'scheduled', flags: []
+  })
+  const caps = new Map<string, number | null>([['big', 3000], ['mid', 750], ['mid2', 750], ['none', null], ['none2', null]])
+  const ids = (events: Event[]) => sortEvents(events, new Map(), 'size', null, caps).map(e => e.id)
+
+  it('orders by capacity descending', () => {
+    expect(ids([ev('m', 'mid', '2026-11-20', '20:00'), ev('b', 'big', '2026-11-22', '21:00')])).toEqual(['b', 'm'])
+  })
+  it('same capacity falls back to date and time', () => {
+    expect(ids([
+      ev('m2-late', 'mid2', '2026-11-20', '22:00'),
+      ev('m-next', 'mid', '2026-11-21', '19:00'),
+      ev('m-early', 'mid', '2026-11-20', '19:00'),
+    ])).toEqual(['m-early', 'm2-late', 'm-next'])
+  })
+  it('venues without capacity go last, ordered by time', () => {
+    expect(ids([
+      ev('n2', 'none2', '2026-11-20', '18:00'),
+      ev('n1', 'none', '2026-11-19', '20:00'),
+      ev('unknown', 'missing-venue', '2026-11-20', '19:00'),
+      ev('m', 'mid', '2026-11-25', '20:00'),
+    ])).toEqual(['m', 'n1', 'n2', 'unknown'])
+  })
 })
