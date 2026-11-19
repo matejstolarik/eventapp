@@ -199,6 +199,6 @@ describe('tagLabel (task 071: always English)', () => {
   })
   it('keeps other codes', () => {
     expect(tagLabel('techno', 'cs')).toBe('techno')
-    expect(tagLabel('alternative', 'sk')).toBe('alt')
+    expect(tagLabel('alternative', 'sk')).toBe('alternative')
   })
 })

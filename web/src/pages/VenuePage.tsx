@@ -267,7 +267,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                 fontSize: 12, fontWeight: 600,
                 display: 'inline-flex', alignItems: 'center'
               }}>
-                {tag === 'alternative' ? 'alt' : tag}
+                {tag}
               </span>
             ))}
           </div>
@@ -370,7 +370,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                                     fontSize: 11, fontWeight: 600, flexShrink: 0,
                                     display: 'inline-flex', alignItems: 'center'
                                   }}>
-                                    {label === 'alternative' ? 'alt' : label}
+                                    {label}
                                   </span>
                                   {isTime && <TypeIconPill event={ev} background="#1E1D2A" />}
                                   </Fragment>

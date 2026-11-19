@@ -15,8 +15,11 @@ export interface EventFilter {
   types: FilterType[]
   /** Selected culture subtypes; empty = all culture. Kept while culture is off. */
   subtypes: CultureSubtype[]
-  /** Selected umbrella genres */
+  /** Selected umbrella music genres (apply to concert, party, DJ only) */
   genres: string[]
+  /** Selected culture genres as `subtype:genre` (e.g. `film:horror`, task 076).
+   * Apply only while culture is on and their subtype is selected; kept otherwise. */
+  cultureGenres: string[]
   /** Selected venue character tags */
   characters: string[]
   /** Selected venue sizes */
@@ -26,7 +29,7 @@ export interface EventFilter {
 }
 
 export const DEFAULT_FILTER: EventFilter = {
-  types: [...FILTER_TYPES], subtypes: [], genres: [], characters: [], sizes: [], free: false,
+  types: [...FILTER_TYPES], subtypes: [], genres: [], cultureGenres: [], characters: [], sizes: [], free: false,
 }
 
 export type Hierarchy = Record<string, string[]>
@@ -40,6 +43,15 @@ export const GENRE_HIERARCHY: Hierarchy = Object.fromEntries(
 /** Umbrellas that are also culture subtypes (film, theatre, dance): the subtype
  * chips cover them, so they are not offered as genre chips (task 075). */
 const SUBTYPE_UMBRELLAS = new Set<string>(CULTURE_SUBTYPES)
+
+/** Key of a culture genre chip: the same name under two subtypes = two chips. */
+export function cultureGenreKey(subtype: string, genre: string): string {
+  return `${subtype}:${genre}`
+}
+function splitCultureGenreKey(key: string): [string, string] {
+  const i = key.indexOf(':')
+  return i < 0 ? [key, ''] : [key.slice(0, i), key.slice(i + 1)]
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -87,6 +99,22 @@ export function umbrellasOf(genre: string, h: Hierarchy = GENRE_HIERARCHY): stri
   return res
 }
 
+/** Culture genres of an event (task 076): its genres whose direct parent is the
+ * event's own culture subtype (`drama` in a film = `film:drama`). */
+export function eventCultureGenres(e: Pick<Event, 'genres' | 'formats' | 'primary_format'>, h: Hierarchy = GENRE_HIERARCHY): string[] {
+  const sub = cultureSubtype(e.formats, e.primary_format)
+  if (!sub) return []
+  const out = new Set<string>()
+  for (const g of e.genres) if (h[g]?.includes(sub)) out.add(cultureGenreKey(sub, g))
+  return [...out]
+}
+
+/** Culture genre keys that currently apply: culture on and their subtype selected. */
+export function activeCultureGenres(f: EventFilter): string[] {
+  if (!f.types.includes('culture')) return []
+  return f.cultureGenres.filter(k => (f.subtypes as string[]).includes(splitCultureGenreKey(k)[0]))
+}
+
 /** Umbrella genres of an event that the filter offers (subtype umbrellas excluded). */
 export function eventUmbrellas(e: Pick<Event, 'genres'>, h: Hierarchy = GENRE_HIERARCHY): string[] {
   const out = new Set<string>()
@@ -104,18 +132,23 @@ interface Prepared {
   item: FilterItem
   type: FilterType
   subtype: CultureSubtype | null
+  /** Music umbrellas; only for concert, party, DJ (task 076) */
   umbrellas: string[]
+  /** `subtype:genre` keys; only for culture */
+  cultureGenres: string[]
   characters: string[]
   size: string | null
 }
 
 function prepare(item: FilterItem, h: Hierarchy): Prepared {
   const e = item.event
+  const type = filterTypeOf(e)
   return {
     item,
-    type: filterTypeOf(e),
+    type,
     subtype: cultureSubtype(e.formats, e.primary_format),
-    umbrellas: eventUmbrellas(e, h),
+    umbrellas: type === 'culture' ? [] : eventUmbrellas(e, h),
+    cultureGenres: type === 'culture' ? eventCultureGenres(e, h) : [],
     characters: item.venue?.character ?? [],
     size: item.venue?.size ?? null,
   }
@@ -127,7 +160,12 @@ function passes(p: Prepared, f: EventFilter, g: Group): boolean {
       if (!f.types.includes(p.type)) return false
       if (p.type === 'culture' && f.subtypes.length > 0) return p.subtype !== null && f.subtypes.includes(p.subtype)
       return true
-    case 'genre': return f.genres.length === 0 || p.umbrellas.some(u => f.genres.includes(u))
+    case 'genre': {
+      // One OR group: music genres (concert/party/DJ) + active culture genres.
+      const cg = activeCultureGenres(f)
+      if (f.genres.length === 0 && cg.length === 0) return true
+      return p.umbrellas.some(u => f.genres.includes(u)) || p.cultureGenres.some(k => cg.includes(k))
+    }
     case 'character': return f.characters.length === 0 || p.characters.some(c => f.characters.includes(c))
     case 'size': return f.sizes.length === 0 || (p.size !== null && (f.sizes as string[]).includes(p.size))
     case 'free': return !f.free || p.item.event.free === true
@@ -148,13 +186,14 @@ export function matchesFilter(event: Event, venue: Venue | undefined, f: EventFi
 
 export function isDefaultFilter(f: EventFilter): boolean {
   return f.types.length === FILTER_TYPES.length && f.subtypes.length === 0 && f.genres.length === 0 &&
+    activeCultureGenres(f).length === 0 &&
     f.characters.length === 0 && f.sizes.length === 0 && !f.free
 }
 
-/** Badge on the Filter button: selected tags (subtypes, genres, characters,
- * sizes, free) + 1 when some types are off. 0 = no badge. */
+/** Badge on the Filter button: selected tags (subtypes, genres, culture genres
+ * that apply, characters, sizes, free) + 1 when some types are off. 0 = no badge. */
 export function filterBadgeCount(f: EventFilter): number {
-  return f.subtypes.length + f.genres.length + f.characters.length + f.sizes.length + (f.free ? 1 : 0) +
+  return f.subtypes.length + f.genres.length + activeCultureGenres(f).length + f.characters.length + f.sizes.length + (f.free ? 1 : 0) +
     (f.types.length < FILTER_TYPES.length ? 1 : 0)
 }
 
@@ -168,6 +207,8 @@ export interface FilterCounts {
   types: Record<FilterType, number>
   subtypes: Record<string, number>
   genres: Map<string, number>
+  /** By `subtype:genre` key */
+  cultureGenres: Map<string, number>
   characters: Map<string, number>
   sizes: Record<string, number>
   free: number
@@ -192,7 +233,10 @@ export function filterCounts(items: FilterItem[], f: EventFilter, mode: CountMod
       if (subOk) add(`t:${p.type}`, p)
       if (p.type === 'culture' && p.subtype) add(`s:${p.subtype}`, p)
     }
-    if (passesExcept(p, f, 'genre')) for (const u of p.umbrellas) add(`g:${u}`, p)
+    if (passesExcept(p, f, 'genre')) {
+      for (const u of p.umbrellas) add(`g:${u}`, p)
+      for (const k of p.cultureGenres) add(`k:${k}`, p)
+    }
     if (passesExcept(p, f, 'character')) for (const c of p.characters) add(`c:${c}`, p)
     if (passesExcept(p, f, 'size') && p.size) add(`z:${p.size}`, p)
     if (passesExcept(p, f, 'free') && p.item.event.free === true) add('free', p)
@@ -208,23 +252,47 @@ export function filterCounts(items: FilterItem[], f: EventFilter, mode: CountMod
     types: { concert: n('t:concert'), party: n('t:party'), dj: n('t:dj'), culture: n('t:culture') },
     subtypes: Object.fromEntries(CULTURE_SUBTYPES.map(s => [s, n(`s:${s}`)])),
     genres: byPrefix('g:'),
+    cultureGenres: byPrefix('k:'),
     characters: byPrefix('c:'),
     sizes: Object.fromEntries(VENUE_SIZES.map(s => [s, n(`z:${s}`)])),
     free: n('free'),
   }
 }
 
-/** Umbrella genres offered in the panel: those with events of the enabled types
- * in `events` (all loaded data, so a chip can be chosen for another day),
- * plus the selected ones. */
+/** Umbrella music genres offered in the panel: those with events of the enabled
+ * music types (concert, party, DJ) in `events` (all loaded data, so a chip can
+ * be chosen for another day), plus the selected ones. */
 export function availableGenres(events: Event[], types: FilterType[], selected: string[], h: Hierarchy = GENRE_HIERARCHY): string[] {
   const out = new Set<string>()
   for (const e of events) {
-    if (!types.includes(filterTypeOf(e))) continue
+    const t = filterTypeOf(e)
+    if (t === 'culture' || !types.includes(t)) continue
     for (const u of eventUmbrellas(e, h)) out.add(u)
   }
   for (const g of selected) out.add(g)
   return [...out]
+}
+
+/** Culture genre rows (task 076): for each selected subtype (in subtype order)
+ * that has genres in `events` or a selected one, its `subtype:genre` keys. */
+export function availableCultureGenres(events: Event[], subtypes: CultureSubtype[], selected: string[], h: Hierarchy = GENRE_HIERARCHY): { subtype: CultureSubtype; keys: string[] }[] {
+  const bySub = new Map<string, Set<string>>()
+  const put = (k: string) => {
+    const s = splitCultureGenreKey(k)[0]
+    let set = bySub.get(s)
+    if (!set) { set = new Set(); bySub.set(s, set) }
+    set.add(k)
+  }
+  for (const e of events) for (const k of eventCultureGenres(e, h)) put(k)
+  for (const k of selected) put(k)
+  return CULTURE_SUBTYPES
+    .filter(s => subtypes.includes(s) && (bySub.get(s)?.size ?? 0) > 0)
+    .map(s => ({ subtype: s, keys: [...bySub.get(s)!] }))
+}
+
+/** Genre name of a `subtype:genre` key. */
+export function cultureGenreName(key: string): string {
+  return splitCultureGenreKey(key)[1]
 }
 
 /** Venue character tags offered in the panel (all venues with events) plus the selected ones. */
@@ -254,6 +322,10 @@ export function parseFilter(raw: string | null): EventFilter {
       types: types.length > 0 ? FILTER_TYPES.filter(t => types.includes(t)) : [...FILTER_TYPES],
       subtypes: strs(o.subtypes).filter((s): s is CultureSubtype => (CULTURE_SUBTYPES as readonly string[]).includes(s)),
       genres: strs(o.genres),
+      cultureGenres: strs(o.cultureGenres).filter(k => {
+        const [s, g] = splitCultureGenreKey(k)
+        return (CULTURE_SUBTYPES as readonly string[]).includes(s) && g !== ''
+      }),
       characters: strs(o.characters),
       sizes: strs(o.sizes).filter((s): s is VenueSize => (VENUE_SIZES as readonly string[]).includes(s)),
       free: o.free === true,

@@ -16,7 +16,7 @@ export function getDict(lang: Language): Dict {
 export function tagLabel(tag: string, _lang: Language): string {
   const label = en.tags[tag]
   if (label) return label
-  return tag === 'alternative' ? 'alt' : tag
+  return tag
 }
 
 /** Formats a YYYY-MM-DD date for display in the given language.

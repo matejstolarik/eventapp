@@ -6,7 +6,7 @@ import { typeIconSvg } from '../map/markers'
 import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK, CULTURE_SUBTYPES, subtypeIconKey, type EventIconKey } from '../core/eventType'
 import {
   FILTER_TYPES, VENUE_SIZES, DEFAULT_FILTER, filterCounts, availableGenres, availableCharacters,
-  orderByCount, toggleType, toggleIn, type EventFilter, type FilterItem, type CountMode, type FilterType,
+  availableCultureGenres, cultureGenreName, orderByCount, toggleType, toggleIn, type EventFilter, type FilterItem, type CountMode, type FilterType,
 } from '../core/filter'
 
 // Filter panel from the bottom (docs/design.md 7b, 09-filter.html; task 075).
@@ -106,6 +106,19 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
   const genres = order.genres.filter(g => genreSet.has(g))
   const visibleGenres = genresExpanded ? genres
     : genres.filter((g, i) => i < VISIBLE_GENRES || filter.genres.includes(g))
+
+  // Culture genre rows (task 076): one per selected subtype with genres. Each
+  // row's order by count is fixed when the row first appears.
+  const cultureRows = useMemo(() => availableCultureGenres(allEvents, filter.subtypes, filter.cultureGenres),
+    [allEvents, filter.subtypes, filter.cultureGenres])
+  const cultureOrderRef = useRef(new Map<string, string[]>())
+  function cultureRowKeys(subtype: string, keys: string[]): string[] {
+    let order = cultureOrderRef.current.get(subtype)
+    if (!order) { order = orderByCount(keys, counts.cultureGenres); cultureOrderRef.current.set(subtype, order) }
+    const missing = keys.filter(k => !order!.includes(k))
+    if (missing.length) { order = [...order, ...orderByCount(missing, counts.cultureGenres)]; cultureOrderRef.current.set(subtype, order) }
+    return order.filter(k => keys.includes(k))
+  }
 
   // Open animation
   useEffect(() => {
@@ -250,6 +263,19 @@ export function FilterSheet({ lang, mode, items, allEvents, venues, filter, onCh
                   <NeutralChip key={s} label={tagLabel(s, lang)} n={counts.subtypes[s] ?? 0}
                     on={filter.subtypes.includes(s)} icon={subtypeIconKey(s)}
                     onClick={() => onChange({ ...filter, subtypes: toggleIn(filter.subtypes, s) })} />
+                ))}
+                {cultureRows.map(row => (
+                  <div key={row.subtype} data-testid={`filter-culture-genres-${row.subtype}`}
+                    style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+                    <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: '#8E8AA6' }}>{tagLabel(row.subtype, lang)}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {cultureRowKeys(row.subtype, row.keys).map(k => (
+                        <NeutralChip key={k} label={tagLabel(cultureGenreName(k), lang)} n={counts.cultureGenres.get(k) ?? 0}
+                          on={filter.cultureGenres.includes(k)}
+                          onClick={() => onChange({ ...filter, cultureGenres: toggleIn(filter.cultureGenres, k) })} />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

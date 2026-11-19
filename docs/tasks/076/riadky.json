@@ -1,0 +1,17 @@
+{
+  "film": [
+    "animation5",
+    "comedy4",
+    "drama2",
+    "family2",
+    "adventure1",
+    "biography1",
+    "crime1",
+    "documentary1",
+    "romance1"
+  ],
+  "theatre": [
+    "physical theatre1"
+  ],
+  "badge": "3"
+}
