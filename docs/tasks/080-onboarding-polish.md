@@ -33,7 +33,7 @@ Ostatné texty z 079 bez zmeny.
   - Obe karty majú **rovnakú mriežku**: ľavý stĺpec s pilulkou rovnakej šírky (Pre teba aj Filter rovnako široké, vertikálne v strede ukážky), vpravo ukážka; rovnaké okraje kariet.
   - **Riadky ukážok rovnaké v oboch kartách** (rovnaká výška, obrázok, dva pruhy textu, rovnaké medzery).
   - **Pre teba:** 4 riadky, **iskra na obrázku riadku vľavo hore** (ako skutočný odznak), nie samostatne na pravom okraji karty; iskru majú 2 zo 4.
-  - **Filter:** 4 riadky → šípka → 2 riadky; **šípka aj pravý stĺpec zvislo v strede ľavého stĺpca**; pravý stĺpec = tie isté 2 riadky z ľavého (rovnaké farby). Filter ako pilulka s textom (nie kruh).
+  - **Filter:** 4 riadky → šípka → 2 riadky; **šípka aj pravý stĺpec zvislo v strede ľavého stĺpca**; pravý stĺpec = tie isté 2 riadky z ľavého (rovnaké farby). ~~Filter ako pilulka s textom (nie kruh).~~ **Zmena 16:38 (Matej): Filter = skutočné tlačidlo Filtra z appky (ružový kruh 44 px s ikonou, bez textu, bez odznaku), v strede ľavého stĺpca rovnakej šírky ako pri Pre teba.** Platí aj pre bod vyššie o „Filter ako pilulka“ – zrušené.
 
 ### 5. Pre teba bez preferencií v Akciách
 - Ťuk na Pre teba bez akýchkoľvek preferencií: **čip sa normálne zapne**, zoznam je prázdny a **v strede zoznamu** je správa (rovnaký štýl ako prázdny stav filtra `FilterEmptyCard`, ale samostatný komponent/text): „Nastav si, čo ťa baví, a označíme ti akcie ✦“ (cs „Nastav si, co tě baví, a označíme ti akce ✦“, en „Set what you're into and we'll mark events for you ✦“) a ružové tlačidlo **Nastaviť** / Nastavit / Set up → Preferencie akcií. **Karta nad lištou (toast z 079) sa ruší.** Po nastavení a návrate sa zoznam ukáže podľa nových preferencií.
