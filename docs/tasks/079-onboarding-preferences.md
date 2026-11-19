@@ -62,3 +62,43 @@ Koncert, Párty, veta dole bez zmeny. V onboardingu sa veta dole ani zoznam podt
 - `npm test -- --reporter=dot` (testy `isForYou` všetkých vetiev, podmienka zobrazenia onboardingu, limit 5, poradie záložiek), `npm run build`; nasadenie `deploy-app` (číslo behu). Dáta sa nemenia, čísla z `events.json` netreba.
 - Snímky JPEG 390 × 844 (Playwright z `tests/playwright/`, `?dbg=onboarding`) do `docs/tasks/079/`: `onb-1-welcome.jpg`, `onb-2-places.jpg` (2 srdiečka vybraté), `onb-3-types.jpg` (kultúra rozbalená, 2 podtypy), `onb-4-genres.jpg` (3/5), `onb-5-done.jpg`, `onb-skip-confirm.jpg`, `account-preferences.jpg`, `events-for-you.jpg` (Akcie po onboardingu so zapnutým Pre teba).
 - V reporte: koľko akcií je pre teba pri preferenciách zo snímok (DJ + koncert, techno + drum-and-bass + punk, 2 miesta) vs. podľa starého pravidla (len 2 miesta) – výpočet z aktuálneho `events.json` lokálne, príkaz uveď.
+
+## Report
+
+**2026-11-19**, commit `50697f2` (appka, testy, Playwright skript, snímky, decisions), report v nasledujúcom commite. Mení len appku → pipeline sa nespúšťal. Nasadenie **Deploy web app #53** (run 44540332396): **success**, `50697f2`; na Pages je nový balík `assets/index-CNatd6u0.js` (obsahuje „Kam dnes večer“, `onboardingPending`, `preferencie`).
+
+### Hotové
+1. **Preferencie a nové pravidlo Pre teba.** Kľúč `preferences` v localStorage (`store.ts`: `{types, subtypes, genres}`, najviac 5 žánrov, neplatné hodnoty sa zahodia); obľúbené miesta ostávajú v `favorites` (srdiečko v onboardingu a v preferenciách volá to isté `toggleFavorite`). `isForYou(event, prefs)` v `core/search.ts` presne podľa design.md 4 (blok 2026-11-19): typ mimo vybratých → nie; hudba → obľúbené miesto alebo zastrešujúci žáner (`eventUmbrellas`); kultúra → podtyp medzi vybratými, bez podtypov → kultúra v obľúbenom mieste; bez typov → obľúbené miesto alebo žáner, akýkoľvek typ; bez preferencií → nič. Rovnaké pravidlo všade: odznak na obrázku a čip Pre teba v Akciách, počet „· N pre teba“, „Najbližšie“ pri prázdnom filtri, panel akcie na mape (`useForYouPrefs` – zmena srdiečka alebo preferencií sa prejaví hneď aj v otvorených Akciách).
+2. **Onboarding** (`pages/OnboardingPage.tsx`, výbery v `components/PrefPickers.tsx`): uvítanie (4 kruhy s ikonami typov `typeIconSvg`) → miesta (bodky postupu, Preskočiť, biele hľadanie bez diakritiky, riadky 44 px s obrázkom miesta a srdiečkom) → typy (karty s vysvetlením, kultúra bez textu sa rozbalí na čipy podtypov 250 ms) → žánre (len pri koncerte/DJ/párty; „n/5“ sivé/ružové; po 5 ostatné stlmené) → koniec (skutočný `ForYouChip` a `FilterButton` bez funkcie, abstraktné riadky typov) → Akcie, obdobie Dnes. Prechod krokov 200 ms do strany, `prefers-reduced-motion` bez animácií; onboarding je jediné, čo sa počas neho vykresľuje (mapa a Akcie sa pripoja až po ňom). Späť = predošlý krok, na uvítaní potvrdenie preskočenia; Preskočiť v krokoch 2–4 bez otázky; po potvrdení preskočenia toast (ťuk → Tvoje preferencie). Zobrazí sa len pri novej inštalácii (žiadny `onboardingDone` a žiadny z kľúčov `favorites`, `going`, `filter`, `eventsPeriod`, `eventsFilters`, `language`, `eventsLastFetched`, `preferences`), `?dbg=onboarding` vždy. Texty presne podľa zadania (sk, cs, en).
+3. **Nový text DJ** v `filter.typeHelp.dj` (sk, cs, en) – karta typov vo Filtri aj onboarding.
+4. **Môj účet → Tvoje preferencie** (riadok hore na Môj účet, prekryv `#/preferencie`): miesta, typy s kultúrou, žánre pod sebou, ukladá sa hneď. **Pre teba bez preferencií:** čip sa nezapne, nad lištou karta `#2A2838` s textom a ružovým „Nastaviť“ → Tvoje preferencie.
+5. **Akcie prvá záložka:** lišta Akcie, Mapa, Miesta, Môj účet (`TAB_ORDER`), štart v Akciách (prázdny hash), mapa `#/mapa`. Odkazy `#/akcia/…`, `#/miesto/…`, `#/akcie`, `#/miesta`, `#/ucet` fungujú ako doteraz; mapa ostáva po prvom otvorení pripojená (stav pri prepínaní záložiek), ťuk na aktívnu záložku = navrch, filter a obdobie sa pamätajú ako doteraz. **Poloha:** doteraz sa systémová žiadosť pri štarte nepýtala (len tlačidlom), preto doplnené: pri prvom otvorení mapy, ak je povolenie v stave `prompt`.
+
+### Rozhodnutia (samostatne, zapísané v `docs/decisions.md`)
+- Routing: prázdny hash = Akcie, mapa `#/mapa`, starý `#/` teraz otvorí Akcie; preferencie ako prekryv s vlastným hashom (systémové Späť funguje).
+- `onboardingPending`: appka pri prvom spustení hneď zapíše `filter` a `eventsLastFetched`; bez tohto príznaku by sa onboarding po zavretí appky uprostred už neukázal.
+- Vypnutie kultúry zmaže vybraté podtypy (zbalia sa).
+- Vybratý čip podtypu a žánru = ružový (7c: ružová na výber).
+- V Tvoje preferencie sa žánre ukazujú aj bez vybratých typov (pravidlo bez typov žáner berie) – inak by si doterajší používateľ bez typov nemohol pridať žánre.
+- Uložené zapnuté Pre teba bez preferencií sa vypne; starý prázdny stav „Pridaj si obľúbené miesta…“ sa ruší (nahradila ho karta Nastaviť).
+- Toast po preskočení 5 s; karta Pre teba má aj krížik ako karta aktualizácie.
+- Poloha po povolení presunie mapu len do 2 km od aktívneho miesta (rovnaké pravidlo ako doteraz pri povolenej polohe).
+
+### Overenie
+- `npm test -- --reporter=dot` (z `web/`): **16 súborov, 261 testov passed** – `isForYou` všetky vetvy (workshop v obľúbenom mieste bez kultúry → nie; DJ + techno v neobľúbenom mieste → áno; len typy bez miest a žánrov → nič z hudby; kultúra s podtypmi/bez; bez typov; bez preferencií), podmienka onboardingu (nová inštalácia, `onboardingDone`, každý doterajší kľúč, nedokončený), limit 5 žánrov, poradie záložiek, routing (`parseHash`, `tabOfRoute`). `npm run build` OK.
+- Playwright `tests/playwright/screenshots-079.spec.ts` (z `web/` s `NODE_PATH=web/node_modules`, dáta z Pages, čas 19. 11. 19:00): **3 passed** – celý onboarding až po Akcie (aktívna záložka Akcie), preskočenie s potvrdením a toastom, nová inštalácia onboarding ukáže / používateľ s `favorites` nie.
+- Snímky v `docs/tasks/079/`: `onb-1-welcome.jpg`, `onb-2-places.jpg` (2 srdiečka: Bike Jesus, Čitárna Unijazz), `onb-3-types.jpg` (koncert, DJ, kultúra + film, talk), `onb-4-genres.jpg` (techno, drum-and-bass, punk = 3/5), `onb-5-done.jpg`, `onb-skip-confirm.jpg`, `account-preferences.jpg`, `events-for-you.jpg`. Uložené preferencie zo snímok: `docs/tasks/079/prefs.json`.
+
+### Čísla Pre teba (lokálne, `events.json` z Pages `generated_at` 2026-11-19T14:26:10, 371 akcií)
+Príkaz (z `web/`): `npx vite-node scripts/for-you-count.ts <events.json> bike-jesus,citarna-unijazz dj,concert "" techno,drum-and-bass,punk [2026-11-19]`
+
+| Preferencie | Všetky akcie: nové / staré pravidlo | Dnes 19. 11. (11 akcií): nové / staré |
+|---|---|---|
+| DJ + koncert, techno + drum-and-bass + punk, 2 miesta (zadanie) | **91 / 42** | **3 / 2** |
+| ako na snímkach (+ kultúra s film, talk) | **111 / 42** | **5 / 2** |
+
+Staré pravidlo = len 2 obľúbené miesta.
+
+### Otvorené
+- Snímky som podľa pravidiel neprezeral – posúdenie vzhľadu (najmä obrazovka Hotovo s abstraktnými ukážkami a uvítanie) je na Matejovi.
+- Ako sa správa systémová žiadosť o polohu na skutočnom telefóne (PWA), som neoveroval; v Playwright sa poloha nepýta.
