@@ -40,3 +40,17 @@ Spoľahlivosť: **oficiálny** = web podniku, prevádzkovateľa, provozní řád
 ## Pozor
 - Kapacita je veľkosť budovy alebo sály, nie návštevnosť akcie. Podniky s viacerými sálami (Akropolis, MeetFactory, Archa+, Kasárna, O2 universum) majú pri akcii v menšej sále oveľa menej ľudí.
 - Pri zmene sa číslo aj zdroj zapisujú do `notes` podniku.
+
+## Doplnené Matejom 2026-11-20 (po prieskume 083)
+| Podnik | Kapacita | Zdroj |
+|---|---|---|
+| Lucerna Music Bar | 1000 návštevníkov | Matej |
+| O2 universum | Sál A (koncertný) cca 5 200; zvyšných cca 4 800 v 37 ďalších sáloch a priestoroch | Matej |
+| Jazz Republic | ~150 (plán stolov: 130 miest; zaokrúhlené nahor) | Matej, plán rezervácie |
+| El Magico | 300 | Matej |
+| Karlovy Lázně | 1000 | Matej |
+| O2 arena | až 20 000 | web (083) |
+| SaSaZu | 2000 | web (083) |
+| Sportovní hala Fortuna | 5 500 sedenie + 3 500 státie | web (083) |
+| Duplex | „over 2000“ | web (083) |
+| Kongresové centrum, Kongresový sál | 2 764 | web (083) |
