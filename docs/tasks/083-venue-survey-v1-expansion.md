@@ -14,7 +14,7 @@ Cieľ: pre každý podnik zistiť, **ako ho vieme pridať, čo bude ľahké, čo
 - Jazz Republic – https://www.jazzrepublic.cz/cz/program (Matej: pekný program, detail akcie má všetko aj s obrázkom). Pozn.: v 008 bolo `/program` 404 – over aktuálny stav.
 - El Magico – https://elmagico.cz/program/ (**zvláštny, pozri nižšie**)
 - Lucerna Music Bar
-- Palác Lucerna – Velký sál (over, či má Music Bar a Velký sál spoločný web/program a ako sa odlíšia)
+- ~~Palác Lucerna – Velký sál~~ (**zrušené 16:56, Matej: nezaujíma** – pri Lucerna Music Bar len zisti, či zdieľa web s Velkým sálom a ako sa akcie odlíšia, aby sa Velký sál nepridal omylom)
 - SaSaZu
 - O2 arena
 - O2 universum
