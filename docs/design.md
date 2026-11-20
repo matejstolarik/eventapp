@@ -263,3 +263,6 @@ Prechod medzi krokmi: posun do strany ~200 ms. Späť = predošlý krok; na uví
 
 ## 8. Čo nie je nakreslené (navrhni v rovnakom štýle a ukáž Matejovi)
 Výber dňa a kalendár (urobené v 028/029 bez kresby), Môj účet / zoznam Idem, onboarding, prázdne stavy (žiadne akcie v deň, žiadne obľúbené), načítavanie a offline.
+
+### Animácie (081, Matej 2026-11-20)
+Appka má byť hravá, ale **nesmie sa pozorovateľne spomaliť**. Len `transform`/`opacity`, obsah hneď použiteľný, časté akcie ≤ ~250 ms, pri `prefers-reduced-motion` nič, každá animácia s vypínačom. Hotové pred 081: panel Filtra zdola, piny (objavenie/zmiznutie, pulz vybratého), karta na mape, pulz „práve beží“, karty Akcií pri načítaní, hľadanie, onboarding. **081:** panel dátumu (obdobie, deň na mape, kalendár) zdola ako Filter; srdiečko poskočí + vibrácia; Pre teba – iskra sa zatrblieta, odznaky naskočia postupne; stlačenie kariet a tlačidiel (0,97); odznak Filtra poskočí; počet akcií sa vysunie; pilulka v lište sa presunie; piny padnú pri zmene dňa/filtra (nie pri posune mapy); Idem – fajka + malý výbuch bodiek. **Odložené (riziko spomalenia):** obrázok do detailu (View Transitions), preskladanie zoznamu, kostry s leskom, animované prázdne stavy (potrebujú ilustráciu).
