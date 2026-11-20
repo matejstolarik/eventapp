@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Language } from '../core/types'
+import { motionOn } from '../core/motion'
 
 export interface SheetItem {
   id: string
@@ -41,12 +42,29 @@ const WEEK_DAYS_SK = ['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne']
 const WEEK_DAYS_CS = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
 const WEEK_DAYS_EN = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
+const ANIM_MS = 220 // same as FilterSheet
+
 export function SelectorSheet({ title, items, calendarMode, availableDates, now, lang, onItemSelect, onCalendarSelect, onClose }: Props) {
   const [calView, setCalView] = useState(false)
   const [calYear, setCalYear] = useState(now.getFullYear())
   const [calMonth, setCalMonth] = useState(now.getMonth())
   const [pendingFrom, setPendingFrom] = useState<string | null>(null)
   const historyPushedRef = useRef(false)
+  const closedRef = useRef(false)
+
+  // Slide up / down like the Filter panel (task 081); instant with reduced motion or the switch off.
+  const animate = useMemo(() => motionOn('sheet'), [])
+  const [shown, setShown] = useState(!animate)
+  const [closing, setClosing] = useState(false)
+  const [dragY, setDragY] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const dragRef = useRef<{ startY: number; active: boolean } | null>(null)
+
+  useEffect(() => {
+    if (!animate) return
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)))
+    return () => cancelAnimationFrame(id)
+  }, [animate])
 
   useEffect(() => {
     const prev = document.body.style.overflow
@@ -54,34 +72,66 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
     return () => { document.body.style.overflow = prev }
   }, [])
 
-  // Push a history entry when the sheet opens; popstate = close (Android Back)
-  useEffect(() => {
-    history.pushState({ sheet: true }, '')
-    historyPushedRef.current = true
+  function finishClose() {
+    if (closedRef.current) return
+    closedRef.current = true
+    if (!animate) { onClose(); return }
+    setClosing(true)
+    setTimeout(onClose, ANIM_MS)
+  }
 
+  // System Back closes the sheet (Android). The entry is pushed once (StrictMode
+  // runs the effect twice) and removed by requestClose or consumed by Back; the
+  // sheet is only unmounted through finishClose, so the cleanup does not go back.
+  useEffect(() => {
+    if (!historyPushedRef.current) {
+      history.pushState({ sheet: true }, '')
+      historyPushedRef.current = true
+    }
     function onPopState() {
       if (historyPushedRef.current) {
         historyPushedRef.current = false
-        onClose()
+        finishClose()
       }
     }
     window.addEventListener('popstate', onPopState)
-    return () => {
-      window.removeEventListener('popstate', onPopState)
-      if (historyPushedRef.current) {
-        historyPushedRef.current = false
-        history.back()
-      }
-    }
+    return () => window.removeEventListener('popstate', onPopState)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handleBackdropClick() {
+  function requestClose() {
     if (historyPushedRef.current) {
       historyPushedRef.current = false
       history.back()
     }
-    onClose()
+    finishClose()
   }
+
+  // Drag down to close (as the Filter panel); starts only after 8 px down, so taps still work.
+  function onTouchStart(e: React.TouchEvent) {
+    dragRef.current = { startY: e.touches[0]!.clientY, active: false }
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    const d = dragRef.current
+    if (!d) return
+    const dy = e.touches[0]!.clientY - d.startY
+    if (!d.active) {
+      if (dy > 8) { d.active = true; setDragging(true) }
+      else if (Math.abs(dy) > 8) { dragRef.current = null; return }
+      else return
+    }
+    setDragY(Math.max(0, dy))
+  }
+  function onTouchEnd() {
+    const d = dragRef.current
+    dragRef.current = null
+    if (!d?.active) return
+    setDragging(false)
+    if (dragY > 90) requestClose()
+    else setDragY(0)
+  }
+
+  const open = shown && !closing
+  const sheetTransition = !animate || dragging ? 'none' : `transform ${ANIM_MS}ms cubic-bezier(.2,.8,.2,1)`
 
   const cells = useMemo(() => buildMonthGrid(calYear, calMonth), [calYear, calMonth])
 
@@ -105,7 +155,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
   function handleDayClick(date: string) {
     if (calendarMode === 'single') {
       onCalendarSelect(date, date)
-      setCalView(false)
+      requestClose()
     } else {
       if (!pendingFrom) {
         setPendingFrom(date)
@@ -113,8 +163,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
         const from = pendingFrom <= date ? pendingFrom : date
         const to = pendingFrom <= date ? date : pendingFrom
         onCalendarSelect(from, to)
-        setPendingFrom(null)
-        setCalView(false)
+        requestClose()
       }
     }
   }
@@ -137,15 +186,22 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
   return createPortal(
     <>
       <div
-        style={{ position: 'fixed', inset: 0, zIndex: 101, background: 'rgba(0,0,0,0.5)' }}
-        onClick={handleBackdropClick}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 101, background: 'rgba(0,0,0,0.5)',
+          opacity: open ? 1 : 0, transition: animate ? `opacity ${ANIM_MS}ms` : 'none',
+        }}
+        onClick={requestClose}
       />
-      <div style={{
+      <div data-testid="selector-sheet" style={{
         position: 'fixed', left: 0, right: 0, bottom: 0,
         background: '#1C1C27', borderRadius: '28px 28px 0 0',
         zIndex: 102, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', overflow: 'hidden',
-        overscrollBehavior: 'contain',
-      }}>
+        overscrollBehavior: 'contain', touchAction: 'none',
+        transform: open ? `translate3d(0, ${dragY}px, 0)` : 'translate3d(0, 100%, 0)',
+        transition: sheetTransition, willChange: animate ? 'transform' : undefined,
+      }}
+        onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd}
+      >
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#3A3848', margin: '10px auto 12px' }} />
 
         {!calView ? (
@@ -171,6 +227,7 @@ export function SelectorSheet({ title, items, calendarMode, availableDates, now,
                         setCalView(true)
                       } else {
                         onItemSelect(item.id)
+                        requestClose()
                       }
                     }}
                   >

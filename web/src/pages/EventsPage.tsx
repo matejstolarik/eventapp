@@ -18,7 +18,9 @@ import { matchesFilter, isDefaultFilter, filterBadgeCount, DEFAULT_FILTER, type 
 import { FilterButton } from '../components/FilterButton'
 import { FilterSheet } from '../components/FilterSheet'
 import { FilterEmptyCard } from '../components/FilterEmptyCard'
+import { SlideText } from '../components/SlideText'
 import { getPeriodRange } from '../core/period'
+import { MOTION, motionOn, play, pressClass, staggerDelays } from '../core/motion'
 import { formatDayLabel } from '../i18n'
 
 interface Props {
@@ -300,9 +302,26 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     searchDebounceRef.current = setTimeout(() => setDebouncedQuery(value), 150)
   }
 
+  // Task 081: when Pre teba is turned on, the ✦ badges of the first cards pop in
+  // one after another (max 12, together ≤ 300 ms); the rest are shown at once.
+  const forYouBadgesPendingRef = useRef(false)
   function toggleForYou() {
+    forYouBadgesPendingRef.current = !forYouActive && MOTION.forYouBadges
     setForYouActive(v => !v)
   }
+  useEffect(() => {
+    if (!forYouBadgesPendingRef.current) return
+    forYouBadgesPendingRef.current = false
+    if (!forYouActive || !motionOn('forYouBadges')) return
+    const badges = scrollRef.current?.querySelectorAll('[data-foryou-badge]')
+    if (!badges) return
+    staggerDelays(badges.length, 12, 10).forEach((delay, i) => {
+      if (delay < 0) return
+      play('forYouBadges', badges[i], [
+        { transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1, offset: 0.7 }, { transform: 'scale(1)', opacity: 1 },
+      ], { duration: 180, delay, easing: 'ease-out', fill: 'backwards' })
+    })
+  }, [forYouActive])
   function toggleIsNew() { setIsNewActive(v => !v) }
 
   const periodItems: SheetItem[] = useMemo(() => {
@@ -329,14 +348,14 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       : id === 'next7' ? { type: 'next7' } : id === 'next30' ? { type: 'next30' } : { type: 'anytime' }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    setShowPeriodSheet(false)
+    // the sheet closes itself with its animation (task 081)
   }
 
   function handleCalendarSelect(from: string, to: string) {
     const p: Period = { type: 'custom', from, to }
     setPeriod(p)
     if (searchOpen) setSearchPreviousPeriod(p)
-    setShowPeriodSheet(false)
+    // the sheet closes itself with its animation (task 081)
   }
 
   const periodLabel = formatPeriodShortLabel(period, lang)
@@ -438,13 +457,14 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
             onScroll={e => setChipsCompactScrollLeft((e.currentTarget as HTMLDivElement).scrollLeft)}
           >
             <button
+              className={pressClass()}
               style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }}
               onClick={() => setShowPeriodSheet(true)}
             >
               {periodLabel}<ChevronDown />
             </button>
             <ForYouChip active={forYouActive} label={dict.events.forYou} onClick={toggleForYou} />
-            <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+            <button className={pressClass()} style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
             <div style={{ width: 40, flex: 'none' }} />
           </div>
         </div>
@@ -491,11 +511,11 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
               style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none' }}
               onScroll={e => setChipsScrollLeft((e.currentTarget as HTMLDivElement).scrollLeft)}
             >
-              <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} onClick={() => setShowPeriodSheet(true)}>
+              <button style={{ height: 44, padding: '0 14px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontFamily: 'Outfit,sans-serif', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', flex: 'none', cursor: 'pointer' }} className={pressClass()} onClick={() => setShowPeriodSheet(true)}>
                 {periodLabel}<ChevronDown />
               </button>
               <ForYouChip active={forYouActive} label={dict.events.forYou} onClick={toggleForYou} />
-              <button style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
+              <button className={pressClass()} style={chipStyle(isNewActive)} onClick={toggleIsNew}>{dict.events.newLabel}</button>
               <div style={{ width: 40, flex: 'none' }} />
             </div>
           </div>
@@ -504,7 +524,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
 
         {/* Count + sort row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2, position: 'relative' }}>
-          <span>{countRowText()}</span>
+          <SlideText text={countRowText()} />
           <button ref={sortBtnRef} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={openSortMenu}>
             {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : sort === 'size' ? dict.events.sortSize : dict.events.sortDistance}</b>
             <ChevronDown size={14} />

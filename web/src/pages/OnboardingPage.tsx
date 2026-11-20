@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
+import { pressClass } from '../core/motion'
 import { EVENT_TYPE_COLOR } from '../core/eventType'
 import { getPreferences, setPreferences, setOnboardingDone, setStoredPeriod, type Preferences } from '../core/store'
 import { preferenceGenres, hasMusicType, stepHasPick, type PickStep } from '../core/preferences'
@@ -180,7 +181,7 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
   )
   const footer = (label: string, onClick: () => void, testId: string, shakeN = 0) => (
     <div style={{ flex: 'none', padding: '12px 0 calc(16px + env(safe-area-inset-bottom))' }}>
-      <button key={shakeN} data-testid={testId} data-shake={shakeN > 0 ? shakeN : undefined} style={{
+      <button key={shakeN} data-testid={testId} data-shake={shakeN > 0 ? shakeN : undefined} className={pressClass()} style={{
         ...primaryBtn, animation: shakeN > 0 && !reduced ? 'onbShake 300ms ease-in-out' : undefined,
       }} onClick={onClick}>{label}</button>
     </div>
@@ -279,7 +280,7 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
         {body}
         {step === 'welcome' && (
           <div style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '12px 0 calc(12px + env(safe-area-inset-bottom))' }}>
-            <button data-testid="onb-start" style={primaryBtn} onClick={() => go('places', 1)}>{t.start}</button>
+            <button data-testid="onb-start" className={pressClass()} style={primaryBtn} onClick={() => go('places', 1)}>{t.start}</button>
             <button data-testid="onb-skip" style={textBtn} onClick={() => setConfirmSkip(true)}>{t.skip}</button>
           </div>
         )}
@@ -303,7 +304,7 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
             <style>{'@keyframes onbInUp { from { transform: translateY(100%) } to { transform: none } }'}</style>
             <h2 style={{ margin: 0, fontFamily: HEAD, fontSize: 24, fontWeight: 700 }}>{t.skipTitle}</h2>
             <p style={{ margin: '0 0 12px', fontSize: 15, lineHeight: 1.4, color: '#B9B6CC' }}>{t.skipText}</p>
-            <button data-testid="onb-skip-setup" style={primaryBtn} onClick={() => { setConfirmSkip(false); go('places', 1) }}>{t.skipSetUp}</button>
+            <button data-testid="onb-skip-setup" className={pressClass()} style={primaryBtn} onClick={() => { setConfirmSkip(false); go('places', 1) }}>{t.skipSetUp}</button>
             <button data-testid="onb-skip-confirm-btn" style={{ ...textBtn, alignSelf: 'center' }} onClick={() => finish(true)}>{t.skipConfirm}</button>
           </div>
         </>

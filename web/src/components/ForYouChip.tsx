@@ -1,4 +1,6 @@
 import { SparkleIcon } from './EventRow'
+import { pressClass } from '../core/motion'
+import { useChangeKey } from '../core/useMotion'
 
 /** Chip "✦ Pre teba" of the Akcie bar (design 4); also shown, inert, in the onboarding (task 079). */
 export function chipStyle(active: boolean): React.CSSProperties {
@@ -13,10 +15,15 @@ export function chipStyle(active: boolean): React.CSSProperties {
 export function ForYouChip({ active, label, onClick, inert = false }: {
   active: boolean; label: string; onClick?: () => void; inert?: boolean
 }) {
+  // Task 081: the sparkle twinkles once when Pre teba is turned on
+  const twinkle = useChangeKey(active, 'forYouSparkle', (prev, next) => !prev && next && !inert)
   return (
-    <button style={{ ...chipStyle(active), ...(inert ? { cursor: 'default', pointerEvents: 'none' } : null) }}
+    <button className={inert ? undefined : pressClass()}
+      style={{ ...chipStyle(active), ...(inert ? { cursor: 'default', pointerEvents: 'none' } : null) }}
       onClick={onClick} tabIndex={inert ? -1 : undefined} aria-hidden={inert || undefined}>
-      <SparkleIcon size={16} color={active ? '#1A0710' : '#B9B6CC'} />{label}
+      <span key={twinkle} className={twinkle > 0 ? 'm-twinkle' : undefined} style={{ display: 'inline-flex' }}>
+        <SparkleIcon size={16} color={active ? '#1A0710' : '#B9B6CC'} />
+      </span>{label}
     </button>
   )
 }

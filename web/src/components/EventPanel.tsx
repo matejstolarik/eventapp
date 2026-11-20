@@ -1,3 +1,4 @@
+import { pressClass } from '../core/motion'
 import { useState } from 'react'
 import type { Event, Venue, Language } from '../core/types'
 import { eventTags, getEventType, EVENT_TYPE_TAG_TEXT } from '../core/eventType'
@@ -111,6 +112,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
           cursor: 'pointer', padding: 0,
         }}
         onClick={() => onEventOpen(event.id)}
+        className={pressClass()}
         aria-label="Otvoriť akciu"
       >
         {/* 4:3 image (task 068; type ring removed in 069; new + for you on the image in 070) */}

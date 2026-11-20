@@ -1,3 +1,4 @@
+import { pressClass } from '../core/motion'
 /** Pre teba switched on without any preferences (design 7c, task 080): a card in
  * the middle of the empty list, in the style of the filter's empty card
  * (FilterEmptyCard: #2A2838, radius 20), with a pink "Nastaviť" → Event preferences. */
@@ -11,7 +12,7 @@ export function ForYouSetupCard({ text, button, onSetUp }: { text: string; butto
     }}>
       <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#F4F2FF' }}>{text}</p>
       <div style={{ display: 'flex' }}>
-        <button data-testid="for-you-setup-btn" onClick={onSetUp} style={{
+        <button data-testid="for-you-setup-btn" onClick={onSetUp} className={pressClass()} style={{
           height: 36, padding: '0 14px', borderRadius: 18, border: 0, cursor: 'pointer',
           fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap',
           background: '#FF4D8D', color: '#1A0710',

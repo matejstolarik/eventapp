@@ -1,3 +1,4 @@
+import { pressClass } from '../core/motion'
 import type maplibregl from 'maplibre-gl'
 import type { Language } from '../core/types'
 import { getDict } from '../i18n'
@@ -32,6 +33,7 @@ export function MapTopBar({
       alignItems: 'center', gap: 8, zIndex: 20,
     }}>
       <button
+        className={pressClass()}
         style={{
           height: 44, padding: '0 14px', borderRadius: 22,
           background: '#F4F2FF', color: '#111118',

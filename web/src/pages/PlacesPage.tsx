@@ -8,6 +8,7 @@ import { IconHeart, EventTypeIcon } from '../icons'
 import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
 import { AllFavsToggle } from '../components/AllFavsToggle'
+import { heartPop, pressClass } from '../core/motion'
 
 interface Props {
   data: EventsData
@@ -88,7 +89,7 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false,
 
   const handleToggleFav = useCallback((e: React.MouseEvent, venueId: string) => {
     e.stopPropagation()
-    toggleFavorite(venueId)
+    if (toggleFavorite(venueId)) heartPop(e.currentTarget)
     forceUpdate(n => n + 1)
   }, [])
 
@@ -215,6 +216,7 @@ function VenueRow({ venue, isFav, onToggleFav, onOpen }: RowProps) {
   return (
     <div
       onClick={() => onOpen(venue.id)}
+      className={pressClass()}
       style={{
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '10px 16px', cursor: 'pointer',
@@ -247,6 +249,7 @@ function VenueRow({ venue, isFav, onToggleFav, onOpen }: RowProps) {
 
       <button
         onClick={e => onToggleFav(e, venue.id)}
+        className="m-press-stop"
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           padding: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',

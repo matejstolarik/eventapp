@@ -2,6 +2,7 @@
 // večer po 068") and its pieces: 4:3 image (new + for-you badges), type icon +
 // tag row, meta line.
 import { useState, type CSSProperties } from 'react'
+import { pressClass } from '../core/motion'
 import type { Event, Language, Venue } from '../core/types'
 import { thumbCandidates, pickImage } from '../core/eventImage'
 import type { EventIconKey } from '../core/eventType'
@@ -62,7 +63,7 @@ export function EventImage43({ event, venue, width, height, radius = 12, eager =
         <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={EVENT_TYPE_COLOR[type]} size={40} bg={EVENT_TYPE_DARK[type]} />
       )}
       {forYou && (
-        <span style={{ position: 'absolute', top: 5, left: 5, zIndex: 2, display: 'flex', lineHeight: 0 }}
+        <span data-foryou-badge style={{ position: 'absolute', top: 5, left: 5, zIndex: 2, display: 'flex', lineHeight: 0 }}
           role="img" aria-label={FOR_YOU_LABEL[lang]} title={FOR_YOU_LABEL[lang]}>
           <OutlinedSparkleIcon size={18} color="#FF4D8D" />
         </span>
@@ -187,9 +188,10 @@ export function EventRow({ event, venueName, venue, lang, now, isNew, forYou, ea
   return (
     <div
       role="button" tabIndex={0} onClick={onClick} onKeyDown={e => e.key === 'Enter' && onClick()}
+      className={pressClass()}
       style={{
         display: 'flex', gap: 12, alignItems: 'center', height: ROW_IMG_H, cursor: 'pointer', minWidth: 0,
-        ...(animIn ? { animation: 'evCardIn 180ms ease-out both' } : {}),
+        ...(animIn ? { animation: 'evCardIn 180ms ease-out backwards' } : {}),
       }}
     >
       <EventImage43 event={event} venue={venue} width={ROW_IMG_W} height={ROW_IMG_H} radius={8} eager={eager} isNew={isNew} forYou={forYou} lang={lang} />

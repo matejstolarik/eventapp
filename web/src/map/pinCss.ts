@@ -12,6 +12,11 @@ export const PIN_CSS = `
   from { opacity: 1; transform: scale(1); }
   to   { opacity: 0; transform: scale(0.82); }
 }
+@keyframes pin-drop {
+  0%   { opacity: 0; transform: translateX(var(--pin-dx, 0px)) translateY(-12px); }
+  60%  { opacity: 1; transform: translateX(var(--pin-dx, 0px)) translateY(2px); }
+  100% { opacity: 1; transform: translateX(var(--pin-dx, 0px)) translateY(0); }
+}
 @keyframes card-slide-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
@@ -165,12 +170,16 @@ export const PIN_CSS = `
 .pin-new .pin-inner {
   animation: pin-appear 180ms ease-out both;
 }
+.pin-drop .pin-inner {
+  animation: pin-drop 180ms cubic-bezier(.3,.8,.4,1) var(--pin-delay, 0ms) backwards;
+}
 .pin-leaving .pin-inner {
   animation: pin-disappear 180ms ease-in both;
   pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .pin-new .pin-inner { animation: none; }
+  .pin-drop .pin-inner { animation: none; }
   .pin-leaving .pin-inner { animation: none; opacity: 0; }
 }
 

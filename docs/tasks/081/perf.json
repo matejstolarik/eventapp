@@ -1,0 +1,339 @@
+{
+  "runs": 5,
+  "cpuThrottle": 4,
+  "viewport": "390x844",
+  "favorites": [
+    "palac-akropolis",
+    "archa-plus",
+    "roxy",
+    "meetfactory",
+    "epic",
+    "fuchs2"
+  ],
+  "results": {
+    "before": {
+      "period": [
+        {
+          "avgFps": 48,
+          "worstFps": 12,
+          "longestFrame": 83.3,
+          "toContent": 112.9
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 29.8
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 48.8
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 31.3
+        },
+        {
+          "avgFps": 57.1,
+          "worstFps": 20,
+          "longestFrame": 50,
+          "toContent": 57.5
+        }
+      ],
+      "forYou": [
+        {
+          "avgFps": 58.5,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 43
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 35.3
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 23.1
+        },
+        {
+          "avgFps": 57.1,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 37.3
+        },
+        {
+          "avgFps": 57.1,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 34.4
+        }
+      ],
+      "tabMap": [
+        {
+          "avgFps": 7.3,
+          "worstFps": 4.6,
+          "longestFrame": 216.6,
+          "toContent": 71
+        },
+        {
+          "avgFps": 28.9,
+          "worstFps": 6.7,
+          "longestFrame": 150,
+          "toContent": 70
+        },
+        {
+          "avgFps": 8.8,
+          "worstFps": 3.8,
+          "longestFrame": 266.6,
+          "toContent": 72.6
+        },
+        {
+          "avgFps": 22,
+          "worstFps": 5,
+          "longestFrame": 199.9,
+          "toContent": 41.2
+        },
+        {
+          "avgFps": 23.4,
+          "worstFps": 4,
+          "longestFrame": 249.9,
+          "toContent": 59.6
+        }
+      ],
+      "mapDay": [
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 32.2
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 14.3
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 13.9
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 14.6
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 10.6
+        }
+      ],
+      "heart": [
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 39
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 35.5
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 24.1
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 38.9
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 27.3
+        }
+      ]
+    },
+    "after": {
+      "period": [
+        {
+          "avgFps": 58.3,
+          "worstFps": 30.1,
+          "longestFrame": 33.2,
+          "toContent": 101.6
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 47.7
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 45.3
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 38.6
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 43.6
+        }
+      ],
+      "forYou": [
+        {
+          "avgFps": 55,
+          "worstFps": 20,
+          "longestFrame": 50,
+          "toContent": 78.9
+        },
+        {
+          "avgFps": 56.8,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 59.2
+        },
+        {
+          "avgFps": 58.4,
+          "worstFps": 30,
+          "longestFrame": 33.3,
+          "toContent": 53.5
+        },
+        {
+          "avgFps": 54.1,
+          "worstFps": 15,
+          "longestFrame": 66.7,
+          "toContent": 58.8
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 25.6
+        }
+      ],
+      "tabMap": [
+        {
+          "avgFps": 6.7,
+          "worstFps": 4.3,
+          "longestFrame": 233.4,
+          "toContent": 80.5
+        },
+        {
+          "avgFps": 19,
+          "worstFps": 4,
+          "longestFrame": 250,
+          "toContent": 56.9
+        },
+        {
+          "avgFps": 20,
+          "worstFps": 7.5,
+          "longestFrame": 133.3,
+          "toContent": 37.9
+        },
+        {
+          "avgFps": 8.2,
+          "worstFps": 6.7,
+          "longestFrame": 150,
+          "toContent": 84.4
+        },
+        {
+          "avgFps": 24.9,
+          "worstFps": 5.5,
+          "longestFrame": 183.4,
+          "toContent": 39.1
+        }
+      ],
+      "mapDay": [
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 37.9
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 4.9
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.9,
+          "longestFrame": 16.7,
+          "toContent": 8.3
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 9.1
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 9.3
+        }
+      ],
+      "heart": [
+        {
+          "avgFps": 55.4,
+          "worstFps": 20,
+          "longestFrame": 49.9,
+          "toContent": 45.8
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 27.2
+        },
+        {
+          "avgFps": 58.5,
+          "worstFps": 29.9,
+          "longestFrame": 33.4,
+          "toContent": 43
+        },
+        {
+          "avgFps": 55.6,
+          "worstFps": 15,
+          "longestFrame": 66.7,
+          "toContent": 22.4
+        },
+        {
+          "avgFps": 60,
+          "worstFps": 59.5,
+          "longestFrame": 16.8,
+          "toContent": 14.8
+        }
+      ]
+    }
+  }
+}

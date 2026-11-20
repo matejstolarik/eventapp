@@ -61,7 +61,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const [showFilterSheet, setShowFilterSheet] = useState(false)
 
   const leavingMarkersRef = useRef<Map<string, { marker: maplibregl.Marker; el: HTMLElement; timerId: ReturnType<typeof setTimeout>; cancelled: boolean }>>(new Map())
-  const updateMarkersRef = useRef<() => void>(() => {})
+  const updateMarkersRef = useRef<(drop?: boolean) => void>(() => {})
   const isVisibleRef = useRef(isVisible)
   const selectedVenueIdRef = useRef<string | null>(null)
   const dataRef = useRef(data)
@@ -120,7 +120,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   useEffect(() => {
     if (isVisible && mapRef.current?.loaded()) {
       mapRef.current.resize()
-      updateMarkersRef.current()
+      updateMarkersRef.current(true) // map opened: pins drop (task 081)
     }
   }, [isVisible])
 
@@ -208,12 +208,12 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     })
   }, [data, selectedDay, showFavorites, eventFilter])
 
-  const updateMarkers = useCallback(() => {
+  const updateMarkers = useCallback((drop = false) => {
     const map = mapRef.current
     if (!map) return
     const markerData = buildMarkers()
     syncMarkers({
-      map, markerData,
+      map, markerData, drop,
       markers: markersRef.current,
       leavingMarkers: leavingMarkersRef.current,
       selectedVenueIdRef,
@@ -359,9 +359,15 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
   updateMarkersRef.current = updateMarkers
 
+  // Pins drop (task 081) only when the user changed the day, filter or
+  // Všetko | Obľúbené, not on background data refreshes.
+  const dropKeyRef = useRef('')
   useEffect(() => {
-    if (mapRef.current?.loaded()) updateMarkers()
-  }, [updateMarkers])
+    const key = `${selectedDay}|${showFavorites}|${JSON.stringify(eventFilter)}`
+    const drop = dropKeyRef.current !== '' && dropKeyRef.current !== key
+    dropKeyRef.current = key
+    if (mapRef.current?.loaded()) updateMarkers(drop)
+  }, [updateMarkers]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Refresh every 60s when map is visible
   useEffect(() => {
@@ -516,7 +522,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           now={curNow}
           showNight={showNight}
           availableDates={availableDates}
-          onSelect={day => { setSelectedDay(day); setShowDaySelector(false) }}
+          onSelect={day => setSelectedDay(day)}
           onClose={() => setShowDaySelector(false)}
         />
       )}

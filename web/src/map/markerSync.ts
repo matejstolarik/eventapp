@@ -3,6 +3,7 @@ import { createPinElement, updatePinElement } from './markers'
 import { checkPinOverlaps, checkNameCollisions } from './collisions'
 import type { MarkerData } from './markers'
 import type { MarkerEntry } from './collisions'
+import { motionOn, pinDropDelay } from '../core/motion'
 
 export type LeavingEntry = {
   marker: maplibregl.Marker
@@ -24,6 +25,35 @@ interface SyncMarkersOptions {
   dataRef: React.MutableRefObject<{ venues: Array<{ id: string; name: string; lat: number; lng: number }> }>
   openPanel: (venueId: string) => void
   closePanel: () => void
+  /** Task 081: replay the drop on all visible pins (map opened, day / filter /
+   * favourites changed). Never set for pan, zoom, rotate or pin taps. */
+  drop?: boolean
+}
+
+let dropToken = 0
+
+/** Pins "fall" into place (task 081, replaces pin-appear): from ~12 px above with a
+ * small bounce, delayed by distance from the screen centre, all within ≤ 300 ms. */
+function dropPins(map: maplibregl.Map, all: Array<{ el: HTMLElement; lng: number; lat: number }>, restart: boolean): void {
+  // the selected pin keeps its scale (it may have been selected by "Na mape" above)
+  const items = all.filter(it => !it.el.classList.contains('pin-selected'))
+  if (items.length === 0) return
+  const token = String(++dropToken)
+  const c = map.getContainer()
+  const w = c.clientWidth, h = c.clientHeight
+  for (const it of items) {
+    if (restart) it.el.classList.remove('pin-drop')
+    const pt = map.project([it.lng, it.lat])
+    it.el.style.setProperty('--pin-delay', `${pinDropDelay(pt.x, pt.y, w, h)}ms`)
+    it.el.dataset.dropToken = token
+  }
+  if (restart) void c.offsetWidth // restart the CSS animation (one reflow per batch)
+  for (const it of items) it.el.classList.add('pin-drop')
+  setTimeout(() => {
+    for (const it of items) {
+      if (it.el.dataset.dropToken === token) it.el.classList.remove('pin-drop')
+    }
+  }, 340)
 }
 
 export function syncMarkers(opts: SyncMarkersOptions): void {
@@ -31,8 +61,11 @@ export function syncMarkers(opts: SyncMarkersOptions): void {
     map, markerData, markers, leavingMarkers,
     selectedVenueIdRef, pendingPanelOpenRef, pairsRef,
     combinedLabelRef, combinedMarkerRef, dataRef,
-    openPanel, closePanel,
+    openPanel, closePanel, drop = false,
   } = opts
+  const dropOn = motionOn('pinDrop')
+  const newPins: Array<{ el: HTMLElement; lng: number; lat: number }> = []
+  const replay: Array<{ el: HTMLElement; lng: number; lat: number }> = []
 
   const newIds = new Set(markerData.map(m => m.venueId))
 
@@ -85,6 +118,7 @@ export function syncMarkers(opts: SyncMarkersOptions): void {
 
     if (existing) {
       updatePinElement(existing.el, md, isSelected)
+      if (drop && dropOn && !isSelected) replay.push({ el: existing.el, lng: md.lng, lat: md.lat })
     } else if (leaving) {
       leaving.cancelled = true
       clearTimeout(leaving.timerId)
@@ -145,8 +179,13 @@ export function syncMarkers(opts: SyncMarkersOptions): void {
         .setLngLat([md.lng, md.lat])
         .addTo(map)
 
-      el.classList.add('pin-new')
-      setTimeout(() => el.classList.remove('pin-new'), 300)
+      if (dropOn && !isSelected) {
+        newPins.push({ el, lng: md.lng, lat: md.lat })
+      } else if (!dropOn) {
+        // switch off: pre-081 appear animation
+        el.classList.add('pin-new')
+        setTimeout(() => el.classList.remove('pin-new'), 300)
+      }
 
       markers.set(venueId, { marker, el })
     }
@@ -176,6 +215,9 @@ export function syncMarkers(opts: SyncMarkersOptions): void {
       }
     }
   }
+
+  dropPins(map, newPins, false)
+  dropPins(map, replay, true)
 
   runCollisions()
 }

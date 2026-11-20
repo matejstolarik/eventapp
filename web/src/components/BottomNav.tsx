@@ -1,4 +1,6 @@
+import { useLayoutEffect, useRef } from 'react'
 import type { Language } from '../core/types'
+import { motionOn, play } from '../core/motion'
 import { getDict } from '../i18n'
 import { IconMap, IconList, IconBuilding, IconPerson } from '../icons'
 
@@ -24,6 +26,59 @@ export function BottomNav({ active, lang, onChange }: Props) {
   ]
   const tabs = TAB_ORDER.map(id => all.find(t => t.id === id)!)
 
+  // Task 081: the pink pill is one element behind the buttons; on a tab change it
+  // moves with transform only (FLIP: translate + scaleX), the new icon pops.
+  // Without motion it is placed at once (same look as before).
+  const btnRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({})
+  const iconRefs = useRef<Partial<Record<Tab, HTMLSpanElement | null>>>({})
+  const labelRefs = useRef<Partial<Record<Tab, HTMLSpanElement | null>>>({})
+  const pillRef = useRef<HTMLDivElement>(null)
+  const placedRef = useRef<{ left: number; width: number } | null>(null)
+  const activeRef = useRef(active)
+  activeRef.current = active
+
+  function placePill(animate: boolean) {
+    const pill = pillRef.current
+    const btn = btnRefs.current[activeRef.current]
+    if (!pill || !btn) return
+    const left = btn.offsetLeft
+    const width = btn.offsetWidth
+    const prev = placedRef.current
+    placedRef.current = { left, width }
+    pill.style.width = `${width}px`
+    if (animate && prev && width > 0 && (prev.left !== left || prev.width !== width)) {
+      pill.style.transition = 'none'
+      pill.style.transform = `translate3d(${prev.left}px, 0, 0) scaleX(${prev.width / width})`
+      void pill.offsetWidth // commit the start position
+      pill.style.transition = 'transform 220ms cubic-bezier(.2,.8,.2,1)'
+    } else {
+      pill.style.transition = 'none'
+    }
+    pill.style.transform = `translate3d(${left}px, 0, 0)`
+  }
+
+  const firstRef = useRef(true)
+  useLayoutEffect(() => {
+    const first = firstRef.current
+    firstRef.current = false
+    const animate = !first && motionOn('navPill')
+    placePill(animate)
+    if (animate) {
+      play('navPill', iconRefs.current[active], [
+        { transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' },
+      ], { duration: 250, easing: 'cubic-bezier(.3,.7,.4,1)' })
+      play('navPill', labelRefs.current[active], [{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' })
+    }
+  }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-place without animation when sizes change (fonts loaded, rotation)
+  useLayoutEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => placePill(false))
+    Object.values(btnRefs.current).forEach(b => { if (b) ro.observe(b) })
+    return () => ro.disconnect()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <nav
       style={{
@@ -35,20 +90,25 @@ export function BottomNav({ active, lang, onChange }: Props) {
       }}
       aria-label="Hlavná navigácia"
     >
+      <div ref={pillRef} aria-hidden="true" data-testid="nav-pill" style={{
+        position: 'absolute', left: 0, top: 10, height: 52, width: 0, borderRadius: 26,
+        background: '#FF4D8D', transformOrigin: '0 50%', pointerEvents: 'none', zIndex: 0,
+      }} />
       {tabs.map(({ id, label, Icon }) => {
         const isActive = active === id
         return (
           <button
             key={id}
+            ref={el => { btnRefs.current[id] = el }}
             style={{
-              height: 52, borderRadius: 26,
+              position: 'relative', zIndex: 1,
+              height: 52, borderRadius: 26, background: 'transparent',
               ...(isActive
-                ? { padding: '0 20px', background: '#FF4D8D', color: '#1A0710' }
-                : { width: 52, color: '#B9B6CC' }),
+                ? { padding: '0 20px', color: '#1A0710' }
+                : { width: 52, padding: 0, color: '#B9B6CC' }),
               display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: isActive ? 8 : 0,
               fontSize: 15, fontWeight: 600,
-              transition: 'all 0.2s',
               WebkitTapHighlightColor: 'transparent',
               border: 'none', cursor: 'pointer',
             }}
@@ -56,8 +116,10 @@ export function BottomNav({ active, lang, onChange }: Props) {
             aria-current={isActive ? 'page' : undefined}
             aria-label={label}
           >
-            <Icon size={isActive ? 20 : 22} color={isActive ? '#1A0710' : '#B9B6CC'} />
-            {isActive && <span>{label}</span>}
+            <span ref={el => { iconRefs.current[id] = el }} style={{ display: 'flex' }}>
+              <Icon size={isActive ? 20 : 22} color={isActive ? '#1A0710' : '#B9B6CC'} />
+            </span>
+            {isActive && <span ref={el => { labelRefs.current[id] = el }}>{label}</span>}
           </button>
         )
       })}

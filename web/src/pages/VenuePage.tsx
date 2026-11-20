@@ -7,6 +7,7 @@ import { priceLabel } from '../core/eventText'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
 import { isFavorite, toggleFavorite } from '../core/store'
+import { heartPop } from '../core/motion'
 import { haversine, formatDistance } from '../core/distance'
 import { getToday } from '../core/day'
 import { joinDot } from '../core/dot'
@@ -164,7 +165,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
           <IconChevronLeft size={22} color="#F4F2FF" />
         </button>
         {/* Heart button: white circle + dark outline when off; pink circle + filled heart when on */}
-        <button onClick={() => { toggleFavorite(venueId); forceUpdate(n => n + 1) }} style={{
+        <button onClick={e => { if (toggleFavorite(venueId)) heartPop(e.currentTarget); forceUpdate(n => n + 1) }} style={{
           position: 'absolute', top: 52, right: 16,
           width: 44, height: 44, borderRadius: 22,
           background: isFav ? '#FF4D8D' : '#F4F2FF',

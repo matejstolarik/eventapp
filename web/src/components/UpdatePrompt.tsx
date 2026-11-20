@@ -1,3 +1,4 @@
+import { pressClass } from '../core/motion'
 import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import type { Language } from '../core/types'
@@ -78,6 +79,7 @@ export function UpdatePrompt({ lang, visible }: Props) {
       <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{dict.update.available}</span>
       <button
         onClick={() => { updateServiceWorker(true) }}
+        className={pressClass()}
         style={{
           background: '#FF4D8D', color: '#1A0710', border: 'none',
           borderRadius: 16, padding: '8px 14px', fontSize: 14, fontWeight: 700,

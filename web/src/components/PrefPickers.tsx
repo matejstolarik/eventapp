@@ -8,6 +8,7 @@ import { MAX_PREF_GENRES, toggleFavorite, type Preferences } from '../core/store
 import { togglePrefType, togglePrefSubtype, togglePrefGenre } from '../core/preferences'
 import { normalizeText } from '../core/search'
 import { IconHeart } from '../icons'
+import { heartPop } from '../core/motion'
 import { VenuePhoto } from '../pages/PlacesPage'
 
 // Task 079 (design.md 7c): the three preference pickers shared by the onboarding
@@ -68,7 +69,7 @@ export function PlacesList({ venues, favorites }: { venues: Venue[]; favorites: 
         const fav = favorites.has(v.id)
         return (
           <button key={v.id} data-testid={`pref-place-${v.id}`} aria-pressed={fav}
-            onClick={() => toggleFavorite(v.id)}
+            onClick={e => { const on = toggleFavorite(v.id); if (on) heartPop(e.currentTarget.querySelector('[data-heart]')) }}
             style={{
               display: 'flex', alignItems: 'center', gap: 12, height: 44, padding: 0, border: 0,
               background: 'transparent', color: '#F4F2FF', cursor: 'pointer', textAlign: 'left',
@@ -76,7 +77,7 @@ export function PlacesList({ venues, favorites }: { venues: Venue[]; favorites: 
             }}>
             <VenuePhoto venue={v} size={32} radius={16} />
             <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
-            <span style={{ padding: '0 4px', display: 'flex' }}>
+            <span data-heart style={{ padding: '0 4px', display: 'flex' }}>
               <IconHeart size={20} color={fav ? PINK : '#5D5677'} filled={fav} />
             </span>
           </button>

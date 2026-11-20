@@ -4,6 +4,7 @@ import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
 import { joinDot, DOT_SEP } from '../core/dot'
 import { isGoing, toggleGoing } from '../core/store'
+import { goingBurst, pressClass } from '../core/motion'
 import { PosterZoom } from '../components/PosterZoom'
 import { haversine, formatDistance } from '../core/distance'
 import { getDict, formatEventDate, tagLabel } from '../i18n'
@@ -110,8 +111,9 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
   function handleTickets() {
     window.open(ev.ticket_url ?? sourceUrl, '_blank', 'noopener')
   }
-  function handleGoing() {
+  function handleGoing(e: React.MouseEvent<HTMLButtonElement>) {
     const newState = toggleGoing(eventId)
+    if (newState) goingBurst(e.currentTarget)
     setGoing(newState)
     showToast(newState ? dict.event.addedToGoing : dict.event.removedFromGoing)
   }
@@ -322,6 +324,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                   WebkitTapHighlightColor: 'transparent',
                 }}
                 onClick={handleGoing}
+                className={pressClass()}
                 aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
               >
                 <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
@@ -360,6 +363,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                 WebkitTapHighlightColor: 'transparent',
               }}
               onClick={handleGoing}
+              className={pressClass()}
               aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
             >
               <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
@@ -388,6 +392,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
                 WebkitTapHighlightColor: 'transparent',
               }}
               onClick={handleGoing}
+              className={pressClass()}
               aria-label={going ? dict.event.removedFromGoing : dict.event.addedToGoing}
             >
               <IconBookmark size={18} color={going ? '#1A0710' : '#F4F2FF'} filled={going} />
@@ -397,6 +402,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
 
         {/* Main CTA */}
         <button
+          className={pressClass()}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: '100%', height: 54, borderRadius: 27,

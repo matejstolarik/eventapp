@@ -172,3 +172,43 @@ a {
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Task 081 animations (switches in src/core/motion.ts). Only transform/opacity. */
+.m-press { transition: transform 100ms ease-out; }
+.m-press.is-pressed { transform: scale(0.97); }
+
+@keyframes m-bump {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.m-bump { animation: m-bump 220ms cubic-bezier(.3,.7,.4,1); }
+
+@keyframes m-twinkle {
+  0% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(-20deg) scale(1.35); }
+  70% { transform: rotate(12deg) scale(0.95); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.m-twinkle { display: inline-flex; animation: m-twinkle 300ms ease-out; }
+
+@keyframes m-count-in { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes m-count-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-100%); opacity: 0; } }
+.m-count-in { display: inline-block; animation: m-count-in 200ms ease-out both; }
+.m-count-out { position: absolute; left: 0; top: 0; white-space: nowrap; animation: m-count-out 200ms ease-in both; pointer-events: none; }
+
+@keyframes m-burst-dot {
+  0% { transform: translate(-50%, -50%) rotate(var(--a)) translateY(0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(var(--a)) translateY(-30px) scale(0.3); opacity: 0; }
+}
+.m-burst-dot {
+  position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border-radius: 3px;
+  background: #FF4D8D; pointer-events: none;
+  animation: m-burst-dot 380ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-press, .m-press.is-pressed { transition: none; transform: none; }
+  .m-bump, .m-twinkle, .m-count-in { animation: none; }
+  .m-count-out, .m-burst-dot { display: none; }
+}

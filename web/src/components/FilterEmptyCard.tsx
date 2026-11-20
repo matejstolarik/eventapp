@@ -1,3 +1,4 @@
+import { pressClass } from '../core/motion'
 /** Empty result of the filter (design 7b, task 075): a quiet card above the
  * bottom bar with "Najbližšie: <day> ›" (when a later day has results) and
  * "Zrušiť filter". Same surface as the update card (#2A2838, radius 20). */
@@ -22,9 +23,9 @@ export function FilterEmptyCard({ text, nearestLabel, onNearest, clearLabel, onC
       <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: '#F4F2FF' }}>{text}</p>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {nearestLabel && (
-          <button style={{ ...btn, background: '#F4F2FF', color: '#111118' }} onClick={onNearest}>{nearestLabel} ›</button>
+          <button className={pressClass()} style={{ ...btn, background: '#F4F2FF', color: '#111118' }} onClick={onNearest}>{nearestLabel} ›</button>
         )}
-        <button style={{ ...btn, background: '#3A3A50', color: '#F4F2FF' }} onClick={onClear}>{clearLabel}</button>
+        <button className={pressClass()} style={{ ...btn, background: '#3A3A50', color: '#F4F2FF' }} onClick={onClear}>{clearLabel}</button>
       </div>
     </div>
   )
