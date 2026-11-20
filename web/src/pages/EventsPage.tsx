@@ -559,6 +559,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
                 key={event.id}
                 event={event}
                 venueName={venueMap.get(event.venue_id)?.name}
+                venue={venueMap.get(event.venue_id)}
                 lang={lang}
                 now={now}
                 eager={idx < 6}

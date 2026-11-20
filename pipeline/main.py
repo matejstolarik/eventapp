@@ -23,7 +23,7 @@ from pipeline import research_store
 from pipeline import manual as manual_mod
 from pipeline.genres import finalize_genres, load_aliases, load_hierarchy
 from pipeline.price import parse_price
-from pipeline.thumbs import generate_thumbs, generate_event_images, event_detail_size
+from pipeline.thumbs import generate_venue_images, generate_event_images, event_detail_size
 from pipeline.fetch import USER_AGENT
 from pipeline import run_summary
 
@@ -260,12 +260,15 @@ def main():
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    # Generate venue thumbnails; annotate each venue with image_thumb
-    thumb_map = generate_thumbs(venues)
+    # Venue images: image_thumb, and (task 082) image_card / image_detail /
+    # image_detail_size, which the app shows when an event has no image
+    venue_image_map = generate_venue_images(venues)
     venues_out = []
     for v in venues:
         ve = dict(v)
-        ve["image_thumb"] = thumb_map.get(v.get("id", ""))
+        ve.update(venue_image_map.get(v.get("id", ""), {}) or {
+            "image_thumb": None, "image_card": None, "image_detail": None,
+            "image_detail_size": None})
         venues_out.append(ve)
 
     # Generate event thumbnails (image_thumb) and detail copies (image_detail, task 066)

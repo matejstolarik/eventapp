@@ -1,3 +1,4 @@
+import { heroCandidates, pickImage } from '../core/eventImage'
 import React, { useState, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, primaryTypeTag, eventIconKey } from '../core/eventType'
@@ -187,12 +188,12 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
     ...ev.formats.filter(f => ['theatre','dance','talk','performance','stand-up','film','opening','workshop','quiz'].includes(f) && f !== primaryTag),
     ...ev.genres,
   ]
-  const heroCandidates = [ev.image_detail, ev.image_url].filter((x): x is string => !!x)
-  const heroSrc = heroCandidates[heroErr] ? imgSrc(heroCandidates[heroErr]!) : null
-  // Task 069: reserve the image box before the image loads (no layout jump).
-  // image_detail is an uncropped resize of image_url, so its size also reserves the
-  // box for the image_url fallback (no collapse and jump when image_detail fails).
-  const heroSize = ev.image_detail && ev.image_detail_size ? ev.image_detail_size : null
+  // Task 082: event image_detail -> event image_url -> venue image_detail -> type icon.
+  // Task 069: reserve the image box before the image loads (no layout jump);
+  // the venue image uses the venue image_detail_size and has no "Plagát".
+  const hero = pickImage(heroCandidates(ev, venue), heroErr)
+  const heroSrc = hero ? imgSrc(hero.src) : null
+  const heroSize = hero?.size ?? null
   const backButton = (
     <button
       style={{
@@ -224,13 +225,13 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
             aspectRatio: `${heroSize[0]} / ${heroSize[1]}`, maxHeight: '50vh',
           } : { position: 'relative', lineHeight: 0, width: '100%' }}>
             <img
-              src={heroSrc} alt=""
+              key={heroSrc} src={heroSrc} alt=""
               onError={() => setHeroErr(e => e + 1)}
               style={heroSize
                 ? { display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }
                 : { display: 'block', width: '100%', height: 'auto', maxHeight: '50vh', objectFit: 'cover', objectPosition: 'center top' }}
             />
-            <button
+            {hero?.poster && <button
               style={{
                 position: 'absolute', bottom: 12, right: 12,
                 height: 36, padding: '0 12px', borderRadius: 18,
@@ -243,7 +244,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
             >
               <IconExpand size={16} />
               {dict.event.poster}
-            </button>
+            </button>}
           </div>
           {backButton}
         </div>
@@ -443,7 +444,7 @@ export function EventPage({ eventId, data, lang, userLocation, onBack, onVenueOp
       </div>
 
       {/* Full-screen poster overlay */}
-      {showPoster && ev.image_url && (
+      {showPoster && ev.image_url && hero?.poster && (
         <div
           style={{
             position: 'fixed', inset: 0, background: '#000', zIndex: 200,

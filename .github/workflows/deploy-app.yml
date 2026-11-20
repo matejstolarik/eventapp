@@ -50,7 +50,8 @@ jobs:
           curl -sf https://matejstolarik.github.io/eventapp/pipeline_state.json -o site/pipeline_state.json || echo "pipeline_state.json not available, skipping"
 
       - name: Fetch venue thumbnails (preserve pipeline images)
-        # Download each image_thumb listed in events.json venues so the UI has them after a UI-only deploy.
+        # Download each image_thumb, image_card and image_detail (task 082) listed in events.json venues
+        # so the UI has them after a UI-only deploy.
         # Missing files are skipped with a warning; failures never abort the deploy.
         run: |
           if [ ! -f site/events.json ]; then
@@ -60,7 +61,7 @@ jobs:
           THUMBS=$(python3 -c "
           import json, sys
           data = json.load(open('site/events.json'))
-          paths = [v['image_thumb'] for v in data.get('venues', []) if v.get('image_thumb')]
+          paths = [v[k] for v in data.get('venues', []) for k in ('image_thumb', 'image_card', 'image_detail') if v.get(k)]
           print('\n'.join(paths))
           " 2>/dev/null || true)
           if [ -z "$THUMBS" ]; then
@@ -135,7 +136,7 @@ jobs:
           echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **URL:** ${{ steps.deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
           echo "- events.json: preserved from live Pages (or absent on first deploy)" >> $GITHUB_STEP_SUMMARY
-          echo "- thumbnails: fetched from live Pages (img/venues/*.jpg)" >> $GITHUB_STEP_SUMMARY
+          echo "- venue images: fetched from live Pages (img/venues/, card/, detail/)" >> $GITHUB_STEP_SUMMARY
           echo "- web app: built from web/ and deployed to site root" >> $GITHUB_STEP_SUMMARY
 
       - name: Alerts (GitHub issues)

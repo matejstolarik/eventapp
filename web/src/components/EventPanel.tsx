@@ -114,7 +114,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
         aria-label="Otvoriť akciu"
       >
         {/* 4:3 image (task 068; type ring removed in 069; new + for you on the image in 070) */}
-        <EventImage43 event={event} width={120} eager isNew={newFlag} forYou={forYouFlag} lang={lang} />
+        <EventImage43 event={event} venue={venue} width={120} eager isNew={newFlag} forYou={forYouFlag} lang={lang} />
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
           <p style={{
             margin: 0,

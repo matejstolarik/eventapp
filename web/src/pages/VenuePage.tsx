@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
-import { TypeIconPill } from '../components/EventRow'
+import { TypeIconPill, useImageFallback } from '../components/EventRow'
+import { thumbCandidates } from '../core/eventImage'
 import type { EventsData, Language, Venue, Event, EventType } from '../core/types'
 import { getDict, tagLabel } from '../i18n'
 import { priceLabel } from '../core/eventText'
@@ -71,13 +72,14 @@ function HeaderImage({ venue, et }: { venue: Venue; et: EventType }) {
   )
 }
 
-function EventThumbnail({ event }: { event: Event }) {
-  const [err, setErr] = useState(false)
+function EventThumbnail({ event, venue }: { event: Event; venue: Venue }) {
+  // task 082: event image -> venue image_card -> type icon
+  const { src, onError } = useImageFallback(thumbCandidates(event, venue))
   const et = getEventType(event.formats, event.primary_format)
   const iconKey = eventIconKey(event.formats, event.primary_format)
   const bg = EVENT_TYPE_COLOR[et]
   const fg = EVENT_TYPE_DARK[et]
-  if (!event.image_thumb || err) {
+  if (!src) {
     return (
       <div style={{
         width: 56, height: 56, borderRadius: 12, background: bg, flexShrink: 0,
@@ -89,12 +91,13 @@ function EventThumbnail({ event }: { event: Event }) {
   }
   return (
     <img
-      src={event.image_thumb}
+      key={src}
+      src={src}
       alt={event.title}
       width={56}
       height={56}
       decoding="async"
-      onError={() => setErr(true)}
+      onError={onError}
       style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }}
     />
   )
@@ -385,7 +388,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
                           )}
                         </div>
                         {/* Thumbnail */}
-                        <EventThumbnail event={ev} />
+                        <EventThumbnail event={ev} venue={venue} />
                       </div>
                     )
                   })}

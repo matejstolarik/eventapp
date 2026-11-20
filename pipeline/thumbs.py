@@ -81,64 +81,12 @@ def _download(url: str) -> bytes:
         return resp.read()
 
 
-def generate_thumbs(venues: list[dict]) -> dict[str, str | None]:
-    """Download and resize venue images; return {venue_id: relative_path | None}.
-
-    Only downloads when the source URL has changed (hash file next to thumb).
-    Errors are logged as warnings; the pipeline continues.
-    """
-    try:
-        from PIL import Image
-        import io
-    except ImportError:
-        log.warning("thumbs: Pillow not installed — skipping thumbnail generation")
-        return {v["id"]: None for v in venues}
-
-    THUMB_DIR.mkdir(parents=True, exist_ok=True)
-    result: dict[str, str | None] = {}
-
-    for venue in venues:
-        vid = venue.get("id", "")
-        image_url = venue.get("image_url")
-        if not image_url:
-            result[vid] = None
-            continue
-
-        thumb_path = THUMB_DIR / f"{vid}.jpg"
-        hash_path = THUMB_DIR / f"{vid}.url_hash"
-        new_hash = _hash_url(image_url)
-
-        # Skip if already cached with the same URL
-        if thumb_path.exists() and hash_path.exists():
-            if hash_path.read_text().strip() == new_hash:
-                result[vid] = f"img/venues/{vid}.jpg"
-                continue
-
-        try:
-            data = _download(image_url)
-            img = Image.open(io.BytesIO(data)).convert("RGB")
-            # crop to square (cover, center)
-            w, h = img.size
-            side = min(w, h)
-            left = (w - side) // 2
-            top = (h - side) // 2
-            img = img.crop((left, top, left + side, top + side))
-            img = img.resize((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)
-            img.save(thumb_path, "JPEG", quality=THUMB_QUALITY, optimize=True)
-            hash_path.write_text(new_hash)
-            log.info("thumbs: %s → %s (%d bytes)", vid, thumb_path, thumb_path.stat().st_size)
-            result[vid] = f"img/venues/{vid}.jpg"
-        except Exception as exc:
-            log.warning("thumbs: %s — %s", vid, exc)
-            result[vid] = None
-
-    return result
+VENUE_CARD_DIR = THUMB_DIR / "card"      # task 082: 640x480, same as event thumbs
+VENUE_DETAIL_DIR = THUMB_DIR / "detail"  # task 082: uncropped, longer side <= 1200 px
 
 
-def event_detail_size(event_id: str) -> "list[int] | None":
-    """[width, height] of the written image_detail file (task 069), read from
-    the JPEG header; None when the file is missing or unreadable."""
-    path = EVENT_DETAIL_DIR / f"{event_id}.jpg"
+def _image_size(path: pathlib.Path) -> "list[int] | None":
+    """[width, height] of a written JPEG; None when missing or unreadable."""
     if not path.exists():
         return None
     try:
@@ -149,6 +97,104 @@ def event_detail_size(event_id: str) -> "list[int] | None":
     except Exception as exc:
         log.warning("thumbs: cannot read size of %s — %s", path, exc)
         return None
+
+
+def generate_venue_images(venues: list[dict]) -> dict[str, dict]:
+    """Download each venue image once and write three files (task 082):
+
+      img/venues/<id>.jpg         160x160 square crop (image_thumb)
+      img/venues/card/<id>.jpg    640x480, make_event_thumb (image_card)
+      img/venues/detail/<id>.jpg  uncropped, longer side <= 1200 px (image_detail)
+
+    Returns {venue_id: {image_thumb, image_card, image_detail, image_detail_size}},
+    values None when the venue has no image_url or the download failed.
+    A file is regenerated only when the source URL (or output size) changed
+    (hash file next to it).  One attempt per image, TIMEOUT seconds; errors
+    are logged as warnings and the pipeline continues.
+    """
+    empty = {"image_thumb": None, "image_card": None, "image_detail": None,
+             "image_detail_size": None}
+    try:
+        from PIL import Image, ImageFilter, ImageEnhance
+        import io
+    except ImportError:
+        log.warning("thumbs: Pillow not installed — skipping thumbnail generation")
+        return {v["id"]: dict(empty) for v in venues}
+
+    for d in (THUMB_DIR, VENUE_CARD_DIR, VENUE_DETAIL_DIR):
+        d.mkdir(parents=True, exist_ok=True)
+
+    # stale card/detail files of venues no longer listed or without an image
+    keep = {v.get("id") for v in venues if v.get("image_url")}
+    for d in (VENUE_CARD_DIR, VENUE_DETAIL_DIR):
+        for jpg in list(d.glob("*.jpg")):
+            if jpg.stem not in keep:
+                jpg.unlink(missing_ok=True)
+                (d / f"{jpg.stem}.url_hash").unlink(missing_ok=True)
+
+    result: dict[str, dict] = {}
+    for venue in venues:
+        vid = venue.get("id", "")
+        image_url = venue.get("image_url")
+        if not image_url:
+            result[vid] = dict(empty)
+            continue
+
+        outputs = {
+            "thumb": (THUMB_DIR / f"{vid}.jpg", THUMB_DIR / f"{vid}.url_hash",
+                      _hash_url(image_url), f"img/venues/{vid}.jpg"),
+            "card": (VENUE_CARD_DIR / f"{vid}.jpg", VENUE_CARD_DIR / f"{vid}.url_hash",
+                     _event_hash(image_url, "thumb"), f"img/venues/card/{vid}.jpg"),
+            "detail": (VENUE_DETAIL_DIR / f"{vid}.jpg", VENUE_DETAIL_DIR / f"{vid}.url_hash",
+                       _event_hash(image_url, "detail"), f"img/venues/detail/{vid}.jpg"),
+        }
+        missing = [k for k, (jpg, hp, h, _) in outputs.items()
+                   if not (jpg.exists() and hp.exists() and hp.read_text().strip() == h)]
+        try:
+            if missing:
+                data = _download(image_url)
+                src = Image.open(io.BytesIO(data)).convert("RGB")
+                for k in missing:
+                    jpg, hp, h, _ = outputs[k]
+                    if k == "thumb":
+                        w, hh = src.size
+                        side = min(w, hh)
+                        left, top = (w - side) // 2, (hh - side) // 2
+                        img = src.crop((left, top, left + side, top + side))
+                        img = img.resize((THUMB_SIZE, THUMB_SIZE), Image.LANCZOS)
+                        img.save(jpg, "JPEG", quality=THUMB_QUALITY, optimize=True)
+                    elif k == "card":
+                        img, _shape = make_event_thumb(src, Image, ImageFilter, ImageEnhance)
+                        img.save(jpg, "JPEG", quality=EVENT_THUMB_QUALITY, optimize=True)
+                    else:
+                        img = src.copy()
+                        img.thumbnail((EVENT_DETAIL_MAX, EVENT_DETAIL_MAX), Image.LANCZOS)
+                        img.save(jpg, "JPEG", quality=EVENT_DETAIL_QUALITY, optimize=True)
+                    hp.write_text(h)
+                log.info("thumbs: venue %s — wrote %s", vid, ", ".join(missing))
+            detail_path = outputs["detail"][0]
+            result[vid] = {
+                "image_thumb": outputs["thumb"][3],
+                "image_card": outputs["card"][3],
+                "image_detail": outputs["detail"][3],
+                "image_detail_size": _image_size(detail_path),
+            }
+        except Exception as exc:
+            log.warning("thumbs: venue %s — %s", vid, exc)
+            result[vid] = dict(empty)
+
+    return result
+
+
+def generate_thumbs(venues: list[dict]) -> dict[str, str | None]:
+    """Venue thumbnail paths only ({venue_id: path | None}); see generate_venue_images."""
+    return {vid: r["image_thumb"] for vid, r in generate_venue_images(venues).items()}
+
+
+def event_detail_size(event_id: str) -> "list[int] | None":
+    """[width, height] of the written image_detail file (task 069), read from
+    the JPEG header; None when the file is missing or unreadable."""
+    return _image_size(EVENT_DETAIL_DIR / f"{event_id}.jpg")
 
 
 def generate_event_thumbs(events: list[dict]) -> dict[str, str | None]:

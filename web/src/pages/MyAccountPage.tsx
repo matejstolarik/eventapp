@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
-import type { EventsData, Language } from '../core/types'
+import type { EventsData, Language, Event, Venue } from '../core/types'
 import { getDict } from '../i18n'
 import { getGoing, pruneGoing, setStoredLanguage } from '../core/store'
 import { isEventFinished } from '../core/events'
 import { joinDot, formatDateDMY } from '../core/dot'
-import { SparkleIcon } from '../components/EventRow'
+import { SparkleIcon, useImageFallback } from '../components/EventRow'
+import { thumbCandidates } from '../core/eventImage'
 
 interface Props {
   data: EventsData | null
@@ -94,16 +95,7 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen, onOpenPre
                     }}
                     onClick={() => onEventOpen(event.id)}
                   >
-                    {event.image_thumb ? (
-                      <img src={event.image_thumb} alt="" width={56} height={56} decoding="async" style={{
-                        width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0
-                      }} />
-                    ) : (
-                      <div style={{
-                        width: 56, height: 56, borderRadius: 12,
-                        background: '#23232F', flexShrink: 0
-                      }} />
-                    )}
+                    <GoingThumb event={event} venue={venue} />
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                         {event.title}
@@ -149,5 +141,20 @@ export function MyAccountPage({ data, lang, onLangChange, onEventOpen, onOpenPre
         </section>
       </div>
     </div>
+  )
+}
+
+/** Task 082: event image -> venue image_card -> the previous empty square. */
+function GoingThumb({ event, venue }: { event: Event; venue?: Venue | null }) {
+  const { src, onError } = useImageFallback(thumbCandidates(event, venue))
+  return src ? (
+    <img key={src} src={src} alt="" width={56} height={56} decoding="async" onError={onError} style={{
+      width: 56, height: 56, borderRadius: 12, objectFit: 'cover', flexShrink: 0
+    }} />
+  ) : (
+    <div style={{
+      width: 56, height: 56, borderRadius: 12,
+      background: '#23232F', flexShrink: 0
+    }} />
   )
 }

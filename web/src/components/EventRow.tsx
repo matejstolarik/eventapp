@@ -2,7 +2,8 @@
 // večer po 068") and its pieces: 4:3 image (new + for-you badges), type icon +
 // tag row, meta line.
 import { useState, type CSSProperties } from 'react'
-import type { Event, Language } from '../core/types'
+import type { Event, Language, Venue } from '../core/types'
+import { thumbCandidates, pickImage } from '../core/eventImage'
 import type { EventIconKey } from '../core/eventType'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { joinDot } from '../core/dot'
@@ -14,6 +15,14 @@ const BASE = import.meta.env.BASE_URL
 /** Resolve a pipeline-relative image path ("img/events/x.jpg") against the app base. */
 export function imgSrc(path: string): string {
   return /^https?:/.test(path) ? path : `${BASE}${path}`
+}
+
+/** Task 082: next candidate after each load error; restarts when the list changes. */
+export function useImageFallback(candidates: string[]): { src: string | null; onError: () => void } {
+  const key = candidates.join('|')
+  const [st, setSt] = useState({ key, errors: 0 })
+  const errors = st.key === key ? st.errors : 0
+  return { src: pickImage(candidates, errors), onError: () => setSt({ key, errors: errors + 1 }) }
 }
 
 /** Type icon from the map pins (same SVG paths and stroke). `bg` = surface under the icon (task 071, workshop). */
@@ -28,14 +37,15 @@ export function TypeIcon({ iconKey, color, size, bg }: { iconKey: EventIconKey; 
 
 /** 4:3 event image; without image a dark type area with a large type icon.
  * Task 069: no type ring; optional "new" badge top-right.
- * Task 070: optional "for you" sparkles top-left (no background, black outline). */
-export function EventImage43({ event, width, height, radius = 12, eager = false, isNew = false, forYou = false, lang = 'sk' }: {
-  event: Event; width: number | string; height?: number; radius?: number; eager?: boolean; isNew?: boolean
+ * Task 070: optional "for you" sparkles top-left (no background, black outline).
+ * Task 082: without event image (or when it fails to load) the venue image_card. */
+export function EventImage43({ event, venue, width, height, radius = 12, eager = false, isNew = false, forYou = false, lang = 'sk' }: {
+  event: Event; venue?: Venue | null; width: number | string; height?: number; radius?: number; eager?: boolean; isNew?: boolean
   forYou?: boolean; lang?: Language
 }) {
-  const [err, setErr] = useState(false)
+  const { src, onError } = useImageFallback(thumbCandidates(event, venue))
   const type = getEventType(event.formats, event.primary_format)
-  const hasImg = !!event.image_thumb && !err
+  const hasImg = !!src
   return (
     <div style={{
       width, ...(height ? { height } : { aspectRatio: '4 / 3' }), flexShrink: 0, borderRadius: radius,
@@ -44,8 +54,8 @@ export function EventImage43({ event, width, height, radius = 12, eager = false,
     }}>
       {hasImg ? (
         <img
-          src={imgSrc(event.image_thumb!)} alt="" width={640} height={480} decoding="async"
-          loading={eager ? 'eager' : 'lazy'} onError={() => setErr(true)}
+          key={src} src={imgSrc(src!)} alt="" width={640} height={480} decoding="async"
+          loading={eager ? 'eager' : 'lazy'} onError={onError}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       ) : (
@@ -154,6 +164,8 @@ export function MetaLine({ parts, style }: { parts: (string | null | undefined)[
 interface EventRowProps {
   event: Event
   venueName?: string | null
+  /** task 082: venue image when the event has none */
+  venue?: Venue | null
   lang: Language
   now: Date
   isNew: boolean
@@ -171,7 +183,7 @@ export const ROW_IMG_W = 120
 
 /** Event row in Akcie: 4:3 image left (fixed size), title / date · time · place /
  * for-you + tags right, vertically centred. Fixed height for every row. */
-export function EventRow({ event, venueName, lang, now, isNew, forYou, eager, animIn, onClick }: EventRowProps) {
+export function EventRow({ event, venueName, venue, lang, now, isNew, forYou, eager, animIn, onClick }: EventRowProps) {
   return (
     <div
       role="button" tabIndex={0} onClick={onClick} onKeyDown={e => e.key === 'Enter' && onClick()}
@@ -180,7 +192,7 @@ export function EventRow({ event, venueName, lang, now, isNew, forYou, eager, an
         ...(animIn ? { animation: 'evCardIn 180ms ease-out both' } : {}),
       }}
     >
-      <EventImage43 event={event} width={ROW_IMG_W} height={ROW_IMG_H} radius={8} eager={eager} isNew={isNew} forYou={forYou} lang={lang} />
+      <EventImage43 event={event} venue={venue} width={ROW_IMG_W} height={ROW_IMG_H} radius={8} eager={eager} isNew={isNew} forYou={forYou} lang={lang} />
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{
           fontSize: 14, fontWeight: 700, color: '#F4F2FF', lineHeight: 1.25, overflow: 'hidden',

@@ -20,6 +20,12 @@ export interface Venue {
   image_url: string | null
   image_source: string | null
   image_thumb: string | null
+  /** 640x480 card, used when an event has no image (task 082) */
+  image_card?: string | null
+  /** uncropped, longer side <= 1200 px (task 082) */
+  image_detail?: string | null
+  /** [width, height] of image_detail in px (task 082) */
+  image_detail_size?: [number, number] | null
   closing: Record<string, string> | null
   sources: VenueSource[]
   active: boolean

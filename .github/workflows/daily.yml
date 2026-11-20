@@ -83,10 +83,12 @@ jobs:
         # If tests fail, the job stops here and nothing is published.
 
       - name: Cache venue thumbnails
+        # task 082: site/img/venues also holds card/ and detail/; the key includes
+        # thumbs.py so a change of the generated files saves a new cache
         uses: actions/cache@v4
         with:
           path: site/img/venues
-          key: venue-thumbs-${{ hashFiles('data/venues.json') }}
+          key: venue-thumbs-${{ hashFiles('data/venues.json', 'pipeline/thumbs.py') }}
           restore-keys: venue-thumbs-
 
       - name: Cache event thumbnails
