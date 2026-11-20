@@ -44,6 +44,9 @@ export function BottomNav({ active, lang, onChange }: Props) {
     const left = btn.offsetLeft
     const width = btn.offsetWidth
     const prev = placedRef.current
+    // Same place (e.g. the ResizeObserver firing right after a tab change):
+    // leave a running move alone, otherwise it would jump to the end at once.
+    if (!animate && prev && prev.left === left && prev.width === width) return
     placedRef.current = { left, width }
     pill.style.width = `${width}px`
     if (animate && prev && width > 0 && (prev.left !== left || prev.width !== width)) {

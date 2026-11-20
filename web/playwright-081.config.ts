@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test'
 // see tests/playwright/perf-081.spec.ts). No dev server.
 export default defineConfig({
   testDir: '../tests/playwright',
-  testMatch: 'perf-081.spec.ts',
+  testMatch: /(perf|navpill)-081.spec.ts/,
   outputDir: '../test-results/081',
   use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 },
   projects: [{ name: 'chromium-mobile', use: { ...devices['Pixel 5'] } }],
