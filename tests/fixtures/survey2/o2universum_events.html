@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="cs-CZ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="referrer" content="unsafe-url" />
+
+  <base href="https://www.o2universum.cz">
+  <link rel="icon" href="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/img/favicon.ico">
+  <script src="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/google-consent.js?v=1"></script>
+  <script>
+    var syncGoogleConsent = oarenaInitGoogleConsent("G-WGM559LM10");
+  </script>
+  <script src="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/cookieconsent.js?v=2.7"></script>
+  <script>
+    var cc = initCookieConsent();
+    var consentRevision = 7;
+
+    function updateGoogleConsent(pushConsentEvent) {
+      // Do not restore consent from a cookie invalidated by a banner revision.
+      var validConsent = cc.get('revision') === consentRevision;
+      syncGoogleConsent(
+        validConsent && cc.allowedCategory('analytics'),
+        validConsent && cc.allowedCategory('personalizedcontent'),
+        validConsent && cc.allowedCategory('personalizedads'),
+        !!pushConsentEvent
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      cc.run({
+        current_lang: 'cs',
+        autoclear_cookies: true,
+        page_scripts: true,
+        mode: 'opt-in',
+        remove_cookie_tables: false,
+        cookie_expiration: 182,
+        revision: consentRevision,
+
+        onFirstAction: function(user_preferences, cookie) {
+          // callback triggered only once on the first accept/reject action
+        },
+
+        onAccept: function(cookie) {
+          updateGoogleConsent(true);
+        },
+
+        onChange: function(cookie, changed_categories) {
+          updateGoogleConsent(true);
+        },
+
+        languages: {
+          'cs': {
+            consent_modal: {
+              title: 'Nastavení soukromí',
+              description: 'Tyto webové stránky používají soubory cookies a další identifikátory, které mohou obsahovat osobní údaje. Cookies nám pomáhají zjišťovat, jak stránku používáte, a díky tomu ji můžeme stále zlepšovat. Pro co nejlepší uživatelský zážitek, prosíme o povolení všech cookies.<button type="button" data-cc="c-settings" class="cc-link-oarena-privacy cc-link">Podrobné nastavení</button>',
+              primary_btn: {
+                text: 'Přijmout vše',
+                role: 'accept_all'
+              },
+              secondary_btn: {
+                text: 'Odmítnout vše',
+                role: 'accept_necessary'
+              }
+            },
+            settings_modal: {
+              title: 'Nastavení soukromí',
+              save_settings_btn: 'Přijmout vybrané',
+              accept_all_btn: 'Přimout vše',
+              reject_all_btn: 'Odmítnout vše',
+              close_btn_label: 'Zavřít',
+              cookie_table_headers: [{
+                  col1: 'Cookie'
+                },
+                {
+                  col2: 'Typ'
+                },
+                {
+                  col3: 'Trvání'
+                },
+                {
+                  col4: 'Popis'
+                }
+              ],
+              blocks: [{
+                  title: 'Cookies na tomto webu 📢',
+                  description: 'Na našich webových stránkách využíváme cookies, pomocí kterých Vám chceme zajistit co nejlepší uživatelskou zkušenost na našem webu. Tyto cookies mohou zahrnovat informace přímo o Vás, o Vašich jednotlivých preferencích nebo o Vámi využívaném zařízení. Skrze jednotlivé informace obsažené v cookies Vás však obvykle nejsme schopni přímo identifikovat, pouze Vám můžeme zprostředkovat lepší zkušenost s našimi webovými stránkami. Protože respektujeme Vaše právo na soukromí, jsou všechny typy cookies vypnuty (kromě těch nezbytně nutných). Pokud chcete využívat jednotlivé typy cookies, musíte je aktivovat v menu ,,Nastavení cookies“, a tím nám udělit souhlas k jejich využívání. Chcete-li získat další informace a změnit výchozí nastavení cookies, klikněte na záhlaví jednotlivých typů cookies. Blokování některých typů cookies může mít negativní vliv na Vaší uživatelskou zkušenost s webovými stránkami. Další podrobné informace o tom, jak zpracováváme Vaše osobní údaje v podobě souborů cookies, naleznete v sekci Ochrana soukromí v záložce Cookies.<p>K uložení voleb, které jste nastavili v menu ,,Nastavení cookies“, bude třeba rovněž vytvořit soubor cookie. Z toho vyplývají dva důsledky:</p><ul><li>Pokud odstraníte ve Vašem internetovém prohlížeči všechny soubory cookies, budete muset předvolby pro naše webové stránky nastavit znovu; a</li><li>Přejdete-li na jiné zařízení nebo internetový prohlížeč, rovněž nám budete muset své předvolby sdělit znovu.</li></ul><p>Více informací naleznete na stránce <a href="https://www.o2universum.cz/pro-navstevniky-2/ochrana-soukromi/" class="cc-link">Ochrana soukromí</a>.</p>'
+                },
+                {
+                  title: 'Zásadně nutné soubory cookies (Nezbytně technické cookies)',
+                  description: 'Tyto cookies jsou nezbytné pro fungování našich webových stránek a nemohou být vypnuty. Tento typ cookies neukládá žádné Vaše osobní údaje, podle kterých by bylo možné Vás identifikovat. Obvyklou funkčností těchto typů cookies je pouze reakce na akce, které jste provedli na našich webových stránkách, což představuje požadavek na služby, jako je nastavení předvoleb ochrany osobních údajů a přihlášení nebo vyplňování formulářů. Můžete nastavit svůj prohlížeč, aby zablokoval tyto cookies, ale některé části našich webových stránek nebudou fungovat.',
+                  toggle: {
+                    value: 'basics',
+                    enabled: true,
+                    readonly: true
+                  },
+                  cookie_table: [{
+                      col1: 'wordpress_test_cookie',
+                      col2: 'http',
+                      col3: 'Relační',
+                      col4: 'Cookie WordPressu pro otestování, jestli je možné cookies ukládat',
+                    },
+                    {
+                      col1: 'pll_language',
+                      col2: 'https',
+                      col3: '1 rok',
+                      col4: 'Polylang využívá cookies k uložení jazykových preferencí uživatele',
+                    },
+                    {
+                      col1: 'wp_lang',
+                      col2: 'http',
+                      col3: 'Relační',
+                      col4: 'Cookie WordPressu pro uložení jazykových preferencí uživatele',
+                    },
+                    {
+                      col1: 'PHPSESSID',
+                      col2: 'https',
+                      col3: 'Relační',
+                      col4: 'Cookie od webu, poskytuje nezbytné funkce.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Soubory cookies týkající se výkonu (Technické cookies)',
+                  description: 'Tyto cookies nám umožňují počítat návštěvy a zdroje návštěvnosti na našich webových stránkách, abychom mohli měřit a zlepšovat jejich výkon. Pomáhají nám zjišťovat, jaká část našich webových stránek je nejvíce, či nejméně oblíbená, a současně nám umožňují sledovat, jak se návštěvníci po stránkách pohybují. Veškeré informace, které tyto cookies shromažďují, jsou souhrnné, a tudíž anonymní. Pokud tyto cookies nepovolíte, nebudeme disponovat informacemi o využívání našich stránek a budeme mít ztížené jejich zlepšování.',
+                  toggle: {
+                    value: 'analytics',
+                    readonly: false // cookie categories with readonly=true are all treated as "necessary cookies"
+                  },
+                  cookie_table: [{
+                      col1: '_ga',
+                      col2: 'https',
+                      col3: '2 roky',
+                      col4: '_ga cookie od Google Analytics počítá návštěvníky, návštěvy, data kampaní a jejím prostřednictvím se sleduje užívání webu. Cookie ukládá anonymní data, kterým přiřazuje náhodně generované číslo, aby bylo možné rozpoznat unikátní návštěvníky.',
+                    },
+                    {
+                      col1: '_gid',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: '_gid cookie od Google Analytics ukládá informace o používání stránky návštěvníky a zároveň pomáhá vytvářet analytické reporty o výkonu webu. Některá sbíraná data obsahují anonymní informace o počtu návštěvníků, zdrojích jejich návštěvy a stránkách, které během své návštěvy procházeli.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Cílené a reklamní cookies (Personalizace reklamy, Marketingové cookies)',
+                  description: 'Cílené a reklamní cookies soubory mohou být nastaveny na webových stránkách námi nebo reklamními partnery (třetími stranami). Tyto cookie soubory mohou být využívány a sdíleny těmito společnostmi, aby si vytvořily profil Vašich zájmů a zobrazily Vám relevantní reklamy, jak na našich, tak na jiných webových stránkách. Vycházejí z jedinečné identifikace Vašeho internetového prohlížeče a internetového zařízení. Pokud tyto soubory cookie nepovolíte, zaznamenáte méně cílenou reklamu.',
+                  toggle: {
+                    value: 'personalizedads',
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie od Google Adsense pro sledování a ukládání konverzí.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook sledovací pixel pro doručování a měření relevance reklamy.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel pro sledování návštěv napříč webovými stránkami.',
+                    }
+                  ]
+                },
+                {
+                  title: '',
+                  description: '',
+                }
+              ]
+            }
+          },
+          'en': {
+            consent_modal: {
+              title: 'Privacy settings',
+              description: 'This website uses cookies and other network identifiers, which can contain personal information. Cookies help us to better know how you use our site so we can make it better. For the best user experience, please allow all cookies. <button type="button" data-cc="c-settings" class="cc-link cc-link-oarena-privacy">Advanced settings</button>',
+              primary_btn: {
+                text: 'Accept all',
+                role: 'accept_all'
+              },
+              secondary_btn: {
+                text: 'Reject all',
+                role: 'accept_necessary'
+              }
+            },
+            settings_modal: {
+              title: 'Privacy settings',
+              save_settings_btn: 'Accept selected',
+              accept_all_btn: 'Accept all',
+              reject_all_btn: 'Reject all',
+              close_btn_label: 'Close',
+              cookie_table_headers: [{
+                  col1: 'Name'
+                },
+                {
+                  col2: 'Domain'
+                },
+                {
+                  col3: 'Expiration'
+                },
+                {
+                  col4: 'Description'
+                }
+              ],
+              blocks: [{
+                  title: 'Cookies on this website 📢',
+                  description: 'To improve the user experience, this website uses cookies. In addition to the technical cookies necessary for the website to function properly, we also use other groups of cookies that you can enable or disable in the menu below. You can change your decision at any time by clicking the "Privacy Settings" link in the footer.<br>'
+                },
+                {
+                  title: 'Necessary technical cookies',
+                  description: 'Files required for basic website functionality.',
+                  toggle: {
+                    value: 'basics',
+                    enabled: true,
+                    readonly: true
+                  },
+                  cookie_table: [{
+                      col1: 'wordpress_test_cookie',
+                      col2: 'http',
+                      col3: 'Session',
+                      col4: 'WordPress cookie to test if cookies can be stored',
+                    },
+                    {
+                      col1: 'pll_language',
+                      col2: 'https',
+                      col3: '1 year',
+                      col4: 'Polylang uses cookies to store the user&apos;s language preferences',
+                    },
+                    {
+                      col1: 'wp_lang',
+                      col2: 'http',
+                      col3: 'Session',
+                      col4: 'WordPress cookie for storing user language preferences',
+                    },
+                    {
+                      col1: 'PHPSESSID',
+                      col2: 'https',
+                      col3: 'Session',
+                      col4: 'Cookie from the site, provides the necessary functionality.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Technical cookies',
+                  description: 'Absolutely necessary for the website to function - these cookies cannot be disabled and do not require user consent.',
+                  toggle: {
+                    value: 'necessary',
+                    enabled: true,
+                    readonly: true // cookie categories with readonly=true are all treated as "necessary cookies"
+                  },
+                  cookie_table: [{
+                      col1: '_ga',
+                      col2: 'https',
+                      col3: '2 years',
+                      col4: 'The Google Analytics cookie counts visitors, visits, campaign data and tracks website usage. The cookie stores anonymous data to which it assigns a randomly generated number to identify unique visitors.',
+                    },
+                    {
+                      col1: '_gid',
+                      col2: 'https',
+                      col3: '1 day',
+                      col4: 'The _gid cookie from Google Analytics stores information about visitors&apos; use of the site and also helps to generate analytical reports on site performance. Some of the data collected includes anonymous information about the number of visitors, the sources of their visit and the pages they browsed during their visit.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Personalization of content',
+                  description: 'Thanks to these files, we can preferentially offer you attractive content based on your interests.',
+                  toggle: {
+                    value: 'personalizedcontent',
+                    enabled: false,
+                    readonly: false
+                  }
+                },
+                {
+                  title: 'Personalization of advertising',
+                  description: 'By allowing these files, we can offer you more attractive ads tailored to your interests.',
+                  toggle: {
+                    value: 'personalizedads',
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie from Google Adsense for tracking and storing conversions.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook tracking pixel for delivering and measuring ad relevance.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel for tracking visits across websites.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Analytical cookies',
+                  description: 'They collect statistical information about the use of the website (sources of visits, page popularity, etc.), the data is aggregated and therefore anonymous. Analytical cookies do not contain personal data. The users consent to the processing of these cookies can be revoked through the browser settings.',
+                  toggle: {
+                    value: 'analytics', // your cookie category
+                    enabled: false,
+                    readonly: false
+                  },
+                }, {
+                  title: 'Marketing cookies',
+                  description: 'Used to target ads and create remarketing lists. Through advertising cookies, personal data can be collected and processed. We may also share information about your use of our website with our social media, advertising and analytics partners. The users consent to the processing of these cookies can be revoked through the browser settings.',
+                  toggle: {
+                    value: 'targeting',
+                    enabled: false,
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie from Google Adsense for tracking and storing conversions.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook tracking pixel for delivering and measuring ad relevance.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel for tracking visits across websites.',
+                    }
+                  ]
+
+                }, {
+                  title: 'More information',
+                  description: 'For more information, read our <a href="https://www.o2universum.cz/en/for-visitors-2/privacy-policy/" class="cc-link">Privacy policy</a>.',
+                }
+              ]
+            }
+          }
+        },
+        gui_options: {
+          consent_modal: {
+            layout: 'cloud',
+            position: 'bottom center',
+            transition: 'slide',
+            swap_buttons: false
+          },
+          settings_modal: {
+            layout: 'box',
+            transition: 'slide'
+          }
+        }
+      });
+      updateGoogleConsent(false);
+    });
+  </script>
+          <!-- Google Tag Manager -->
+        <script>
+            ! function() {
+                "use strict";
+
+                function l(e) {
+                    for (var t = e, r = 0, n = document.cookie.split(";"); r < n.length; r++) {
+                        var o = n[r].split("=");
+                        if (o[0].trim() === t) return o[1]
+                    }
+                }
+
+                function s(e) {
+                    return localStorage.getItem(e)
+                }
+
+                function u(e) {
+                    return window[e]
+                }
+
+                function A(e, t) {
+                    e = document.querySelector(e);
+                    return t ? null == e ? void 0 : e.getAttribute(t) : null == e ? void 0 : e.textContent
+                }
+                var e = window,
+                    t = document,
+                    r = "script",
+                    n = "dataLayer",
+                    o = "https://mereni.o2universum.cz",
+                    a = "",
+                    i = "22eegoxejqo",
+                    c = "1k=&ccgSiu=cysyC",
+                    g = "stapeUserId",
+                    v = "",
+                    E = "",
+                    d = !1;
+                try {
+                    var d = !!g && (m = navigator.userAgent, !!(m = new RegExp("Version/([0-9._]+)(.*Mobile)?.*Safari.*").exec(m))) && 16.4 <= parseFloat(m[1]),
+                        f = "stapeUserId" === g,
+                        I = d && !f ? function(e, t, r) {
+                            void 0 === t && (t = "");
+                            var n = {
+                                    cookie: l,
+                                    localStorage: s,
+                                    jsVariable: u,
+                                    cssSelector: A
+                                },
+                                t = Array.isArray(t) ? t : [t];
+                            if (e && n[e])
+                                for (var o = n[e], a = 0, i = t; a < i.length; a++) {
+                                    var c = i[a],
+                                        c = r ? o(c, r) : o(c);
+                                    if (c) return c
+                                } else console.warn("invalid uid source", e)
+                        }(g, v, E) : void 0;
+                    d = d && (!!I || f)
+                } catch (e) {
+                    console.error(e)
+                }
+                var m = e,
+                    g = (m[n] = m[n] || [], m[n].push({
+                        "gtm.start": (new Date).getTime(),
+                        event: "gtm.js"
+                    }), t.getElementsByTagName(r)[0]),
+                    v = I ? "&bi=" + encodeURIComponent(I) : "",
+                    E = t.createElement(r),
+                    f = (d && (i = 8 < i.length ? i.replace(/([a-z]{8}$)/, "kp$1") : "kp" + i), !d && a ? a : o);
+                E.async = !0, E.src = f + "/" + i + ".js?" + c + v, null != (e = g.parentNode) && e.insertBefore(E, g)
+            }();
+        </script>
+        <!-- End Google Tag Manager -->
+
+        <!-- Direct GA4 is configured by google-consent.js after analytics consent. -->
+      <title>Program – O2 universum</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel="alternate" href="https://www.o2universum.cz/events/" hreflang="cs" />
+<link rel="alternate" href="https://www.o2universum.cz/en/events/" hreflang="en" />
+<link rel="alternate" href="https://www.o2universum.cz/events/" hreflang="x-default" />
+<script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "Organization",
+            "name": "O2 universum",
+            "url": "https://www.o2universum.cz/",
+            "logo": "https://cdn.static-assets.cz/20261116-195541/o2universum-logo-white-4628bf320039.png",
+            "description": "Unik\u00e1tn\u00ed kongresov\u00e9 centrum a multifunk\u010dn\u00ed m\u00edsto v Praze. M\u00e1me program pln\u00fd kultury i sportu s mo\u017enost\u00ed pron\u00e1jmu prostor\u016f pro va\u0161i vlastn\u00ed akci.",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "\u010ceskomoravsk\u00e1 2345/17a",
+                "addressLocality": "Praha 9",
+                "postalCode": "190 00",
+                "addressCountry": "CZ"
+            },
+            "sameAs": [
+                "https://www.facebook.com/o2universum",
+                "https://www.instagram.com/o2universum/",
+                "https://www.linkedin.com/company/o2universum/"
+            ]
+        }
+    ]
+}</script><link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/hp-hero-new1-8a53141a87da.jpg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-program-058560520553.jpg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-firmy-d504f497ef37.jpeg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-ples-8c07be3d3868.jpg">
+<link rel="alternate" type="application/rss+xml" title="O2 arena &raquo; RSS pro Program" href="https://www.o2universum.cz/events/feed/" />
+<script type="text/javascript">
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.o2universum.cz\/wp-includes\/js\/wp-emoji-release.min.js?ver=6.3.5"}};
+/*! This file is auto-generated */
+!function(i,n){var o,s,e;function c(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function p(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data),r=(e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0),new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data));return t.every(function(e,t){return e===r[t]})}function u(e,t,n){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\uddfa\ud83c\uddf3","\ud83c\uddfa\u200b\ud83c\uddf3")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!n(e,"\ud83e\udef1\ud83c\udffb\u200d\ud83e\udef2\ud83c\udfff","\ud83e\udef1\ud83c\udffb\u200b\ud83e\udef2\ud83c\udfff")}return!1}function f(e,t,n){var r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):i.createElement("canvas"),a=r.getContext("2d",{willReadFrequently:!0}),o=(a.textBaseline="top",a.font="600 32px Arial",{});return e.forEach(function(e){o[e]=t(a,e,n)}),o}function t(e){var t=i.createElement("script");t.src=e,t.defer=!0,i.head.appendChild(t)}"undefined"!=typeof Promise&&(o="wpEmojiSettingsSupports",s=["flag","emoji"],n.supports={everything:!0,everythingExceptFlag:!0},e=new Promise(function(e){i.addEventListener("DOMContentLoaded",e,{once:!0})}),new Promise(function(t){var n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"}),a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=function(e){c(n=e.data),a.terminate(),t(n)})}catch(e){}c(n=f(s,u,p))}t(n)}).then(function(e){for(var t in e)n.supports[t]=e[t],n.supports.everything=n.supports.everything&&n.supports[t],"flag"!==t&&(n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&n.supports[t]);n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&!n.supports.flag,n.DOMReady=!1,n.readyCallback=function(){n.DOMReady=!0}}).then(function(){return e}).then(function(){var e;n.supports.everything||(n.readyCallback(),(e=n.source||{}).concatemoji?t(e.concatemoji):e.wpemoji&&e.twemoji&&(t(e.twemoji),t(e.wpemoji)))}))}((window,document),window._wpemojiSettings);
+</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 0.07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<link rel='stylesheet' id='elementor-references-css-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/tiny-slider.css?ver=1.0.2' type='text/css' media='all' />
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}body .is-layout-flex{flex-wrap: wrap;align-items: center;}body .is-layout-flex > *{margin: 0;}body .is-layout-grid{display: grid;}body .is-layout-grid > *{margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+.wp-block-navigation a:where(:not(.wp-element-button)){color: inherit;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+.wp-block-pullquote{font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel='stylesheet' id='o2arena-splidejs-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/splide.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-screen-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/screen-new.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-1280-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/1280.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-force-desktop-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/forced_desktop.css?ver=2.4.45' type='text/css' media='all and (min-width: 1000px)' />
+<link rel='stylesheet' id='o2arena-magnific-popup-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/magnific-popup.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-fontawesome-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/fontawesome.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-fontawesome-solid-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/solid.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-font-awesome-brands-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/brands.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-oarena-plugins-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/oarena-plugins.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-768-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/768.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-375-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/375.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-2025-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/oarena.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-newsletter-section-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/newsletter-section.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2universum-screen-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/screen_universum.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2universum-gallery-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/universum-gallery.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='dflip-style-css' href='https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/css/dflip.min.css?ver=2.2.32' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/tiny-slider.js?ver=1.0.2' id='elementor-references-script-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-includes/js/jquery/jquery.min.js?ver=3.7.0' id='jquery-core-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1' id='jquery-migrate-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery-2.1.3.min.js?ver=2.4.45' id='o2arena-jquery-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/splide.min.js?ver=2.4.45' id='o2arena-splideminjs-js'></script>
+<script type='text/javascript' id='o2arena-custom_js-js-extra'>
+/* <![CDATA[ */
+var wpApiSettings = {"root":"https:\/\/www.o2universum.cz\/wp-json\/","nonce":"bc7f239ad3"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/custom.js?ver=2.4.45' id='o2arena-custom_js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery.magnific-popup.min.js?ver=2.4.45' id='o2arena-magnific-popup-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery.lockfixed.js?ver=2.4.45' id='o2arena-lockfixed-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/oarena-navigation.js?ver=2.4.45' id='o2arena-navigation-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/oarena-tickets-modal.js?ver=2.4.45' id='o2arena-ticketsmodal-js-js'></script>
+<link rel="https://api.w.org/" href="https://www.o2universum.cz/wp-json/" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.o2universum.cz/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.3.5" />
+<link rel="canonical" href="https://www.o2universum.cz/events/" />
+  <meta name="description" content="Unikátní kongresové centrum a multifunkční místo v Praze. Máme program plný kultury i sportu s možností pronájmu prostorů pro vaši vlastní akci." />
+  <meta property="og:image" content="https://cdn.static-assets.cz/20261116-195541/o2universum-default-fb-image-d6db463889dc.jpg" />
+  <meta property="og:image:secure_url" content="https://cdn.static-assets.cz/20261116-195541/o2universum-default-fb-image-d6db463889dc.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.o2universum.cz/events/" />
+  <meta property="og:title" content="Program – O2 universum" />
+  <meta property="og:description" content="Unikátní kongresové centrum a multifunkční místo v Praze. Máme program plný kultury i sportu s možností pronájmu prostorů pro vaši vlastní akci." />
+  <meta property="og:site_name" content="O2 universum" />
+  <meta property="og:locale" content="cs_CZ" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@o2arenapraha">
+  <meta name="twitter:creator" content="@o2arenapraha">
+  <meta name="twitter:title" content="Program – O2 universum">
+  <meta name="twitter:description" content="Unikátní kongresové centrum a multifunkční místo v Praze. Máme program plný kultury i sportu s možností pronájmu prostorů pro vaši vlastní akci.">
+  <meta name="twitter:image" content="https://cdn.static-assets.cz/20261116-195541/o2universum-default-fb-image-d6db463889dc.jpg">
+          <script type="text/javascript">
+      (function(c, l, a, r, i, t, y) {
+        c[a] = c[a] || function() {
+          (c[a].q = c[a].q || []).push(arguments)
+        };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, "clarity", "script", "wsg0ub8452");
+    </script>
+  </head>
+
+<body  id="body_80"class="archive post-type-archive post-type-archive-oarena_events universum  elementor-default elementor-kit-48327">
+    <div id="outer_79_1" class="outer outer_1 sticky-header">
+  <div class="containerFull">
+    <div id="oarena-topPanel">
+      <div class="oarena-left-nav">
+        <div class="oarena-left-nav__innerContainer">
+          <a
+              href="https://www.o2arena.cz/"
+              title="O2 Arena">O2 arena</a>                              <a href="https://www.stageshotel.com/cz/"
+            title="STAGES HOTEL Prague">STAGES HOTEL Prague</a>
+                    <a href="https://www.forumkarlin.cz"
+            target="_blank" title="Forum Karlín">Forum Karlín</a>
+        </div>
+      </div>
+      <div class="oarena-right-nav">
+                                  <a
+            href="https://www.o2universum.cz/en/events?lang=en" title="English version">
+            <img src="https://cdn.static-assets.cz/20261116-195541/gb-c891266f7d74.svg" width="25" height="15" alt="Great Britain Flag"
+              loading="eager">
+            English
+          </a>
+              </div>
+    </div>
+    <!-- Menu -->
+    <div id="header">
+      <div class="toLeft logo_container">
+        <a
+          href="https://www.o2universum.cz" title="Úvodní stránka">
+                       <img src="https://cdn.static-assets.cz/20261116-195541/o2universum-logo-white-4628bf320039.png" alt="O2Universum logo"
+              loading="eager" width="104" height="21.96"/>
+                  </a>
+      </div>
+
+      <div class="toLeft menu_container">
+
+        <!-- Mobile menu burger icon -->
+        <a href="javascript:void(0)" id="mobile_menu_link" onclick="switch_mobile_menu(1)"></a>
+        <a href="javascript:void(0)" id="mobile_menu_link_close" onclick="switch_mobile_menu(0)">x</a>
+
+        <!-- Menu -->
+
+        <ul id="menu" class="menu"><li id="nav-menu-item-15132" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-custom menu-item-object-custom"><a href="https://www.o2universum.cz/novinky" class="menu-link main-menu-link">Novinky</a></li>
+<li id="nav-menu-item-15133" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-custom menu-item-object-custom current-menu-item"><a href="https://www.o2universum.cz/events" class="menu-link main-menu-link">Program</a></li>
+<li id="nav-menu-item-33132" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-firmy/" class="menu-link main-menu-link">Pronájem prostor</a></li>
+<li id="nav-menu-item-15134" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-navstevniky-2/" class="menu-link main-menu-link">Pro návštěvníky</a></li>
+<li id="nav-menu-item-66024" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-navstevniky-2/fasttrack-prioritni-vstup-na-akci/" class="menu-link main-menu-link">FastTrack</a></li>
+<li id="nav-menu-item-26038" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/gourmet-experience/" class="menu-link main-menu-link">Gourmet Experience</a></li>
+<li id="nav-menu-item-21422" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/kariera-2/" class="menu-link main-menu-link">Kariéra</a></li>
+<li id="nav-menu-item-15135" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/kontakty/" class="menu-link main-menu-link">Kontakt</a></li>
+</ul>
+        <div class="clear"></div>
+
+      </div>
+
+      <div class="toLeft icons_container">
+
+
+        <!-- Social -->
+                  <a href="https://www.facebook.com/o2universum" class="fb_link social_link" title="Facebook" target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/fb-674fae96cb2d.svg" alt="Facebook logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.instagram.com/o2universum/" class="inst_link social_link" title="Instagram"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/instagram-f982a4ee6755.svg" alt="Instagram logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.linkedin.com/company/o2universum/" class="linkedin_link social_link" title="Linkedin"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/linkedin-528b05519565.svg" alt="Linkedin logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.tiktok.com/@o2arenapraha" class="tiktok_link social_link" title="TikTok"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/tiktok-6a88e415f7ac.svg" alt="TikTok logo"
+              loading="eager" width="18" height="18"/></a>
+        
+
+                  <a class="language-link-mobile"
+            href="https://www.o2universum.cz/en/events/?lang=en">
+            <img src="https://cdn.static-assets.cz/20261116-195541/gb-c891266f7d74.svg" alt="Great Britain Flag"
+              loading="lazy">
+          </a>
+        
+        <a href="javascript:void(0)" onclick="expand_search_input()" class="search_link" title="Vyhledávání">
+          <img src="https://cdn.static-assets.cz/20261116-195541/search-ico-201bd9f1835e.svg" alt="Vyhledávání ico"
+              loading="eager" width="18" height="18"/>
+        </a>
+
+
+        <!-- <a href="https://www.o2arena.cz/cz/" class="lang_link selected">CZ</a> |
+            <a href="https://www.o2arena.cz/en/" class="lang_link">EN</a> -->
+
+
+        <!-- Search -->
+        <div id="top_search">
+          <form method="get" id="oarena_search_form"
+            action="https://www.o2universum.cz">
+            <input type="text" name="s" id="s" value="hledat..."
+              onblur="if(this.value=='')this.value='hledat...'"
+              onfocus="if(this.value=='hledat...')this.value=''">
+            <input type="submit" id="search_button" value="hledat">
+          </form>
+        </div>
+
+      </div>
+
+      <div class="clear"></div>
+
+    </div>
+  </div>
+</div>
+<div id="outer_80_2" class="outer outer_2">
+
+    <div class="containerSides">
+        
+            <div class="rozcestnik" id="main-events-start">
+                <div class="top">
+                    <h2 class="toLeft">
+                        Program O<sub>2</sub> universum                    </h2>
+                    <div class="toRight"></div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="indexContainer">
+                <!-- 88 -->
+                <div id="events_index">
+                    <div class="previews">
+
+                        <div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/12/witcher-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/the-witcher-iii-in-concert/');">
+  </div>
+      <p class="time">8.11.2026 20:00<br/>25.11.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/the-witcher-iii-in-concert/" title="THE WITCHER III IN CONCERT">THE WITCHER III IN CONCERT</a>
+  </h3>
+      <p class="perex">Oslava 10 let hry Zaklínač 3. Živé provedení soundtracku s Percival Schuttenbach, vizuálními efekty a novým aranžmá</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/05/rdp-20-11-2026-o2universum-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/retro-dance-party/');">
+  </div>
+      <p class="time">20.11.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/retro-dance-party/" title="Retro Dance Party">Retro Dance Party</a>
+  </h3>
+      <p class="perex">Čtyřhodinový disco ples plný největších hitů od 70. let po milénium. Světelná show, dobové kostýmy a hity našeho mládí.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/1080-x-1080-sebek.jpg);" onclick="redir('https://www.o2universum.cz/events/kristian-sebek-muj-vzor-bozsky-karel/');">
+  </div>
+      <p class="time">21.11.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/kristian-sebek-muj-vzor-bozsky-karel/" title="KRISTIÁN ŠEBEK – Můj vzor, Božský Karel">KRISTIÁN ŠEBEK – Můj vzor, Božský Karel</a>
+  </h3>
+      <p class="perex">Nejslavnější hity Karla Gotta i světové legendy v doprovodu velkého orchestru, sboru, tanečníků a speciálních hostů.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/pr-1080x1080e2.png);" onclick="redir('https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/');">
+  </div>
+      <p class="time">24.11.2026 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" title="Papa Roach – Rise Of The Roach">Papa Roach – Rise Of The Roach</a>
+  </h3>
+      <p class="perex">Kultovní rocková čtveřice Papa Roach se po obřím úspěchu na festivalu Rock for People vrací do Česka.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/tomas-klus-setkani-banner-o2-universum-1080x1080-fb-aplikace.png);" onclick="redir('https://www.o2universum.cz/events/tomas-klus-setkani/');">
+  </div>
+      <p class="time">27.11.2026 19:30</p>
+    <h3><a href="https://www.o2universum.cz/events/tomas-klus-setkani/" title="TOMÁŠ KLUS – SETKÁNÍ">TOMÁŠ KLUS – SETKÁNÍ</a>
+  </h3>
+      <p class="perex">Oslava 40 let a 20 let na scéně. Tomáš Klus v unikátní show SETKÁNÍ propojí staré hity s novou tvorbou a hosty.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/10/1080-x-1080-praha-cechomor-promeny-25let.jpg);" onclick="redir('https://www.o2universum.cz/events/cechomor-kooperativa-tour-promeny-po-25-letech/');">
+  </div>
+      <p class="time">29.11.2026 15:00<br/>29.11.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/cechomor-kooperativa-tour-promeny-po-25-letech/" title="Čechomor Kooperativa tour – Proměny po 25. letech">Čechomor Kooperativa tour – Proměny po 25. letech</a>
+  </h3>
+      <p class="perex">Oslava 25 let od vydání alba Proměny. Legendární Čechomor, Lenka Dusilová a Prague Philharmonia na společném turné.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/kk-ps-1080x1080-1-1080x1080.jpg);" onclick="redir('https://www.o2universum.cz/events/koller-kryl-david-koller-a-hoste-pocta-karlu-krylovi/');">
+  </div>
+      <p class="time">3.12.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/koller-kryl-david-koller-a-hoste-pocta-karlu-krylovi/" title="KOLLER: KRYL &#8211; David Koller a hosté, Pocta Karlu Krylovi">KOLLER: KRYL &#8211; David Koller a hosté, Pocta Karlu Krylovi</a>
+  </h3>
+      <p class="perex">Mrazivá síla a naléhavost Krylových textů. Zažijte mimořádný hudební večer plný emocí, unikátních fotek a scénografie.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/ms2026-banner-post-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/unif-mistrovstvi-sveta-v-nohejbale-muzu-2026/');">
+  </div>
+      <p class="time">5.12.2026 - 6.12.2026</p>
+    <h3><a href="https://www.o2universum.cz/events/unif-mistrovstvi-sveta-v-nohejbale-muzu-2026/" title="UNIF MISTROVSTVÍ SVĚTA V NOHEJBALE MUŽŮ">UNIF MISTROVSTVÍ SVĚTA V NOHEJBALE MUŽŮ</a>
+  </h3>
+      <p class="perex">Světový šampionát se vrací do Prahy. Souboj o tři sady medailí, obhajoba českých titulů a rekordní divácká kulisa</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://cdn.static-assets.cz/20261116-195541/sro2-02-universum-1080x1080-v01-9beafdb2cce1.jpg);" onclick="redir('https://www.o2universum.cz/events/sara-rikas-live/');">
+  </div>
+      <p class="time">12.12.2026 21:00</p>
+    <h3><a href="https://www.o2universum.cz/events/sara-rikas-live/" title="Sara Rikas LIVE">Sara Rikas LIVE</a>
+  </h3>
+      <p class="perex">Sara Rikas chystá svou dosud největší samostatnou show! Výrazná tvář nové generace česko-slovenské scény vystoupí naživo s celou kapelou.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/simona-400x400-praha.jpg);" onclick="redir('https://www.o2universum.cz/events/simona-ticha-noc/');">
+  </div>
+      <p class="time">13.12.2026 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/simona-ticha-noc/" title="SIMONA – tichá noc">SIMONA – tichá noc</a>
+  </h3>
+      <p class="perex">Pravda o Ježíškovi i drsná realita svátků. Tematický vánoční stand-up plný vtipů o nákupním shonu a nesplněných přáních.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/1080x1080-v31.jpg);" onclick="redir('https://www.o2universum.cz/events/sam-doma-in-concert-2026/');">
+  </div>
+      <p class="time">15.12.2026 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/sam-doma-in-concert-2026/" title="Sám doma in Concert">Sám doma in Concert</a>
+  </h3>
+      <p class="perex">Vánoční triumf se vrací! Sám doma s živým orchestrem po loňském vyprodaném úspěchu znovu v Praze.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/vnb-o2u-fb-app-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/vaclav-noid-barta-kapitoly/');">
+  </div>
+      <p class="time">16.12.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/vaclav-noid-barta-kapitoly/" title="Václav NOID Bárta – KAPITOLY">Václav NOID Bárta – KAPITOLY</a>
+  </h3>
+      <p class="perex">Průřez hudební cestou v doprovodu symfonického orchestru. Rocková energie v kombinaci s moderním aranžmá.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080x1080-px-peter-bence-2026-praha-o2.jpg);" onclick="redir('https://www.o2universum.cz/events/peter-bence-2026/');">
+  </div>
+      <p class="time">18.12.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/peter-bence-2026/" title="PETER BENCE">PETER BENCE</a>
+  </h3>
+      <p class="perex">Klavírní smršť bez hranic. Strhující virtuos Peter Bence v dechberoucí show, kde se hudba snoubí s vizuální magií.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/1080-x-1080-damichi-25.jpg);" onclick="redir('https://www.o2universum.cz/events/damichi-25-let/');">
+  </div>
+      <p class="time">20.12.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/damichi-25-let/" title="DAMICHI 25 let">DAMICHI 25 let</a>
+  </h3>
+      <p class="perex">Legendární Michal David a DAMICHI roztančí prosincovou noc. Velká italo disco party k oslavě 25 let na scéně a největší hity v moderním sále</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080x1080-o2.jpg);" onclick="redir('https://www.o2universum.cz/events/dyk-sou-vanoce/');">
+  </div>
+      <p class="time">21.12.2026 19:00<br/>22.12.2026 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/dyk-sou-vanoce/" title="DYK SOU VÁNOCE">DYK SOU VÁNOCE</a>
+  </h3>
+      <p class="perex">Dyk jsou Vánoce! Unikátní symfonická show Vojtěcha Dyka, Janáčkovy filharmonie a hvězdy West Endu Celinde Schoenmaker</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/1080-x1080-sinatra-prague.jpg);" onclick="redir('https://www.o2universum.cz/events/frank-sinatra-friends-live-show-from-las-vegas/');">
+  </div>
+      <p class="time">29.12.2026 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/frank-sinatra-friends-live-show-from-las-vegas/" title="FRANK SINATRA &#038; FRIENDS Live Show from Las Vegas">FRANK SINATRA &#038; FRIENDS Live Show from Las Vegas</a>
+  </h3>
+      <p class="perex">Návrat do zlaté éry Las Vegas s nejlepší show o Franku Sinatrovi na světě. Hity jako My Way či New York, New York v podání hvězd z West Endu</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/nova-festival-chuti-2027-o2universum-1080x1080-2.jpg);" onclick="redir('https://www.o2universum.cz/events/nova-festival-chuti-2027/');">
+  </div>
+      <p class="time">16.1.2027 - 17.1.2027</p>
+    <h3><a href="https://www.o2universum.cz/events/nova-festival-chuti-2027/" title="NOVA festival chutí">NOVA festival chutí</a>
+  </h3>
+      <p class="perex">Největší zimní food festival v ČR se vrací. Nova festival chutí nabídne skvělé jídlo a výjimečné kuchařské show</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/ticketmaster-1080x1080-nbt.jpg);" onclick="redir('https://www.o2universum.cz/events/nothing-but-thieves-the-stray-dogs-world-tour/');">
+  </div>
+      <p class="time">22.1.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/nothing-but-thieves-the-stray-dogs-world-tour/" title="Nothing But Thieves – The Stray Dogs World Tour">Nothing But Thieves – The Stray Dogs World Tour</a>
+  </h3>
+      <p class="perex">Strhující alt-rocková jízda. Nothing But Thieves se vrací s novým albem a show plnou elektrizující energie.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080h1080-230127-praha-loboda-venue.jpg);" onclick="redir('https://www.o2universum.cz/events/concert-of-loboda/');">
+  </div>
+      <p class="time">23.1.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/concert-of-loboda/" title="Concert of LOBODA">Concert of LOBODA</a>
+  </h3>
+      <p class="perex">Populární ukrajinská zpěvačka LOBODA přiveze do Česka exkluzivní show plnou známých hitů v nových aranžích.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/01/1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/lednacek-fest/');">
+  </div>
+      <p class="time">30.1.2027 11:00</p>
+    <h3><a href="https://www.o2universum.cz/events/lednacek-fest/" title="LEDŇÁČEK FEST">LEDŇÁČEK FEST</a>
+  </h3>
+      <p class="perex">Změna termínu Ledňáček Festu: Nové datum v roce 2027 a speciální dárek pro fanoušky</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/1080x1080-hollywood-undead-admat.jpg);" onclick="redir('https://www.o2universum.cz/events/hollywood-undead-eu-uk-2027/');">
+  </div>
+      <p class="time">5.2.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/hollywood-undead-eu-uk-2027/" title="Hollywood Undead: EU/UK 2027">Hollywood Undead: EU/UK 2027</a>
+  </h3>
+      <p class="perex">Hollywood Undead míří zpět do Česka s tvrdými riffy, rapem, maskami a energií, která žene jejich show naplno.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080px-v1-partners.png);" onclick="redir('https://www.o2universum.cz/events/harry-potter-a-ohnivy-pohar-in-concert/');">
+  </div>
+      <p class="time">13.2.2027 19:00<br/>14.2.2027 13:00</p>
+    <h3><a href="https://www.o2universum.cz/events/harry-potter-a-ohnivy-pohar-in-concert/" title="Harry Potter a Ohnivý pohár™ in Concert">Harry Potter a Ohnivý pohár™ in Concert</a>
+  </h3>
+      <p class="perex">Zažijte film Harry Potter a Ohnivý pohár na velkém plátně za živého doprovodu devadesátičlenného orchestru.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/bfmv-1080x1080live.png);" onclick="redir('https://www.o2universum.cz/events/bullet-for-my-valentine-very-special-guests-pendulum/');">
+  </div>
+      <p class="time">16.2.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/bullet-for-my-valentine-very-special-guests-pendulum/" title="Bullet For My Valentine + Very Special Guests: Pendulum Live">Bullet For My Valentine + Very Special Guests: Pendulum Live</a>
+  </h3>
+      <p class="perex">Zažijte nekompromisní metalcorovou nálož. Bullet For My Valentine představí nové album i legendární skladby.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/tiki-taka-o2-1080x1080-2.jpg);" onclick="redir('https://www.o2universum.cz/events/tiki-taka-live-2027/');">
+  </div>
+      <p class="time">20.2.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/tiki-taka-live-2027/" title="TIKI TAKA LIVE">TIKI TAKA LIVE</a>
+  </h3>
+      <p class="perex">Jubilejní večer show Tiki Taka přivítá vzácné hosty. Na pódiu vystoupí Jan Koller, Richard Krajčo i Ondřej Sokol.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/10/ovoq-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/one-vision-of-queen-2027/');">
+  </div>
+      <p class="time">23.2.2027 19:30</p>
+    <h3><a href="https://www.o2universum.cz/events/one-vision-of-queen-2027/" title="One Vision of Queen">One Vision of Queen</a>
+  </h3>
+      <p class="perex">Hlas, ze kterého mrazí. Zažijte nesmrtelnou energii Queen a vokální reinkarnaci Freddieho Mercuryho v elektrizující show.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/zensation-kv-o2-1080-x-1080.jpg);" onclick="redir('https://www.o2universum.cz/events/zensation-chinese-national-circus/');">
+  </div>
+      <p class="time">28.2.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/zensation-chinese-national-circus/" title="ZENsation – Chinese National Circus">ZENsation – Chinese National Circus</a>
+  </h3>
+      <p class="perex">Čínský národní cirkus poprvé v ČR. Úchvatná show ZENSATION propojí tisíciletou tradici akrobacie s moderní vizuální elegancí.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/james-blunt-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/james-blunt-airplane-mode/');">
+  </div>
+      <p class="time">5.3.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/james-blunt-airplane-mode/" title="James Blunt – AIRPLANE MODE">James Blunt – AIRPLANE MODE</a>
+  </h3>
+      <p class="perex">Britský písničkář James Blunt se vrací do Česka. Přiveze slavné hity You’re Beautiful i novinky z nového alba.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/kali-peterpan-1200x1200-ticketportal-compressed-1080x1080.jpg);" onclick="redir('https://www.o2universum.cz/events/kali-20-let-na-scene/');">
+  </div>
+      <p class="time">13.3.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/kali-20-let-na-scene/" title="KALI – 20 LET NA SCÉNĚ">KALI – 20 LET NA SCÉNĚ</a>
+  </h3>
+      <p class="perex">Zažijte oslavu dvou desetiletí kariéry rappera Kaliho. Čekají vás největší hity, osobní zpovědi i obrovská energie.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/legend-of-korra-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/the-legend-of-korra-in-concert/');">
+  </div>
+      <p class="time">20.3.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/the-legend-of-korra-in-concert/" title="THE LEGEND OF KORRA IN CONCERT">THE LEGEND OF KORRA IN CONCERT</a>
+  </h3>
+      <p class="perex">Unikátní orchestrální show oživuje svět Korry. Živý symfonický doprovod synchronizovaný s ikonickými scénami.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/o2u-tapfs27-1080x1080px.jpg);" onclick="redir('https://www.o2universum.cz/events/the-australian-pink-floyd-show-2027-greatest-hits-world-tour/');">
+  </div>
+      <p class="time">26.3.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/the-australian-pink-floyd-show-2027-greatest-hits-world-tour/" title="THE AUSTRALIAN PINK FLOYD SHOW – 2027 GREATEST HITS WORLD TOUR">THE AUSTRALIAN PINK FLOYD SHOW – 2027 GREATEST HITS WORLD TOUR</a>
+  </h3>
+      <p class="perex">Komplexní zážitek, ze kterého naskočí husí kůže. Australská formace vzdá věrnou a precizní poctu odkazu rockových legend v O2 universu.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/thomasbergensen-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/thomas-bergersen-live-europe-tour-2027/');">
+  </div>
+      <p class="time">3.4.2027 20:00<br/>4.4.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/thomas-bergersen-live-europe-tour-2027/" title="THOMAS BERGERSEN LIVE – Europe Tour 2027">THOMAS BERGERSEN LIVE – Europe Tour 2027</a>
+  </h3>
+      <p class="perex">Energie rocku i majestátnost orchestru. Thomas Bergersen uvádí svou první sólovou show plnou filmových emocí.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/mcgf27-1080x1080px.jpg);" onclick="redir('https://www.o2universum.cz/events/makro-czech-gastro-fest-2027/');">
+  </div>
+      <p class="time">9.4.2027 - 10.4.2027</p>
+    <h3><a href="https://www.o2universum.cz/events/makro-czech-gastro-fest-2027/" title="MAKRO Czech Gastro Fest 2027">MAKRO Czech Gastro Fest 2027</a>
+  </h3>
+      <p class="perex">Objevte nejnovější gastronomické trendy i kulinářské hvězdy. Vstupenka navíc obsahuje lahodné degustační porce.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/e2-cc-insta-ticketmaster-2027-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/comic-con-prague-2027/');">
+  </div>
+      <p class="time">16.4.2027 - 18.4.2027</p>
+    <h3><a href="https://www.o2universum.cz/events/comic-con-prague-2027/" title="Comic-Con Prague 2027">Comic-Con Prague 2027</a>
+  </h3>
+      <p class="perex">Osmý ročník Comic-Con Prague oživí filmy, hry i cosplay. Užijte si přes 32 hodin nabitého programu v dubnu</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/ift-1080x1080media-2media.png);" onclick="redir('https://www.o2universum.cz/events/in-flames-x-trivium/');">
+  </div>
+      <p class="time">20.4.2027 18:00</p>
+    <h3><a href="https://www.o2universum.cz/events/in-flames-x-trivium/" title="IN FLAMES x TRIVIUM">IN FLAMES x TRIVIUM</a>
+  </h3>
+      <p class="perex">Heavymetalový hurikán míří do Česka. Legendy In Flames a Trivium spojují síly na společném divokém turné.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/vangelis-o2-banner-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/vangelis-original-symphonic-concert/');">
+  </div>
+      <p class="time">21.4.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/vangelis-original-symphonic-concert/" title="VANGELIS Original Symphonic Concert">VANGELIS Original Symphonic Concert</a>
+  </h3>
+      <p class="perex">Monumentální symfonická pocta Vangelisovi se vrací do Česka. Zazní i slavná píseň Ráj v podání Daniela Hůlky.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/annak2027-o2universum-1080x1080-2termin.jpg);" onclick="redir('https://www.o2universum.cz/events/anna-k-cesky-narodni-symfonicky-orchestr/');">
+  </div>
+      <p class="time">23.4.2027 20:00<br/>24.4.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/anna-k-cesky-narodni-symfonicky-orchestr/" title="ANNA K. – ČESKÝ NÁRODNÍ SYMFONICKÝ ORCHESTR">ANNA K. – ČESKÝ NÁRODNÍ SYMFONICKÝ ORCHESTR</a>
+  </h3>
+      <p class="perex">Magické spojení rockové energie a symfonické noblesy. Největší hity v unikátním aranžmá světového dirigenta s puncem Grammy.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/o2-1080x1080-fotr-2027-ab-5.jpg);" onclick="redir('https://www.o2universum.cz/events/the-lord-of-the-rings-the-fellowship-of-the-ring-in-concert/');">
+  </div>
+      <p class="time">30.4.2027 19:30<br/>1.5.2027 14:00</p>
+    <h3><a href="https://www.o2universum.cz/events/the-lord-of-the-rings-the-fellowship-of-the-ring-in-concert/" title="The Lord of the Rings: The Fellowship of the Ring in Concert">The Lord of the Rings: The Fellowship of the Ring in Concert</a>
+  </h3>
+      <p class="perex">Kultovní Společenstvo prstenu ožívá. Velkolepá projekce za doprovodu 230 hudebníků, sborů a zahraničních sólistů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/adam-30-1080x1080-2.jpg);" onclick="redir('https://www.o2universum.cz/events/adam-30/');">
+  </div>
+      <p class="time">7.5.2027 20:30</p>
+    <h3><a href="https://www.o2universum.cz/events/adam-30/" title="ADAM 30">ADAM 30</a>
+  </h3>
+      <p class="perex">Oslava 30. narozenin Adama Mišíka. Největší show mapující jeho cestu od prvních hitů po současný moderní pop s hosty.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/lac27-1080x1080-tch.jpg);" onclick="redir('https://www.o2universum.cz/events/labuti-jezero-balet-a-orchestr/');">
+  </div>
+      <p class="time">11.5.2027 19:30</p>
+    <h3><a href="https://www.o2universum.cz/events/labuti-jezero-balet-a-orchestr/" title="Labutí jezero – balet a orchestr">Labutí jezero – balet a orchestr</a>
+  </h3>
+      <p class="perex">Nesmrtelný balet Labutí jezero ožívá v podání Paris Ballet Theater. Čeká vás živý orchestr i oslnivé kostýmy.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080.jpg);" onclick="redir('https://www.o2universum.cz/events/skwor-na-hrane-tour/');">
+  </div>
+      <p class="time">13.5.2027 20:30</p>
+    <h3><a href="https://www.o2universum.cz/events/skwor-na-hrane-tour/" title="ŠKWOR – NA HRANĚ TOUR">ŠKWOR – NA HRANĚ TOUR</a>
+  </h3>
+      <p class="perex">Legenda české rockové scény ŠKWOR vyrazí na velké halové turné s novým albem Na hraně. Těšte se na smršť hitů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/rw-2027-1080x1080-2.jpg);" onclick="redir('https://www.o2universum.cz/events/roger-waters-presents-legacy/');">
+  </div>
+      <p class="time">8.6.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/roger-waters-presents-legacy/" title="Roger Waters Presents Legacy">Roger Waters Presents Legacy</a>
+  </h3>
+      <p class="perex">Roger Waters přináší LEGACY, velkolepou poctu zlaté éře Pink Floyd, hity z ikonických alb a působivé vizuály.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/ronan-keating-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/ronan-keating-just-getting-started-world-tour/');">
+  </div>
+      <p class="time">18.9.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/ronan-keating-just-getting-started-world-tour/" title="RONAN KEATING – „JUST GETTING STARTED” WORLD TOUR">RONAN KEATING – „JUST GETTING STARTED” WORLD TOUR</a>
+  </h3>
+      <p class="perex">Ronan Keating míří do Česka s hity skupiny Boyzone i sólové dráhy. Těšte se na večer plný známých melodií.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/1080x1080.jpg);" onclick="redir('https://www.o2universum.cz/events/renne-dang/');">
+  </div>
+      <p class="time">23.10.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/renne-dang/" title="RENNE DANG">RENNE DANG</a>
+  </h3>
+      <p class="perex">Noc plná exkluzivních hostů a špičkové vizuální show. Zažijte křest nového alba Renneho Danga naživo.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/o2-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/monika-slavi-50-plus/');">
+  </div>
+      <p class="time">25.10.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/monika-slavi-50-plus/" title="MONIKA SLAVÍ 50+">MONIKA SLAVÍ 50+</a>
+  </h3>
+      <p class="perex">Užijte si narozeninový koncert Moniky Absolonové! Čekají vás nejslavnější hity, muzikálové melodie i nové skladby.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/07/soubojklaviru-o2universum-banner-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/souboj-klaviru-s-orchestrem-brzobohaty-brousek/');">
+  </div>
+      <p class="time">12.12.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/souboj-klaviru-s-orchestrem-brzobohaty-brousek/" title="SOUBOJ KLAVÍRŮ s orchestrem – Brzobohatý &#038; Brousek">SOUBOJ KLAVÍRŮ s orchestrem – Brzobohatý &#038; Brousek</a>
+  </h3>
+      <p class="perex">Fenomén Souboj klavírů se vrací. Zažijte show plnou hravé improvizace, humoru a velkolepého orchestrálního zvuku.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/1080x1080.jpg);" onclick="redir('https://www.o2universum.cz/events/petr-kolar-60/');">
+  </div>
+      <p class="time">15.12.2027 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/petr-kolar-60/" title="Petr Kolář „60“">Petr Kolář „60“</a>
+  </h3>
+      <p class="perex">Velkolepá oslava 60. narozenin Petra Koláře. Průřez rockovou i muzikálovou kariérou s řadou exkluzivních hostů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/gregorian-o2-banner-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/gregorian-the-magical-christmas-tour-2027/');">
+  </div>
+      <p class="time">19.12.2027 19:00</p>
+    <h3><a href="https://www.o2universum.cz/events/gregorian-the-magical-christmas-tour-2027/" title="Gregorian – The Magical Christmas Tour 2027">Gregorian – The Magical Christmas Tour 2027</a>
+  </h3>
+      <p class="perex">Vychutnejte si vánoční čas s vokálním projektem GREGORIAN. Čeká vás tajemná atmosféra i známé melodie v novém kabátě.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/thomas-anders-1080x1080-1.jpg);" onclick="redir('https://www.o2universum.cz/events/thomas-anders-from-modern-talking-2028/');">
+  </div>
+      <p class="time">26.2.2028 20:00</p>
+    <h3><a href="https://www.o2universum.cz/events/thomas-anders-from-modern-talking-2028/" title="Thomas Anders from Modern Talking">Thomas Anders from Modern Talking</a>
+  </h3>
+      <p class="perex">Thomas Anders se svou kapelou přiváží nesmrtelné hity legendárních Modern Talking. Zatančete si v rytmu osmdesátek!</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+    <div class="eye_catcher"
+        style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/pop-divas-o2-1080x1080-1.jpg);"
+        onclick="redir('https://www.o2universum.cz/events/pop-divas-the-soundtrack-of-your-life-pocta-nejvetsim-svetovym-hvezdam/');">
+    </div>
+
+    <p class="time"></p>
+
+    <h3><a href="https://www.o2universum.cz/events/pop-divas-the-soundtrack-of-your-life-pocta-nejvetsim-svetovym-hvezdam/">POP DIVAS – THE SOUNDTRACK OF YOUR LIFE! POCTA NEJVĚTŠÍM SVĚTOVÝM HVĚZDÁM – ZRUŠENO</a>
+    </h3>
+
+            <p class="perex">Akce je z technických a logistických důvodů ZRUŠENA.</p>
+    </div><div class="event_preview toLeft">
+    <div class="eye_catcher"
+        style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/marta-o2-o2-web-mobile-1080x1080px.jpg);"
+        onclick="redir('https://www.o2universum.cz/events/divadelni-recital-marta-s-prague-philharmonia/');">
+    </div>
+
+    <p class="time"></p>
+
+    <h3><a href="https://www.o2universum.cz/events/divadelni-recital-marta-s-prague-philharmonia/">Divadelní recitál MARTA s Prague Philharmonia – ZRUŠENO</a>
+    </h3>
+
+            <p class="perex">Akce byla zrušena</p>
+    </div><div class="clear"></div>
+
+
+                    </div>
+                </div>
+                <div class="rozcestnik" id="oarena-events" style="margin-top: 60px;">
+    <div class="top o2arena-heading">
+        <h2 class="toLeft">Program O<sub>2</sub> arena        </h2>
+        <div class="toRight"></div>
+        <div class="clear"></div>
+    </div>
+</div>
+<div id="events_index">
+    <div class="previews">
+        <div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/1080x1080.jpg);" onclick="redir('https://www.o2arena.cz/events/martina-partlova/');">
+  </div>
+      <p class="time">20.11.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/martina-partlova/" title="Martina Pártlová">Martina Pártlová</a>
+  </h3>
+      <p class="perex">Martina Pártlová poprvé na největším pódiu. Velkolepá show světových parametrů s živou kapelou a dechovou sekcí</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/1080x1080-3.jpg);" onclick="redir('https://www.o2arena.cz/events/radio-kiss-millennium-explosion-live-show-2026/');">
+  </div>
+      <p class="time">21.11.2026 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/radio-kiss-millennium-explosion-live-show-2026/" title="RADIO KISS MILLENNIUM EXPLOSION – LIVE SHOW">RADIO KISS MILLENNIUM EXPLOSION – LIVE SHOW</a>
+  </h3>
+      <p class="perex">Exploze hudby z přelomu tisíciletí s moderátory Radia Kiss. Více než deset interpretů, špičková scéna a nejmodernější technologie</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/1080x1080-pitbull-2026-o2arena.jpg);" onclick="redir('https://www.o2arena.cz/events/pitbull-im-back/');">
+  </div>
+      <p class="time">22.11.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/pitbull-im-back/" title="Pitbull &#8211; I&#8217;m Back!">Pitbull &#8211; I&#8217;m Back!</a>
+  </h3>
+      <p class="perex">Držitel Grammy Pitbull znovu rozvlní davy. Neopakovatelná show mezinárodní superstar a nezastavitelného hitmakera</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/prodigy-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/the-prodigy/');">
+  </div>
+      <p class="time">23.11.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/the-prodigy/" title="The Prodigy">The Prodigy</a>
+  </h3>
+      <p class="perex">Elektroničtí pionýři The Prodigy se vrací do Prahy s novou show. Drtivý zvuk, nekompromisní energie a vizuálně intenzivní zážitek v největší české hale</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/sb-1080x1080-prague-bf.jpg);" onclick="redir('https://www.o2arena.cz/events/sarah-brightman-a-winter-symphony/');">
+  </div>
+      <p class="time">26.11.2026 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/sarah-brightman-a-winter-symphony/" title="SARAH BRIGHTMAN – A WINTER SYMPHONY">SARAH BRIGHTMAN – A WINTER SYMPHONY</a>
+  </h3>
+      <p class="perex">Světová sopranistka Sarah Brightman přiváží vánoční kouzlo. Strhující show A Winter Symphony plná emocí a nebeského hlasu</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-2.jpg);" onclick="redir('https://www.o2arena.cz/events/the-sound-chapter/');">
+  </div>
+      <p class="time">27.11.2026 18:30</p>
+    <h3><a href="https://www.o2arena.cz/events/the-sound-chapter/" title="The Sound Chapter">The Sound Chapter</a>
+  </h3>
+      <p class="perex">Nová hudební série The Sound Chapter přiveze do Česka obří hvězdy elektronické scény a vizuální show.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/separ-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/separ-40-bday-party/');">
+  </div>
+      <p class="time">28.11.2026 21:00</p>
+    <h3><a href="https://www.o2arena.cz/events/separ-40-bday-party/" title="SEPAR – 40 BDAY PARTY">SEPAR – 40 BDAY PARTY</a>
+  </h3>
+      <p class="perex">Velkolepá oslava 40. narozenin přímo na pódiu. Speciální hosté, masivní pódiová show a unikátní zážitek pro české i slovenské fanoušky</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-9.png);" onclick="redir('https://www.o2arena.cz/events/hc-sparta-praha-hc-skoda-plzen-26-01/');">
+  </div>
+      <p class="time">29.11.2026 16:00</p>
+    <h3><a href="https://www.o2arena.cz/events/hc-sparta-praha-hc-skoda-plzen-26-01/" title="HC Sparta Praha – HC Škoda Plzeň">HC Sparta Praha – HC Škoda Plzeň</a>
+  </h3>
+      <p class="perex">Užijte si špičkový hokej a neopakovatelnou atmosféru na domácím utkání HC Sparta Praha v základní části.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080x1080.jpg);" onclick="redir('https://www.o2arena.cz/events/zradci-posledni-stul/');">
+  </div>
+      <p class="time">2.12.2026 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/zradci-posledni-stul/" title="ZRÁDCI: POSLEDNÍ STŮL">ZRÁDCI: POSLEDNÍ STŮL</a>
+  </h3>
+      <p class="perex">Vstupte do světa Zrádců a zažijte velkolepý finálový večer plný napětí a zrady. Zvítězí Věrní, nebo Zrádci?</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/arena-tour-2026-12-05-praha-02-1080x1080px-compressed.jpg);" onclick="redir('https://www.o2arena.cz/events/calin-viktor-sheen-arena-tour/');">
+  </div>
+      <p class="time">4.12.2026 19:00<br/>5.12.2026 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/calin-viktor-sheen-arena-tour/" title="Calin &#038; Viktor Sheen – Arena Tour">Calin &#038; Viktor Sheen – Arena Tour</a>
+  </h3>
+      <p class="perex">Zažijte jedinečnou společnou show. Calin a Viktor Sheen představí své největší hity i ikonické společné skladby.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-10.png);" onclick="redir('https://www.o2arena.cz/events/hc-sparta-praha-bili-tygri-liberec-26-01/');">
+  </div>
+      <p class="time">6.12.2026 16:00</p>
+    <h3><a href="https://www.o2arena.cz/events/hc-sparta-praha-bili-tygri-liberec-26-01/" title="HC Sparta Praha – Bílí Tygři Liberec">HC Sparta Praha – Bílí Tygři Liberec</a>
+  </h3>
+      <p class="perex">Užijte si špičkový hokej a neopakovatelnou atmosféru na domácím utkání HC Sparta Praha v základní části.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/superstar-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/superstar-superfinale/');">
+  </div>
+      <p class="time">9.12.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/superstar-superfinale/" title="SuperStar Superfinále">SuperStar Superfinále</a>
+  </h3>
+      <p class="perex">Deset nejlepších finalistů se utká v boji o titul i sny. Přijďte si vychutnat živou show plnou velkých emocí.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2024/10/o2-nn30-2026-1200x1200-1-1080x1080.jpg);" onclick="redir('https://www.o2arena.cz/events/no-name-30/');">
+  </div>
+      <p class="time">12.12.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/no-name-30/" title="NO NAME 30">NO NAME 30</a>
+  </h3>
+      <p class="perex">Legendární NO NAME slaví 30 let na scéně velkolepým koncertem. Největší megahity, které zlidověly v celém Česku i Slovensku</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/02/1080x1080-bryanadams.jpg);" onclick="redir('https://www.o2arena.cz/events/bryan-adams-roll-with-the-punches/');">
+  </div>
+      <p class="time">13.12.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/bryan-adams-roll-with-the-punches/" title="Bryan Adams – ROLL WITH THE PUNCHES">Bryan Adams – ROLL WITH THE PUNCHES</a>
+  </h3>
+      <p class="perex">Držitel Grammy a autor nesmrtelných hitů znovu na scéně. Kanadská ikona představí energii vlastního labelu i filmové melodie</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/fmx-2026-600-x-600.jpg);" onclick="redir('https://www.o2arena.cz/events/fmx-gladiator-games-2026/');">
+  </div>
+      <p class="time">19.12.2026 13:30<br/>19.12.2026 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/fmx-gladiator-games-2026/" title="FMX GLADIATOR GAMES 2026">FMX GLADIATOR GAMES 2026</a>
+  </h3>
+      <p class="perex">Nejstarší FMX akce v Evropě slibuje adrenalinový zážitek roku. Světové hvězdy, nebezpečné triky a dechberoucí skoky v bouřlivé atmosféře</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-11.png);" onclick="redir('https://www.o2arena.cz/events/hc-sparta-praha-rytiri-kladno-26-01/');">
+  </div>
+      <p class="time">20.12.2026 16:00</p>
+    <h3><a href="https://www.o2arena.cz/events/hc-sparta-praha-rytiri-kladno-26-01/" title="HC Sparta Praha – Rytíři Kladno">HC Sparta Praha – Rytíři Kladno</a>
+  </h3>
+      <p class="perex">Užijte si špičkový hokej a neopakovatelnou atmosféru na domácím utkání HC Sparta Praha v základní části.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-12.png);" onclick="redir('https://www.o2arena.cz/events/hc-sparta-praha-bk-mlada-boleslav-26-02/');">
+  </div>
+      <p class="time">22.12.2026 18:30</p>
+    <h3><a href="https://www.o2arena.cz/events/hc-sparta-praha-bk-mlada-boleslav-26-02/" title="HC Sparta Praha – BK Mladá Boleslav">HC Sparta Praha – BK Mladá Boleslav</a>
+  </h3>
+      <p class="perex">Užijte si špičkový hokej a neopakovatelnou atmosféru na domácím utkání HC Sparta Praha v základní části.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/drupi-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/drupi/');">
+  </div>
+      <p class="time">27.12.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/drupi/" title="DRUPI">DRUPI</a>
+  </h3>
+      <p class="perex">Zažijte jedinečný hudební večer s Drupim. Nezaměnitelný hlas, slavné písně a nezapomenutelná atmosféra vás nadchnou.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/08/1080x1080-26.png);" onclick="redir('https://www.o2arena.cz/events/hc-sparta-praha-hc-energie-karlovy-vary-13/');">
+  </div>
+      <p class="time">28.12.2026 18:00</p>
+    <h3><a href="https://www.o2arena.cz/events/hc-sparta-praha-hc-energie-karlovy-vary-13/" title="HC Sparta Praha – HC Energie Karlovy Vary">HC Sparta Praha – HC Energie Karlovy Vary</a>
+  </h3>
+      <p class="perex">Užijte si špičkový hokej a neopakovatelnou atmosféru na domácím utkání HC Sparta Praha v základní části.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/07/okt100-kv-1080x1080px.png);" onclick="redir('https://www.o2arena.cz/events/oktagon-100/');">
+  </div>
+      <p class="time">29.12.2026 18:00</p>
+    <h3><a href="https://www.o2arena.cz/events/oktagon-100/" title="OKTAGON 100">OKTAGON 100</a>
+  </h3>
+      <p class="perex">Historický OKTAGON 100 ovládne 29. 12. O2 arenu! Zažij epickou show a největší hvězdy. Buď u toho!</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/kozub-new-1080x1080-1.jpeg);" onclick="redir('https://www.o2arena.cz/events/stepan-kozub-bez-debat-silvestrovsky-special/');">
+  </div>
+      <p class="time">31.12.2026 14:00</p>
+    <h3><a href="https://www.o2arena.cz/events/stepan-kozub-bez-debat-silvestrovsky-special/" title="Štěpán Kozub: BEZ DEBAT – Silvestrovský speciál">Štěpán Kozub: BEZ DEBAT – Silvestrovský speciál</a>
+  </h3>
+      <p class="perex">Herec, komik a fenomén české scény Štěpán Kozub se vrací do největší české haly zbrusu novou stand-up show BEZ DEBAT!</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/sp-o2-v2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/silvestrovske-pecky/');">
+  </div>
+      <p class="time">31.12.2026 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/silvestrovske-pecky/" title="SILVESTROVSKÉ PECKY">SILVESTROVSKÉ PECKY</a>
+  </h3>
+      <p class="perex">Letos poprvé můžete přijít osobně oslavit příchod Nového roku na největší verzi Pecek v historii…v O2 areně.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/02/1080x1080-2.jpg);" onclick="redir('https://www.o2arena.cz/events/tublatanka-alphaville-argema/');">
+  </div>
+      <p class="time">30.1.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/tublatanka-alphaville-argema/" title="Tublatanka Alphaville Argema">Tublatanka Alphaville Argema</a>
+  </h3>
+      <p class="perex">Exkluzivní hudební událost a tři plnohodnotné koncerty v rámci jedné noci. Světové hity i zásadní momenty československého rocku</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/ffdp-2027-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/five-finger-death-punch-20th-anniversary-world-tour/');">
+  </div>
+      <p class="time">31.1.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/five-finger-death-punch-20th-anniversary-world-tour/" title="Five Finger Death Punch: 20th Anniversary World Tour">Five Finger Death Punch: 20th Anniversary World Tour</a>
+  </h3>
+      <p class="perex">Hardrockoví Five Finger Death Punch slaví 20 let. Výroční show doplní domácí Dymytry a skotští Bleed from Within.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/slagr-o2-01-1080x1080-final.jpg);" onclick="redir('https://www.o2arena.cz/events/srdce-pro-slagr-velky-galakoncert-k-15-letum-slagru/');">
+  </div>
+      <p class="time">14.2.2027 15:00</p>
+    <h3><a href="https://www.o2arena.cz/events/srdce-pro-slagr-velky-galakoncert-k-15-letum-slagru/" title="Srdce pro Šlágr – Velký galakoncert k 15 letům Šlágru">Srdce pro Šlágr – Velký galakoncert k 15 letům Šlágru</a>
+  </h3>
+      <p class="perex">Velký narozeninový galakoncert oslaví patnáct let Šlágru. Těšte se na více než dvacet hvězdných účinkujících.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/o2a-electriccallboy27-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/electric-callboy-tanzneid-world-tour/');">
+  </div>
+      <p class="time">24.2.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/electric-callboy-tanzneid-world-tour/" title="ELECTRIC CALLBOY: TANZNEID WORLD TOUR">ELECTRIC CALLBOY: TANZNEID WORLD TOUR</a>
+  </h3>
+      <p class="perex">Dosud největší a nejambicióznější turné Electric Callboy. Divoká arénová produkce přiveze neskutečnou energii</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/queen-relived-praha-2027-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/queen-relived-philharmonic-2027/');">
+  </div>
+      <p class="time">26.2.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/queen-relived-philharmonic-2027/" title="Queen Relived Philharmonic">Queen Relived Philharmonic</a>
+  </h3>
+      <p class="perex">Návrat velkolepé pocty skupině Queen. Queenie, Janáčkova filharmonie a gospelový sbor přivážejí monumentální show s prostorovým zvukem.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/mj-praha-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/michael-lives-forever/');">
+  </div>
+      <p class="time">27.2.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/michael-lives-forever/" title="Michael Lives Forever">Michael Lives Forever</a>
+  </h3>
+      <p class="perex">Největší tribute show Michaela Jacksona míří do Prahy. Michael Lives Forever v podání Rodriga Teasera přiveze živou kapelu, tanečníky i původní spolupracovníky krále popu.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/07/1080x1080-teddyswims.jpg);" onclick="redir('https://www.o2arena.cz/events/teddy-swims-the-ugly-tour/');">
+  </div>
+      <p class="time">20.3.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/teddy-swims-the-ugly-tour/" title="Teddy Swims – The UGLY Tour">Teddy Swims – The UGLY Tour</a>
+  </h3>
+      <p class="perex">Americký zpěvák Teddy Swims přiveze do Česka svou emotivní show plnou soulu, R&B i diamantového hitu Lose Control.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/wohz-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/the-world-of-hans-zimmer-a-new-dimension-2027/');">
+  </div>
+      <p class="time">16.4.2027 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/the-world-of-hans-zimmer-a-new-dimension-2027/" title="The World of Hans Zimmer – A New Dimension">The World of Hans Zimmer – A New Dimension</a>
+  </h3>
+      <p class="perex">The World of Hans Zimmer se vrací s novou dimenzí. Strhující cesta napříč nejslavnějšími filmovými skladbami v doprovodu elitních sólistů</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/sff2027-1080x1080-1.png);" onclick="redir('https://www.o2arena.cz/events/bigboard-superfinale-florbalu-2027/');">
+  </div>
+      <p class="time">25.4.2027 10:30</p>
+    <h3><a href="https://www.o2arena.cz/events/bigboard-superfinale-florbalu-2027/" title="BigBoard Superfinále florbalu 2027">BigBoard Superfinále florbalu 2027</a>
+  </h3>
+      <p class="perex">Vrchol florbalové sezóny přináší strhující souboje o titul. Těšte se na bohatý doprovodný program a fanzónu.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/o2a-sabaton27-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/sabaton-the-legendary-tour-part-2-europe-2027/');">
+  </div>
+      <p class="time">2.5.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/sabaton-the-legendary-tour-part-2-europe-2027/" title="SABATON – The Legendary Tour, Part 2, Europe 2027">SABATON – The Legendary Tour, Part 2, Europe 2027</a>
+  </h3>
+      <p class="perex">Švédská metalová ikona Sabaton se vrací do ČR. V O2 areně spojí síly s The Legendary Orchestra a představí novou éru plnou historických příběhů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/05/andre-rieu-o2-2027-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/andre-rieu-in-prague-2027-with-his-johann-strauss-orchestra/');">
+  </div>
+      <p class="time">8.5.2027 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/andre-rieu-in-prague-2027-with-his-johann-strauss-orchestra/" title="André Rieu in Prague 2027 – WITH HIS JOHANN STRAUSS ORCHESTRA">André Rieu in Prague 2027 – WITH HIS JOHANN STRAUSS ORCHESTRA</a>
+  </h3>
+      <p class="perex">Král valčíku André Rieu se vrací! Velkolepá show s Johann Strauss Orchestra plná emocí, valčíků a slavných melodií.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/06/1080x1080-o2.jpg);" onclick="redir('https://www.o2arena.cz/events/nedvedi-27/');">
+  </div>
+      <p class="time">14.5.2027 20:00<br/>15.5.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/nedvedi-27/" title="NEDVĚDI 27">NEDVĚDI 27</a>
+  </h3>
+      <p class="perex">Oslava pokory, melodií a lidskosti. Dyk, Prachař a hosté vrací na pódia písně, na kterých vyrostly celé generace</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/1080x1080-falloutboy.jpg);" onclick="redir('https://www.o2arena.cz/events/fall-out-boy-twilight-of-the-punks/');">
+  </div>
+      <p class="time">17.5.2027 18:30</p>
+    <h3><a href="https://www.o2arena.cz/events/fall-out-boy-twilight-of-the-punks/" title="Fall Out Boy – Twilight of the Punks">Fall Out Boy – Twilight of the Punks</a>
+  </h3>
+      <p class="perex">Multiplatinoví Fall Out Boy slaví 25 let na scéně a přivážejí novou hudbu. Těšte se na smršť ikonických hitů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/1080x1080-thirtysecondstomars.jpg);" onclick="redir('https://www.o2arena.cz/events/thirty-seconds-to-mars/');">
+  </div>
+      <p class="time">18.5.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/thirty-seconds-to-mars/" title="Thirty Seconds to Mars">Thirty Seconds to Mars</a>
+  </h3>
+      <p class="perex">Bratři Jared a Shannon Leto přivážejí jedinečnou koncertní show oslavující dvě zásadní desky jejich kariéry.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080x1080-sombr.jpg);" onclick="redir('https://www.o2arena.cz/events/sombr/');">
+  </div>
+      <p class="time">19.5.2027 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/sombr/" title="Sombr">Sombr</a>
+  </h3>
+      <p class="perex">Na cenu GRAMMY nominovaný sombr míří do Česka. V rámci světového turné přiveze své největší popové hity.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/er-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/eros-ramazzotti-una-storia-importante-2027/');">
+  </div>
+      <p class="time">20.5.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/eros-ramazzotti-una-storia-importante-2027/" title="EROS RAMAZZOTTI &#8211; UNA STORIA IMPORTANTE / PŘESUNUTO">EROS RAMAZZOTTI &#8211; UNA STORIA IMPORTANTE / PŘESUNUTO</a>
+  </h3>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/gretavanfleet-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/greta-van-fleet-into-the-beginning/');">
+  </div>
+      <p class="time">22.5.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/greta-van-fleet-into-the-beginning/" title="Greta Van Fleet – Into The Beginning">Greta Van Fleet – Into The Beginning</a>
+  </h3>
+      <p class="perex">Greta Van Fleet poprvé v Česku! Držitelé GRAMMY přivezou nové album, velké rockové hity a speciálního hosta.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/o2-1080x1080-ab27-1.jpg);" onclick="redir('https://www.o2arena.cz/events/andrea-bocelli-romanza-30th-anniversary/');">
+  </div>
+      <p class="time">27.5.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/andrea-bocelli-romanza-30th-anniversary/" title="Andrea Bocelli – Romanza – 30th Anniversary">Andrea Bocelli – Romanza – 30th Anniversary</a>
+  </h3>
+      <p class="perex">Legenda světové hudby Andrea Bocelli vyráží na turné Romanza. Čeká vás podmanivý hlas a dechberoucí atmosféra.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/02/1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/richard-krajco-50-narozeninovy-koncert/');">
+  </div>
+      <p class="time">29.5.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/richard-krajco-50-narozeninovy-koncert/" title="Richard Krajčo „50“ – Narozeninový koncert">Richard Krajčo „50“ – Narozeninový koncert</a>
+  </h3>
+      <p class="perex">Oslava životního jubilea a poděkování fanouškům za třicet let na scéně. Největší hity, symfonické verze písní a jedinečná atmosféra</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/scorpions-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/scorpions-2027/');">
+  </div>
+      <p class="time">9.6.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/scorpions-2027/" title="SCORPIONS">SCORPIONS</a>
+  </h3>
+      <p class="perex">Zažijte strhující energií nabitou show kapely Scorpions. Čekají vás nesmrtelné balady i slavné rockové hymny.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/rodstewart-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/rod-stewart-2027/');">
+  </div>
+      <p class="time">24.6.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/rod-stewart-2027/" title="Rod Stewart">Rod Stewart</a>
+  </h3>
+      <p class="perex">Sir Rod Stewart se loučí s koncertními pódii. Nenechte si ujít jedinečný večer plný jeho nejslavnějších písní.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/nickelback-2027-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/nickelback-everything-under-the-sun-tour/');">
+  </div>
+      <p class="time">26.6.2027 18:30</p>
+    <h3><a href="https://www.o2arena.cz/events/nickelback-everything-under-the-sun-tour/" title="Nickelback: Everything Under The Sun Tour">Nickelback: Everything Under The Sun Tour</a>
+  </h3>
+      <p class="perex">Zažijte nadupanou rockovou show kapely Nickelback. Jako speciální host se představí britská skupina Don Broco.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/o2-fb-aplikace-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/ben-cristovao-2027-big-bang/');">
+  </div>
+      <p class="time">1.10.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/ben-cristovao-2027-big-bang/" title="Ben Cristovao 2027 – BIG BANG">Ben Cristovao 2027 – BIG BANG</a>
+  </h3>
+      <p class="perex">Ben Cristovao a čtvrtý útok na vyprodanou halu. Exkluzivní koncert před omezenou sezónou 2028</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/o2-o2-fb-aplikace-1080x1080px-1.jpg);" onclick="redir('https://www.o2arena.cz/events/ben-cristovao-2027-big-bang-2/');">
+  </div>
+      <p class="time">2.10.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/ben-cristovao-2027-big-bang-2/" title="Ben Cristovao 2027 – BIG BANG 2">Ben Cristovao 2027 – BIG BANG 2</a>
+  </h3>
+      <p class="perex">První termín je vyprodaný! Ben Cristovao pro velký zájem přidává druhý koncert plný dravé energie a hitů.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/jmj-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/jean-michel-jarre/');">
+  </div>
+      <p class="time">3.10.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/jean-michel-jarre/" title="Jean-Michel Jarre">Jean-Michel Jarre</a>
+  </h3>
+      <p class="perex">Legenda elektronické hudby Jean-Michel Jarre oslaví 50 let alba Oxygène. Těšte se na legendární hity i novou tvorbu.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/imp-1080x1080-o2-kupte.jpg);" onclick="redir('https://www.o2arena.cz/events/cesky-mejdan-s-impulsem-2027/');">
+  </div>
+      <p class="time">16.10.2027 18:00</p>
+    <h3><a href="https://www.o2arena.cz/events/cesky-mejdan-s-impulsem-2027/" title="ČESKÝ MEJDAN S IMPULSEM 2027">ČESKÝ MEJDAN S IMPULSEM 2027</a>
+  </h3>
+      <p class="perex">Tradiční český hudební mejdan vstoupil do druhé dekády. Zažijte pětihodinový maraton plný českých hitů a hvězd.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/1080x1080-il-volo-2026-27-praha-o2.jpg);" onclick="redir('https://www.o2arena.cz/events/il-volo-2027/');">
+  </div>
+      <p class="time">18.10.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/il-volo-2027/" title="IL VOLO">IL VOLO</a>
+  </h3>
+      <p class="perex">Italské trio IL VOLO se vrací do Prahy se svou čtvrtou show. Kouzlo Itálie, síla tří hlasů a dokonalé spojení klasiky s moderním citem</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/o2-powerwolf27-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/powerwolf-moral-madness-world-tour/');">
+  </div>
+      <p class="time">12.11.2027 18:00</p>
+    <h3><a href="https://www.o2arena.cz/events/powerwolf-moral-madness-world-tour/" title="POWERWOLF – Moral &#038; Madness World Tour">POWERWOLF – Moral &#038; Madness World Tour</a>
+  </h3>
+      <p class="perex">Zažijte temnou metalovou mši v podání kapely Powerwolf. Těšte se na gigantickou scénu, novou tvorbu a hosty.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/ppo-2027-ticketmaster-1080x1080-11-2025.jpg);" onclick="redir('https://www.o2arena.cz/events/global-champions-prague-playoffs-2027/');">
+  </div>
+      <p class="time">18.11.2027 - 21.11.2027</p>
+    <h3><a href="https://www.o2arena.cz/events/global-champions-prague-playoffs-2027/" title="Global Champions Prague Playoffs 2027">Global Champions Prague Playoffs 2027</a>
+  </h3>
+      <p class="perex">Největší jezdecká událost roku v doprovodu unikátní audiovizuální produkce. Souboj o Super Cup GCL a prestižní Super Grand Prix</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/09/1080x1080-o2-1.jpg);" onclick="redir('https://www.o2arena.cz/events/horkyze-slize-35-nejvetsi-koncert-v-historii-kapely/');">
+  </div>
+      <p class="time">26.11.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/horkyze-slize-35-nejvetsi-koncert-v-historii-kapely/" title="Horkýže Slíže 35: Největší koncert v historii kapely">Horkýže Slíže 35: Největší koncert v historii kapely</a>
+  </h3>
+      <p class="perex">Slovenská punkrocková legenda Horkýže Slíže oslaví 35 let na scéně. Připravte se na největší show jejich historie.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/11/o2arena-1080x1080-vyprodano.jpg);" onclick="redir('https://www.o2arena.cz/events/ptk/');">
+  </div>
+      <p class="time">1.12.2027 20:00<br/>2.12.2027 20:00<br/>3.12.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/ptk/" title="PTK">PTK</a>
+  </h3>
+      <p class="perex">Zažijte nekompromisní energii rappera PTK! Čeká vás velkolepá ICEDOUT show i nezapomenutelné moshpity.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/habera-team/');">
+  </div>
+      <p class="time">11.12.2027 19:30</p>
+    <h3><a href="https://www.o2arena.cz/events/habera-team/" title="HABERA &#038; TEAM">HABERA &#038; TEAM</a>
+  </h3>
+      <p class="perex">Zažijte poctivý československý rock v plné síle. Pavol Habera a TEAM nabídnou večer nabitý ikonickými skladbami.</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/o2-till-lindemann27-1080x1080px.jpg);" onclick="redir('https://www.o2arena.cz/events/till-lindemann-world-tour-2027/');">
+  </div>
+      <p class="time">12.12.2027 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/till-lindemann-world-tour-2027/" title="TILL LINDEMANN – World Tour 2027">TILL LINDEMANN – World Tour 2027</a>
+  </h3>
+      <p class="perex">Zažijte dravou energii a temnou atmosféru sólového projektu Tilla Lindemanna. Nenechte si ujít jeho velkolepou show.</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2025/11/4-tenori-o2-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/4-tenori-10-let-na-scene/');">
+  </div>
+      <p class="time">18.12.2027 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/4-tenori-10-let-na-scene/" title="4 TENOŘI – 10 let na scéně">4 TENOŘI – 10 let na scéně</a>
+  </h3>
+      <p class="perex">4 Tenoři slaví 10 let velkolepým narozeninovým koncertem. Oslava fascinující cesty od prvních společných duetů až po vyprodanou Carnegie Hall</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/tm-o2-arena-1080x1080-1.jpg);" onclick="redir('https://www.o2arena.cz/events/tereza-maskova-ruzova-o2-arena/');">
+  </div>
+      <p class="time">22.1.2028 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/tereza-maskova-ruzova-o2-arena/" title="TEREZA MAŠKOVÁ – RŮŽOVÁ O2 ARENA">TEREZA MAŠKOVÁ – RŮŽOVÁ O2 ARENA</a>
+  </h3>
+      <p class="perex">Tereza Mašková míří ke svému dosud největšímu koncertu. Těšte se na velkolepou růžovou show a obrovské emoce.
+</p>
+  </div><div class="clear"></div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/04/1080x1080-o2-o5ar.jpg);" onclick="redir('https://www.o2arena.cz/events/o5-a-radecek-moravska-filharmonie-olomouc-hoste/');">
+  </div>
+      <p class="time">26.2.2028 19:00</p>
+    <h3><a href="https://www.o2arena.cz/events/o5-a-radecek-moravska-filharmonie-olomouc-hoste/" title="O5 A RADEČEK – Moravská filharmonie Olomouc &#038; hosté">O5 A RADEČEK – Moravská filharmonie Olomouc &#038; hosté</a>
+  </h3>
+      <p class="perex">Životní koncert O5 a Radeček v O2 areně. Romantické smyčce a největší hity v doprovodu Moravské filharmonie Olomouc</p>
+  </div><div class="event_preview toLeft">
+  <div class="eye_catcher" style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/10/1800x1800-1080x1080.jpg);" onclick="redir('https://www.o2arena.cz/events/refew-2028/');">
+  </div>
+      <p class="time">21.10.2028 20:00</p>
+    <h3><a href="https://www.o2arena.cz/events/refew-2028/" title="REFEW 2028">REFEW 2028</a>
+  </h3>
+      <p class="perex">Výrazná osobnost českého rapu Refew chystá velkolepou oslavu jubilea. Přijďte si užít večer plný emocí a energie.</p>
+  </div><div class="event_preview toLeft">
+    <div class="eye_catcher"
+        style="background: center / cover no-repeat url(https://www.o2universum.cz/wp-content/uploads/2026/03/1080x1080-hm.jpg);"
+        onclick="redir('https://www.o2arena.cz/events/halloween-madness/');">
+    </div>
+
+    <p class="time"></p>
+
+    <h3><a href="https://www.o2arena.cz/events/halloween-madness/">HALLOWEEN MADNESS – ZRUŠENO</a>
+    </h3>
+
+            <p class="perex">Plánovaná akce MADNESS Halloween se bohužel ruší. Vstupné bude v plné výši refundováno prostřednictvím prodejců.</p>
+    </div><div class="clear"></div><div class="clear"></div>    </div>
+</div>            </div>
+        
+        <div class="clear"></div>
+    </div>
+</div>
+
+<footer id="outer_79_12" class="outer outer_12">
+  <div class="containerFull">
+         <div class="newsletter-oarena-container" id="newsletter-signup-footer">
+        <div class="newsletter-oarena-new--newsletter">
+            <div class="newsletter-oarena-new--left">
+                <span class="newsletter-oarena--title"><b>Newsletter</b> je tady!</span>
+                <p>Novinky, zajímavosti, tipy na akce,<br /> soutěže a mnoho dalšího.<br /> Přihlaste se zde a <b>buďte v obraze</b>.</p>
+
+                <p class="terms-message">Odběrem novinek souhlasíte s <a href="https://www.o2arena.cz/souhlas-email/" title="Zásady zpracování osobních údajů">podmínkami použití</a></p>
+
+                <form action="" id="o2arena-newsletter-signup">
+                    <fieldset>
+                        <input class="form-input" type="email" id="o2arena-newsletter-signup-email" placeholder="jmeno@mail.cz" required>
+                        <button type="submit" class="form-submit" id="newsletter-signup-btn" aria-label="Newsletter signup">Odeslat</button>
+                    </fieldset>
+                </form>
+
+                <p class="hidden-subscribe-message hidden">Děkujeme.<br/> Potvrďte prosím odběr v&nbsp;zaslaném&nbsp;e-mailu.</p>
+            </div>
+
+            <div class="newsletter-oarena-new--right">
+                <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/newsletter-fc62243b638f.png" alt="Newsletter thumbnail"
+                    width="222" height="212" />
+            </div>
+        </div>
+
+        <div class="newsletter-oarena-new--feedback">
+            <span class="oarena-feedback--title">Na vašem <b>názoru</b> nám záleží!</span>
+            <div class="oarena-feedback--container">
+                <div class="oarena-feedback--left">
+                    <p>Vyplňte nám krátké hodnocení<br /> a každý měsíc můžete získat<br /><b>vstupenky na akce</b><br />v O<sub>2</sub> areně a v O<sub>2</sub> universu.</p>
+                    <a href="https://www.hodnoceninasichsluzeb.cz/formular-pro-o2-arenu/">Vstoupit</a>
+                </div>
+                <div class="oarena-feedback--right">
+                    <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/nazor-3938743458a4.png" alt="Feedback thumbnail"
+                        width="222" height="212" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+      <div class="footer_menu">
+        <div class="footer_menu inner">
+        
+		<div class = "toLeft">
+		<h2 class="widget-title">Novinky</h2>
+		<ul>
+											<li>
+					<a href="https://www.o2arena.cz/oktagon-100-jotko-vs-muradov-epicka-show-a-oslava-10lete-ery-oktagonu/">OKTAGON 100: JOTKO vs. MURADOV. Epická show a oslava 10leté éry OKTAGONu</a>
+									</li>
+											<li>
+					<a href="https://www.o2universum.cz/nesmrtelne-mistrovske-dilo-klasickeho-baletu-paris-ballet-theater-priveze-v-roce-2027-labuti-jezero-s-zivym-orchestrem/">Nesmrtelné mistrovské dílo klasického baletu: Paris Ballet Theater přiveze v roce 2027 Labutí jezero s živým orchestrem</a>
+									</li>
+											<li>
+					<a href="https://www.o2arena.cz/z-cz-undergroundu-az-do-nejvetsi-haly-v-cesku-a-hned-trikrat-vyprodano/">Z CZ undergroundu až do největší haly v Česku. A hned třikrát vyprodáno!</a>
+									</li>
+											<li>
+					<a href="https://www.o2universum.cz/nesmrtelne-hity-modern-talking-nazivo-thomas-anders-se-svou-kapelou-vystoupi-v-prazskem-o2-universu/">Nesmrtelné hity Modern Talking naživo: Thomas Anders se svou kapelou vystoupí v pražském O2 universu</a>
+									</li>
+					</ul>
+
+		</div><div class = "toLeft"><h2 class="widget-title">Program</h2><div class="sub_links"><a href="/events" class="menu-link main-menu-link  menu-item menu-item-type-custom menu-item-object-custom">Celý program</a></li>
+<a href="https://www.o2universum.cz/prodejce-vstupenek-2/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Prodejce vstupenek</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/parkovani-a-doprava/parkujte-pohodlne/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Parkujte pohodlně</a></li>
+</div></div><div class = "toLeft"><h2 class="widget-title">Pro návštěvníky</h2><div class="sub_links"><a href="https://www.o2universum.cz/pro-navstevniky-2/pravidla-pro-navstevniky/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pravidla pro návštěvníky</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/zakazane-predmety-v-o2-universu/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Zakázané předměty v O2 universum</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/pokladny/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pokladny</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/parkovani-a-doprava/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Parkování a doprava</a></li>
+<a href="https://www.o2arena.cz/udrzitelnost/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Udržitelnost</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/ochrana-soukromi/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Ochrana soukromí</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/vyhnete-se-frontam/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Vyhněte se frontám</a></li>
+<a href="https://www.o2universum.cz/kariera-2/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Kariéra</a></li>
+<a href="https://www.o2arena.cz/pro-navstevniky/eticka-linka-2/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Etická linka</a></li>
+<a href="#" class="menu-link main-menu-link opt-in-cookies menu-item menu-item-type-custom menu-item-object-custom">Nastavení cookies</a></li>
+</div></div><div class = "toLeft"><h2 class="widget-title">Ostatní</h2><div class="sub_links"><a href="https://www.o2universum.cz/pro-firmy/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pronájem prostor</a></li>
+<a href="https://www.o2universum.cz/kontakty/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Kontakty</a></li>
+</div></div>        </div>
+        <div class="clear"></div>
+        <div class="partners">
+
+
+          <div class="partners-container">
+            <div class="main-partners">
+              <h2>Partneři</h2>
+              <div class="partners-logos-container">
+                <a href="https://www.o2.cz/" title="O2" class="partner_2" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_2-05ab7d211dab.svg" alt="O2 logo"
+                      width="61" height="59"/>
+                </a>
+                <a href="http://www.staropramen.cz" title="Staropramen" class="partner_3" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_3-fc9391bbfe82.png" alt="Staropramen logo"
+                      width="89" height="58"/>
+                </a>
+                <a href="http://www.coca-cola.cz/cs/home/" title="Coca Cola" class="partner_4" target="_blank">
+                   <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_4-a8675bcd6879.png" alt="CocaCola logo"
+                      width="92" height="29"/>
+                </a>     
+                
+                <a href=" https://www.jagermeister.com/" title="Jagermeister" class="partner_9" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/jager_logo-3097ba0906d4.svg" alt="Jagermeister logo"
+                      width="64" height="64"/>
+                </a>
+
+                <a href="https://www.ticketportal.cz/" title="Ticket Portal" class="partner_1" target="_blank"></a><a href="https://www.ticketmaster.cz/" title="Ticketmaster" class="partner_5" target="_blank"></a>
+              </div>
+            </div>
+            <div class="special-partners">
+
+                              <div class="special-partners--main">
+                  <span>ČLEN SKUPINY PPF</span><br />
+                  <a href="https://www.ppf.eu/" class="special_partner_1" target="_blank" title="PPF">
+                    <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/ppf-logo-52be7b92123c.png" alt="PPF logo"
+                      width="89" height="70"/>
+                  </a>
+                </div>
+                <div class="special-partners--subcontainer">
+                  <span>Member of</span>
+                  <a href="https://pragueconvention.cz/" target="_blank" title="Prague Convention"><img loading="lazy" width="128" height="60" alt="Prague Convention logo" src="https://cdn.static-assets.cz/20261116-195541/pcb-logo-4d9836ac4166.png"></a>
+                </div>
+                          </div>
+          </div>
+        </div>
+      </div>
+      <div class="copyright">
+        <!-- copy -->
+        <div class="toLeft">Copyright ©2026                      Bestsport, a.s. Šíření obsahu serveru Kongresové centrum O<sub>2</sub>universum.cz je bez předchozího písemného souhlasu provozovatele zakázáno.                  </div>
+        <div class="toRight">
+
+                      <a href="https://www.facebook.com/o2universum" class="fb_link" title="Facebook" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fb-674fae96cb2d.svg" alt="Facebook logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.instagram.com/o2universum/" class="inst_link" title="Instagram" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/instagram-f982a4ee6755.svg" alt="Instagram logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.linkedin.com/company/o2universum/" class="linkedin_link" title="Linkedin" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/linkedin-528b05519565.svg" alt="Linkedin logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.tiktok.com/@o2arenapraha" class="tiktok_link" title="TikTok" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/tiktok-6a88e415f7ac.svg" alt="TikTok logo"
+                      width="16" height="16"/>
+            </a>
+                  </div>
+        <div class="clear"></div>
+      </div>
+    </div>
+
+    <script>
+      // site home for JS functions
+      var site_home = 'https://www.o2arena.cz/';
+      var site_lang = 'cs';
+      var page_id = 0;
+    </script>
+
+
+    <script>
+
+    </script>
+
+    <!-- Kód Google značky pro remarketing -->
+    <!--------------------------------------------------
+	Značka pro remarketing nesmí být spojena s údaji umožňujícími identifikaci osob nebo umístěna na stránkách týkajících se citlivých kategorií. Další informace a postup nastavení značky naleznete na stránce: http://google.com/ads/remarketingsetup
+	--------------------------------------------------->
+    <script type="text/javascript">
+      /* <![CDATA[ */
+      var google_conversion_id = 992084877;
+      var google_custom_params = window.google_tag_params;
+      var google_remarketing_only = true;
+      /* ]]> */
+    </script>
+
+    <script>
+      if (cc.allowedCategory('personalizedads')) {
+        var pageadconversion = document.createElement("script");
+        pageadconversion.src = "//www.googleadservices.com/pagead/conversion.js";
+        pageadconversion.type = "application/javascript";
+        document.getElementsByTagName("body")[0].appendChild(pageadconversion);
+        console.log(
+          '[o2universum.cz] PageAd Conversion has cookie consent.');
+      } else {
+        console.log(
+          '[o2universum.cz] PageAd Conversion missing consent.');
+      }
+    </script>
+    <noscript>
+      <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/992084877/?guid=ON&amp;script=0" />
+      </div>
+    </noscript>
+  </div>
+</footer>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/js/dflip.min.js?ver=2.2.32' id='dflip-script-js'></script>
+<script data-cfasync="false"> var dFlipLocation = "https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/"; var dFlipWPGlobal = {"text":{"toggleSound":"Turn on\/off Sound","toggleThumbnails":"Toggle Thumbnails","toggleOutline":"Toggle Outline\/Bookmark","previousPage":"Previous Page","nextPage":"Next Page","toggleFullscreen":"Toggle Fullscreen","zoomIn":"Zoom In","zoomOut":"Zoom Out","toggleHelp":"Toggle Help","singlePageMode":"Single Page Mode","doublePageMode":"Double Page Mode","downloadPDFFile":"Download PDF File","gotoFirstPage":"Goto First Page","gotoLastPage":"Goto Last Page","share":"Share","mailSubject":"I wanted you to see this FlipBook","mailBody":"Check out this site {{url}}","loading":"DearFlip: Loading "},"moreControls":"download,pageMode,startPage,endPage,sound","hideControls":"","scrollWheel":"false","backgroundColor":"#777","backgroundImage":"","height":"auto","paddingLeft":"20","paddingRight":"20","controlsPosition":"bottom","duration":800,"soundEnable":"true","enableDownload":"true","showSearchControl":"false","showPrintControl":"false","enableAnnotation":false,"enableAnalytics":"false","webgl":"true","hard":"none","maxTextureSize":"1600","rangeChunkSize":"524288","zoomRatio":1.5,"stiffness":3,"pageMode":"0","singlePageMode":"0","pageSize":"0","autoPlay":"false","autoPlayDuration":5000,"autoPlayStart":"false","linkTarget":"2","sharePrefix":"flipbook-"};</script>
+    <script id="citymind-script" src="https://api.citymind.tech/resources/js/143"></script>
+</body>
+
+</html>

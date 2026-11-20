@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="cs-CZ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="referrer" content="unsafe-url" />
+
+  <base href="https://www.o2universum.cz">
+  <link rel="icon" href="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/img/favicon.ico">
+  <script src="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/google-consent.js?v=1"></script>
+  <script>
+    var syncGoogleConsent = oarenaInitGoogleConsent("G-WGM559LM10");
+  </script>
+  <script src="https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/cookieconsent.js?v=2.7"></script>
+  <script>
+    var cc = initCookieConsent();
+    var consentRevision = 7;
+
+    function updateGoogleConsent(pushConsentEvent) {
+      // Do not restore consent from a cookie invalidated by a banner revision.
+      var validConsent = cc.get('revision') === consentRevision;
+      syncGoogleConsent(
+        validConsent && cc.allowedCategory('analytics'),
+        validConsent && cc.allowedCategory('personalizedcontent'),
+        validConsent && cc.allowedCategory('personalizedads'),
+        !!pushConsentEvent
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      cc.run({
+        current_lang: 'cs',
+        autoclear_cookies: true,
+        page_scripts: true,
+        mode: 'opt-in',
+        remove_cookie_tables: false,
+        cookie_expiration: 182,
+        revision: consentRevision,
+
+        onFirstAction: function(user_preferences, cookie) {
+          // callback triggered only once on the first accept/reject action
+        },
+
+        onAccept: function(cookie) {
+          updateGoogleConsent(true);
+        },
+
+        onChange: function(cookie, changed_categories) {
+          updateGoogleConsent(true);
+        },
+
+        languages: {
+          'cs': {
+            consent_modal: {
+              title: 'Nastavení soukromí',
+              description: 'Tyto webové stránky používají soubory cookies a další identifikátory, které mohou obsahovat osobní údaje. Cookies nám pomáhají zjišťovat, jak stránku používáte, a díky tomu ji můžeme stále zlepšovat. Pro co nejlepší uživatelský zážitek, prosíme o povolení všech cookies.<button type="button" data-cc="c-settings" class="cc-link-oarena-privacy cc-link">Podrobné nastavení</button>',
+              primary_btn: {
+                text: 'Přijmout vše',
+                role: 'accept_all'
+              },
+              secondary_btn: {
+                text: 'Odmítnout vše',
+                role: 'accept_necessary'
+              }
+            },
+            settings_modal: {
+              title: 'Nastavení soukromí',
+              save_settings_btn: 'Přijmout vybrané',
+              accept_all_btn: 'Přimout vše',
+              reject_all_btn: 'Odmítnout vše',
+              close_btn_label: 'Zavřít',
+              cookie_table_headers: [{
+                  col1: 'Cookie'
+                },
+                {
+                  col2: 'Typ'
+                },
+                {
+                  col3: 'Trvání'
+                },
+                {
+                  col4: 'Popis'
+                }
+              ],
+              blocks: [{
+                  title: 'Cookies na tomto webu 📢',
+                  description: 'Na našich webových stránkách využíváme cookies, pomocí kterých Vám chceme zajistit co nejlepší uživatelskou zkušenost na našem webu. Tyto cookies mohou zahrnovat informace přímo o Vás, o Vašich jednotlivých preferencích nebo o Vámi využívaném zařízení. Skrze jednotlivé informace obsažené v cookies Vás však obvykle nejsme schopni přímo identifikovat, pouze Vám můžeme zprostředkovat lepší zkušenost s našimi webovými stránkami. Protože respektujeme Vaše právo na soukromí, jsou všechny typy cookies vypnuty (kromě těch nezbytně nutných). Pokud chcete využívat jednotlivé typy cookies, musíte je aktivovat v menu ,,Nastavení cookies“, a tím nám udělit souhlas k jejich využívání. Chcete-li získat další informace a změnit výchozí nastavení cookies, klikněte na záhlaví jednotlivých typů cookies. Blokování některých typů cookies může mít negativní vliv na Vaší uživatelskou zkušenost s webovými stránkami. Další podrobné informace o tom, jak zpracováváme Vaše osobní údaje v podobě souborů cookies, naleznete v sekci Ochrana soukromí v záložce Cookies.<p>K uložení voleb, které jste nastavili v menu ,,Nastavení cookies“, bude třeba rovněž vytvořit soubor cookie. Z toho vyplývají dva důsledky:</p><ul><li>Pokud odstraníte ve Vašem internetovém prohlížeči všechny soubory cookies, budete muset předvolby pro naše webové stránky nastavit znovu; a</li><li>Přejdete-li na jiné zařízení nebo internetový prohlížeč, rovněž nám budete muset své předvolby sdělit znovu.</li></ul><p>Více informací naleznete na stránce <a href="https://www.o2universum.cz/pro-navstevniky-2/ochrana-soukromi/" class="cc-link">Ochrana soukromí</a>.</p>'
+                },
+                {
+                  title: 'Zásadně nutné soubory cookies (Nezbytně technické cookies)',
+                  description: 'Tyto cookies jsou nezbytné pro fungování našich webových stránek a nemohou být vypnuty. Tento typ cookies neukládá žádné Vaše osobní údaje, podle kterých by bylo možné Vás identifikovat. Obvyklou funkčností těchto typů cookies je pouze reakce na akce, které jste provedli na našich webových stránkách, což představuje požadavek na služby, jako je nastavení předvoleb ochrany osobních údajů a přihlášení nebo vyplňování formulářů. Můžete nastavit svůj prohlížeč, aby zablokoval tyto cookies, ale některé části našich webových stránek nebudou fungovat.',
+                  toggle: {
+                    value: 'basics',
+                    enabled: true,
+                    readonly: true
+                  },
+                  cookie_table: [{
+                      col1: 'wordpress_test_cookie',
+                      col2: 'http',
+                      col3: 'Relační',
+                      col4: 'Cookie WordPressu pro otestování, jestli je možné cookies ukládat',
+                    },
+                    {
+                      col1: 'pll_language',
+                      col2: 'https',
+                      col3: '1 rok',
+                      col4: 'Polylang využívá cookies k uložení jazykových preferencí uživatele',
+                    },
+                    {
+                      col1: 'wp_lang',
+                      col2: 'http',
+                      col3: 'Relační',
+                      col4: 'Cookie WordPressu pro uložení jazykových preferencí uživatele',
+                    },
+                    {
+                      col1: 'PHPSESSID',
+                      col2: 'https',
+                      col3: 'Relační',
+                      col4: 'Cookie od webu, poskytuje nezbytné funkce.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Soubory cookies týkající se výkonu (Technické cookies)',
+                  description: 'Tyto cookies nám umožňují počítat návštěvy a zdroje návštěvnosti na našich webových stránkách, abychom mohli měřit a zlepšovat jejich výkon. Pomáhají nám zjišťovat, jaká část našich webových stránek je nejvíce, či nejméně oblíbená, a současně nám umožňují sledovat, jak se návštěvníci po stránkách pohybují. Veškeré informace, které tyto cookies shromažďují, jsou souhrnné, a tudíž anonymní. Pokud tyto cookies nepovolíte, nebudeme disponovat informacemi o využívání našich stránek a budeme mít ztížené jejich zlepšování.',
+                  toggle: {
+                    value: 'analytics',
+                    readonly: false // cookie categories with readonly=true are all treated as "necessary cookies"
+                  },
+                  cookie_table: [{
+                      col1: '_ga',
+                      col2: 'https',
+                      col3: '2 roky',
+                      col4: '_ga cookie od Google Analytics počítá návštěvníky, návštěvy, data kampaní a jejím prostřednictvím se sleduje užívání webu. Cookie ukládá anonymní data, kterým přiřazuje náhodně generované číslo, aby bylo možné rozpoznat unikátní návštěvníky.',
+                    },
+                    {
+                      col1: '_gid',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: '_gid cookie od Google Analytics ukládá informace o používání stránky návštěvníky a zároveň pomáhá vytvářet analytické reporty o výkonu webu. Některá sbíraná data obsahují anonymní informace o počtu návštěvníků, zdrojích jejich návštěvy a stránkách, které během své návštěvy procházeli.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Cílené a reklamní cookies (Personalizace reklamy, Marketingové cookies)',
+                  description: 'Cílené a reklamní cookies soubory mohou být nastaveny na webových stránkách námi nebo reklamními partnery (třetími stranami). Tyto cookie soubory mohou být využívány a sdíleny těmito společnostmi, aby si vytvořily profil Vašich zájmů a zobrazily Vám relevantní reklamy, jak na našich, tak na jiných webových stránkách. Vycházejí z jedinečné identifikace Vašeho internetového prohlížeče a internetového zařízení. Pokud tyto soubory cookie nepovolíte, zaznamenáte méně cílenou reklamu.',
+                  toggle: {
+                    value: 'personalizedads',
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie od Google Adsense pro sledování a ukládání konverzí.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook sledovací pixel pro doručování a měření relevance reklamy.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel pro sledování návštěv napříč webovými stránkami.',
+                    }
+                  ]
+                },
+                {
+                  title: '',
+                  description: '',
+                }
+              ]
+            }
+          },
+          'en': {
+            consent_modal: {
+              title: 'Privacy settings',
+              description: 'This website uses cookies and other network identifiers, which can contain personal information. Cookies help us to better know how you use our site so we can make it better. For the best user experience, please allow all cookies. <button type="button" data-cc="c-settings" class="cc-link cc-link-oarena-privacy">Advanced settings</button>',
+              primary_btn: {
+                text: 'Accept all',
+                role: 'accept_all'
+              },
+              secondary_btn: {
+                text: 'Reject all',
+                role: 'accept_necessary'
+              }
+            },
+            settings_modal: {
+              title: 'Privacy settings',
+              save_settings_btn: 'Accept selected',
+              accept_all_btn: 'Accept all',
+              reject_all_btn: 'Reject all',
+              close_btn_label: 'Close',
+              cookie_table_headers: [{
+                  col1: 'Name'
+                },
+                {
+                  col2: 'Domain'
+                },
+                {
+                  col3: 'Expiration'
+                },
+                {
+                  col4: 'Description'
+                }
+              ],
+              blocks: [{
+                  title: 'Cookies on this website 📢',
+                  description: 'To improve the user experience, this website uses cookies. In addition to the technical cookies necessary for the website to function properly, we also use other groups of cookies that you can enable or disable in the menu below. You can change your decision at any time by clicking the "Privacy Settings" link in the footer.<br>'
+                },
+                {
+                  title: 'Necessary technical cookies',
+                  description: 'Files required for basic website functionality.',
+                  toggle: {
+                    value: 'basics',
+                    enabled: true,
+                    readonly: true
+                  },
+                  cookie_table: [{
+                      col1: 'wordpress_test_cookie',
+                      col2: 'http',
+                      col3: 'Session',
+                      col4: 'WordPress cookie to test if cookies can be stored',
+                    },
+                    {
+                      col1: 'pll_language',
+                      col2: 'https',
+                      col3: '1 year',
+                      col4: 'Polylang uses cookies to store the user&apos;s language preferences',
+                    },
+                    {
+                      col1: 'wp_lang',
+                      col2: 'http',
+                      col3: 'Session',
+                      col4: 'WordPress cookie for storing user language preferences',
+                    },
+                    {
+                      col1: 'PHPSESSID',
+                      col2: 'https',
+                      col3: 'Session',
+                      col4: 'Cookie from the site, provides the necessary functionality.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Technical cookies',
+                  description: 'Absolutely necessary for the website to function - these cookies cannot be disabled and do not require user consent.',
+                  toggle: {
+                    value: 'necessary',
+                    enabled: true,
+                    readonly: true // cookie categories with readonly=true are all treated as "necessary cookies"
+                  },
+                  cookie_table: [{
+                      col1: '_ga',
+                      col2: 'https',
+                      col3: '2 years',
+                      col4: 'The Google Analytics cookie counts visitors, visits, campaign data and tracks website usage. The cookie stores anonymous data to which it assigns a randomly generated number to identify unique visitors.',
+                    },
+                    {
+                      col1: '_gid',
+                      col2: 'https',
+                      col3: '1 day',
+                      col4: 'The _gid cookie from Google Analytics stores information about visitors&apos; use of the site and also helps to generate analytical reports on site performance. Some of the data collected includes anonymous information about the number of visitors, the sources of their visit and the pages they browsed during their visit.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Personalization of content',
+                  description: 'Thanks to these files, we can preferentially offer you attractive content based on your interests.',
+                  toggle: {
+                    value: 'personalizedcontent',
+                    enabled: false,
+                    readonly: false
+                  }
+                },
+                {
+                  title: 'Personalization of advertising',
+                  description: 'By allowing these files, we can offer you more attractive ads tailored to your interests.',
+                  toggle: {
+                    value: 'personalizedads',
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie from Google Adsense for tracking and storing conversions.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook tracking pixel for delivering and measuring ad relevance.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel for tracking visits across websites.',
+                    }
+                  ]
+                },
+                {
+                  title: 'Analytical cookies',
+                  description: 'They collect statistical information about the use of the website (sources of visits, page popularity, etc.), the data is aggregated and therefore anonymous. Analytical cookies do not contain personal data. The users consent to the processing of these cookies can be revoked through the browser settings.',
+                  toggle: {
+                    value: 'analytics', // your cookie category
+                    enabled: false,
+                    readonly: false
+                  },
+                }, {
+                  title: 'Marketing cookies',
+                  description: 'Used to target ads and create remarketing lists. Through advertising cookies, personal data can be collected and processed. We may also share information about your use of our website with our social media, advertising and analytics partners. The users consent to the processing of these cookies can be revoked through the browser settings.',
+                  toggle: {
+                    value: 'targeting',
+                    enabled: false,
+                    readonly: false
+                  },
+                  cookie_table: [{
+                      col1: '_gcl_au',
+                      col2: 'https',
+                      col3: '90 dní',
+                      col4: 'Cookie from Google Adsense for tracking and storing conversions.',
+                    },
+                    {
+                      col1: '_fbc',
+                      col2: 'https',
+                      col3: '3 měsíce',
+                      col4: 'Facebook tracking pixel for delivering and measuring ad relevance.',
+                    },
+                    {
+                      col1: '_fbp',
+                      col2: 'https',
+                      col3: '1 den',
+                      col4: 'Facebook pixel for tracking visits across websites.',
+                    }
+                  ]
+
+                }, {
+                  title: 'More information',
+                  description: 'For more information, read our <a href="https://www.o2universum.cz/en/for-visitors-2/privacy-policy/" class="cc-link">Privacy policy</a>.',
+                }
+              ]
+            }
+          }
+        },
+        gui_options: {
+          consent_modal: {
+            layout: 'cloud',
+            position: 'bottom center',
+            transition: 'slide',
+            swap_buttons: false
+          },
+          settings_modal: {
+            layout: 'box',
+            transition: 'slide'
+          }
+        }
+      });
+      updateGoogleConsent(false);
+    });
+  </script>
+          <!-- Google Tag Manager -->
+        <script>
+            ! function() {
+                "use strict";
+
+                function l(e) {
+                    for (var t = e, r = 0, n = document.cookie.split(";"); r < n.length; r++) {
+                        var o = n[r].split("=");
+                        if (o[0].trim() === t) return o[1]
+                    }
+                }
+
+                function s(e) {
+                    return localStorage.getItem(e)
+                }
+
+                function u(e) {
+                    return window[e]
+                }
+
+                function A(e, t) {
+                    e = document.querySelector(e);
+                    return t ? null == e ? void 0 : e.getAttribute(t) : null == e ? void 0 : e.textContent
+                }
+                var e = window,
+                    t = document,
+                    r = "script",
+                    n = "dataLayer",
+                    o = "https://mereni.o2universum.cz",
+                    a = "",
+                    i = "22eegoxejqo",
+                    c = "1k=&ccgSiu=cysyC",
+                    g = "stapeUserId",
+                    v = "",
+                    E = "",
+                    d = !1;
+                try {
+                    var d = !!g && (m = navigator.userAgent, !!(m = new RegExp("Version/([0-9._]+)(.*Mobile)?.*Safari.*").exec(m))) && 16.4 <= parseFloat(m[1]),
+                        f = "stapeUserId" === g,
+                        I = d && !f ? function(e, t, r) {
+                            void 0 === t && (t = "");
+                            var n = {
+                                    cookie: l,
+                                    localStorage: s,
+                                    jsVariable: u,
+                                    cssSelector: A
+                                },
+                                t = Array.isArray(t) ? t : [t];
+                            if (e && n[e])
+                                for (var o = n[e], a = 0, i = t; a < i.length; a++) {
+                                    var c = i[a],
+                                        c = r ? o(c, r) : o(c);
+                                    if (c) return c
+                                } else console.warn("invalid uid source", e)
+                        }(g, v, E) : void 0;
+                    d = d && (!!I || f)
+                } catch (e) {
+                    console.error(e)
+                }
+                var m = e,
+                    g = (m[n] = m[n] || [], m[n].push({
+                        "gtm.start": (new Date).getTime(),
+                        event: "gtm.js"
+                    }), t.getElementsByTagName(r)[0]),
+                    v = I ? "&bi=" + encodeURIComponent(I) : "",
+                    E = t.createElement(r),
+                    f = (d && (i = 8 < i.length ? i.replace(/([a-z]{8}$)/, "kp$1") : "kp" + i), !d && a ? a : o);
+                E.async = !0, E.src = f + "/" + i + ".js?" + c + v, null != (e = g.parentNode) && e.insertBefore(E, g)
+            }();
+        </script>
+        <!-- End Google Tag Manager -->
+
+        <!-- Direct GA4 is configured by google-consent.js after analytics consent. -->
+      <title>Papa Roach – Rise Of The Roach – O2 universum</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel="alternate" href="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" hreflang="cs" />
+<link rel="alternate" href="https://www.o2universum.cz/en/events/papa-roach-rise-of-the-roach-en/" hreflang="en" />
+<link rel="alternate" href="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" hreflang="x-default" />
+<script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "Organization",
+            "name": "O2 universum",
+            "url": "https://www.o2universum.cz/",
+            "logo": "https://cdn.static-assets.cz/20261116-195541/o2universum-logo-white-4628bf320039.png",
+            "description": "Unik\u00e1tn\u00ed kongresov\u00e9 centrum a multifunk\u010dn\u00ed m\u00edsto v Praze. M\u00e1me program pln\u00fd kultury i sportu s mo\u017enost\u00ed pron\u00e1jmu prostor\u016f pro va\u0161i vlastn\u00ed akci.",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "\u010ceskomoravsk\u00e1 2345/17a",
+                "addressLocality": "Praha 9",
+                "postalCode": "190 00",
+                "addressCountry": "CZ"
+            },
+            "sameAs": [
+                "https://www.facebook.com/o2universum",
+                "https://www.instagram.com/o2universum/",
+                "https://www.linkedin.com/company/o2universum/"
+            ]
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Dom\u016f",
+                    "item": "https://www.o2universum.cz/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Program akc\u00ed",
+                    "item": "https://www.o2universum.cz/events/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "Papa Roach \u2013 Rise Of The Roach",
+                    "item": "https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/"
+                }
+            ]
+        }
+    ]
+}</script><link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/hp-hero-new1-8a53141a87da.jpg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-program-058560520553.jpg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-firmy-d504f497ef37.jpeg">
+<link rel="preload" as="image" href="https://cdn.static-assets.cz/20261116-195541/homepage-ples-8c07be3d3868.jpg">
+<script type="text/javascript">
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.o2universum.cz\/wp-includes\/js\/wp-emoji-release.min.js?ver=6.3.5"}};
+/*! This file is auto-generated */
+!function(i,n){var o,s,e;function c(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function p(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data),r=(e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0),new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data));return t.every(function(e,t){return e===r[t]})}function u(e,t,n){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\uddfa\ud83c\uddf3","\ud83c\uddfa\u200b\ud83c\uddf3")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!n(e,"\ud83e\udef1\ud83c\udffb\u200d\ud83e\udef2\ud83c\udfff","\ud83e\udef1\ud83c\udffb\u200b\ud83e\udef2\ud83c\udfff")}return!1}function f(e,t,n){var r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):i.createElement("canvas"),a=r.getContext("2d",{willReadFrequently:!0}),o=(a.textBaseline="top",a.font="600 32px Arial",{});return e.forEach(function(e){o[e]=t(a,e,n)}),o}function t(e){var t=i.createElement("script");t.src=e,t.defer=!0,i.head.appendChild(t)}"undefined"!=typeof Promise&&(o="wpEmojiSettingsSupports",s=["flag","emoji"],n.supports={everything:!0,everythingExceptFlag:!0},e=new Promise(function(e){i.addEventListener("DOMContentLoaded",e,{once:!0})}),new Promise(function(t){var n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"}),a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=function(e){c(n=e.data),a.terminate(),t(n)})}catch(e){}c(n=f(s,u,p))}t(n)}).then(function(e){for(var t in e)n.supports[t]=e[t],n.supports.everything=n.supports.everything&&n.supports[t],"flag"!==t&&(n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&n.supports[t]);n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&!n.supports.flag,n.DOMReady=!1,n.readyCallback=function(){n.DOMReady=!0}}).then(function(){return e}).then(function(){var e;n.supports.everything||(n.readyCallback(),(e=n.source||{}).concatemoji?t(e.concatemoji):e.wpemoji&&e.twemoji&&(t(e.twemoji),t(e.wpemoji)))}))}((window,document),window._wpemojiSettings);
+</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 0.07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<link rel='stylesheet' id='elementor-references-css-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/tiny-slider.css?ver=1.0.2' type='text/css' media='all' />
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}body .is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}body .is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}body .is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}body .is-layout-flex{flex-wrap: wrap;align-items: center;}body .is-layout-flex > *{margin: 0;}body .is-layout-grid{display: grid;}body .is-layout-grid > *{margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+.wp-block-navigation a:where(:not(.wp-element-button)){color: inherit;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+.wp-block-pullquote{font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel='stylesheet' id='o2arena-splidejs-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/splide.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-screen-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/screen-new.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-1280-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/1280.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-force-desktop-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/forced_desktop.css?ver=2.4.45' type='text/css' media='all and (min-width: 1000px)' />
+<link rel='stylesheet' id='o2arena-magnific-popup-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/magnific-popup.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-fontawesome-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/fontawesome.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-fontawesome-solid-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/solid.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-font-awesome-brands-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/brands.min.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-oarena-plugins-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/oarena-plugins.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-768-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/768.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-375-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/375.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-2025-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/oarena.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2arena-events-countdown-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/countdown.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2universum-screen-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/screen_universum.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='o2universum-gallery-css' href='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/css/universum-gallery.css?ver=2.4.45' type='text/css' media='all' />
+<link rel='stylesheet' id='dflip-style-css' href='https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/css/dflip.min.css?ver=2.2.32' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/tiny-slider.js?ver=1.0.2' id='elementor-references-script-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-includes/js/jquery/jquery.min.js?ver=3.7.0' id='jquery-core-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1' id='jquery-migrate-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery-2.1.3.min.js?ver=2.4.45' id='o2arena-jquery-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/splide.min.js?ver=2.4.45' id='o2arena-splideminjs-js'></script>
+<script type='text/javascript' id='o2arena-custom_js-js-extra'>
+/* <![CDATA[ */
+var wpApiSettings = {"root":"https:\/\/www.o2universum.cz\/wp-json\/","nonce":"bc7f239ad3"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/custom.js?ver=2.4.45' id='o2arena-custom_js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery.magnific-popup.min.js?ver=2.4.45' id='o2arena-magnific-popup-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/jquery.lockfixed.js?ver=2.4.45' id='o2arena-lockfixed-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/oarena-navigation.js?ver=2.4.45' id='o2arena-navigation-js-js'></script>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/themes/o2arena/resources/assets/js/oarena-tickets-modal.js?ver=2.4.45' id='o2arena-ticketsmodal-js-js'></script>
+<link rel="https://api.w.org/" href="https://www.o2universum.cz/wp-json/" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.o2universum.cz/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.3.5" />
+<link rel="canonical" href="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" />
+<link rel="alternate" type="application/json+oembed" href="https://www.o2universum.cz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.o2universum.cz%2Fevents%2Fpapa-roach-rise-of-the-roach%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://www.o2universum.cz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.o2universum.cz%2Fevents%2Fpapa-roach-rise-of-the-roach%2F&#038;format=xml" />
+  <meta name="description" content="Kultovní rocková čtveřice Papa Roach se po obřím úspěchu na festivalu Rock for People vrací do Česka." />
+  <meta property="og:image" content="https://www.o2universum.cz/wp-content/uploads/2026/06/pr-1322x623e2.jpg" />
+  <meta property="og:image:secure_url" content="https://www.o2universum.cz/wp-content/uploads/2026/06/pr-1322x623e2.jpg" />
+  <meta property="og:type" content="event" />
+  <meta property="og:url" content="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" />
+  <meta property="og:title" content="Papa Roach – Rise Of The Roach – O2 universum" />
+  <meta property="og:description" content="Kultovní rocková čtveřice Papa Roach se po obřím úspěchu na festivalu Rock for People vrací do Česka." />
+  <meta property="og:site_name" content="O2 universum" />
+  <meta property="og:locale" content="cs_CZ" />
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@o2arenapraha">
+  <meta name="twitter:creator" content="@o2arenapraha">
+  <meta name="twitter:title" content="Papa Roach – Rise Of The Roach – O2 universum">
+  <meta name="twitter:description" content="Kultovní rocková čtveřice Papa Roach se po obřím úspěchu na festivalu Rock for People vrací do Česka.">
+  <meta name="twitter:image" content="https://www.o2universum.cz/wp-content/uploads/2026/06/pr-1322x623e2.jpg">
+        <script>
+      window.teads_e = window.teads_e || [];
+      window.teads_e.push({
+        conversionType: "ViewContent",
+        name: "Papa Roach \u2013 Rise Of The Roach"      });
+    </script>
+          <script type="text/javascript">
+      (function(c, l, a, r, i, t, y) {
+        c[a] = c[a] || function() {
+          (c[a].q = c[a].q || []).push(arguments)
+        };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, "clarity", "script", "wsg0ub8452");
+    </script>
+  </head>
+
+<body  id="body_115"class="oarena_events-template-default single single-oarena_events postid-66038 universum  elementor-default elementor-kit-48327">
+    <div id="outer_79_1" class="outer outer_1 sticky-header">
+  <div class="containerFull">
+    <div id="oarena-topPanel">
+      <div class="oarena-left-nav">
+        <div class="oarena-left-nav__innerContainer">
+          <a
+              href="https://www.o2arena.cz/"
+              title="O2 Arena">O2 arena</a>                              <a href="https://www.stageshotel.com/cz/"
+            title="STAGES HOTEL Prague">STAGES HOTEL Prague</a>
+                    <a href="https://www.forumkarlin.cz"
+            target="_blank" title="Forum Karlín">Forum Karlín</a>
+        </div>
+      </div>
+      <div class="oarena-right-nav">
+                                  <a
+            href="https://www.o2universum.cz/en/events/papa-roach-rise-of-the-roach-en/?lang=en" title="English version">
+            <img src="https://cdn.static-assets.cz/20261116-195541/gb-c891266f7d74.svg" width="25" height="15" alt="Great Britain Flag"
+              loading="eager">
+            English
+          </a>
+              </div>
+    </div>
+    <!-- Menu -->
+    <div id="header">
+      <div class="toLeft logo_container">
+        <a
+          href="https://www.o2universum.cz" title="Úvodní stránka">
+                       <img src="https://cdn.static-assets.cz/20261116-195541/o2universum-logo-white-4628bf320039.png" alt="O2Universum logo"
+              loading="eager" width="104" height="21.96"/>
+                  </a>
+      </div>
+
+      <div class="toLeft menu_container">
+
+        <!-- Mobile menu burger icon -->
+        <a href="javascript:void(0)" id="mobile_menu_link" onclick="switch_mobile_menu(1)"></a>
+        <a href="javascript:void(0)" id="mobile_menu_link_close" onclick="switch_mobile_menu(0)">x</a>
+
+        <!-- Menu -->
+
+        <ul id="menu" class="menu"><li id="nav-menu-item-15132" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-custom menu-item-object-custom"><a href="https://www.o2universum.cz/novinky" class="menu-link main-menu-link">Novinky</a></li>
+<li id="nav-menu-item-15133" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-custom menu-item-object-custom"><a href="https://www.o2universum.cz/events" class="menu-link main-menu-link">Program</a></li>
+<li id="nav-menu-item-33132" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-firmy/" class="menu-link main-menu-link">Pronájem prostor</a></li>
+<li id="nav-menu-item-15134" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-navstevniky-2/" class="menu-link main-menu-link">Pro návštěvníky</a></li>
+<li id="nav-menu-item-66024" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/pro-navstevniky-2/fasttrack-prioritni-vstup-na-akci/" class="menu-link main-menu-link">FastTrack</a></li>
+<li id="nav-menu-item-26038" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/gourmet-experience/" class="menu-link main-menu-link">Gourmet Experience</a></li>
+<li id="nav-menu-item-21422" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/kariera-2/" class="menu-link main-menu-link">Kariéra</a></li>
+<li id="nav-menu-item-15135" class="main-menu-item toLeft  menu-item-even menu-item-depth-0 menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.o2universum.cz/kontakty/" class="menu-link main-menu-link">Kontakt</a></li>
+</ul>
+        <div class="clear"></div>
+
+      </div>
+
+      <div class="toLeft icons_container">
+
+
+        <!-- Social -->
+                  <a href="https://www.facebook.com/o2universum" class="fb_link social_link" title="Facebook" target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/fb-674fae96cb2d.svg" alt="Facebook logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.instagram.com/o2universum/" class="inst_link social_link" title="Instagram"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/instagram-f982a4ee6755.svg" alt="Instagram logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.linkedin.com/company/o2universum/" class="linkedin_link social_link" title="Linkedin"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/linkedin-528b05519565.svg" alt="Linkedin logo"
+              loading="eager" width="18" height="18"/></a>
+          <a href="https://www.tiktok.com/@o2arenapraha" class="tiktok_link social_link" title="TikTok"
+            target="_blank"><img src="https://cdn.static-assets.cz/20261116-195541/tiktok-6a88e415f7ac.svg" alt="TikTok logo"
+              loading="eager" width="18" height="18"/></a>
+        
+
+                  <a class="language-link-mobile"
+            href="https://www.o2universum.cz/en/events/papa-roach-rise-of-the-roach-en/?lang=en">
+            <img src="https://cdn.static-assets.cz/20261116-195541/gb-c891266f7d74.svg" alt="Great Britain Flag"
+              loading="lazy">
+          </a>
+        
+        <a href="javascript:void(0)" onclick="expand_search_input()" class="search_link" title="Vyhledávání">
+          <img src="https://cdn.static-assets.cz/20261116-195541/search-ico-201bd9f1835e.svg" alt="Vyhledávání ico"
+              loading="eager" width="18" height="18"/>
+        </a>
+
+
+        <!-- <a href="https://www.o2arena.cz/cz/" class="lang_link selected">CZ</a> |
+            <a href="https://www.o2arena.cz/en/" class="lang_link">EN</a> -->
+
+
+        <!-- Search -->
+        <div id="top_search">
+          <form method="get" id="oarena_search_form"
+            action="https://www.o2universum.cz">
+            <input type="text" name="s" id="s" value="hledat..."
+              onblur="if(this.value=='')this.value='hledat...'"
+              onfocus="if(this.value=='hledat...')this.value=''">
+            <input type="submit" id="search_button" value="hledat">
+          </form>
+        </div>
+
+      </div>
+
+      <div class="clear"></div>
+
+    </div>
+  </div>
+</div>
+<main class="box">
+            
+              <div id="holder">
+          <div id="outer_115_2" class="outer outer_events_group outer_2 detail single-event-detail-top-container">
+            <div class="containerFull">
+
+              <ol itemscope itemtype="https://schema.org/BreadcrumbList" class="oarena-breadcrumbs"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="https://www.o2universum.cz/"><span itemprop="name">Domů</span></a><meta itemprop="position" content="1" /></li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="https://www.o2universum.cz/events/"><span itemprop="name">Program</span></a><meta itemprop="position" content="2" /></li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/"><span itemprop="name">Papa Roach – Rise Of The Roach</span></a><meta itemprop="position" content="3" /></li></ol>
+              <div class="tempContainer">
+                <!-- 82 -->
+
+                <div id="event_top" class="single-event-detail">
+                  <img fetchpriority="high" src="https://www.o2universum.cz/wp-content/webp-express/webp-images/uploads/2026/06/pr-1322x623e2.jpg.webp" class="event-desktop-image" loading="eager" width="1322" height="623" alt="Papa Roach – Rise Of The Roach náhledový obrázek" />
+                  <img src="https://www.o2universum.cz/wp-content/webp-express/webp-images/uploads/2026/06/pr-1080x1080e2.png.webp" class="event-mobile-image" loading="eager" width="400" height="400" alt="Papa Roach – Rise Of The Roach náhledový obrázek" />
+                  <div class="top">
+                    <div class="left-side-container">
+                      <p>
+                          24.11.2026 19:00</p>
+                                            <h1>Papa Roach – Rise Of The Roach</h1>
+                    </div>
+       
+                    <div class="right-side-container">
+                      <!-- Button trigger modal skupina eventu -->
+                                                                            <div class="single-ticket-buttons">
+                              <a href="https://www.ticketportal.cz/event/Papa-Roach-Rise-Of-The-Roach" title="Koupit vstupenku - Ticketportal" class="ticketportal-btn" target="_blank">Koupit vstupenku</a><a href="https://www.ticketmaster.cz/artist/papa-roach-vstupenky/7894" title="Koupit vstupenku - Ticketmaster" class="ticketmaster-btn" target="_blank">Koupit vstupenku</a>                            </div>
+                          
+                                              <!-- END Button trigger modal skupina eventu -->
+                    </div>
+                 
+                  </div>
+                </div>
+
+                <!-- /82 -->
+              </div>
+            </div>
+          </div>
+
+          
+          <div id="outer_88_2" class="outer outer_article detail single-event-detail">
+            <div class="containerSides">
+              <div class="containerLeft toLeft">
+                <div class="tempContainer">
+                  
+<aside id="featured_hp">
+	 <!-- 192 -->
+
+<div class="top">
+    <h2 class="toLeft">Doporučujeme</h2>
+    <div class="clear"></div>
+</div>
+
+<div class="previews">
+    
+            <div class="event_preview toLeft" id="featured_event_preview_1">
+                <div class="eye_catcher hovereff" style="background: center / cover no-repeat url(https://cdn.static-assets.cz/20261116-195541/rdp-20-11-2026-o2universum-1080x1080-1.jpg-be3a0d6e37d4.webp);" onclick="redir('https://www.o2universum.cz/events/retro-dance-party/');"></div>
+                                    <p class="time">20.11.2026 20:00</p>
+                                <h3><a href="https://www.o2universum.cz/events/retro-dance-party/">Retro Dance Party</a>
+                </h3>
+            </div>
+    
+            <div class="event_preview toLeft" id="featured_event_preview_2">
+                <div class="eye_catcher hovereff" style="background: center / cover no-repeat url(https://cdn.static-assets.cz/20261116-195541/thomas-anders-1080x1080-1.jpg-3118b0b5a6fe.webp);" onclick="redir('https://www.o2universum.cz/events/thomas-anders-from-modern-talking-2028/');"></div>
+                                    <p class="time">26.2.2028 20:00</p>
+                                <h3><a href="https://www.o2universum.cz/events/thomas-anders-from-modern-talking-2028/">Thomas Anders from Modern Talking</a>
+                </h3>
+            </div>
+    
+            <div class="event_preview toLeft" id="featured_event_preview_3">
+                <div class="eye_catcher hovereff" style="background: center / cover no-repeat url(https://cdn.static-assets.cz/20261116-195541/1080x1080-hollywood-undead-admat.jpg-bf1a0b6bba3f.webp);" onclick="redir('https://www.o2universum.cz/events/hollywood-undead-eu-uk-2027/');"></div>
+                                    <p class="time">5.2.2027 19:00</p>
+                                <h3><a href="https://www.o2universum.cz/events/hollywood-undead-eu-uk-2027/">Hollywood Undead: EU/UK 2027</a>
+                </h3>
+            </div>
+    
+            <div class="event_preview toLeft" id="featured_event_preview_4">
+                <div class="eye_catcher hovereff" style="background: center / cover no-repeat url(https://cdn.static-assets.cz/20261116-195541/1080-x-1080-praha-cechomor-promeny-25let.jpg-34e4170f607a.webp);" onclick="redir('https://www.o2universum.cz/events/cechomor-kooperativa-tour-promeny-po-25-letech/');"></div>
+                                    <p class="time">29.11.2026 15:00<br/>29.11.2026 20:00</p>
+                                <h3><a href="https://www.o2universum.cz/events/cechomor-kooperativa-tour-promeny-po-25-letech/">Čechomor Kooperativa tour – Proměny po 25. letech</a>
+                </h3>
+            </div>
+        <div class="clear"></div>
+    <div class="clear"></div>
+</div><!-- /192 -->
+</aside>
+                </div>
+              </div>
+              <div class="containerRight toRight">
+                <div class="detailContainer">
+                  <!-- 92 -->
+
+                  <div id="event_detail">
+
+                    <div class="event_data_inside">
+                      <table class="event_data">
+
+                        <tbody>
+                                                      <tr>
+                                                              <td class="title">Data</td>
+                                                            <td>
+                                24.11.2026 19:00 </td>
+                            </tr>
+                                                                                                          <tr>
+                              <td class="title">Vstup od</td>
+                              <td>18:00</td>
+                            </tr>
+                                                                                <tr>
+                              <td class="title">Místo</td>
+                              <td>O2 universum, Praha</td>
+                            </tr>
+                                                                                <tr>
+                              <td class="title">Pořadatel</td>
+                              <td>
+                                Ameba Production spol. s r.o.                                <a href="#rules-popup" class="open-popup-link">Pokyny pořadatele</a> </td>
+                            </tr>
+                          
+
+
+
+
+                                                      <tr>
+                                                              <td class="title" nowrap="">Ke stažení</td>
+                                                            <td class="downloads">
+                                                                    <a href="https://www.o2universum.cz/wp-content/uploads/2026/02/PAPA-ROACH-2026-IS-a-OP-mapa-04-scaled.jpg" target="_blank">Orientační plán Papa Roach Ticketportal                                      (276.23 Kb) </a><br>
+                                                                                                      <a href="https://www.o2universum.cz/wp-content/uploads/2026/06/papa-roach-op.jpg" target="_blank">Orientační plán Papa Roach Ticketmaster                                      (82.87 Kb) </a><br>
+                                                                                                                                </td>
+                            </tr>
+                                                    
+
+                                                        <tr>
+
+                                <td class="title" nowrap="">Menu</td>
+
+
+                                <td class="downloads">
+                                                                        <a href="https://www.o2universum.cz/wp-content/uploads/2026/06/Gourmet_experience_menu_PAPA_ROACH.pdf" target="_blank">Gourmet experience menu Papa Roach                                        (965.61 Kb) </a><br>
+                                                                                                                                        </td>
+                              </tr>
+
+                          
+
+                                                      <tr>
+                              <td class="title">Typ akce</td>
+                              <td>
+                                Metal, Rock                              </td>
+                            </tr>
+                          
+
+                                                      <tr>
+                              <td class="title" nowrap="">Cena</td>
+                              <td class="downloads">
+                                <p>
+                                  2 002 – 2 992 Kč                                                                      <br />---<br />
+                                    vozíčkář                                    + doprovod<br />
+                                    2 222 Kč                                    + 1 Kč                                                                                                    </p>
+                                <p class="price-margined">Vstupenky pro držitele průkazu ZTP/P vozíčkáře objednávejte u společností Ticketportal (<a href="mailto:rezervace@ticketportal.cz" title="Ticketportal">rezervace@ticketportal.cz</a>) a Ticketmaster (<a href="mailto:ticket@ticketmaster.cz" title="Ticketmaster">ticket@ticketmaster.cz</a>).</p>
+                                                              </td>
+                            </tr>
+                          
+                          
+                                                      <tr>
+                              <td class="title" nowrap="">Prodej / rezervace</td>
+                              <td>
+                                Právě probíhá v prodejních sítích <a href="https://www.ticketportal.cz/event/Papa-Roach-Rise-Of-The-Roach" target="_blank" title="Ticketportal">Ticketportal</a> a <a href="https://www.ticketmaster.cz/artist/papa-roach-vstupenky/7894" target="_blank" title="Ticketmaster">Ticketmaster</a><br/><a href="https://www.ticketportal.cz/event/Papa-Roach-Rise-Of-The-Roach" target="_blank" title="Ticketportal" class="ticketportal_link"></a> <a href="https://www.ticketmaster.cz/artist/papa-roach-vstupenky/7894" target="_blank" title="Ticketmaster" class="ticketmaster_link"></a>                              </td>
+                            </tr>
+                          
+
+                                                      <tr class="cashier_desks_desktop">
+                              <td class="title">Pokladny</td>
+                              <td>
+                                info <a href="https://www.o2universum.cz/pro-navstevniky-2/pokladny/" title="Pokladny">zde</a>                              </td>
+                            </tr>
+                                                                                <tr>
+                              <td class="title information-td">Informace</td>
+                              <td>
+                                Z akce jsou ze strany Bestsport, a.s. pořizovány záznamy návštěvníků a dalších osob v souladu se                                <a href="https://www.o2arena.cz/pro-navstevniky/ochrana-soukromi/">Zásadami pro zpracování a ochranu osobních údajů</a>.
+                              </td>
+                            </tr>
+                          
+
+                        </tbody>
+                      </table>
+                    </div>
+
+                                          <div id="rules-popup" class="white-popup mfp-hide">
+                        <div class="organizer_instructions">
+                          <p><strong>Pokyny pořadatele –
+                              Ameba Production spol. s r.o.</strong>
+                          </p>
+
+                          <p>Vstupenka platí jen pro uvedený den, hodinu, akci, místo konání a sedadlo, je platná pouze s kontrolním ústřižkem a opravňuje k jednomu vstupu. Po opuštění místa konání akce pozbývá platnosti. Dodatečnými úpravami se stává vstupenka neplatnou. V případě uplynutí platnosti vstupenky, jejího poškození, zničení, ztráty nebo krádeže nelze vstupenku vyměnit ani nahradit její hodnotu ani poskytnout jinou kompenzaci. Další převod, prodej nebo zbavení se vstupenky bez písemného souhlasu pořadatele nebo pokus o další prodej za cenu vyšší, než je na vstupence vytištěna, způsobuje její neplatnost. Držiteli takové vstupenky bude odepřen vstup na místo konání akce nebo bude vyveden a zakládá to důvod pro zabavení vstupenky bez náhrady její nominální ceny nebo jiné kompenzace.</p>
+<p>Vstupenka je cenina, její padělání a pozměňování je zakázáno. Pořadatel odepře vstup na akci všem držitelům takových vstupenek.</p>
+<p>Zaplacené vstupné se nevrací, vstupenka se nevyměňuje. V případě zrušení akce zodpovídá za vrácení vstupného pořadatel, nikoli společnost PLG Czech Republic, s.r.o. V případě zrušení akce uplatní držitel vstupenky nárok na vrácení vstupného dle pokynů pořadatele. Servisní poplatky se nevracejí. Náhrada zvláštních nákladů (např. hotel, jízdní výlohy) se neposkytuje. Změna programu vyhrazena. Datum a čas akce mohou být změněny bez upozornění.</p>
+<p>Je zakázáno fotografování a pořizování obrazových a zvukových záznamů v průběhu akce včetně přestávek, vyjma malých kompaktních fotoaparátů. Dále je zakázáno vnášet do objektu kamery, profesionální fotoaparáty, tablety a zároveň je zakázáno používání laserových ukazovátek.</p>
+<p>Na akci jsou poskytovány slevy. Pořadatel poskytuje slevy na vstupném držitelům průkazu ZTP/P – vozíčkářům a jejich průvodcům.</p>
+<p>Při plnění povinností vyplývajících z prodeje vstupenek bude společnost PLG Czech Republic, s.r.o. postupovat ve shodě s platnými Obchodními podmínkami pro poskytování služby prodej vstupenek na sportovní a kulturní akce prostřednictvím prodejní sítě Ticketportal. Aktuální znění obchodních podmínek je k dispozici na <a href="http://www.ticketportal.cz" target="_blank" rel="noopener">www.ticketportal.cz</a>.</p>
+                        </div>
+                      </div>
+                    
+
+                    <div id="article_detail">
+                      <p><strong>Papa Roach se stali králi bez koruny na Rock for People 2026. Uhranuli tisíce lidí a teď ohlašují návrat do Česka! 24. listopadu 2026 dorazí v rámci svého RISE OF THE ROACH turné do pražského O<sub>2</sub> universa. Doprovodí je LANDMVRKS a Sleep Theory.</strong></p>
+<p>Ať už je to rap-rock, nu-metal, elektronický rock, rock&#8217;n&#8217;roll nebo cokoli mezi tím, kvarteto – zpěvák <strong>Jacoby Shaddix</strong>, kytarista <strong>Jerry Horton</strong>, baskytarista <strong>Tobin Esperance</strong> a bubeník <strong>Tony Palermo</strong> – strávilo více než 30 let kličkováním po dálnicích, na které si většina kapel sotva troufne, a vytvořilo jednu z nejrozmanitějších a nejneohroženějších hudebních diskografií.</p>
+<p><strong>Papa Roach</strong> jsou dvojnásobní nominanti na cenu GRAMMY a platinoví lídři žebříčků alternativní hardrockové hudby, kteří loni oslavili 25. výročí svého kultovního alba INFEST. Kapela už léta veřejně upozorňuje na problematiku duševního zdraví a činí tak od prvního dne vydání ikonického alba <em>Last Resort</em>. Na přelomu tisíciletí vyrazili na turné s hvězdami, jako jsou <strong>Linkin Park</strong>, <strong>Eminem</strong>, <strong>Limp Bizkit</strong>, <strong>Guns N’ Roses</strong>, <strong>Nickelback</strong> nebo <strong>Breaking Benjamin</strong>.</p>
+<p>Jejich nejnovější singl <em>„WAKE UP CALLING”</em> vyšel letos v lednu a probojoval se na první místo v americké a německé hitparádě. Také ten mimo jiné zazní v rámci nadcházejícího turné, o němž frontman <strong>Jacoby Shaddix</strong> řekl: <em>„Máme teď za sebou jedny z našich největších a nejvíc strhujících shows vůbec, které jsme odehráli před naprosto neskutečným evropským publikem. Vrátit se na konci roku s úplně novou show a skvělými předkapelami je pro nás splněný sen.“</em></p>
+<p>Fanoušci Rock for People a RFP Concerts si je mohli užít v roce 2023 a 2026 na festivalu a v lednu 2025 na pražské sólo show ve Sportovní hale Fortuna.</p>
+<p><code>Vstupenky v prodeji od 26. června, 10:00, v sítích Ticketportal a Ticketmaster.</code></p>
+
+                          <div class="fasttrack_links">
+        <p>Užijte si koncert <strong>bez čekání</strong> – s <strong>FastTrack</strong> vstupem projdete do haly pohodlněji a s náskokem.</p>
+<h2>FastTrack v 5 bodech:</h2>
+<ul>
+<li>FastTrack není samostatná vstupenka – je nutné mít platnou vstupenku na akci</li>
+<li>umožňuje rychlejší vstup do O<sub>2</sub> universa</li>
+<li>nejedná se o early entry (dřívější vstup)– služba nezajišťuje dřívější vstup do haly před oficiálním otevřením</li>
+<li>vstup probíhá přes prioritní vstup FastTrack O<sub>2</sub> universum</li>
+<li>počet FastTrack vstupů je omezený, aby byl zachovan maximální komfort</li>
+</ul>
+    </div>
+
+    <div class="fasttrack_tickets">
+                    
+            <div class="single-ticket-buttons">
+                <a href="https://www.ticketportal.cz/event/Papa-Roach-Rise-Of-The-Roach-FAST-TRACK-O2-universum" title="FastTrack - Ticketportal" class="ticketportal-btn" target="_blank">FastTrack</a><a href="https://www.ticketmaster.cz/event/papa-roach--rise-of-the-roach-%7C-fast-track-vstupenky/1610955073" title="FastTrack - Ticketmaster" class="ticketmaster-btn" target="_blank">FastTrack</a>            </div>
+            </div>
+    
+                      <p class="content-message-ticketmaster-ticketportal"><strong>OFICIÁLNÍMI PRODEJCI AKCE JSOU TICKETPORTAL A TICKETMASTER. ZA PLATNOST VSTUPENEK ZAKOUPENÝCH U JINÝCH PRODEJCŮ NERUČÍME.</strong></p><p class="centered-content"><img class="aligncenter wp-image-29948 size-full" src="https://cdn.static-assets.cz/20261116-195541/o2arena-mapa-cz-min-9ba228eecf12.jpg" alt="" width="1200" height="803" /></p>                    </div>
+                  </div>
+
+
+
+                </div>
+              </div>
+              <div class="clear"></div>
+            </div>
+          </div>
+        </div>
+
+                <script type="application/ld+json">
+          {
+    "@context": "https://schema.org",
+    "@type": "MusicEvent",
+    "name": "Papa Roach – Rise Of The Roach",
+    "description": "Papa Roach se stali králi bez koruny na Rock for People 2026. Uhranuli tisíce lidí a teď ohlašují návrat do Česka! 24. listopadu 2026 dorazí v rámci svého RISE OF THE ROACH turné do pražského O2 universa. Doprovodí je LANDMVRKS a Sleep Theory. Ať už je to rap-rock, nu-metal, elektronický rock, rock\u0026#8217;n\u0026#8217;roll nebo cokoli mezi tím, kvarteto – zpěvák Jacoby Shaddix, kytarista Jerry Horton, baskytarista Tobin Esperance a bubeník Tony Palermo – strávilo více než 30 let kličkováním po dálnicích, na které si většina kapel sotva troufne, a vytvořilo jednu z nejrozmanitějších a nejneohroženějších hudebních diskografií. Papa Roach jsou dvojnásobní nominanti na cenu GRAMMY a platinoví lídři žebříčků alternativní hardrockové hudby, kteří loni oslavili 25. výročí svého kultovního alba INFEST. Kapela už léta veřejně upozorňuje na problematiku duševního zdraví a činí tak od prvního dne vydání ikonického alba Last Resort. Na přelomu tisíciletí vyrazili na turné s hvězdami, jako jsou Linkin Park, Eminem, Limp Bizkit, Guns N’ Roses, Nickelback nebo Breaking Benjamin. Jejich nejnovější singl WAKE UP CALLING” vyšel letos v lednu a probojoval se na první místo v americké a německé hitparádě. Také ten mimo jiné zazní v rámci nadcházejícího turné, o němž frontman Jacoby Shaddix řekl: Máme teď za sebou jedny z našich největších a nejvíc strhujících shows vůbec, které jsme odehráli před naprosto neskutečným evropským publikem. Vrátit se na konci roku s úplně novou show a skvělými předkapelami je pro nás splněný sen. Fanoušci Rock for People a RFP Concerts si je mohli užít v roce 2023 a 2026 na festivalu a v lednu 2025 na pražské sólo show ve Sportovní hale Fortuna. Vstupenky v prodeji od 26. června, 10:00, v sítích Ticketportal a Ticketmaster.",
+    "image": [
+        "https://www.o2universum.cz/wp-content/uploads/2026/06/pr-1322x623e2.jpg"
+    ],
+    "doorTime": "2026-11-24T18:00:00+00:00",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "startDate": "2026-11-24T19:00:00+00:00",
+    "endDate": "2026-11-24T23:59:00+00:00",
+    "location": {
+        "@type": "Place",
+        "name": "O2 universum",
+        "sameAs": "https://www.o2universum.cz",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Českomoravská 2345/17",
+            "addressLocality": "Praha 9",
+            "postalCode": "190 00",
+            "addressCountry": "CZ"
+        }
+    },
+    "offers": [
+        {
+            "@type": "AggregateOffer",
+            "name": "Standard Tickets - Ticketportal",
+            "url": "https://www.ticketportal.cz/event/Papa-Roach-Rise-Of-The-Roach",
+            "priceCurrency": "CZK",
+            "availability": "https://schema.org/InStock",
+            "lowPrice": "2002",
+            "highPrice": "2992",
+            "validFrom": "2026-06-26T10:00:00+00:00"
+        },
+        {
+            "@type": "AggregateOffer",
+            "name": "Standard Tickets - Ticketmaster",
+            "url": "https://www.ticketmaster.cz/artist/papa-roach-vstupenky/7894",
+            "priceCurrency": "CZK",
+            "availability": "https://schema.org/InStock",
+            "lowPrice": "2002",
+            "highPrice": "2992",
+            "validFrom": "2026-06-26T10:00:00+00:00"
+        }
+    ],
+    "organizer": {
+        "@type": "Organization",
+        "name": "O2 universum",
+        "url": "https://www.o2universum.cz"
+    },
+    "performer": {
+        "@type": "Person",
+        "name": "Papa Roach – Rise Of The Roach"
+    }
+}        </script>
+      
+</main>
+<footer id="outer_79_12" class="outer outer_12">
+  <div class="containerFull">
+         <div class="newsletter-oarena-container" id="newsletter-signup-footer">
+        <div class="newsletter-oarena-new--newsletter">
+            <div class="newsletter-oarena-new--left">
+                <span class="newsletter-oarena--title"><b>Newsletter</b> je tady!</span>
+                <p>Novinky, zajímavosti, tipy na akce,<br /> soutěže a mnoho dalšího.<br /> Přihlaste se zde a <b>buďte v obraze</b>.</p>
+
+                <p class="terms-message">Odběrem novinek souhlasíte s <a href="https://www.o2arena.cz/souhlas-email/" title="Zásady zpracování osobních údajů">podmínkami použití</a></p>
+
+                <form action="https://www.o2universum.cz/events/papa-roach-rise-of-the-roach/" id="o2arena-newsletter-signup">
+                    <fieldset>
+                        <input class="form-input" type="email" id="o2arena-newsletter-signup-email" placeholder="jmeno@mail.cz" required>
+                        <button type="submit" class="form-submit" id="newsletter-signup-btn" aria-label="Newsletter signup">Odeslat</button>
+                    </fieldset>
+                </form>
+
+                <p class="hidden-subscribe-message hidden">Děkujeme.<br/> Potvrďte prosím odběr v&nbsp;zaslaném&nbsp;e-mailu.</p>
+            </div>
+
+            <div class="newsletter-oarena-new--right">
+                <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/newsletter-fc62243b638f.png" alt="Newsletter thumbnail"
+                    width="222" height="212" />
+            </div>
+        </div>
+
+        <div class="newsletter-oarena-new--feedback">
+            <span class="oarena-feedback--title">Na vašem <b>názoru</b> nám záleží!</span>
+            <div class="oarena-feedback--container">
+                <div class="oarena-feedback--left">
+                    <p>Vyplňte nám krátké hodnocení<br /> a každý měsíc můžete získat<br /><b>vstupenky na akce</b><br />v O<sub>2</sub> areně a v O<sub>2</sub> universu.</p>
+                    <a href="https://www.hodnoceninasichsluzeb.cz/formular-pro-o2-arenu/">Vstoupit</a>
+                </div>
+                <div class="oarena-feedback--right">
+                    <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/nazor-3938743458a4.png" alt="Feedback thumbnail"
+                        width="222" height="212" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+      <div class="footer_menu">
+        <div class="footer_menu inner">
+        
+		<div class = "toLeft">
+		<h2 class="widget-title">Novinky</h2>
+		<ul>
+											<li>
+					<a href="https://www.o2arena.cz/oktagon-100-jotko-vs-muradov-epicka-show-a-oslava-10lete-ery-oktagonu/">OKTAGON 100: JOTKO vs. MURADOV. Epická show a oslava 10leté éry OKTAGONu</a>
+									</li>
+											<li>
+					<a href="https://www.o2universum.cz/nesmrtelne-mistrovske-dilo-klasickeho-baletu-paris-ballet-theater-priveze-v-roce-2027-labuti-jezero-s-zivym-orchestrem/">Nesmrtelné mistrovské dílo klasického baletu: Paris Ballet Theater přiveze v roce 2027 Labutí jezero s živým orchestrem</a>
+									</li>
+											<li>
+					<a href="https://www.o2arena.cz/z-cz-undergroundu-az-do-nejvetsi-haly-v-cesku-a-hned-trikrat-vyprodano/">Z CZ undergroundu až do největší haly v Česku. A hned třikrát vyprodáno!</a>
+									</li>
+											<li>
+					<a href="https://www.o2universum.cz/nesmrtelne-hity-modern-talking-nazivo-thomas-anders-se-svou-kapelou-vystoupi-v-prazskem-o2-universu/">Nesmrtelné hity Modern Talking naživo: Thomas Anders se svou kapelou vystoupí v pražském O2 universu</a>
+									</li>
+					</ul>
+
+		</div><div class = "toLeft"><h2 class="widget-title">Program</h2><div class="sub_links"><a href="/events" class="menu-link main-menu-link  menu-item menu-item-type-custom menu-item-object-custom">Celý program</a></li>
+<a href="/filter/concerts/" class="menu-link main-menu-link  menu-item menu-item-type-custom menu-item-object-custom">Koncerty</a></li>
+<a href="/filter/other-events/" class="menu-link main-menu-link  menu-item menu-item-type-custom menu-item-object-custom">Ostatní</a></li>
+<a href="/filter/hc-sparta-praha/" class="menu-link main-menu-link  menu-item menu-item-type-custom menu-item-object-custom">HC Sparta Praha</a></li>
+<a href="https://www.o2arena.cz/prodejce-vstupenek/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Prodejce vstupenek</a></li>
+<a href="https://www.o2arena.cz/pro-navstevniky/parkovani-a-doprava/parkujte-pohodlne/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Parkujte pohodlně</a></li>
+</div></div><div class = "toLeft"><h2 class="widget-title">Pro návštěvníky</h2><div class="sub_links"><a href="https://www.o2universum.cz/pro-navstevniky-2/pravidla-pro-navstevniky/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pravidla pro návštěvníky</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/zakazane-predmety-v-o2-universu/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Zakázané předměty v O2 universum</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/pokladny/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pokladny</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/parkovani-a-doprava/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Parkování a doprava</a></li>
+<a href="https://www.o2arena.cz/udrzitelnost/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Udržitelnost</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/ochrana-soukromi/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Ochrana soukromí</a></li>
+<a href="https://www.o2universum.cz/pro-navstevniky-2/vyhnete-se-frontam/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Vyhněte se frontám</a></li>
+<a href="https://www.o2universum.cz/kariera-2/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Kariéra</a></li>
+<a href="https://www.o2arena.cz/pro-navstevniky/eticka-linka-2/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Etická linka</a></li>
+<a href="#" class="menu-link main-menu-link opt-in-cookies menu-item menu-item-type-custom menu-item-object-custom">Nastavení cookies</a></li>
+</div></div><div class = "toLeft"><h2 class="widget-title">Ostatní</h2><div class="sub_links"><a href="https://www.o2universum.cz/pro-firmy/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Pronájem prostor</a></li>
+<a href="https://www.o2universum.cz/kontakty/" class="menu-link main-menu-link  menu-item menu-item-type-post_type menu-item-object-page">Kontakty</a></li>
+</div></div>        </div>
+        <div class="clear"></div>
+        <div class="partners">
+
+
+          <div class="partners-container">
+            <div class="main-partners">
+              <h2>Partneři</h2>
+              <div class="partners-logos-container">
+                <a href="https://www.o2.cz/" title="O2" class="partner_2" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_2-05ab7d211dab.svg" alt="O2 logo"
+                      width="61" height="59"/>
+                </a>
+                <a href="http://www.staropramen.cz" title="Staropramen" class="partner_3" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_3-fc9391bbfe82.png" alt="Staropramen logo"
+                      width="89" height="58"/>
+                </a>
+                <a href="http://www.coca-cola.cz/cs/home/" title="Coca Cola" class="partner_4" target="_blank">
+                   <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fg__footer_partner_4-a8675bcd6879.png" alt="CocaCola logo"
+                      width="92" height="29"/>
+                </a>     
+                
+                <a href=" https://www.jagermeister.com/" title="Jagermeister" class="partner_9" target="_blank">
+                  <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/jager_logo-3097ba0906d4.svg" alt="Jagermeister logo"
+                      width="64" height="64"/>
+                </a>
+
+                <a href="https://www.ticketportal.cz/" title="Ticket Portal" class="partner_1" target="_blank"></a><a href="https://www.ticketmaster.cz/" title="Ticketmaster" class="partner_5" target="_blank"></a>
+              </div>
+            </div>
+            <div class="special-partners">
+
+                              <div class="special-partners--main">
+                  <span>ČLEN SKUPINY PPF</span><br />
+                  <a href="https://www.ppf.eu/" class="special_partner_1" target="_blank" title="PPF">
+                    <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/ppf-logo-52be7b92123c.png" alt="PPF logo"
+                      width="89" height="70"/>
+                  </a>
+                </div>
+                <div class="special-partners--subcontainer">
+                  <span>Member of</span>
+                  <a href="https://pragueconvention.cz/" target="_blank" title="Prague Convention"><img loading="lazy" width="128" height="60" alt="Prague Convention logo" src="https://cdn.static-assets.cz/20261116-195541/pcb-logo-4d9836ac4166.png"></a>
+                </div>
+                          </div>
+          </div>
+        </div>
+      </div>
+      <div class="copyright">
+        <!-- copy -->
+        <div class="toLeft">Copyright ©2026                      Bestsport, a.s. Šíření obsahu serveru Kongresové centrum O<sub>2</sub>universum.cz je bez předchozího písemného souhlasu provozovatele zakázáno.                  </div>
+        <div class="toRight">
+
+                      <a href="https://www.facebook.com/o2universum" class="fb_link" title="Facebook" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/fb-674fae96cb2d.svg" alt="Facebook logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.instagram.com/o2universum/" class="inst_link" title="Instagram" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/instagram-f982a4ee6755.svg" alt="Instagram logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.linkedin.com/company/o2universum/" class="linkedin_link" title="Linkedin" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/linkedin-528b05519565.svg" alt="Linkedin logo"
+                      width="16" height="16"/>
+            </a>
+            <a href="https://www.tiktok.com/@o2arenapraha" class="tiktok_link" title="TikTok" target="_blank">
+              <img loading="lazy" src="https://cdn.static-assets.cz/20261116-195541/tiktok-6a88e415f7ac.svg" alt="TikTok logo"
+                      width="16" height="16"/>
+            </a>
+                  </div>
+        <div class="clear"></div>
+      </div>
+    </div>
+
+    <script>
+      // site home for JS functions
+      var site_home = 'https://www.o2arena.cz/';
+      var site_lang = 'cs';
+      var page_id = 66038;
+    </script>
+
+
+    <script>
+
+    </script>
+
+    <!-- Kód Google značky pro remarketing -->
+    <!--------------------------------------------------
+	Značka pro remarketing nesmí být spojena s údaji umožňujícími identifikaci osob nebo umístěna na stránkách týkajících se citlivých kategorií. Další informace a postup nastavení značky naleznete na stránce: http://google.com/ads/remarketingsetup
+	--------------------------------------------------->
+    <script type="text/javascript">
+      /* <![CDATA[ */
+      var google_conversion_id = 992084877;
+      var google_custom_params = window.google_tag_params;
+      var google_remarketing_only = true;
+      /* ]]> */
+    </script>
+
+    <script>
+      if (cc.allowedCategory('personalizedads')) {
+        var pageadconversion = document.createElement("script");
+        pageadconversion.src = "//www.googleadservices.com/pagead/conversion.js";
+        pageadconversion.type = "application/javascript";
+        document.getElementsByTagName("body")[0].appendChild(pageadconversion);
+        console.log(
+          '[o2universum.cz] PageAd Conversion has cookie consent.');
+      } else {
+        console.log(
+          '[o2universum.cz] PageAd Conversion missing consent.');
+      }
+    </script>
+    <noscript>
+      <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/992084877/?guid=ON&amp;script=0" />
+      </div>
+    </noscript>
+  </div>
+</footer>
+<script type='text/javascript' src='https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/js/dflip.min.js?ver=2.2.32' id='dflip-script-js'></script>
+<script data-cfasync="false"> var dFlipLocation = "https://www.o2universum.cz/wp-content/plugins/3d-flipbook-dflip-lite/assets/"; var dFlipWPGlobal = {"text":{"toggleSound":"Turn on\/off Sound","toggleThumbnails":"Toggle Thumbnails","toggleOutline":"Toggle Outline\/Bookmark","previousPage":"Previous Page","nextPage":"Next Page","toggleFullscreen":"Toggle Fullscreen","zoomIn":"Zoom In","zoomOut":"Zoom Out","toggleHelp":"Toggle Help","singlePageMode":"Single Page Mode","doublePageMode":"Double Page Mode","downloadPDFFile":"Download PDF File","gotoFirstPage":"Goto First Page","gotoLastPage":"Goto Last Page","share":"Share","mailSubject":"I wanted you to see this FlipBook","mailBody":"Check out this site {{url}}","loading":"DearFlip: Loading "},"moreControls":"download,pageMode,startPage,endPage,sound","hideControls":"","scrollWheel":"false","backgroundColor":"#777","backgroundImage":"","height":"auto","paddingLeft":"20","paddingRight":"20","controlsPosition":"bottom","duration":800,"soundEnable":"true","enableDownload":"true","showSearchControl":"false","showPrintControl":"false","enableAnnotation":false,"enableAnalytics":"false","webgl":"true","hard":"none","maxTextureSize":"1600","rangeChunkSize":"524288","zoomRatio":1.5,"stiffness":3,"pageMode":"0","singlePageMode":"0","pageSize":"0","autoPlay":"false","autoPlayDuration":5000,"autoPlayStart":"false","linkTarget":"2","sharePrefix":"flipbook-"};</script>
+    <script id="citymind-script" src="https://api.citymind.tech/resources/js/143"></script>
+</body>
+
+</html>
