@@ -39,9 +39,16 @@
 ### 5. Upozornenie na chýbajúci obrázok miesta (Matej 2026-11-20)
 - Pravidlo: každá akcia má obrázok (plagát, inak obrázok miesta) → **každé aktívne miesto musí mať obrázok**. V systéme upozornení z 057: keď aktívne miesto nemá `image_url` alebo sa jeho obrázok nepodarí stiahnuť (`image_card` null), vznikne/aktualizuje sa GitHub issue `alert` (rovnako ako iné upozornenia, bez duplicít). Test.
 
+### 6. AI doplnenie pre celý polrok (Matej 2026-11-20 23:07)
+- **Okno plného AI doplnenia (`enrich_ai.WINDOW_DAYS`) z 60 na 180 dní** – rovnako ako okno akcií v appke. Platí pre všetky miesta (aj doterajších 11).
+- **Opakované hľadanie raz pri vstupe do 60 dní:** akcia doplnená skôr ako 60 dní pred konaním, ktorej po doplnení chýba cena alebo žánre (prípadne čas), sa **raz** znova doplní, keď sa dostane do 60 dní (dôvod: pri vzdialených akciách často ešte nie je zverejnená cena ani zostava a dnešná cache by ich už nikdy znova nehľadala). Raz = označiť v zázname, aby sa neopakovalo každý deň. Testy.
+- **Jednorazovo vyšší limit behu** pri behu na konci tejto úlohy (napr. premenná prostredia / vstup workflowu `ai_budget_usd`, predvolene 0,30 $), aby sa nové akcie aj akcie za doterajšími 60 dňami doplnili naraz; Matej pred spustením dobije DeepSeek. Zapíš, akú hodnotu si použil a koľko beh reálne stál.
+- **Mesačný limit** ostáva, kým ho Matej nezmení (návrh hlavného chatu: z 3 $ na 5 $ – čaká na Matejov súhlas; ak ho v zadaní nevidíš potvrdený, nemeň ho). Ak by mesačný limit zastavil doplnenie, napíš to do reportu.
+- Do `docs/decisions.md`: nové okno, pravidlo opakovaného hľadania (nahrádza 60-dňové okno z úloh 054/062/063).
+
 ## Overenie a report
 - Testy adaptérov na fixtures z 083 (`pytest -q`), vrátane: O2 oddelenie arena/universum, vyradenie športu, viac termínov, zóna `+00:00`; Lucerna otvorenie vs. začiatok, vypredané; Jazz Republic dátum z URL, `doors_time`.
-- **Jeden beh pipeline** (číslo). Z publikovaného `events.json` (príkaz uveď): počet akcií po novom mieste, koľko má čas/otvorenie/cenu/plagát, koľko vyradeného športu; koľko nových akcií čaká na AI doplnenie (typ, žánre) kvôli rozpočtu behu.
+- **Jeden beh pipeline** (číslo). Z publikovaného `events.json` (príkaz uveď): počet akcií po novom mieste, koľko má čas/otvorenie/cenu/plagát, koľko vyradeného športu; koľko akcií (všetkých miest) bolo v tomto behu AI doplnených, koľko čaká (rozpočet), koľko stál beh a koľko je minuté za mesiac.
 - Overenie na webe: 2 akcie z každého miesta (URL, dátum, čas, názov) proti `events.json`.
 - Tabuľka návrhu štítkov (`type`, `character`, `music`, `size`) na schválenie.
 - Snímka `docs/tasks/085/events-new-venues.jpg` (Akcie, Kedykoľvek, filter na nové miesta, 390 × 844).
