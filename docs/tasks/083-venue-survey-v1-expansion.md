@@ -1,4 +1,4 @@
-# 083: Veľký prieskum webov nových podnikov (rozšírenie v1)
+# 083: Veľký prieskum webov nových podnikov – priorita 1 (rozšírenie v1)
 
 ## Zadanie
 
@@ -23,15 +23,7 @@ Cieľ: pre každý podnik zistiť, **ako ho vieme pridať, čo bude ľahké, čo
 - Karlovy Lázně (5 klubov na 5 poschodiach – jeden podnik alebo viac? ako web akcie rozlišuje)
 - Kongresové centrum Praha (veľa kongresov – dá sa oddeliť kultúra od konferencií?)
 
-**Priorita 2 – chce, ale nie za každú cenu:**
-- Twist Bar – https://twistbar.co/music (v 008: program cez JavaScript, statické HTML prázdne). **Zisti, či web nenačítava program z nejakého JSON/API** (sieťové požiadavky stránky, napr. Playwright `page.on('response')` alebo zdroj JS) – ak áno, je to „rýchle“. Inak odhadni, čo by stálo vykresľovanie prehliadačom v GitHub Actions (čas behu, závislosti). Matej: „chcem, ale nie cez mŕtvoly“.
-- Kino Aero – kinoaero.cz (v 008 JSON-LD, 32 akcií/týždeň). **Zmeraj:** koľko premietaní denne a za 180 dní, koľko je unikátnych filmov, či sa dajú rozlíšiť špeciálne akcie (premiéry, diskusie, festivaly, koncerty) od bežných premietaní. Matej sa bojí zahltenia (až 4 premietania denne) – rozhodne podľa čísel.
-
-**Priorita 3 – menšia priorita:**
-- Rock Café, Jazz Dock, Reduta Jazz Club, Café V Lese, Klub 007 Strahov, Ankali, Mecca, Malostranská beseda, Chapeau Rouge, Vagon
-
-**Priorita 4 – len zistiť:**
-- Rudolfinum, Obecní dům – Smetanova síň (klasická hudba; zisti objem a zdroj, Matej rozhodne, či klasika do appky patrí)
+**Priority 2–4 sa presúvajú do úlohy 084** (zmena 16:56, Matej: „určite sprav rozdelenie“ – úloha by bola na kredity priveľká). V 083 len priorita 1 vyššie (10 podnikov) + El Magico OCR. Twist, Kino Aero, Rock Café, Jazz Dock, Reduta, Café V Lese, 007 Strahov, Ankali, Mecca, Malostranská beseda, Chapeau Rouge, Vagon, Rudolfinum a Obecní dům **v 083 nerob**.
 
 Oficiálny web nájdi a over (adresa, odkaz z webu na IG alebo zhoda s prague.eu); ak si nie si istý, že ide o ten podnik, napíš to.
 
@@ -62,8 +54,8 @@ Ulož 1 vzorku HTML/JSON programu (a 1 detailu akcie, ak existuje) na podnik do 
 
 ## Report
 - Tabuľka všetkých podnikov s bodmi 1–14 (v reporte stručne; plné znenie v Exceli).
-- **Excel `docs/tasks/083/venue-survey.xlsx`** (pre Mateja): hárok **Podniky** – riadok na podnik, stĺpce: priorita, podnik, web, URL programu, typ zdroja, náročnosť, dôvod, akcií/180 dní, nekultúrne akcie, dátum/čas/cena/lístky/sála/žáner (áno/nie), detail akcie, plagáty (áno/nie, tvar), obrázok miesta (URL, fotka/logo), adresa, kapacita + zdroj, IG, RA odkaz, prekryv, čo chýba, čo doplní Matej, poznámka. Hárok **El Magico** – výsledok OCR. Hárok **Kino Aero** – premietania za deň. Prvý riadok zmrazený, stĺpce čitateľnej šírky, náročnosť farebne (rýchle zelená, parser žltá, ťažké oranžová, bez zdroja sivá). Bez vzorcov netreba nič počítať.
+- **Excel `docs/tasks/083/venue-survey.xlsx`** (pre Mateja): hárok **Podniky** – riadok na podnik, stĺpce: priorita, podnik, web, URL programu, typ zdroja, náročnosť, dôvod, akcií/180 dní, nekultúrne akcie, dátum/čas/cena/lístky/sála/žáner (áno/nie), detail akcie, plagáty (áno/nie, tvar), obrázok miesta (URL, fotka/logo), adresa, kapacita + zdroj, IG, RA odkaz, prekryv, čo chýba, čo doplní Matej, poznámka. Hárok **El Magico** – výsledok OCR. Prvý riadok zmrazený, stĺpce čitateľnej šírky, náročnosť farebne (rýchle zelená, parser žltá, ťažké oranžová, bez zdroja sivá). Bez vzorcov netreba nič počítať.
 - **Odporúčané poradie pridávania** v dávkach po ~4–5 podnikoch (najrýchlejšie a najvyššia priorita najprv), s odhadom, čo ktorá dávka obnáša.
-- Kde treba nový typ zdroja alebo spôsob sťahovania (prehliadač pre Twist, OCR pre El Magico) – **neimplementuj, len popíš a odhadni náklady**; o novom type zdroja rozhoduje Matej (`CLAUDE.md`).
-- Riziká: weby s ochranou proti robotom, podniky, kde je program len na GoOut/predpredaji, veľké objemy (Aero, Kongresové centrum), duplicity medzi podnikmi.
+- Kde treba nový typ zdroja alebo spôsob sťahovania (napr. OCR pre El Magico) – **neimplementuj, len popíš a odhadni náklady**; o novom type zdroja rozhoduje Matej (`CLAUDE.md`).
+- Riziká: weby s ochranou proti robotom, podniky, kde je program len na GoOut/predpredaji, veľké objemy (Kongresové centrum, O2), duplicity medzi podnikmi.
 - Pipeline nespúšťať; čísla v reporte sú z prieskumu, nie z `events.json` (uveď to).
