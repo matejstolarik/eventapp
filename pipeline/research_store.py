@@ -12,7 +12,8 @@ search (ENRICH_FROM_RESEARCH = "all" or comma-separated event ids).
 
 Pages are rebuilt on every run, so each run loads the files of the last
 KEEP_MONTHS months from the published site and writes them back.  This
-covers the 60-day enrichment window; older months drop off.
+covers the 180-day enrichment window (task 085: 7 months, was 3 for the
+60-day window); older months drop off.
 
 Task 074: a weekly backup in the repo (data/research_backup/<YYYY-MM>.json,
 same format, text and links only), written by weekly-report.yml:
@@ -39,7 +40,7 @@ log = logging.getLogger(__name__)
 
 RESEARCH_DIR = pathlib.Path("site/research")
 BACKUP_DIR = pathlib.Path("data/research_backup")      # task 074
-KEEP_MONTHS = 3
+KEEP_MONTHS = 7      # task 085: 180-day AI window (was 3)
 
 
 def months(today: str, n: int = KEEP_MONTHS) -> list[str]:

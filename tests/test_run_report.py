@@ -51,7 +51,7 @@ def test_build_counts_missing_new_gone_and_review():
                      "type_changed"]
     assert s["no_spotify"] == [run_summary._item(events[1], artists=["Band X"])]
     assert [u["id"] for u in s["unverified_prices"]] == ["d"]
-    assert s["ai"]["month_budget_usd"] == 3.0 and s["ai"]["low_confidence"] == 1
+    assert s["ai"]["month_budget_usd"] == 5.0 and s["ai"]["low_confidence"] == 1
     assert s["genre_proposals"][0]["examples"][0]["id"] == "a"
 
 
@@ -237,3 +237,37 @@ def test_publish_closes_previous_report():
     url = weekly_report.publish("t", "b", gh)
     assert url == "https://gh/issues/101" and gh.issues[5]["state"] == "closed"
     assert "#101" in gh.comments[0][1]
+
+
+# ---------------------------------------------------------------- task 085
+
+def test_venue_image_alert_open_comment_close():
+    from pipeline.main import venue_image_problems
+    venues = [
+        {"id": "a", "active": True, "image_url": "https://x/a.jpg", "image_card": "img/venues/card/a.jpg"},
+        {"id": "b", "active": True, "image_url": None, "image_card": None},
+        {"id": "c", "active": True, "image_url": "https://x/c.jpg", "image_card": None},
+        {"id": "d", "active": False, "image_url": None, "image_card": None},
+    ]
+    missing = venue_image_problems(venues)
+    assert missing == [{"id": "b", "reason": "no_image_url"},
+                       {"id": "c", "reason": "download_failed", "url": "https://x/c.jpg"}]
+    s = summ("2026-11-20", {"roxy": 40})
+    s["venue_images_missing"] = missing
+    a, scope = alerts.compute("daily", "success", s, HIST, set())
+    assert [x["key"] for x in a] == ["venue-image:b", "venue-image:c"]
+    assert "venue-image:" in scope and "image_url" in a[0]["body"]
+    gh = FakeIssues()
+    assert alerts.sync(a, scope, gh, "2026-11-20") == ["open #101 venue-image:b",
+                                                       "open #102 venue-image:c"]
+    # next day still missing -> comment, no duplicate issue
+    assert alerts.sync(a, scope, gh, "2026-11-21") == ["comment #101 venue-image:b",
+                                                       "comment #102 venue-image:c"]
+    # fixed -> closed
+    s["venue_images_missing"] = []
+    a, scope = alerts.compute("daily", "success", s, HIST, set())
+    assert alerts.sync(a, scope, gh, "2026-11-22") == ["close #101 venue-image:b",
+                                                       "close #102 venue-image:c"]
+    # summary without the field (older runs) never closes these issues
+    _, scope = alerts.compute("daily", "success", summ("2026-11-22", {"roxy": 40}), HIST, set())
+    assert "venue-image:" not in scope

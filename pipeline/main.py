@@ -118,6 +118,20 @@ def load_state() -> dict | None:
         return None
 
 
+def venue_image_problems(venues_out: list[dict]) -> list[dict]:
+    """Active venues without a usable image (task 085): [{id, reason}],
+    reason "no_image_url" or "download_failed" (image_card is null)."""
+    out = []
+    for v in venues_out:
+        if not v.get("active", True):
+            continue
+        if not v.get("image_url"):
+            out.append({"id": v["id"], "reason": "no_image_url"})
+        elif not v.get("image_card"):
+            out.append({"id": v["id"], "reason": "download_failed", "url": v["image_url"]})
+    return out
+
+
 def _prune_state(state: dict, events: list[dict]) -> dict:
     ids = {e["id"] for e in events}
     state["detail_checked"] = {k: v for k, v in (state.get("detail_checked") or {}).items()
@@ -126,6 +140,10 @@ def _prune_state(state: dict, events: list[dict]) -> dict:
                              if k in ids}
     state["status_checked"] = {k: v for k, v in (state.get("status_checked") or {}).items()
                                if k in ids}
+    # task 085: adapter detail caches of venues that are no longer active
+    active = {e["venue_id"] for e in events}
+    state["adapter_detail"] = {k: v for k, v in (state.get("adapter_detail") or {}).items()
+                               if v and k in active}
     return state
 
 
@@ -174,7 +192,9 @@ def main():
                 continue
             label = source.get("section") or source.get("strategy") or source["type"]
             try:
-                raw_events = adapter.fetch(venue, source)
+                # task 085: parsed detail pages kept between runs per venue
+                cache = state.setdefault("adapter_detail", {}).setdefault(venue["id"], {})
+                raw_events = adapter.fetch(venue, {**source, "detail_cache": cache})
                 count = len(raw_events)
                 log.info("%s [%s]: %d events fetched", venue["id"], source["type"], count)
                 warning = None
@@ -270,6 +290,9 @@ def main():
             "image_thumb": None, "image_card": None, "image_detail": None,
             "image_detail_size": None})
         venues_out.append(ve)
+    # task 085: every active venue needs an image (the fallback of events
+    # without a poster) -> alert when it has no image_url or no image_card
+    venue_images_missing = venue_image_problems(venues_out)
 
     # Generate event thumbnails (image_thumb) and detail copies (image_detail, task 066)
     # task 067: listing image as fallback when the event-page image is broken
@@ -318,6 +341,7 @@ def main():
         summary = run_summary.build(events_out, previous, source_results, today, generated_at,
                                     ai_stats=ai_stats, web_stats=web_stats, proposals=proposals,
                                     warnings=capture.messages,
+                                    venue_images_missing=venue_images_missing,
                                     simulate_zero=run_summary.simulate_zero_venue())
         log.info("Run summary written to %s", run_summary.save(summary))
     except Exception as exc:   # never stop the daily run

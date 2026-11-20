@@ -20,7 +20,7 @@ on:
         required: false
         default: ''
       ai_budget_usd:
-        description: 'DeepSeek budget of this run in USD (default 0.30; month limit 3 USD always applies)'
+        description: 'DeepSeek budget of this run in USD (default 0.30; month limit 5 USD always applies)'
         required: false
         default: ''
       research_seed:

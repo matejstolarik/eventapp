@@ -12,6 +12,7 @@ the event page has a bigger one (verified 2026-11-18, report 064 and 066):
   palac-akropolis  main gallery image `…_web_event` (listing: `…_web_hp`)
   epic             slideshow image `/upload/temp/events/…` (listing: 620×360)
   forum-karlin     og:image = original (listing: 600×300) – used in the adapter
+  lucerna-music-bar og:image 1920×1080 (listing: 300×300; task 085)
   citarna-unijazz  first image of the event slider (.oxy-dynamic-list);
                    og:image is the site-wide photo, JSON-LD image the logo
 
@@ -27,6 +28,7 @@ from bs4 import BeautifulSoup
 
 DETAIL_IMAGE_VENUES = frozenset({
     "archa-plus", "roxy", "meetfactory", "cross-club", "palac-akropolis", "epic",
+    "lucerna-music-bar",
 })
 
 _BG_URL = re.compile(r"background-image\s*:\s*url\(\s*['\"]?([^'\")]+)['\"]?\s*\)", re.I)
@@ -77,7 +79,7 @@ def _bg_url(el) -> "str | None":
 def detail_image(venue_id: str, html: str, page_url: str) -> "tuple[bool, str | None]":
     soup = BeautifulSoup(html, "html.parser")
     url = None
-    if venue_id in ("archa-plus", "meetfactory", "forum-karlin"):
+    if venue_id in ("archa-plus", "meetfactory", "forum-karlin", "lucerna-music-bar"):
         url = _og_image(soup)
     elif venue_id == "roxy":
         raw = _bg_url(soup.select_one(".wrapper.description .image"))

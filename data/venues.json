@@ -583,5 +583,189 @@
       "sat": "05:00",
       "sun": "05:00"
     }
+  },
+  {
+    "id": "lucerna-music-bar",
+    "name": "Lucerna Music Bar",
+    "city": "Praha",
+    "address": "Vodičkova 36, Praha 1",
+    "lat": 50.081269,
+    "lng": 14.4253203,
+    "web": "https://musicbar.cz",
+    "ra_url": null,
+    "instagram": "lucernamusicbar",
+    "facebook": null,
+    "type": [
+      "concert-club"
+    ],
+    "character": [
+      "retro"
+    ],
+    "music": [
+      "rock",
+      "pop",
+      "punk",
+      "metal"
+    ],
+    "size": "medium",
+    "capacity": 1000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://static.goout.cloud/musicbarcz/2023/07/ef34753e-venue-1920x1080.jpg",
+    "image_source": "https://musicbar.cz/cs/program/",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "lucerna",
+        "url": "https://musicbar.cz/cs/program/",
+        "detail_desc_selector": ".event-content-wrapper",
+        "max_requests": 3,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita podľa Mateja 2026-11-20 (Wikipedia: 800, iný web ~1000). Adresa z musicbar.cz, súradnice OSM (Lucerna Music Bar, Vodičkova 704/36). Obrázky z CDN GoOut (static.goout.cloud) – web podniku stavia GoOut, povolené (Matej 2026-11-20). Velký sál (lucerna.cz) nie je súčasťou. Štítky type/character/music = návrh 085, čaká na Mateja.",
+    "closing": null
+  },
+  {
+    "id": "o2-arena",
+    "name": "O2 arena",
+    "city": "Praha",
+    "address": "Českomoravská 2345/17, Praha 9",
+    "lat": 50.1047547,
+    "lng": 14.4936216,
+    "web": "https://www.o2arena.cz",
+    "ra_url": null,
+    "instagram": "o2arenapraha",
+    "facebook": "o2arenapraha",
+    "type": [
+      "concert-hall"
+    ],
+    "character": [
+      "commercial"
+    ],
+    "music": [
+      "pop",
+      "rock",
+      "metal",
+      "hip-hop"
+    ],
+    "size": "arena",
+    "capacity": 20000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://cdn.static-assets.cz/20261116-195541/o2arena-default-fb-image-26190823faee.jpg",
+    "image_source": "https://www.o2arena.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "o2",
+        "url": "https://www.o2arena.cz/events/",
+        "domain": "www.o2arena.cz",
+        "max_requests": 80,
+        "timeout_secs": 240
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita: až 20 000 (https://www.o2arena.cz/arena/). Adresa z JSON-LD webu, súradnice OSM (O2 arena). Šport sa nepridáva (Matej 085, „Typ akce“ obsahuje Sport). Stránka /events/ obsahuje aj O2 universum – adaptér berie len odkazy na www.o2arena.cz. Štítky = návrh 085.",
+    "closing": null
+  },
+  {
+    "id": "o2-universum",
+    "name": "O2 universum",
+    "city": "Praha",
+    "address": "Českomoravská 2345/17a, Praha 9",
+    "lat": 50.1038407,
+    "lng": 14.4933559,
+    "web": "https://www.o2universum.cz",
+    "ra_url": null,
+    "instagram": "o2universum",
+    "facebook": "o2universum",
+    "type": [
+      "concert-hall"
+    ],
+    "character": [
+      "commercial"
+    ],
+    "music": [
+      "pop",
+      "rock",
+      "metal",
+      "soundtrack"
+    ],
+    "size": "arena",
+    "capacity": 5200,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://cdn.static-assets.cz/20261116-195541/o2universum-default-fb-image-d6db463889dc.jpg",
+    "image_source": "https://www.o2universum.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "o2",
+        "url": "https://www.o2universum.cz/events/",
+        "domain": "www.o2universum.cz",
+        "max_requests": 80,
+        "timeout_secs": 240
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita 5200 = Sál A podľa Mateja 2026-11-20 (celý komplex ~10 000, prague.eu). Adresa z JSON-LD webu, súradnice OSM (O2 universum, Českomoravská 2345/17). Šport sa nepridáva (Matej 085). Adaptér berie len odkazy na www.o2universum.cz. Štítky = návrh 085.",
+    "closing": null
+  },
+  {
+    "id": "jazz-republic",
+    "name": "Jazz Republic",
+    "city": "Praha",
+    "address": "Jilská 1a, Praha 1",
+    "lat": 50.084148,
+    "lng": 14.4185966,
+    "web": "https://www.jazzrepublic.cz",
+    "ra_url": null,
+    "instagram": "jazzrepublic",
+    "facebook": null,
+    "type": [
+      "jazz-club",
+      "bar"
+    ],
+    "character": [
+      "cozy"
+    ],
+    "music": [
+      "jazz",
+      "blues",
+      "funk",
+      "soul"
+    ],
+    "size": "small",
+    "capacity": 150,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.jazzrepublic.cz/pict/content_cz/main/jazz_republic_001.jpg",
+    "image_source": "https://www.jazzrepublic.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "jazzrepublic",
+        "url": "https://www.jazzrepublic.cz/cz/program",
+        "max_requests": 80,
+        "timeout_secs": 240
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita 150 podľa Mateja 2026-11-20 (odhad z plánu stolov: 130 miest + pár navyše). Adresa z jazzrepublic.cz/cz/info, súradnice OSM (dom Jilská 352/1a). Otvorené denne 20:00–24:00 (detail akcie, „Klub je otevřen od osmi hodin večer do půlnoci“). Štítky = návrh 085.",
+    "closing": {
+      "mon": "00:00",
+      "tue": "00:00",
+      "wed": "00:00",
+      "thu": "00:00",
+      "fri": "00:00",
+      "sat": "00:00",
+      "sun": "00:00"
+    }
   }
 ]

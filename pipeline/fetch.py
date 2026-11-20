@@ -112,7 +112,19 @@ def _get_robots(url: str) -> "urllib.robotparser.RobotFileParser | None":
         rp = urllib.robotparser.RobotFileParser()
         rp.set_url(robots_url)
         try:
-            rp.read()
+            # task 085: fetched with our User-Agent (rp.read() sends the
+            # urllib default UA, which Cloudflare sites such as musicbar.cz
+            # answer with 403 -> "disallow all" although robots.txt allows).
+            # Status handling as in RobotFileParser.read().
+            resp = requests.get(robots_url, headers={"User-Agent": USER_AGENT}, timeout=15)
+            if resp.status_code in (401, 403):
+                rp.disallow_all = True
+            elif 400 <= resp.status_code < 500:
+                rp.allow_all = True
+            elif resp.status_code >= 500:
+                raise RuntimeError(f"HTTP {resp.status_code}")
+            else:
+                rp.parse(resp.text.splitlines())
             _robots_cache[origin] = rp
         except Exception as exc:
             log.debug("robots.txt fetch failed for %s: %s — assuming allowed", origin, exc)

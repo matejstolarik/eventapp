@@ -1,7 +1,7 @@
 """
 AI enrichment with web search in the daily run (task 054).
 
-For events in the next WINDOW_DAYS days that are new or whose title changed
+For events in the next WINDOW_DAYS (180) days that are new or whose title changed
 (cache: previous events.json, `enrichment.run.checked_at` + same title), one
 AI request per event with web search:
   - verifies type (formats, primary_format) and genres,
@@ -57,7 +57,13 @@ from pipeline.price import parse_price
 
 log = logging.getLogger(__name__)
 
-WINDOW_DAYS = 60
+# task 085 (Matej 2026-11-20): full AI enrichment for the whole app window
+# (180 days, was 60); an event enriched more than RECHECK_DAYS before its date
+# that still misses price / genres / time is enriched once more when it gets
+# within RECHECK_DAYS days (price and line-up are often published later).
+WINDOW_DAYS = 180
+RECHECK_DAYS = 60
+_MUSIC_FORMATS = {"concert", "dj", "party", "music"}
 MONTHLY_SEARCH_LIMIT = 400
 MAX_SEARCHES_PER_EVENT = 3
 MAX_WORKERS = 4
@@ -167,6 +173,37 @@ def cached_enrichment(ev: dict, previous: dict) -> dict | None:
     if prev.get("title") != ev.get("title"):
         return None
     return {"enrichment": enr, "prev": prev}
+
+
+def needs_recheck(ev: dict, c: dict | None, today: str) -> bool:
+    """Task 085: cached event to be enriched once more (see RECHECK_DAYS).
+
+    True when the event is now within RECHECK_DAYS days, was enriched more
+    than RECHECK_DAYS days before its date, was not re-checked yet
+    (run.rechecked_from) and misses a price, genres (music events) or any
+    time.  After the new run checked_at is within RECHECK_DAYS of the date,
+    so it never repeats."""
+    if not c:
+        return False
+    run = (c["enrichment"].get("run") or {})
+    if run.get("rechecked_from"):
+        return False
+    try:
+        date = datetime.date.fromisoformat(ev.get("date", ""))
+        checked = datetime.date.fromisoformat(run.get("checked_at", ""))
+        now = datetime.date.fromisoformat(today)
+    except ValueError:
+        return False
+    if (date - now).days > RECHECK_DAYS or (date - checked).days <= RECHECK_DAYS:
+        return False
+    prev = c["prev"]
+    no_price = not (ev.get("price_text") or prev.get("price_text") or ev.get("free")
+                    or prev.get("free"))
+    music = bool(_MUSIC_FORMATS & set(prev.get("formats") or ev.get("formats") or []))
+    no_genres = music and not (prev.get("genres") or ev.get("genres"))
+    no_time = not (ev.get("start_time") or prev.get("start_time")
+                   or ev.get("doors_time") or prev.get("doors_time"))
+    return no_price or no_genres or no_time
 
 
 # ---------------------------------------------------------------------------
@@ -1368,6 +1405,7 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             and (redo_env.lower() == "all" or e["id"] in redo_ids)}
     stats["from_research"] = 0
     todo, out_by_id = [], {}
+    recheck: dict[str, str] = {}      # task 085: id -> checked_at of the earlier run
     for ev in events:
         if not in_window(ev, today):
             # keep cached AI values of events enriched earlier (e.g. moved date)
@@ -1377,12 +1415,18 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
             continue
         stats["window"] += 1
         c = None if ev["id"] in force or ev["id"] in redo else cached_enrichment(ev, previous)
+        if needs_recheck(ev, c, today):       # task 085: once, within 60 days
+            recheck[ev["id"]] = c["enrichment"]["run"]["checked_at"]
+            c = None
         if c:
             stats["cached"] += 1
             out_by_id[ev["id"]] = apply(ev, *cached_values(ev, c))
         else:
             todo.append(ev)
+    # task 085: nearest events first (the run budget may stop before the end)
+    todo.sort(key=lambda e: (e.get("date", ""), e.get("start_time") or ""))
     stats["to_enrich"] = len(todo)
+    stats["recheck"] = len(recheck)
 
     if todo and provider is None:
         provider, why = make_provider(budget)
@@ -1493,6 +1537,9 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
                 stats.setdefault("review", []).append(f"{ev['id']}: {d}")
             if res.get("venue_mentions"):
                 stats["venue_in_description"] = stats.get("venue_in_description", 0) + 1
+            if ev["id"] in recheck:        # task 085: mark the one-off re-check
+                conv["enrichment"].setdefault("run", {})["rechecked_from"] = recheck[ev["id"]]
+                stats["rechecked"] = stats.get("rechecked", 0) + 1
             out_by_id[ev["id"]] = apply(ev, conv["enrichment"], conv["values"], stats)
             stats["enriched"] += 1
             if ev["id"] in redo and rec.get("searches") == 0:

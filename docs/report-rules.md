@@ -25,11 +25,12 @@ Spúšťa ich krok `Alerts` na konci `daily.yml` a `deploy-app.yml` (vždy, aj p
 |---|---|---|
 | `workflow:daily`, `workflow:deploy-app` | job skončil inak ako `success` | ďalší úspešný beh toho istého workflowu |
 | `source:<venue>/<label>` | zdroj vrátil 0 akcií (aj chyba zdroja), alebo menej ako **50 %** mediánu posledných **7** behov (presne polovica nie je pokles) | ďalší denný beh, v ktorom problém nie je |
-| `ai:limit` | HTTP 402 od AI, minutý mesačný limit hľadaní, alebo mesačná cena AI ≥ rozpočet (3 $) − 0,005 $ | ďalší denný beh bez toho |
+| `ai:limit` | HTTP 402 od AI, minutý mesačný limit hľadaní, alebo mesačná cena AI ≥ rozpočet (5 $ od task 085, predtým 3 $) − 0,005 $ | ďalší denný beh bez toho |
 | `ai:low-credit` | zostatok kreditu DeepSeek < **0,20 $** (task 074) | denný beh so zisteným zostatkom ≥ 0,20 $ (pri nezistenom zostatku ostáva otvorené) |
+| `venue-image:<venue>` | aktívne miesto nemá `image_url`, alebo sa jeho obrázok nepodarilo stiahnuť (`image_card` je `null`) (task 085) | denný beh, v ktorom miesto obrázok má |
 
 - Kľúč je v tele issue (`<!-- alert-key: … -->`). Kým je issue s kľúčom otvorené, opakovaný problém pridá komentár „Stále trvá“, nové issue nevznikne.
-- Denný beh zatvára len kľúče `workflow:daily`, `source:*`, `ai:limit`, `ai:low-credit` (to len pri zistenom zostatku); `deploy-app` len `workflow:deploy-app`.
+- Denný beh zatvára len kľúče `workflow:daily`, `source:*`, `ai:limit`, `ai:low-credit` (to len pri zistenom zostatku), `venue-image:*` (len keď zhrnutie behu má pole `venue_images_missing`); `deploy-app` len `workflow:deploy-app`.
 - Denný rozpočet behu (0,30 $) nie je upozornenie, je to bežné zastavenie.
 - Test: `workflow_dispatch` denného behu so vstupom `simulate_zero_source = <venue_id>` – zdroje podniku sa v zhrnutí zapíšu s 0 akciami (dáta sa nemenia).
 

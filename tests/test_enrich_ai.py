@@ -198,7 +198,7 @@ def test_cached_value_replaced_by_later_source_value():
 
 
 def test_window_and_monthly_limit():
-    far = _ev(id="far", date="2027-03-01")
+    far = _ev(id="far", date="2027-06-01")      # beyond 180 days (task 085)
     state = {"ai_searches": {"month": "2026-11", "count": E.MONTHLY_SEARCH_LIMIT - 1}}
     prov = FakeProvider()
     evs = [far, _ev(id="a"), _ev(id="b", date="2026-11-20")]
@@ -246,3 +246,58 @@ def test_forced_ids_ignore_cache(monkeypatch):
     prov = FakeProvider()
     run([_ev()], previous={first[0]["id"]: first[0]}, provider=prov)
     assert len(prov.calls) == 1
+
+
+# ── task 085: 180-day window, one re-check within 60 days ───────────────────
+
+def _prev_enriched(checked_at, date="2026-12-20", **kw):
+    p = _ev(date=date, **kw)
+    p["enrichment"] = {"run": {"checked_at": checked_at, "model": "m", "searches": 1}}
+    return {p["id"]: p}
+
+
+def test_window_is_180_days():
+    assert E.WINDOW_DAYS == 180
+    assert E.in_window(_ev(date="2027-05-16"), TODAY)
+    assert not E.in_window(_ev(date="2027-05-17"), TODAY)
+
+
+def test_recheck_once_when_entering_60_days():
+    # enriched 2026-09-01 for an event on 2026-12-20 (110 days before), no price
+    prev = _prev_enriched("2026-09-01")
+    prov = FakeProvider()
+    out, st = run([_ev(date="2026-12-20")], previous=prev, provider=prov)
+    assert len(prov.calls) == 1 and st["recheck"] == 1 and st["rechecked"] == 1
+    assert out[0]["enrichment"]["run"]["rechecked_from"] == "2026-09-01"
+    # next day: new checked_at is within 60 days -> cached, no new request
+    prov = FakeProvider()
+    _, st = run([_ev(date="2026-12-20")], previous={out[0]["id"]: out[0]}, provider=prov)
+    assert prov.calls == [] and st["recheck"] == 0
+
+
+def test_no_recheck_when_complete_or_far_or_recent():
+    complete = dict(price_text="300 Kč", genres=["rock"], start_time="20:00")
+    cases = [
+        (_prev_enriched("2026-09-01", **complete), _ev(date="2026-12-20", **complete)),
+        (_prev_enriched("2026-09-01", date="2027-02-01"), _ev(date="2027-02-01")),  # > 60 d
+        (_prev_enriched("2026-11-01"), _ev(date="2026-12-20")),     # enriched 49 d before
+    ]
+    for prev, ev in cases:
+        prov = FakeProvider()
+        _, st = run([ev], previous=prev, provider=prov)
+        assert prov.calls == [] and st["recheck"] == 0
+
+
+def test_recheck_marked_record_not_repeated():
+    prev = _prev_enriched("2026-09-01")
+    prev["mf-1"]["enrichment"]["run"]["rechecked_from"] = "2026-08-01"
+    prov = FakeProvider()
+    run([_ev(date="2026-12-20")], previous=prev, provider=prov)
+    assert prov.calls == []
+
+
+def test_todo_nearest_first(monkeypatch):
+    monkeypatch.setattr(E, "MAX_WORKERS", 1)        # deterministic order
+    prov = FakeProvider()
+    run([_ev(id="late", date="2027-01-10"), _ev(id="soon", date="2026-11-18")], provider=prov)
+    assert "2026-11-18" in prov.calls[0][0] and "2027-01-10" in prov.calls[1][0]

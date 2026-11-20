@@ -98,7 +98,7 @@ def test_primary_from_stored_research():
 def test_classify_ai_leaves_window_source_events_to_enrich():
     from pipeline.classify_ai import _events_needing_ai
     near = _tinlicker(date="2026-11-21")
-    far = _tinlicker(id="far", date="2027-03-01")
+    far = _tinlicker(id="far", date="2027-06-01")   # beyond the 180-day window (task 085)
     plain = _tinlicker(id="p", date="2026-11-21", classification=None)
     ids = [e["id"] for e in _events_needing_ai([near, far, plain], "2026-11-17")]
     assert ids == ["far", "p"]

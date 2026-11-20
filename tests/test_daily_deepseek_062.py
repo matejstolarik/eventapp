@@ -18,9 +18,9 @@ TODAY = "2026-11-17"
 def test_daily_budget_run_and_month(monkeypatch):
     monkeypatch.delenv("DEEPSEEK_RUN_BUDGET_USD", raising=False)
     assert D.daily_budget({}, TODAY).limit == 0.30
-    st = {"ai_cost": {"month": "2026-11", "usd": 2.9, "runs": 20}}
-    assert D.daily_budget(st, TODAY).limit == 0.1                 # 3 $ month cap
-    st = {"ai_cost": {"month": "2026-11", "usd": 3.2}}
+    st = {"ai_cost": {"month": "2026-11", "usd": 4.9, "runs": 20}}
+    assert D.daily_budget(st, TODAY).limit == 0.1                 # 5 $ month cap (task 085)
+    st = {"ai_cost": {"month": "2026-11", "usd": 5.2}}
     assert D.daily_budget(st, TODAY).limit == 0.0
     st = {"ai_cost": {"month": "2026-10", "usd": 3.0}}
     assert D.daily_budget(st, TODAY).limit == 0.30                # new month
@@ -103,7 +103,7 @@ def test_force_days_reruns_window(monkeypatch):
     prev = {first[0]["id"]: first[0]}
     prov = FakeProvider()
     monkeypatch.setenv("ENRICH_FORCE_DAYS", "60")
-    run([_ev(), _ev(id="later", date="2027-03-01")], previous=prev, provider=prov)
+    run([_ev(), _ev(id="later", date="2027-06-01")], previous=prev, provider=prov)
     assert len(prov.calls) == 1                     # cached event re-run; later one outside window
 
 

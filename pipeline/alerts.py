@@ -10,6 +10,8 @@ Raised only for:
   - DeepSeek account balance below LOW_CREDIT_USD (key  ai:low-credit,
     task 074); closed after a top-up, kept as it is when the balance is
     unknown in a run.
+  - an active venue without an image (no image_url, or the image could
+    not be downloaded: image_card null) (key  venue-image:<venue>, task 085),
 One open issue per key: while it is open, a repeated problem adds a comment;
 when the problem is gone, the run closes the issue with a comment.
 Rules and ignore list: docs/report-rules.md, data/report_ignore.json.
@@ -116,6 +118,24 @@ def low_credit_alerts(latest: dict) -> list[dict]:
                    " zastaví (HTTP 402). Upozornenie sa zavrie po dobití.")]
 
 
+def venue_image_alerts(latest: dict, ignore: set[str]) -> list[dict]:
+    out = []
+    for item in latest.get("venue_images_missing") or []:
+        vid = item.get("id")
+        key = f"venue-image:{vid}"
+        if key in ignore:
+            continue
+        if item.get("reason") == "no_image_url":
+            why = "nemá `image_url` vo `data/venues.json`"
+        else:
+            why = f"obrázok sa nepodarilo stiahnuť ({item.get('url')})"
+        out.append(_alert(key, f"⚠ Miesto {vid}: chýba obrázok",
+                          f"Aktívne miesto `{vid}` {why} (beh {latest['date']}). Akcie bez"
+                          " plagátu ukazujú obrázok miesta – treba doplniť alebo opraviť"
+                          " `image_url`."))
+    return out
+
+
 def workflow_alert(workflow: str, run_url: str | None) -> dict:
     name = WORKFLOW_NAMES.get(workflow, workflow)
     link = f" Beh: {run_url}" if run_url else ""
@@ -139,6 +159,9 @@ def compute(workflow: str, job_status: str, latest: dict | None, history: list[d
         alerts += ai_alerts(latest)
         alerts += low_credit_alerts(latest)
         scope |= {"source:", "ai:limit"}
+        if latest.get("venue_images_missing") is not None:     # task 085
+            alerts += venue_image_alerts(latest, ignore)
+            scope.add("venue-image:")
         if (latest.get("ai") or {}).get("balance_usd") is not None:
             scope.add("ai:low-credit")      # balance unknown -> leave the issue open
     return alerts, scope

@@ -80,7 +80,8 @@ def _dropped_by_id(dropped: list[str], prefix: str) -> dict[str, list[str]]:
 def build(events: list[dict], previous: dict, source_results: list[tuple], today: str,
           generated_at: str, ai_stats: dict | None = None, web_stats: dict | None = None,
           proposals: list | None = None, warnings: list[str] | None = None,
-          simulate_zero: str | None = None) -> dict:
+          simulate_zero: str | None = None,
+          venue_images_missing: list | None = None) -> dict:
     """Summary dict of one run.  previous = {id: event} of the previous run.
 
     simulate_zero (env ALERT_SIMULATE_ZERO, test switch): the sources of this
@@ -209,6 +210,8 @@ def build(events: list[dict], previous: dict, source_results: list[tuple], today
                                           if i in by_id][:3]}
                             for p in proposals or []],
         "warnings": texts[:50],
+        # task 085: active venues without image_url / image_card (None = not checked)
+        "venue_images_missing": venue_images_missing,
     }
 
 

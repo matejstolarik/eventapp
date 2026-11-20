@@ -107,7 +107,8 @@ def test_backup_not_used_when_pages_complete(tmp_path, monkeypatch, caplog):
 def test_backup_writes_kept_months_only(tmp_path, monkeypatch):
     _pages(monkeypatch, tmp_path, {"2026-11.json": _month("a", "b")})
     R.BACKUP_DIR.mkdir()
-    (R.BACKUP_DIR / "2026-07.json").write_text(json.dumps({"month": "2026-07", "events": []}))
+    # task 085: KEEP_MONTHS = 7 (2026-05 .. 2026-11); 2026-04 is out
+    (R.BACKUP_DIR / "2026-04.json").write_text(json.dumps({"month": "2026-04", "events": []}))
     assert R.backup("2026-11-19") == 2
     assert sorted(p.name for p in R.BACKUP_DIR.iterdir()) == ["2026-11.json"]
     data = json.loads((R.BACKUP_DIR / "2026-11.json").read_text(encoding="utf-8"))

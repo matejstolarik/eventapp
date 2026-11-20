@@ -56,7 +56,7 @@ SEARCH_SUFFIX = " -site:ra.co -site:instagram.com"
 FETCH_CHARS = 6000                  # page text passed to the model
 BUDGET_USD = float(os.environ.get("DEEPSEEK_BUDGET_USD") or "1.0")     # test script (061)
 RUN_BUDGET_USD = 0.30               # task 062: daily run
-MONTH_BUDGET_USD = 3.0              # task 062: calendar month (state["ai_cost"])
+MONTH_BUDGET_USD = 5.0              # calendar month (state["ai_cost"]); 3.0 in 062, 5.0 task 085 (Matej 2026-11-20)
 MONTHLY_SEARCH_LIMIT = 3000         # searches cost $0.00075; the $ budget is the real limit
 
 RESEARCH_PROMPT_DS = f"""You research one event at a Prague venue with the tools search(query) and fetch(url). Report only facts you found with the tools. Do not decide the event type and do not write prose.
