@@ -23,8 +23,11 @@
 - **Stránka akcie s obrázkom miesta (návrh hlavného chatu, Matej k nemu nepovedal nie):** bez tlačidla „Plagát“ (zoom), bez označenia „foto miesta“. Rezervácia miesta podľa `image_detail_size` miesta (bez posunu rozloženia).
 - Odznaky na obrázku (new, ✦ pre teba) aj na obrázku miesta, rovnako ako na obrázku akcie.
 
-### 3. Obrázok Bike Jesus
-- Matej zmenil `image_url` Bike Jesus (`d1b37a3`) na `https://bikejesus.com/uploads/13_14f3d5fee0.jpg`. Ak treba, doplň `image_source` (stránka, kde obrázok je; ak ju nevieš zistiť, nechaj `https://bikejesus.com`).
+### 3. Nové obrázky miest (Matej, pred spustením)
+- Matej zmenil `image_url` (a `image_source`) vo `venues.json`: **Bike Jesus** (`d1b37a3`), **Čitárna Unijazz**, **Palác Akropolis** (Wikimedia Commons), **Roxy** (prvý obrázok vôbec; zo stránky firmy.cz) (`d700202`). Pipeline ich spracuje ako ostatné (cache podľa URL → stiahnu sa znova).
+- Akropolis: adresa má na konci sledovacie parametre (`?utm_source=…`) – ak prekážajú (cache, sťahovanie), odstráň ich vo `venues.json`; obrázok je ten istý.
+- Ak niektorý obrázok nejde stiahnuť (napr. obmedzenie CDN pri Roxy), zapíš to do reportu, nič nevymýšľaj ani nehľadaj náhradu – Matej vyberie inú.
+- Autora ani licenciu pri obrázkoch neriešiť (Matej 2026-11-20).
 
 ## Overenie a report
 - `pytest -q`, `npm test -- --reporter=dot` (náhrada: akcia bez obrázka + miesto s obrázkom → obrázok miesta; miesto bez obrázka → ikona; chyba načítania → miesto → ikona; „Plagát“ sa pri obrázku miesta neukáže), `npm run build`; **jeden beh pipeline** (číslo), nasadenie `deploy-app` (číslo). Over na Pages, že `img/venues/card/*` a `img/venues/detail/*` existujú aj po nasadení appky.
