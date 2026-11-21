@@ -49,6 +49,13 @@
 - **Platí spätne pre miesta z 085** (Lucerna Music Bar, O2 arena, O2 universum, Jazz Republic – pridané 2026-11-21) aj pre miesta z tejto úlohy. Miesto, ktoré prvý beh nezvládne (Jazz Republic), sa počíta od prvého úspešného načítania.
 - Testy (pipeline aj `isNew` v appke).
 
+### 10. Nový text typu DJ (Matej 2026-11-21 11:43; nahrádza text z 080)
+Karta s vysvetlením typov vo Filtri **aj** onboarding (krok Typy), presne:
+| sk | cs | en |
+|---|---|---|
+| Večer postavený na DJ setoch: rave, techno a drum and bass nights, sound systems a podobne. | Večer postavený na DJ setech: rave, techno a drum and bass nights, sound systems a podobně. | Nights built around DJ sets: raves, techno and drum and bass nights, sound systems and similar. |
+Ostatné typy bez zmeny. Snímka netreba; v reporte uveď súbory, kde sa text zmenil.
+
 ## Overenie a report
 - Testy adaptérov na fixtures (`pytest -q`): Duplex zóna + vyradenie boat party, SaSaZu payload, Fortuna vyradenie športu, KCP termíny z textu, Futurum oddelené od Lucerny; Jazz Republic cez Fetch (ak sa robí).
 - **Jeden beh pipeline** (číslo). Tabuľka z publikovaného `events.json` ako v 085 (akcie, čas, otvorenie, cena, plagát, náhľad po mieste; vyradené: boat party, šport, súkromné), AI: doplnené, čaká, cena behu, mesačne.
