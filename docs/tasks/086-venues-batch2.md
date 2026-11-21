@@ -42,9 +42,17 @@
 ### 8. AI a beh
 - Jednorazovo vyšší limit behu ako v 085 (`ai_budget_usd`, napr. 1,00 $), mesačný limit 5 $.
 
+### 9. „Nové“ len z denného behu (Matej 2026-11-21 11:33)
+- Dnes „Nové“ = `first_seen` za 7 dní (rozhodnutie 2026-11-15) → po pridaní miesta sú ako nové označené **všetky** jeho akcie (po 085 ~140 akcií Lucerny a O2 do 28. 11.), hoci ich podnik ohlásil dávno.
+- **Pravidlo:** akcie z **prvého behu nového miesta** (prvé načítanie programu miesta) sa ako nové **neoznačujú** – ani odznak „new“, ani prepínač Nové, ani počet. Nové sú len akcie, ktoré pribudnú v ďalších behoch.
+- Spôsob nechám na teba (napr. dátum pridania miesta vo `venues.json` a nová akcia = `first_seen` > deň pridania miesta, alebo príznak v pipeline); **ak to vyžaduje nové pole, je schválené** – zapíš ho do `docs/data-model.md` a `docs/decisions.md`.
+- **Platí spätne pre miesta z 085** (Lucerna Music Bar, O2 arena, O2 universum, Jazz Republic – pridané 2026-11-21) aj pre miesta z tejto úlohy. Miesto, ktoré prvý beh nezvládne (Jazz Republic), sa počíta od prvého úspešného načítania.
+- Testy (pipeline aj `isNew` v appke).
+
 ## Overenie a report
 - Testy adaptérov na fixtures (`pytest -q`): Duplex zóna + vyradenie boat party, SaSaZu payload, Fortuna vyradenie športu, KCP termíny z textu, Futurum oddelené od Lucerny; Jazz Republic cez Fetch (ak sa robí).
 - **Jeden beh pipeline** (číslo). Tabuľka z publikovaného `events.json` ako v 085 (akcie, čas, otvorenie, cena, plagát, náhľad po mieste; vyradené: boat party, šport, súkromné), AI: doplnené, čaká, cena behu, mesačne.
 - Overenie na webe: 2 akcie z každého miesta.
 - Tabuľka návrhu štítkov s ukážkami akcií.
 - Snímka `docs/tasks/086/events-new-venues.jpg` ako v 085.
+- Počet akcií s „Nové“ pred a po zmene (časť 9).
