@@ -18,7 +18,7 @@
 
 ### 3. Sportovní hala Fortuna
 - `sportovnihalafortuna.cz/kalendar-akci` (HTML), čas áno, cena „od–do“ v detaile. **Šport vyradiť** rovnako ako na O2 (Matej).
-- **Obrázok miesta:** web žiadny nemá → **Matej dá `image_url` (a `image_source`) do `venues.json` pred spustením.** Ak tam nie je, zastav a spýtaj sa (nevymýšľaj, nehľadaj sám).
+- **Obrázok miesta (Matej 2026-11-21 12:19):** `image_url` = `https://upload.wikimedia.org/wikipedia/commons/c/c7/Sportovní_hala_Fortuna.jpg` (bez sledovacích parametrov `?utm_…`), `image_source` = `https://cs.wikipedia.org/wiki/Sportovní_hala_Fortuna`. Autor a licencia sa neuvádzajú (Matej 2026-11-20).
 
 ### 4. Kongresové centrum Praha (KCP)
 - `praguecc.cz/cs/prehled-akci/kultura` (HTML; kongresy sú na inej stránke, tie nie). Časy len zriedka v texte – ak čas v texte nie je, `null`. Karta s viacerými termínmi vypísanými v texte (Monte Cristo ~30 predstavení) = akcia na každý **výslovne uvedený** termín; rozsah dní bez výpisu = jedna akcia v prvý deň (pravidlo z 085). CSV nepoužívať (HTML dá viac).
@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|
 | `capacity` | 2000 (web: „over 2000“) | 2000 (web) | 9000 (5 500 sed. + 3 500 stát., web) | 2764 (Kongresový sál, web) | 500 (mticket – sekundárny zdroj; Matej môže opraviť) |
 | `instagram` | `duplexprague` | `sasazuclub` | – (web neuvádza) | `kongresovecentrumpraha` | over na webe |
-| `image_url` | og 2048×1366 z 083 | OG grafika 1200×630 z 083 (grafika, nie fotka – Matej môže vymeniť) | **Matej** | fotka z 083 (4442×3326) | z webu |
+| `image_url` | og 2048×1366 z 083 | OG grafika 1200×630 z 083 (grafika, nie fotka – Matej môže vymeniť) | Wikimedia (bod 3) | fotka z 083 (4442×3326) | z webu |
 - `size` podľa kapacity, zdroj kapacity do `notes`, súradnice z webu/OSM, `description: null`, `closing` z webu alebo `null`.
 - `type`, `character`, `music`: **návrh** – v reporte tabuľka **aj s 5–8 ukážkovými názvami akcií pri každom mieste** (Matej podľa nich schvaľuje); pamätaj, že `character` sa dedí na akcie.
 
