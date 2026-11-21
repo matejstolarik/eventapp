@@ -2,7 +2,7 @@
 
 ## Zadanie
 
-**Schválené Matejom 2026-11-21 12:26–12:37.** Mení len appku (`web/`) → **pipeline nespúšťaj**, over len `deploy-app`. **Spustiť po 086** (obe menia appku). Čo nie je jasné, spýtaj sa (nevymýšľaj UI).
+**Schválené Matejom 2026-11-21 12:26–12:37.** Mení len appku (`web/`) → **pipeline nespúšťaj**, over len `deploy-app`. ~~Spustiť po 086~~ **Spúšťa sa pred 086** (zmena 12:58, Matej: 086 čaká na denný beh ~14:00; obe menia appku, idú za sebou, nie naraz – 086 nadviaže na zmeny z 087 v `search.ts`). Čo nie je jasné, spýtaj sa (nevymýšľaj UI).
 
 **Čítaj:** `docs/design.md` 4 (čip Pre teba, odznak na obrázku, zoradenie, počet) a blok „Zmena 2026-11-19 … nové pravidlo Pre teba“; `docs/ai-rules.md` C1 (žánre zoradené od hlavného); `web/src/core/search.ts` (`isForYou`, `ForYouPrefs`), `web/src/core/filter.ts` (`filterTypeOf`, `eventUmbrellas`, `cultureSubtype`), `web/src/core/period.ts` (`sortEvents`, `SortMode`), `web/src/components/EventRow.tsx` (`EventImage43`, odznak ✦), `web/src/components/EventPanel.tsx`, `web/src/pages/EventsPage.tsx`, `web/src/i18n/*.ts`. `docs/decisions.md` – `grep -n` „pre teba najprv“, „Pre teba“.
 
