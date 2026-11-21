@@ -8,10 +8,11 @@
 
 ### 1. Skóre zhody 0–100 (nahrádza áno/nie z 079; nová funkcia v `search.ts`, `isForYou` = skóre ≥ 40)
 - **Typ je brána:** ak má používateľ vybraté typy a typ akcie (`filterTypeOf`) medzi nimi nie je → **0**.
-- **Žánre 0–80 bodov – pomer, nie súčet:** žánre akcie sú zoradené od hlavného (ai-rules C1); váha podľa poradia 1, ½, ¼, ⅛… Každý žáner akcie sa prevedie na zastrešujúce (`eventUmbrellas` / hierarchia) a je „zhodný“, ak niektoré zo zastrešujúcich je v obľúbených žánroch. Žánrová zhoda = (súčet váh zhodných žánrov) / (súčet váh všetkých žánrov akcie). Body = 80 × zhoda.
-  - Príklady (testy): `[rock]`, obľúbený rock → 80; `[rock, hip-hop]`, obľúbený hip-hop → 80 × 0,5/1,5 = 27; `[hip-hop, rock]`, obľúbený hip-hop → 53; `[rock, hip-hop]`, obe obľúbené → 80.
-  - **Akcia bez žánrov** → 40 (polovica), aby nespadla na dno len preto, že AI nenašla žáner.
-  - **Používateľ nemá obľúbené žánre** → 40 (polovica) pri sediacom type.
+- ~~Žánre 0–80 bodov – pomer s váhami podľa poradia~~ **(zrušené 12:51, Matej: poradie žánrov nie je poradie dôležitosti – AI ho v praxi preberá z poradia v popise – nemôžeme na ňom stavať).**
+- **Žánre bez poradia (model D, Matej 12:51):** každý žáner akcie sa prevedie na zastrešujúce (`eventUmbrellas` / hierarchia) a je „zhodný“, ak niektoré zo zastrešujúcich je v obľúbených žánroch. **Ak je zhodný aspoň jeden → 50 bodov + 30 × (počet zhodných žánrov akcie ÷ počet všetkých žánrov akcie)**; žiadny zhodný → 0 žánrových bodov (akcia môže mať body len za miesto). Poradie žánrov sa **nepoužíva**.
+  - Príklady (testy): `[rock]`, obľúbený rock → 80; `[rock, hip-hop]`, obľúbený hip-hop → 65; `[rock, hip-hop]`, obe → 80; Divo Institute `[blues, rock, techno, post-punk, shoegaze, experimental]`: obľúbené alternative+punk → 60, alternative+punk+rock → 65, punk → 55; s obľúbeným Paláca Akropolis +20 → 80 / 85 / 75.
+  - **Akcia bez žánrov** → 40.
+  - **Používateľ nemá obľúbené žánre** → 40 pri sediacom type.
   - **Kultúra:** podtyp akcie medzi vybratými podtypmi → 80; kultúra vybratá bez podtypov → 40; podtyp nesedí → 0 (brána).
 - **Obľúbené miesto +20.**
 - **Bez vybratých typov** (preskočené): brána neplatí, výpočet rovnaký (žánre + miesto).
@@ -37,6 +38,6 @@
 - `docs/design.md` 4: doplň blok „Zmena 2026-11-21 (087)“ (skóre, stupne, odznak ✦✦, zoradenie Najlepšia zhoda len pri čipe, prepínanie).
 
 ## Overenie a report
-- `npm test -- --reporter=dot` (príklady z časti 1, brána typu, bez žánrov, len typy, kultúra, stupne, prepínanie zoradenia pri čipe), `npm run build`, `deploy-app` (číslo behu).
+- `npm test -- --reporter=dot` (príklady z časti 1 – model D, brána typu, bez žánrov, len typy, kultúra, stupne, prepínanie zoradenia pri čipe), `npm run build`, `deploy-app` (číslo behu).
 - Z aktuálneho `events.json` (lokálne, príkaz uveď) pri modelových preferenciách (DJ + Koncert; techno, punk, rock; obľúbené Fuchs2 a Cross Club): koľko akcií ✦✦, ✦, nič – spolu a pre obdobie Dnes; 10 akcií s najvyšším skóre (názov, miesto, žánre, skóre).
 - Snímky JPEG 390 × 844 do `docs/tasks/087/`: `events-for-you-best-match.jpg` (čip zapnutý, zoradenie Najlepšia zhoda, viditeľné ✦✦ aj ✦), `sort-menu-for-you.jpg` (ponuka zoradenia pri zapnutom čipe).
