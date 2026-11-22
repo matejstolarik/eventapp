@@ -108,10 +108,9 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
-          curl -sSL -m 30 -A "eventapp-docs-check/1.0 (personal project)" -o out/guides_vision.html             https://api-docs.deepseek.com/guides/vision/ -w "vision %{http_code} %{size_download}
-" || echo "vision FAILED"
+          curl -sSL -m 30 -A "eventapp-docs-check/1.0 (personal project)" -o out/guides_vision.html https://api-docs.deepseek.com/guides/vision/ -w "vision %{http_code} %{size_download}" || echo "vision FAILED"
           pip install -r requirements.txt
-          python -m pipeline.poster_read test docs/tasks/083/elmagico/program-listopad-2026-el-magico.jpg             docs/tasks/083/elmagico/poster-reference-listopad-2026.md out
+          python -m pipeline.poster_read test docs/tasks/083/elmagico/program-listopad-2026-el-magico.jpg docs/tasks/083/elmagico/poster-reference-listopad-2026.md out
           cat out/poster_test.txt >> $GITHUB_STEP_SUMMARY
 
       - name: Balance after
