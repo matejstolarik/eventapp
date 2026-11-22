@@ -25,7 +25,7 @@ Bez obľúbených žánrov dostala každá akcia sediaceho typu neutrálnych 40 
 - Pri úplne chýbajúcich preferenciách ostáva text z 080.
 
 ### 3. Aspoň jeden typ je povinný (Matej: typ je základ)
-- **Onboarding, krok Typy:** bez vybratého typu sa **nedá pokračovať** – „Ďalej“ sa zatrasie (ako v 080). **„Preskočiť“ v tomto kroku ostáva, ale preskočí celý onboarding** (rovnaké potvrdenie ako na uvítaní); samotný krok Typy sa preskočiť nedá (Matej 13:20). Srdiečka z kroku Miesta sú obľúbené miesta celej appky a pri preskočení ostanú (ukladajú sa hneď, ako doteraz); typy a žánre sa neuložia. Kroky Miesta a Žánre: „Preskočiť“ preskočí len ten krok (bez zmeny). Kto onboarding preskočí, nemá typy a platí správa z 080 (alebo z časti 2, ak má obľúbené miesta).
+- **Onboarding, krok Typy:** bez vybratého typu sa **nedá pokračovať** – „Ďalej“ sa zatrasie (ako v 080). **„Preskočiť“ v tomto kroku ostáva, ale preskočí celý onboarding** (rovnaké potvrdenie ako na uvítaní); samotný krok Typy sa preskočiť nedá (Matej 13:20). Srdiečka z kroku Miesta sú obľúbené miesta celej appky a pri preskočení ostanú (ukladajú sa hneď, ako doteraz); typy a žánre sa neuložia. Kroky Miesta a Žánre: „Preskočiť“ preskočí len ten krok (bez zmeny). Kto onboarding preskočí bez obľúbených miest, nemá preferencie → správa z 080; s obľúbenými miestami (bez typov) má ✦ pri akciách v nich (vetva „bez vybratých typov“: žánre 20 + miesto 20 = 40, ako pred 079).
 - **Preferencie akcií:** keď už má používateľ aspoň jeden typ, **nemôže mať 0 typov** – posledný vybratý typ sa nedá zrušiť, ťuk naň sa zatrasie, výber ostane (Matej 13:20). Kultúra so všetkými podtypmi zrušenými = kultúra ostáva vybratá bez podtypov (bez zmeny).
 - `docs/design.md` 7c: doplň blok „Zmena 2026-11-22 (091)“.
 
