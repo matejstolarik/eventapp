@@ -33,3 +33,39 @@ Bez obľúbených žánrov dostala každá akcia sediaceho typu neutrálnych 40 
 - `npm test -- --reporter=dot` (časti 1–3), `npm run build`, `deploy-app` (číslo behu).
 - Počty z aktuálneho `events.json` (príkaz z 087) pre: (a) koncert + DJ, obľúbené Fuchs2 a Cross, bez žánrov; (b) koncert + DJ, bez miest a žánrov – pred a po zmene.
 - Snímka `docs/tasks/091/for-you-types-only.jpg` (prázdny stav pri „len typy“).
+
+## Report
+
+**2026-11-22, commit e74e0c8** (práca), report v nasledujúcom commite. **Hotovo.**
+
+### Čo je hotové
+1. **Skóre** (`web/src/core/search.ts`): nová `hasOnlyTypes(p)` (typ vybratý, žiadne obľúbené miesto ani žáner) → `forYouScore` = 0. S vybratými typmi a bez obľúbených žánrov je žánrová časť **20** (✦ len so sediacim typom v obľúbenom mieste: 20 + 20). Akcia bez žánrov pri používateľovi so žánrami ostáva 40; bez vybratých typov bez zmeny oproti 087.
+2. **Prázdne Pre teba pri „len typy“**: `forYouNeedsSetup` vracia `'none' | 'typesOnly' | null`; `EventsPage` ukáže tú istú kartu (080) s novým textom `prefs.forYouTypesOnly` (sk/cs/en zo zadania), tlačidlo Nastaviť → Preferencie akcií. Bez preferencií ostáva text 080.
+3. **Aspoň jeden typ**: onboarding – v kroku Typy sa „Preskočiť“ nezobrazuje, „Ďalej“ bez typu sa zatrasie (080, bez zmeny); preskočenie celého onboardingu na uvítaní ostáva. Preferencie akcií – `TypesPicker keepOne`: posledný vybratý typ sa nedá zrušiť (`canToggleTypeOff`), ťuk zatrasie kartou (~300 ms + vibrácia), výber ostane. Kultúra so zrušenými podtypmi ostáva vybratá (bez zmeny).
+4. `docs/design.md` 7c: blok „Zmena 2026-11-22 (Matej, úloha 091)“. `docs/decisions.md`: nový riadok 2026-11-22.
+
+### Rozhodnuté samostatne (detail v decisions.md 2026-11-22)
+1. Podtypy kultúry sa počítajú k typom → aj kultúra s podtypmi má pri „len typy“ skóre 0 (inak by ✦ nesedel s prázdnym stavom).
+2. Kultúrna časť skóre (podtyp 80, kultúra bez podtypov 40) bez zmeny – zadanie mení len žánrovú časť. Dôsledok: typ kultúra bez podtypov + obľúbené miesto → kultúrne akcie majú ✦ aj mimo obľúbených miest. Ak to má byť ako pri hudbe (20), je to jeden riadok.
+3. Pri poslednom type sa trasie karta toho typu (rovnaká animácia ako Ďalej v onboardingu). V onboardingu sa typy dajú odznačiť na 0 (Ďalej sa potom zatrasie).
+
+### Overenie
+- `npm test -- --reporter=dot`: **18 súborov, 296 testov passed** (nové: typy + miesta bez žánrov → ✦ len v obľúbených miestach; len typy → 0 vrátane kultúry s podtypmi; typy + žánre ako v 087; `forYouNeedsSetup` 'typesOnly'; posledný typ sa nedá zrušiť).
+- `npm run build`: OK.
+- `deploy-app`: beh **45029498250** (commit e74e0c8) – success; nasadený `assets/index-CXm2mBJP.js` obsahuje „Pridaj obľúbené žánre alebo miesta“.
+- Playwright `tests/playwright/screenshots-091.spec.ts` (2 testy passed, lokálny dev server, `events.json` z Pages): karta „len typy“ s novým textom; v Preferenciách po zrušení DJ sa koncert nedá zrušiť (`data-shake=1`, uložené `types: ["concert"]`); v onboardingu krok Typy bez „Preskočiť“, Ďalej bez typu sa trasie.
+- Pipeline sa nespúšťal (mení sa len appka).
+
+### Čísla
+`events.json` z Pages (`generated_at` 2026-11-22T14:16:04+01:00), stiahnutý do `site/events.json`, Kedykoľvek = 838 nadchádzajúcich. Príkaz (z `web/`, 2026-11-22 14:47): `npx vite-node scripts/for-you-091.ts ../site/events.json` (po); pred = rovnaký príkaz s druhým argumentom = kópia `search.ts` z 8354988 (`git show 8354988:web/src/core/search.ts > src/core/search_087tmp.ts`, potom zmazaná).
+
+| Preferencie | Pred (087) ✦✦ / ✦ / nič | Po (091) ✦✦ / ✦ / nič |
+|---|---|---|
+| (a) koncert + DJ, obľúbené Fuchs2 a Cross, bez žánrov | 0 / 560 / 278 (✦ mimo obľúbených miest 529) | 0 / **31** / 807 (✦ mimo obľúbených miest **0**) |
+| (b) koncert + DJ, bez miest a žánrov | 0 / 560 / 278 | 0 / **0** / 838 |
+
+### Snímky
+`docs/tasks/091/for-you-types-only.jpg` (390 × 844, JPEG 80; `tests/playwright/screenshots-091.spec.ts`, z `web/` s `NODE_PATH=web/node_modules`), na 1. pokus. Neprezeral som ju.
+
+### Otvorené
+- Bod 2 z rozhodnutí (kultúra bez podtypov + obľúbené miesto = ✦ všade) – potvrď alebo zmeň.
