@@ -880,11 +880,10 @@
       "commercial"
     ],
     "music": [
-      "metal",
-      "hard-techno",
-      "techno",
+      "pop",
+      "hip-hop",
       "rock",
-      "pop"
+      "electronic"
     ],
     "size": "arena",
     "capacity": 9000,
@@ -968,11 +967,11 @@
       "alternative"
     ],
     "music": [
-      "metal",
       "rock",
       "punk",
       "hardcore",
-      "post-punk"
+      "post-punk",
+      "metal"
     ],
     "size": "medium",
     "capacity": 500,
