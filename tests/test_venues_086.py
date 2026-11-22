@@ -236,3 +236,17 @@ def test_first_load_is_new():
     assert first_load.is_new(_ev("duplex", "2026-11-23"), "2026-11-22", today)
     assert first_load.is_new(_ev("roxy", "2026-11-20"), None, today)
     assert not first_load.is_new(_ev("roxy", "2026-11-16"), None, today)
+
+
+def test_first_load_pre_rule_venue_without_previous_events():
+    # Cross Club had no events in the previous events.json (2026-11-22)
+    state = {first_load.STATE_KEY: {"cross-club": "2026-11-22", "duplex": "2026-11-22"}}
+    fl = first_load.update(state, [_ev("cross-club", "2026-11-23")], {}, "2026-11-23")
+    assert fl["cross-club"] is None and fl["duplex"] == "2026-11-22"
+    fl = first_load.update({}, [_ev("cross-club", "2026-11-22")], {}, "2026-11-22")
+    assert fl["cross-club"] is None
+
+
+def test_duplex_page_status_not_checked():
+    from pipeline import detail_enrich
+    assert "duplex" in detail_enrich.STATUS_LIST_VENUES

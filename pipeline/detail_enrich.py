@@ -59,9 +59,12 @@ PRICE_RECHECK_DAYS = 7
 # for a cancellation / postponement mark (within NEW_DETAILS_PER_VENUE).
 # Venues whose listing (or ticket API) already carries the status every run
 # are not re-checked: Forum Karlín, Archa+, Akropolis (vstupne codes), Bike
-# Jesus (API, no event pages).
+# Jesus (API, no event pages).  Duplex (task 086): its JSON gives every
+# ticket's availability each run; the event page's JSON-LD has one offer per
+# ticket kind, and one sold-out VIP table must not mark the night sold out.
 STATUS_RECHECK_DAYS = 7
-STATUS_LIST_VENUES = frozenset({"forum-karlin", "archa-plus", "palac-akropolis", "bike-jesus"})
+STATUS_LIST_VENUES = frozenset({"forum-karlin", "archa-plus", "palac-akropolis", "bike-jesus",
+                                "duplex"})
 PAGE_TEXT_MAX = 6000
 
 _BLOCK_TAGS = ["p", "div", "br", "li", "tr", "td", "th", "h1", "h2", "h3", "h4",

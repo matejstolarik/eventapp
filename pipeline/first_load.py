@@ -28,6 +28,13 @@ BOOTSTRAP = {
 }
 
 
+# Venues in the app before task 085: never restricted.  Cross Club had no
+# events in the published events.json when the rule started (2026-11-22), so
+# the bootstrap from previous events missed it and recorded 2026-11-22.
+PRE_RULE = ("cross-club", "meetfactory", "kasarna-karlin", "citarna-unijazz", "fuchs2",
+            "bike-jesus", "palac-akropolis", "archa-plus", "forum-karlin", "roxy", "epic")
+
+
 def update(state: dict, events: list, previous: dict, today: str) -> dict:
     """Record today for venues loaded for the first time; returns the map."""
     first = state.get(STATE_KEY)
@@ -39,6 +46,8 @@ def update(state: dict, events: list, previous: dict, today: str) -> dict:
                 first[vid] = BOOTSTRAP.get(vid)
         for vid, day in BOOTSTRAP.items():
             first.setdefault(vid, day)
+    for vid in PRE_RULE:
+        first[vid] = None
     for ev in events:
         vid = ev.get("venue_id")
         if vid and vid not in first:
