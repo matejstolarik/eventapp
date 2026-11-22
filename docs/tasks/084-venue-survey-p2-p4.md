@@ -9,7 +9,7 @@ Zadal: hlavný chat (Matej), 2026-11-20. **Spustiť až po adaptéroch podnikov 
 - **Kino Aero** – kinoaero.cz (v 008 JSON-LD, 32 akcií/týždeň). Zmeraj: koľko premietaní denne a za 180 dní, koľko unikátnych filmov, či sa dajú rozlíšiť špeciálne akcie (premiéry, diskusie, festivaly, koncerty) od bežných premietaní. Matej sa bojí zahltenia – rozhodne podľa čísel. V Exceli hárok **Kino Aero** – premietania za deň.
 
 ### Priorita 3 – skrátene (len body 1, 2, 6, 7, 8, 11, 12; bez detailov akcií a bez fixtures)
-Rock Café, Jazz Dock, Reduta Jazz Club, Café V Lese, Klub 007 Strahov, Ankali, Mecca, Malostranská beseda, Chapeau Rouge, Vagon.
+Rock Café, Jazz Dock, Reduta Jazz Club, ~~Café V Lese, Klub 007 Strahov~~, Ankali, Mecca, Malostranská beseda, Chapeau Rouge, Vagon. (**Café V Lese a 007 Strahov presunuté do úlohy 088** – Matej 2026-11-22.)
 
 ### Priorita 4 – len zistiť (body 1, 2, 7, 8)
 Rudolfinum, Obecní dům – Smetanova síň (klasická hudba – Matej rozhodne, či do appky patrí).
