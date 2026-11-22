@@ -54,3 +54,9 @@ Nikde nie je odkaz na RA. Všetky weby odpovedajú bez prehliadača (Café V Les
 - Obrázky miest som neotváral (CLAUDE.md); „fotka/logo“ je odhad z názvu a rozmerov.
 - Pri Kampuse som omylom stiahol ~30 strán zoznamu mesiacov (nie akcií) – spolu ~40 požiadaviek na kampushybernska.cz; pri Café V Lese ~10 zbytočných požiadaviek na `?paged=`. Inak do ~15 požiadaviek na podnik.
 - Rozhodnutia Mateja: čas 19:30 pri Café V Lese, kategórie Kampusu.
+
+### Doplnenie po spätnej väzbe Mateja (2026-11-22)
+- **OX Club – oprava: PRIDAŤ (parser).** Prvý prieskum bol chybný: statické karty v HTML `/program` sú len šablóna, ale skutočný program je v tom istom HTML ako base64 XML v inline skripte `dios_xml_akce`, z ktorého karty vykresľuje JS. Dekódované: **9 akcií** (22. 11. 2026 – 17. 4. 2027), polia `index`, `nazev`, `popis` (HTML), `datumakce` (`D.M.YYYY`), `mpic`/`mpic2`/`mpic3`, `nazevurl`, `djs`, `rezervace`, `neprodavat`. Overené proti webu: Diana Arbenina 22. 11., Private event 27. 11., Separ oficiální afterparty 28. 11., Earth – narozeniny 10. 12., NYE 31. 12., Maniak live 12. 2., Shrek rave 2. 4., Alena Omargalieva 10. 4., Sound of Ibiza 17. 4. Detail = `/shop/b<index>-<nazevurl>.htm` (napr. `/shop/b1088-SEPAR-OFICIALNI-AFTERPARTY.htm`). Obsahuje len ten istý popis, VIP ponuku a Eventlook, takže netreba. Čas je len v texte popisu pri 2/9 („Doors: 19:00 / Start: 20:00“), cena pri 1/9. „PRIVATE EVENT“ (`neprodavat`=1) vynechať. Plagát `mpic` 531×531 (štvorec), `mpic2` 437×776. Stačí 1 GET denne; vzorka `tests/fixtures/survey2/oxclub_program.html` + dekódovaná `oxclub_akce_decoded.xml`.
+- **Kampus Hybernská:** Matej chce **všetky** akcie (64 v čase prieskumu), bez filtra kategórií.
+- **Café V Lese:** čas 19:30 brať ako začiatok (Matej).
+- Zapísané v `docs/decisions.md` (2026-11-22) a v Exceli (riadky OX Club, Kampus, Café V Lese).
