@@ -54,3 +54,7 @@ Spoľahlivosť: **oficiálny** = web podniku, prevádzkovateľa, provozní řád
 | Sportovní hala Fortuna | 5 500 sedenie + 3 500 státie | web (083) |
 | Duplex | „over 2000“ | web (083) |
 | Kongresové centrum, Kongresový sál | 2 764 | web (083) |
+| Café V Lese | 200 | Matej 2026-11-22 |
+| OX Club Prague | 1200 | Matej 2026-11-22 (tretie strany 1000/1200) |
+| Kampus Hybernská | 150 | Matej 2026-11-22 |
+| Karlovy Lázně | 1000 | Matej 2026-11-20 |

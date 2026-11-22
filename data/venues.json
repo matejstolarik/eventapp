@@ -1011,6 +1011,7 @@
       "commercial",
       "late-night"
     ],
+    "commercial_club": true,
     "music": [
       "pop",
       "oldies",
@@ -1070,7 +1071,7 @@
       "rock"
     ],
     "size": "small",
-    "capacity": null,
+    "capacity": 200,
     "features": [],
     "description": null,
     "description_url": null,
@@ -1110,7 +1111,7 @@
     "lng": 14.392565,
     "web": "https://klub007strahov.cz",
     "ra_url": null,
-    "instagram": null,
+    "instagram": "klub007strahov",
     "facebook": null,
     "type": [
       "concert-club"
@@ -1182,7 +1183,7 @@
       "rock"
     ],
     "size": "large",
-    "capacity": null,
+    "capacity": 1200,
     "features": [],
     "description": null,
     "description_url": null,
@@ -1229,7 +1230,7 @@
       "world"
     ],
     "size": "small",
-    "capacity": null,
+    "capacity": 150,
     "features": [],
     "description": null,
     "description_url": null,
