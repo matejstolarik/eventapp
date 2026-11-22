@@ -176,7 +176,8 @@ export function OnboardingPage({ data, lang, onClose }: Props) {
           }} />
         ))}
       </div>
-      <button data-testid="onb-step-skip" style={textBtn} onClick={() => go(nextOf(step), 1)}>{t.skip}</button>
+      {/* Task 091: a type is required – no Skip on the Types step (Next shakes without a pick) */}
+      {step !== 'types' && <button data-testid="onb-step-skip" style={textBtn} onClick={() => go(nextOf(step), 1)}>{t.skip}</button>}
     </div>
   )
   const footer = (label: string, onClick: () => void, testId: string, shakeN = 0) => (

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { preferenceGenres, togglePrefGenre, togglePrefType, hasMusicType, stepHasPick, PREF_SECTION_ORDER, forYouNeedsSetup } from './preferences'
+import { preferenceGenres, togglePrefGenre, togglePrefType, hasMusicType, stepHasPick, PREF_SECTION_ORDER, forYouNeedsSetup, canToggleTypeOff } from './preferences'
 import { shouldShowOnboarding, parsePreferences, EMPTY_PREFERENCES, MAX_PREF_GENRES } from './store'
 import type { Event } from './types'
 
@@ -68,8 +68,19 @@ describe('task 080', () => {
     expect([...PREF_SECTION_ORDER]).toEqual(['types', 'genres', 'places'])
   })
   it('Pre teba without preferences = empty list with the set-up message', () => {
-    expect(forYouNeedsSetup(true, false)).toBe(true)
-    expect(forYouNeedsSetup(true, true)).toBe(false)
-    expect(forYouNeedsSetup(false, false)).toBe(false)
+    expect(forYouNeedsSetup(true, false)).toBe('none')
+    expect(forYouNeedsSetup(true, true)).toBe(null)
+    expect(forYouNeedsSetup(false, false)).toBe(null)
+    // Task 091: only types → its own prompt
+    expect(forYouNeedsSetup(true, true, true)).toBe('typesOnly')
+    expect(forYouNeedsSetup(false, true, true)).toBe(null)
+  })
+
+  it('task 091: the last selected type cannot be removed', () => {
+    const base = { types: [], subtypes: [], genres: [] } as unknown as Parameters<typeof canToggleTypeOff>[0]
+    expect(canToggleTypeOff({ ...base, types: ['dj'] }, 'dj')).toBe(false)
+    expect(canToggleTypeOff({ ...base, types: ['dj'] }, 'concert')).toBe(true)
+    expect(canToggleTypeOff({ ...base, types: ['dj', 'concert'] }, 'dj')).toBe(true)
+    expect(canToggleTypeOff({ ...base, types: ['culture'], subtypes: [] }, 'culture')).toBe(false)
   })
 })

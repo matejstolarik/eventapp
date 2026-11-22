@@ -160,6 +160,7 @@ export const en = {
     back: "Back",
     searchPlace: "Search places",
     forYouEmpty: "Set what you're into and we'll mark events for you ✦",
+    forYouTypesOnly: "Add favourite genres or places and we'll mark events you'll enjoy ✦",
     forYouEmptyButton: "Set up",
   },
   update: { available: 'A new version is available', button: 'Update', close: 'Close' },

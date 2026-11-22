@@ -37,6 +37,11 @@ export function hasAnyPrefs(p: ForYouPrefs): boolean {
   return p.favorites.size > 0 || p.types.length > 0 || p.subtypes.length > 0 || p.genres.length > 0
 }
 
+/** Task 091: only types (and culture subtypes) selected, no favourite venue and no genre. */
+export function hasOnlyTypes(p: ForYouPrefs): boolean {
+  return p.types.length > 0 && p.favorites.size === 0 && p.genres.length === 0
+}
+
 /** Music genres of an event that the score counts: genres with at least one
  * umbrella offered as a genre chip (culture-only genres like `horror` are left out). */
 function scoredGenres(event: Event): string[] {
@@ -52,9 +57,12 @@ function scoredGenres(event: Event): string[] {
  *   → 50 + 30 × matched / all event genres; none matched → 0;
  *   event without genres or user without liked genres → neutral 40, but only when the
  *   type matched positively (selected types) or, without selected types, the venue is a favourite;
+ *   task 091: with selected types, a user without liked genres gets 20 (not 40), so a type alone
+ *   is not ✦ (✦ = matching type + favourite venue);
+ * - only types (no favourite venue, no genre) → 0 (task 091; drops the 087 exception);
  * - favourite venue +20; capped at 100. */
 export function forYouScore(event: Event, p: ForYouPrefs): number {
-  if (!hasAnyPrefs(p)) return 0
+  if (!hasAnyPrefs(p) || hasOnlyTypes(p)) return 0
   const fav = p.favorites.has(event.venue_id)
   const bonus = fav ? 20 : 0
   let base: number
@@ -70,16 +78,18 @@ export function forYouScore(event: Event, p: ForYouPrefs): number {
       }
       return Math.min(100, base + bonus)
     }
-    base = genrePoints(event, p, true)
+    base = genrePoints(event, p, true, 20)
   } else {
-    base = genrePoints(event, p, fav)
+    base = genrePoints(event, p, fav, 40)
   }
   return Math.min(100, base + bonus)
 }
 
-function genrePoints(event: Event, p: ForYouPrefs, neutralAllowed: boolean): number {
+function genrePoints(event: Event, p: ForYouPrefs, neutralAllowed: boolean, noUserGenres: number): number {
   const genres = scoredGenres(event)
-  if (p.genres.length === 0 || genres.length === 0) return neutralAllowed ? 40 : 0
+  if (!neutralAllowed) { if (p.genres.length === 0 || genres.length === 0) return 0 }
+  else if (p.genres.length === 0) return noUserGenres
+  else if (genres.length === 0) return 40
   const matched = genres.filter(g => eventUmbrellas({ genres: [g] }).some(u => p.genres.includes(u))).length
   if (matched === 0) return 0
   return Math.round(50 + 30 * matched / genres.length)

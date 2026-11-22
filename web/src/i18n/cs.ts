@@ -158,6 +158,7 @@ export const cs = {
     back: "Zpět",
     searchPlace: "Hledat místo",
     forYouEmpty: "Nastav si, co tě baví, a označíme ti akce ✦",
+    forYouTypesOnly: "Přidej oblíbené žánry nebo místa a označíme ti akce, které tě budou bavit ✦",
     forYouEmptyButton: "Nastavit",
   },
   update: { available: 'Je dostupná nová verze', button: 'Aktualizovat', close: 'Zavřít' },

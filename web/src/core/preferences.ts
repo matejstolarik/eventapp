@@ -49,7 +49,16 @@ export function stepHasPick(step: PickStep, p: Preferences, favorites: Set<strin
 /** Task 080: section order on the Event preferences page (places last, the longest). */
 export const PREF_SECTION_ORDER = ['types', 'genres', 'places'] as const
 
-/** Task 080: Pre teba is on but there are no preferences → empty list with the set-up message. */
-export function forYouNeedsSetup(forYouActive: boolean, hasPrefs: boolean): boolean {
-  return forYouActive && !hasPrefs
+/** Task 080: Pre teba is on but there are no preferences → empty list with the set-up message.
+ * Task 091: also with only types (no favourite venue, no genre) → 'typesOnly' (its own text). */
+export type ForYouSetup = 'none' | 'typesOnly' | null
+export function forYouNeedsSetup(forYouActive: boolean, hasPrefs: boolean, onlyTypes = false): ForYouSetup {
+  if (!forYouActive) return null
+  if (!hasPrefs) return 'none'
+  return onlyTypes ? 'typesOnly' : null
+}
+
+/** Task 091: once at least one type is selected, the last one cannot be removed (Event preferences). */
+export function canToggleTypeOff(p: Preferences, t: FilterType): boolean {
+  return !(p.types.length === 1 && p.types[0] === t)
 }

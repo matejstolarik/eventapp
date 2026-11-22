@@ -5,7 +5,7 @@ import { typeIconSvg } from '../map/markers'
 import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK, CULTURE_SUBTYPES, subtypeIconKey, type EventIconKey } from '../core/eventType'
 import type { FilterType } from '../core/filter'
 import { MAX_PREF_GENRES, toggleFavorite, type Preferences } from '../core/store'
-import { togglePrefType, togglePrefSubtype, togglePrefGenre } from '../core/preferences'
+import { togglePrefType, togglePrefSubtype, togglePrefGenre, canToggleTypeOff } from '../core/preferences'
 import { normalizeText } from '../core/search'
 import { IconHeart } from '../icons'
 import { heartPop } from '../core/motion'
@@ -110,23 +110,39 @@ export function reducedMotion(): boolean {
   try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches } catch { return false }
 }
 
-/** Type cards one under another; culture expands its subtype chips (~250 ms). */
-export function TypesPicker({ lang, prefs, onChange }: { lang: Language; prefs: Preferences; onChange: (p: Preferences) => void }) {
+/** Type cards one under another; culture expands its subtype chips (~250 ms).
+ * keepOne (Event preferences, task 091): the last selected type cannot be removed –
+ * a tap on it shakes the card (like Next in the onboarding, task 080) and keeps it. */
+export function TypesPicker({ lang, prefs, onChange, keepOne = false }: { lang: Language; prefs: Preferences; onChange: (p: Preferences) => void; keepOne?: boolean }) {
   const t = getDict(lang).filter
   const [reduced] = useState(reducedMotion)
+  const [shake, setShake] = useState<{ type: FilterType; n: number } | null>(null)
+  function tap(type: FilterType) {
+    if (keepOne && !canToggleTypeOff(prefs, type)) {
+      setShake(s => ({ type, n: (s?.type === type ? s.n : 0) + 1 }))
+      try { navigator.vibrate?.(30) } catch { /* not supported */ }
+      return
+    }
+    setShake(null)
+    onChange(togglePrefType(prefs, type))
+  }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <style>{`@keyframes prefShake { 0%, 100% { transform: translateZ(0) } 20% { transform: translateX(-8px) } 40% { transform: translateX(7px) } 60% { transform: translateX(-5px) } 80% { transform: translateX(3px) } }`}</style>
       {PREF_TYPE_ORDER.map(type => {
         const on = prefs.types.includes(type)
         const culture = type === 'culture'
+        const shakeN = shake?.type === type ? shake.n : 0
         return (
-          <div key={type} data-testid={`pref-type-${type}`} data-on={on || undefined} style={{
+          <div key={shakeN > 0 ? `${type}-${shakeN}` : type} data-testid={`pref-type-${type}`} data-on={on || undefined}
+            data-shake={shakeN > 0 ? shakeN : undefined} style={{
+            animation: shakeN > 0 && !reduced ? 'prefShake 300ms ease-in-out' : undefined,
             // Task 080: the outline is an inset ring on the card's own layer (no 1.5 px
             // border), so a deselected card repaints fully, without a pink remnant.
             borderRadius: 16, background: '#1C1C27', boxShadow: `inset 0 0 0 1.5px ${on ? PINK : '#2E2D3C'}`,
             transform: 'translateZ(0)', overflow: 'hidden',
           }}>
-            <button aria-pressed={on} onClick={() => onChange(togglePrefType(prefs, type))} style={{
+            <button aria-pressed={on} onClick={() => tap(type)} style={{
               width: '100%', display: 'flex', alignItems: culture ? 'center' : 'flex-start', gap: 12, padding: '12px 14px',
               border: 0, background: 'transparent', color: '#F4F2FF', textAlign: 'left', cursor: 'pointer',
               fontFamily: "'Outfit', sans-serif", WebkitTapHighlightColor: 'transparent', outline: 'none',

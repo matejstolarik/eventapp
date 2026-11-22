@@ -69,7 +69,7 @@ export function PreferencesPage({ data, lang, onBack }: Props) {
             {sec === 'types' && (
               <section data-testid="pref-section-types" style={sectionStyle}>
                 <SectionTitle title={t.typesTitle} sub={t.typesSub} />
-                <TypesPicker lang={lang} prefs={prefs} onChange={change} />
+                <TypesPicker lang={lang} prefs={prefs} onChange={change} keepOne />
               </section>
             )}
             {sec === 'genres' && showGenres && (

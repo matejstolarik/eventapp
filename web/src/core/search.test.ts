@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeText, matchesSearch, isForYou, isNew, hasAnyPrefs, forYouScore, forYouTier, FOR_YOU_TIER_NAME, type ForYouPrefs } from './search'
+import { normalizeText, matchesSearch, isForYou, isNew, hasAnyPrefs, hasOnlyTypes, forYouScore, forYouTier, FOR_YOU_TIER_NAME, type ForYouPrefs } from './search'
 import { isSingleDayPeriod, sortAfterForYouToggle, sortEvents } from './period'
 import type { Event, Venue } from './types'
 
@@ -134,16 +134,34 @@ describe('forYouScore (task 087, model D)', () => {
     expect(forYouScore(dj({ venue_id: 'cross-club' }), p)).toBe(60)
   })
 
-  it('user without liked genres: 40 with a matching type', () => {
-    expect(forYouScore(dj({ genres: ['techno'] }), P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(40)
-    expect(forYouScore(dj({ venue_id: 'x', genres: ['techno'] }), P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(60)
+  it('user without liked genres (task 091): genre part 20, ✦ only in a favourite venue', () => {
+    const p = P({ types: ['concert', 'dj'], favorites: new Set(['x']) })
+    expect(forYouScore(dj({ genres: ['techno'] }), p)).toBe(20)
+    expect(forYouScore(dj({ venue_id: 'x', genres: ['techno'] }), p)).toBe(40)
+    expect(forYouScore(concert({}), p)).toBe(20)
+    expect(forYouScore(concert({ venue_id: 'x' }), p)).toBe(40)
+    expect(forYouTier(forYouScore(dj({ genres: ['techno'] }), p))).toBe(0)
+    expect(forYouTier(forYouScore(dj({ venue_id: 'x', genres: ['techno'] }), p))).toBe(1)
+    expect(forYouScore(concert({ venue_id: 'x' }), P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(0)
   })
 
-  it('only types (no venues, no genres): matching type 40', () => {
+  it('only types (no venues, no genres, task 091): 0', () => {
     const p = P({ types: ['concert', 'dj', 'party'] })
-    expect(forYouScore(dj({ genres: ['techno'] }), p)).toBe(40)
-    expect(forYouScore(concert({ genres: ['rock'] }), p)).toBe(40)
-    expect(forYouScore(culture('film'), p)).toBe(0)
+    expect(hasOnlyTypes(p)).toBe(true)
+    expect(forYouScore(dj({ genres: ['techno'] }), p)).toBe(0)
+    expect(forYouScore(concert({ genres: ['rock'] }), p)).toBe(0)
+    expect(forYouScore(concert(), p)).toBe(0)
+    expect(forYouScore(culture('film'), P({ types: ['culture'], subtypes: ['film'] }))).toBe(0)
+    expect(hasOnlyTypes(P({ types: ['dj'], genres: ['techno'] }))).toBe(false)
+    expect(hasOnlyTypes(P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(false)
+    expect(hasOnlyTypes(P())).toBe(false)
+  })
+
+  it('types + genres unchanged (task 091): event without genres 40, no match 0', () => {
+    const p = P({ types: ['concert', 'dj'], genres: ['techno'] })
+    expect(forYouScore(dj({}), p)).toBe(40)
+    expect(forYouScore(dj({ genres: ['techno'] }), p)).toBe(80)
+    expect(forYouScore(dj({ genres: ['jazz'] }), p)).toBe(0)
   })
 
   it('no preferences at all: 0', () => {

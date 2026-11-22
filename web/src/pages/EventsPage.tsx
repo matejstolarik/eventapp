@@ -4,7 +4,7 @@ import { getDict } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
 import { getEventsForPeriod, sortEvents, sortAfterForYouToggle, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
-import { matchesSearch, isForYou, isNew, hasAnyPrefs, forYouScore, forYouTier } from '../core/search'
+import { matchesSearch, isForYou, isNew, hasAnyPrefs, hasOnlyTypes, forYouScore, forYouTier } from '../core/search'
 import { useForYouPrefs } from '../core/useForYouPrefs'
 import { ForYouSetupCard } from '../components/ForYouSetupCard'
 import { forYouNeedsSetup } from '../core/preferences'
@@ -152,7 +152,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const favorites = useForYouPrefs()
   const hasFavorites = hasAnyPrefs(favorites)
   // Task 080: Pre teba switches on even without preferences; the list then shows the set-up card
-  const forYouSetup = forYouNeedsSetup(forYouActive, hasFavorites)
+  const forYouSetup = forYouNeedsSetup(forYouActive, hasFavorites, hasOnlyTypes(favorites))
 
   const venueMap = useMemo(() => {
     const m = new Map<string, (typeof data.venues)[0]>()
@@ -544,7 +544,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       {/* Grid or empty state */}
       {forYouSetup ? (
         <div style={{ minHeight: 'calc(100dvh - 330px)', display: 'flex', alignItems: 'center', padding: '24px 16px 112px', boxSizing: 'border-box' }}>
-          <ForYouSetupCard text={dict.prefs.forYouEmpty} button={dict.prefs.forYouEmptyButton} onSetUp={() => onOpenPreferences?.()} />
+          <ForYouSetupCard text={forYouSetup === 'typesOnly' ? dict.prefs.forYouTypesOnly : dict.prefs.forYouEmpty} button={dict.prefs.forYouEmptyButton} onSetUp={() => onOpenPreferences?.()} />
         </div>
       ) : filterEmpty ? (
         isVisible !== false && !showFilterSheet ? (
