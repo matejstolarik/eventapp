@@ -1270,6 +1270,7 @@
       "commercial",
       "late-night"
     ],
+    "commercial_club": true,
     "music": [
       "pop",
       "hip-hop",
@@ -1300,7 +1301,7 @@
       }
     ],
     "active": true,
-    "notes": "Task 090. Kapacita 300 (Matej). Adresa z elmagico.cz (kolej Vltava), súradnice OSM (El Mágico, nightclub). Otváracie hodiny z pätičky webu (Út 17–2:30, St 17–3:30, Čt 17–2:30, Pá–So 17–5). HTML = 2 najbližšie akcie; celý mesiac z mesačného plagátu (zdroj poster, čítanie DeepSeek). Obrázok miesta = fotka 1000×667 z galérie úvodu (083). Štítky = návrh 090.",
+    "notes": "Task 090. Kapacita 300 (Matej). Adresa z elmagico.cz (kolej Vltava), súradnice OSM (El Mágico, nightclub). Otváracie hodiny z pätičky webu (Út 17–2:30, St 17–3:30, Čt 17–2:30, Pá–So 17–5). HTML = 2 najbližšie akcie; celý mesiac z mesačného plagátu (zdroj poster, čítanie DeepSeek). Obrázok miesta = fotka 1000×667 z galérie úvodu (083). Štítky a commercial_club schválil Matej 2026-11-22 (090).",
     "closing": {
       "tue": "02:30",
       "wed": "03:30",

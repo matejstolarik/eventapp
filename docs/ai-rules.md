@@ -37,7 +37,7 @@ Schválené Matejom 2026-11-17 (z rozhodnutí po úlohách 052–054 a z označe
 2. Štruktúra `price {min, max, currency, kind}`; zobrazenie podľa jazyka appky bez ďalšieho textu: `350 Kč` · rozpätie `250–350 Kč` (zľavnená, predpredaj/na mieste, BASIC/VIP) · `od 950 Kč` · `20 €` · Zdarma · Dobrovoľné vstupné · Zdarma, rezervácia.
 
 ## E. Čas
-Len výslovne uvedený pri akcii; inak prázdny. Nikdy neodhadovať.
+Len výslovne uvedený pri akcii; inak prázdny. Nikdy neodhadovať. **(2026-11-22, Matej, task 090)** Happy hour, akcia na drinky alebo otváracie hodiny („happy hour od 17:00 do 22:00“) nie sú čas začiatku – spomenú sa v popise.
 
 ## F. Popis
 Približne 5 viet; dĺžka podľa interpreta: pri veľkej hviezde môže byť dlhší, pri undergroundovom interpretovi s málom informácií kratší (2026-11-17, Matej). Vecne a do hĺbky (kto, odkiaľ, čím je známy, čo vydal, čo je na večeri zvláštne), **bez reklamných fráz a pátosu**, bez výkričníkov a emoji, cena, čas a miesto môžu byť spomenuté v kontexte, ak nie sú jedinou informáciou a popis sa okolo nich netočí (2026-11-17, Matej; bez poistky, nejde na kontrolu). Žánre ako názvy („techno“, nie „technové“). Len fakty zo zdrojov; z pôvodného textu fakty, nie vety. CZ hlavný, SK a EN preklad. Vzor: popis Allt v úlohe 054 časť 4b.

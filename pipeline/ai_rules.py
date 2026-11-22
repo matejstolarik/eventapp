@@ -123,7 +123,8 @@ sources. Copy it as written ("BASIC 290 Kč / VIP 500 Kč", "od 950 Kč", "zdarm
 Otherwise null. Ticket shops (GoOut, Ticketmaster, smsticket …) and public Facebook \
 events are fine; Instagram and ra.co never.
 START TIME: HH:MM only if explicitly stated for this event, with source_url; never \
-estimate."""
+estimate. A happy hour, drink deal or opening / kitchen hours ("happy hour od 17:00 do \
+22:00") is NOT the start time: mention it in the description instead."""
 
 # docs/ai-rules.md F + approved example (task 054 part 4b)
 DESCRIPTION_EXAMPLE = (
