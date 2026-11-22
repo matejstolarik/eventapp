@@ -991,5 +991,262 @@
     "active": true,
     "notes": "Kapacita do 500 (cz.mticket.eu – sekundárny zdroj; Matej môže opraviť). Adresa z futurum.musicbar.cz/kontakty/, súradnice OSM (Futurum, nightclub). IG futurummusicbar (odkaz na webe). Obrázok miesta = fotka interiéru 2048×1365 (galéria Interiér klubu; og:image kontaktov je 404). Sesterský web Lucerna Music Bar, ale iná šablóna – vlastný adaptér; akcie presunuté do Lucerny sa preskočia. Otváracie hodiny: CZ „v popise jednotlivé akce“, EN „Club: 20-01“ → closing null (Matej doplní). Štítky = návrh 086.",
     "closing": null
+  },
+  {
+    "id": "karlovy-lazne",
+    "name": "Karlovy Lázně",
+    "city": "Praha",
+    "address": "Smetanovo nábřeží 198/1, Praha 1",
+    "lat": 50.0853954,
+    "lng": 14.4138645,
+    "web": "https://www.karlovylazne.cz",
+    "ra_url": null,
+    "instagram": "karlovylazne",
+    "facebook": null,
+    "type": [
+      "dance-club"
+    ],
+    "character": [
+      "tourist",
+      "commercial",
+      "late-night"
+    ],
+    "music": [
+      "pop",
+      "oldies",
+      "latin",
+      "edm"
+    ],
+    "size": "medium",
+    "capacity": 1000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.karlovylazne.cz/files/dsc-0033.jpg",
+    "image_source": "https://www.karlovylazne.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "karlovylazne",
+        "url": "https://www.karlovylazne.cz/events",
+        "max_requests": 15,
+        "timeout_secs": 120
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita 1000 (Matej 2026-11-20); 1000 = hranica medium/large, size medium ako Lucerna Music Bar (085). Adresa a otváracie hodiny z karlovylazne.cz/contacts (Sun–Thurs 22–4, Fri–Sat 22–5), súradnice OSM (Karlovy lázně, nightclub). Jeden podnik – 5 poschodí len v popise akcie. Výpis = noci aktuálneho týždňa + NYE; opakované turistické noci sa pridávajú (Matej 2026-11-20). Obrázok miesta = og:image úvodu 2048×1363 (083). Štítky = návrh 089.",
+    "closing": {
+      "sun": "04:00",
+      "mon": "04:00",
+      "tue": "04:00",
+      "wed": "04:00",
+      "thu": "04:00",
+      "fri": "05:00",
+      "sat": "05:00"
+    }
+  },
+  {
+    "id": "cafe-v-lese",
+    "name": "Café V Lese",
+    "city": "Praha",
+    "address": "Krymská 12, Praha 10",
+    "lat": 50.0713892,
+    "lng": 14.4483834,
+    "web": "https://cafevlese.cz",
+    "ra_url": null,
+    "instagram": "cafevlese",
+    "facebook": null,
+    "type": [
+      "concert-club",
+      "bar"
+    ],
+    "character": [
+      "alternative"
+    ],
+    "music": [
+      "indie",
+      "punk",
+      "post-punk",
+      "rock"
+    ],
+    "size": "small",
+    "capacity": null,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://cafevlese.cz/wp-content/uploads/2022/05/1.jpg",
+    "image_source": "https://cafevlese.cz",
+    "sources": [
+      {
+        "type": "jsonld",
+        "strategy": "mec_ajax",
+        "url": "https://cafevlese.cz/",
+        "ajax_url": "https://cafevlese.cz/wp-admin/admin-ajax.php",
+        "atts_from_page": true,
+        "ld_local_time": true,
+        "months_ahead": 6,
+        "max_requests": 10,
+        "timeout_secs": 180
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita nezistená (web: „koncerty jsou na stání“) → null; size small = návrh. Adresa a otváracie hodiny z cafevlese.cz/kontakt/ (PO–SO 16–02, NE 16–00), súradnice OSM (Café v lese, bar). Zdroj: plugin MEC ako Čitárna, kalendár bez číselného skin id → atts zo stránky (088). Čas 19:30 z JSON-LD (zóna +00:00 chybná, berie sa miestna časť) – Matej 2026-11-22: brať ako začiatok. Cena „0 USD“ v JSON-LD sa ignoruje. Obrázok miesta = prvá fotka galérie na titulke 1920×1440 (og:image chýba; neprezerané – Matej môže vymeniť). Štítky = návrh 089.",
+    "closing": {
+      "mon": "02:00",
+      "tue": "02:00",
+      "wed": "02:00",
+      "thu": "02:00",
+      "fri": "02:00",
+      "sat": "02:00",
+      "sun": "00:00"
+    }
+  },
+  {
+    "id": "klub-007-strahov",
+    "name": "Klub 007 Strahov",
+    "city": "Praha",
+    "address": "Chaloupeckého 1903/6 (koleje Strahov, blok 7), Praha 6",
+    "lat": 50.0809467,
+    "lng": 14.392565,
+    "web": "https://klub007strahov.cz",
+    "ra_url": null,
+    "instagram": null,
+    "facebook": null,
+    "type": [
+      "concert-club"
+    ],
+    "character": [
+      "underground",
+      "diy",
+      "student",
+      "alternative"
+    ],
+    "music": [
+      "punk",
+      "hardcore",
+      "metal",
+      "ska",
+      "rock"
+    ],
+    "size": "small",
+    "capacity": 180,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://klub007strahov.cz/wp-content/uploads/2020/04/fb.jpg",
+    "image_source": "https://klub007strahov.cz",
+    "sources": [
+      {
+        "type": "jsonld",
+        "strategy": "eventon",
+        "url": "https://klub007strahov.cz/",
+        "max_requests": 2,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita 180 osôb, ~35 sedení (klub007strahov.cz/informace/). Adresa z /kontakt/, súradnice OSM (Klub 007 Strahov, nightclub). Otvorené len v dni koncertov: Ne–Čt 19–24, Pá–So 19–01; koniec živej hudby 22:00 (= end_time akcií). IG nezistený (ikona vedie na príspevok, nie profil). Zdroj: JSON-LD EventON na titulke, dátumy nie sú platné ISO (2026-12-3T19:00+1:00) – tolerantný parser. Podtitul (žáner) → sources[].section. Obrázok miesta = og:image 1200×630 (FB grafika – Matej môže vymeniť). Štítky = návrh 089.",
+    "closing": {
+      "sun": "00:00",
+      "mon": "00:00",
+      "tue": "00:00",
+      "wed": "00:00",
+      "thu": "00:00",
+      "fri": "01:00",
+      "sat": "01:00"
+    }
+  },
+  {
+    "id": "ox-club",
+    "name": "OX Club Prague",
+    "city": "Praha",
+    "address": "Francouzská 75/4, Praha 2",
+    "lat": 50.0744673,
+    "lng": 14.4377735,
+    "web": "https://www.oxclubprague.com",
+    "ra_url": null,
+    "instagram": "oxclubprague",
+    "facebook": null,
+    "type": [
+      "dance-club",
+      "concert-club"
+    ],
+    "character": [
+      "commercial",
+      "late-night"
+    ],
+    "music": [
+      "pop",
+      "house",
+      "edm",
+      "rock"
+    ],
+    "size": "large",
+    "capacity": null,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.oxclubprague.com/ox_club/_assets/_img/img/ox-gallery--1.jpg",
+    "image_source": "https://www.oxclubprague.com",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "oxclub",
+        "url": "https://www.oxclubprague.com/program",
+        "max_requests": 2,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita na webe nie je → null (tretie strany 1000 kudyznudy.cz / 1200 prague.eu – rozhodne Matej); size large = návrh podľa nich. Adresa z /kontakt (pi–so 22:00–05:00), súradnice OSM (OX Club, nightclub). Program = base64 XML dios_xml_akce v /program (088); PRIVATE EVENT / neprodavat=1 sa vynecháva. Obrázok miesta z galérie 2048×1365. Štítky = návrh 089.",
+    "closing": {
+      "fri": "05:00",
+      "sat": "05:00"
+    }
+  },
+  {
+    "id": "kampus-hybernska",
+    "name": "Kampus Hybernská",
+    "city": "Praha",
+    "address": "Hybernská 998/4, Praha 1",
+    "lat": 50.0866894,
+    "lng": 14.4297518,
+    "web": "https://www.kampushybernska.cz",
+    "ra_url": null,
+    "instagram": "kampus.hybernska",
+    "facebook": null,
+    "type": [
+      "culture-center"
+    ],
+    "character": [
+      "community",
+      "student",
+      "art-space"
+    ],
+    "music": [
+      "jazz",
+      "experimental",
+      "world"
+    ],
+    "size": "small",
+    "capacity": null,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://cdn.prod.website-files.com/652963b377af103c54ec4b67/69e8a6734c099def7765338e_hyb4-thumbnail-01.png",
+    "image_source": "https://www.kampushybernska.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "kampus",
+        "url": "https://www.kampushybernska.cz/program",
+        "page_key": "9857990c",
+        "max_requests": 90,
+        "timeout_secs": 300
+      }
+    ],
+    "active": true,
+    "notes": "Kultúrne centrum UK, ~40 priestorov (budovy A–E) – jeden podnik, miestnosť ako room. Kapacita nezistená → null; size small = návrh (akcie väčšinou v menších sálach). Adresa z /kontakt, súradnice OSM (Kampus Hybernská). Všetky akcie bez filtra kategórií (Matej 2026-11-22); Druh akce → sources[].section. Program ~1 mesiac dopredu, stránkovanie ?9857990c_page=N. Obrázok miesta = og:image 2400×1260 (grafika hyb4 – Matej môže vymeniť). closing null (akcie majú vlastný čas konca). Štítky = návrh 089.",
+    "closing": null
   }
 ]

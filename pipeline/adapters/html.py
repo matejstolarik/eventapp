@@ -3,8 +3,9 @@
 import logging
 
 from pipeline.adapters import (html_akropolis, html_archa, html_epic, html_fortuna,
-                               html_forum_karlin, html_futurum, html_jazzrepublic, html_kcp,
-                               html_lucerna, html_o2, html_roxy, html_sasazu)
+                               html_forum_karlin, html_futurum, html_jazzrepublic, html_kampus,
+                               html_karlovylazne, html_kcp, html_lucerna, html_o2, html_oxclub,
+                               html_roxy, html_sasazu)
 
 log = logging.getLogger(__name__)
 
@@ -16,9 +17,12 @@ _STRATEGIES = {
     "forum_karlin": html_forum_karlin,
     "futurum": html_futurum,
     "jazzrepublic": html_jazzrepublic,
+    "kampus": html_kampus,
+    "karlovylazne": html_karlovylazne,
     "kcp": html_kcp,
     "lucerna": html_lucerna,
     "o2": html_o2,
+    "oxclub": html_oxclub,
     "roxy": html_roxy,
     "sasazu": html_sasazu,
 }

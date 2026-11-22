@@ -1448,6 +1448,8 @@ def enrich_events_ai(events: list[dict], venues: list[dict], previous: dict,
         state["ai_searches"] = counter
 
     month_limit = getattr(provider, "monthly_search_limit", MONTHLY_SEARCH_LIMIT)
+    if getattr(budget, "month_cap_ignored", False):
+        month_limit = 10 ** 9           # task 089: task run, month limit ignored (int: JSON)
     if todo:
         stats["provider"], stats["model"] = provider.name, provider.model
         lock = threading.Lock()

@@ -150,9 +150,26 @@ def daily_budget(state: dict, today: str, run_limit: float | None = None) -> "Bu
         run_limit = float(os.environ.get("DEEPSEEK_RUN_BUDGET_USD", "").strip() or RUN_BUDGET_USD)
     cost = state.get("ai_cost") or {}
     spent = float(cost.get("usd") or 0) if cost.get("month") == today[:7] else 0.0
-    b = Budget(round(max(0.0, min(run_limit, MONTH_BUDGET_USD - spent)), 4))
-    b.month_spent_before, b.run_limit = spent, run_limit
+    ignore = month_cap_ignored()
+    limit = run_limit if ignore else min(run_limit, MONTH_BUDGET_USD - spent)
+    b = Budget(round(max(0.0, limit), 4))
+    b.month_spent_before, b.run_limit, b.month_cap_ignored = spent, run_limit, ignore
+    if ignore:
+        log.info("DeepSeek: month limit ignored for this run (task run, month spent $%.4f)",
+                 spent)
     return b
+
+
+def month_cap_ignored(env=None) -> bool:
+    """Task 089 (Matej 2026-11-22): a run started from a task when venues are
+    added (workflow input ignore_monthly_cap -> DEEPSEEK_IGNORE_MONTHLY_CAP)
+    ignores the month limit (dollars and searches); the run limit still
+    applies and the spend is still added to the month.  Scheduled daily runs
+    (GITHUB_EVENT_NAME=schedule) always keep the month limit."""
+    env = os.environ if env is None else env
+    if (env.get("GITHUB_EVENT_NAME") or "").strip() == "schedule":
+        return False
+    return (env.get("DEEPSEEK_IGNORE_MONTHLY_CAP") or "").strip().lower() in ("1", "true", "yes")
 
 
 def record_spend(state: dict, today: str, budget: "Budget") -> dict:

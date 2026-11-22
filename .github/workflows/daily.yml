@@ -20,9 +20,14 @@ on:
         required: false
         default: ''
       ai_budget_usd:
-        description: 'DeepSeek budget of this run in USD (default 0.30; month limit 5 USD always applies)'
+        description: 'DeepSeek budget of this run in USD (default 0.30; month limit 5 USD applies unless ignore_monthly_cap)'
         required: false
         default: ''
+      ignore_monthly_cap:
+        description: 'Task run when venues are added (task 089): ignore the 5 USD month limit, keep ai_budget_usd (scheduled runs always keep it)'
+        required: false
+        type: boolean
+        default: false
       research_seed:
         description: 'One-off: research store file(s) in the repo merged into the stored research (task 065, e.g. docs/tasks/065/research-2026-11-run44172530495.json)'
         required: false
@@ -124,6 +129,7 @@ jobs:
           ENRICH_PROVIDER: deepseek
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_RUN_BUDGET_USD: ${{ inputs.ai_budget_usd }}
+          DEEPSEEK_IGNORE_MONTHLY_CAP: ${{ inputs.ignore_monthly_cap }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ENRICH_FORCE_IDS: ${{ inputs.reenrich_ids }}
           ENRICH_FORCE_DAYS: ${{ inputs.reenrich_days }}
