@@ -12,12 +12,15 @@ name: DeepSeek test (manual)
 # mode=redecide (task 062): decision + translation from the stored 061
 # research with the task 062 guards, no search.
 # mode=balance: account balance only (GET /user/balance, free).
+# mode=poster (task 090): read the November 2026 El Magico poster with the
+# vision input of deepseek-flash and compare it with the hand-made reference;
+# also saves the official Vision guide page.
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'docs | test | redecide (task 062) | balance'
+        description: 'docs | test | redecide (task 062) | balance | poster (task 090)'
         required: false
         default: 'test'
       test_ids:
@@ -50,7 +53,7 @@ jobs:
         run: |
           mkdir -p out
           UA="eventapp-docs-check/1.0 (personal project)"
-          for p in guides/search quick_start/pricing guides/json_mode guides/tool_calls \
+          for p in guides/search guides/vision quick_start/pricing guides/json_mode guides/tool_calls \
                    quick_start/rate_limit quick_start/error_codes api/deepseek-api news; do
             f="out/$(echo "$p" | tr / _).html"
             curl -sSL -m 30 -A "$UA" -o "$f" "https://api-docs.deepseek.com/$p/" \
@@ -84,7 +87,7 @@ jobs:
           cat out/balance_before.json >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/setup-python@v5
-        if: inputs.mode == 'test' || inputs.mode == 'redecide'
+        if: inputs.mode == 'test' || inputs.mode == 'redecide' || inputs.mode == 'poster'
         with:
           python-version: '3.12'
 
@@ -100,8 +103,19 @@ jobs:
           pip install -r requirements.txt
           python -m pipeline.deepseek_test ${{ inputs.mode == 'redecide' && 'redecide' || 'run' }}
 
+      - name: Poster test (task 090)
+        if: inputs.mode == 'poster'
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          curl -sSL -m 30 -A "eventapp-docs-check/1.0 (personal project)" -o out/guides_vision.html             https://api-docs.deepseek.com/guides/vision/ -w "vision %{http_code} %{size_download}
+" || echo "vision FAILED"
+          pip install -r requirements.txt
+          python -m pipeline.poster_read test docs/tasks/083/elmagico/program-listopad-2026-el-magico.jpg             docs/tasks/083/elmagico/poster-reference-listopad-2026.md out
+          cat out/poster_test.txt >> $GITHUB_STEP_SUMMARY
+
       - name: Balance after
-        if: always() && (inputs.mode == 'test' || inputs.mode == 'redecide')
+        if: always() && (inputs.mode == 'test' || inputs.mode == 'redecide' || inputs.mode == 'poster')
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |

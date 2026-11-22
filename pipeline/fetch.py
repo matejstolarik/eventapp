@@ -85,6 +85,27 @@ class Fetcher:
 
         return resp.text
 
+    def get_bytes(self, url: str, http_timeout: int = 60) -> bytes:
+        """Binary GET (task 090: poster image) with the same limits, robots
+        check and rate limit as get(); never uses the dev text cache."""
+        self._count += 1
+        if self._count > self.max_requests:
+            raise LimitExceeded(
+                f"max_requests={self.max_requests} reached after {self._count - 1} requests"
+            )
+        elapsed = time.monotonic() - self._start
+        if elapsed > self.timeout_secs:
+            raise LimitExceeded(
+                f"source timeout {self.timeout_secs}s exceeded at {elapsed:.0f}s"
+            )
+        if not _robots_allowed(url):
+            raise LimitExceeded(f"robots.txt disallows {url}")
+        _rate_limit(url)
+        _robots_apply_crawl_delay(url)
+        resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=http_timeout)
+        resp.raise_for_status()
+        return resp.content
+
     @property
     def request_count(self) -> int:
         return self._count
