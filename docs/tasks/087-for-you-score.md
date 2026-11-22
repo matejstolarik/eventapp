@@ -41,3 +41,48 @@
 - `npm test -- --reporter=dot` (príklady z časti 1 – model D, brána typu, bez žánrov, len typy, kultúra, stupne, prepínanie zoradenia pri čipe), `npm run build`, `deploy-app` (číslo behu).
 - Z aktuálneho `events.json` (lokálne, príkaz uveď) pri modelových preferenciách (DJ + Koncert; techno, punk, rock; obľúbené Fuchs2 a Cross Club): koľko akcií ✦✦, ✦, nič – spolu a pre obdobie Dnes; 10 akcií s najvyšším skóre (názov, miesto, žánre, skóre).
 - Snímky JPEG 390 × 844 do `docs/tasks/087/`: `events-for-you-best-match.jpg` (čip zapnutý, zoradenie Najlepšia zhoda, viditeľné ✦✦ aj ✦), `sort-menu-for-you.jpg` (ponuka zoradenia pri zapnutom čipe).
+
+## Report
+
+**2026-11-22, commit 8354988** (práca), report v nasledujúcom commite. **Hotovo.**
+
+### Čo je hotové
+- `web/src/core/search.ts`: `forYouScore(event, prefs)` 0–100 (brána typu, žánre bez poradia – model D, kultúra 80/40/0, obľúbené miesto +20, strop 100), `forYouTier` (2 = ✦✦ ≥ 75, 1 = ✦ 40–74, 0), interné názvy `FOR_YOU_TIER_NAME`; `isForYou` = skóre ≥ 40.
+- `web/src/core/period.ts`: `SortMode` + `'match'`, `sortEvents(..., scoreOf)` – skóre zostupne, pri rovnosti dátum/čas; čistá funkcia `sortAfterForYouToggle` (zapnutie → najlepšia zhoda + zapamätá predošlé; vypnutie → vráti predošlé, ak je stále najlepšia zhoda, inak ostane ručná voľba).
+- `EventRow.tsx` (`EventImage43`): `forYou` = stupeň 0/1/2; pri ✦✦ dve rovnaké iskry vedľa seba na tom istom mieste (atribút `data-foryou-tier`). Akcie aj karta na mape (`EventPanel`). Program miesta ✦ nemá ani dnes – bez zmeny.
+- `EventsPage.tsx`: položka „najlepšia zhoda“ v ponuke Zoradiť len pri zapnutom čipe; ťuk na čip prepína zoradenie; „Zrušiť filtre“ vypína čip rovnakou cestou. Počet „· N pre teba“ = ✦ + ✦✦ (cez `isForYou`). i18n: sk „najlepšia zhoda“, cs „nejlepší shoda“, en „best match“.
+- `docs/design.md` 4: blok „Zmena 2026-11-21 (Matej, úloha 087)“. `docs/decisions.md`: nový riadok 2026-11-22 (nahrádza „pre teba najprv nie“ z 2026-11-15).
+
+### Rozhodnuté samostatne (detail v decisions.md 2026-11-22)
+1. Neutrálnych 40 (akcia bez žánrov / používateľ bez žánrov) len pri pozitívne sediacom type; **bez vybratých typov len v obľúbenom mieste** – inak by používateľ bez typov mal ✦ na každej akcii bez žánrov; používateľ len s obľúbenými miestami má ✦ v nich ako doteraz. Zadanie to pre prípad bez typov priamo nehovorí („výpočet rovnaký“) – ak chceš 40 pre každú akciu bez žánrov aj bez typov, je to jeden riadok v `forYouScore`.
+2. Do počtu žánrov akcie len hudobné žánre (kultúrne `horror` a pod. nie).
+3. Uložené zapnuté Pre teba pri štarte → zoradenie najlepšia zhoda (predošlé = dátum); vrátená vzdialenosť pri viacdňovom období → dátum.
+4. Položka ponuky malými písmenami ako ostatné (073).
+
+### Overenie
+- `npm test -- --reporter=dot`: **18 súborov, 294 testov passed** (nové: príklady z časti 1 vrátane Divo 60/65/55 a 80/85/75, brána typu, bez žánrov, len typy, kultúra, bez typov, strop, stupne, prepínanie zoradenia, zoradenie podľa skóre).
+- `npm run build`: OK.
+- `deploy-app`: beh **45019390300** (commit 8354988) – success; nasadený `assets/index-DGSlFtUn.js` obsahuje „najlepšia zhoda“ a `data-foryou-tier`.
+- Pipeline sa nespúšťal (mení sa len appka).
+
+### Čísla (modelové preferencie: DJ + koncert; techno, punk, rock; obľúbené Fuchs2 a Cross Club)
+`events.json` z Pages (`generated_at` 2026-11-22T12:28:14+01:00, denný beh 45016644298), stiahnutý do `site/events.json`. Príkaz (z `web/`): `npx vite-node scripts/for-you-stats.ts ../site/events.json` (spustené 2026-11-22 12:46).
+- Kedykoľvek (688 nadchádzajúcich): **✦✦ 50, ✦ 139, nič 499**.
+- Dnes (10 akcií, zvyšné už skončili): **✦✦ 0, ✦ 2, nič 8**.
+- Top 10 (skóre | dátum | názov | miesto | žánre):
+  - 85 | 2026-11-28 | HARD RAVE & PSYTRANCE | Cross Club | hard-techno, psytrance
+  - 85 | 2026-11-28 | Nina Farrina INVITES Henning Baer ☆ Adamatron ☆ 3ever | Fuchs2 | techno, house
+  - 85 | 2026-12-03 | F2 LIVE: Dušan Vlk / Asthmaboy Again | Fuchs2 | hip-hop, punk
+  - 85 | 2026-12-31 | FLOA: Bert and Friends ★ Madhouse Express ★ Anna Vaverková | Fuchs2 | indie, post-punk
+  - 85 | 2026-12-31 | deBasement | Fuchs2 | electronic, punk
+  - 85 | 2027-03-20 | RFP CONCERTS & HEARTNOIZE present Fat Dog | Fuchs2 | punk, electronic
+  - 80 | 2026-11-24 | THE.SWITCH + KONTUA | Futurum Music Bar | rock
+  - 80 | 2026-11-29 | Čechomor Kooperativa tour – Proměny po 25. letech | O2 universum | rock
+  - 80 | 2026-11-29 | NERVY | ROXY | rock, pop-punk
+  - 80 | 2026-11-29 | Zebrahead / US, special guest: Punk Rock Factory / UK | Lucerna Music Bar | pop-punk, rock
+
+### Snímky
+`docs/tasks/087/events-for-you-best-match.jpg`, `docs/tasks/087/sort-menu-for-you.jpg` (390 × 844, JPEG 80; `tests/playwright/screenshots-087.spec.ts`, z `web/` s `NODE_PATH=web/node_modules`). Modelové preferencie, `events.json` z Pages zúžený na 2026-11-28 (vlastné obdobie sa neukladá, preto Kedykoľvek nad jedným dňom: 2 × ✦✦, 2 × ✦), čip zapnutý ťukom. Skript overuje, že zoradenie je „najlepšia zhoda“ a viditeľný je odznak ✦✦ aj ✦. Na 3. pokus (prvé dva zlyhali na chybách skriptu – klik na skrytý čip, neuložené vlastné obdobie). Neprezeral som ich.
+
+### Otvorené
+- Bod 1 z rozhodnutí (neutrálnych 40 bez vybratých typov) – potvrď alebo zmeň.
