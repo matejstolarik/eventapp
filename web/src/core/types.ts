@@ -27,6 +27,8 @@ export interface Venue {
   /** [width, height] of image_detail in px (task 082) */
   image_detail_size?: [number, number] | null
   closing: Record<string, string> | null
+  /** day of the venue's first programme load; its events from that day are not "new" (task 086) */
+  first_loaded?: string | null
   sources: VenueSource[]
   active: boolean
   notes?: string | null

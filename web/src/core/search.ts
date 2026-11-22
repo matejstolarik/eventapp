@@ -57,9 +57,12 @@ export function isForYou(event: Event, p: ForYouPrefs): boolean {
   return fav || genreMatch()
 }
 
-/** Is this event "new"? = first_seen within last 7 days (inclusive today) */
-export function isNew(event: Event, now: Date): boolean {
+/** Is this event "new"? = first_seen within last 7 days (inclusive today).
+ *  Task 086: events of the venue's first load (first_seen <= venue.first_loaded)
+ *  are never new — only events that appeared in later pipeline runs. */
+export function isNew(event: Event, now: Date, venue?: { first_loaded?: string | null } | null): boolean {
   if (!event.first_seen) return false
+  if (venue?.first_loaded && event.first_seen <= venue.first_loaded) return false
   const cutoff = new Date(now)
   cutoff.setDate(cutoff.getDate() - 6)
   cutoff.setHours(0, 0, 0, 0)

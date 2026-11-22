@@ -12,7 +12,7 @@ export const cs = {
     types: { concert: 'Koncert', party: 'Párty', dj: 'DJ', culture: 'Kultura' },
     typeHelpLabel: 'Co znamenají typy akcí',
     typeHelpClose: 'Zavřít',
-    typeHelp: { concert: 'Interpret nebo kapela hraje svou hudbu naživo.', dj: 'DJ pouští a mixuje skladby. Patří sem rave, techno, drum and bass nights, sound systems a podobně.', party: 'Velká klubová párty: tematické noci, hity 80. a 90. let, studentské a Erasmus párty.', culture: 'Film, divadlo, tanec, stand-up, přednášky a čtení, workshopy, vernisáže a kvízy.' },
+    typeHelp: { concert: 'Interpret nebo kapela hraje svou hudbu naživo.', dj: 'Večer postavený na DJ setech: rave, techno a drum and bass nights, sound systems a podobně.', party: 'Velká klubová párty: tematické noci, hity 80. a 90. let, studentské a Erasmus párty.', culture: 'Film, divadlo, tanec, stand-up, přednášky a čtení, workshopy, vernisáže a kvízy.' },
     typeHelpNote: 'Akce, které spojují více typů (třeba koncert a po něm DJ), řadíme podle jejich hlavního zaměření.',
     sizes: { small: 'Malé', medium: 'Střední', large: 'Velké' },
     free: 'zdarma',

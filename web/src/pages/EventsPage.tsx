@@ -188,9 +188,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const chipEvents = useMemo(() => {
     let evts = periodSearchEvents
     if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
-    if (isNewActive) evts = evts.filter(e => isNew(e, now))
+    if (isNewActive) evts = evts.filter(e => isNew(e, now, venueMap.get(e.venue_id)))
     return evts
-  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime()]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [periodSearchEvents, forYouActive, isNewActive, favorites, now.getTime(), venueMap]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filterActive = !isDefaultFilter(filter)
   const events = useMemo(() => {
@@ -381,7 +381,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
       let evts = getEventsForPeriod(data.events, { type: 'custom', from: d, to: d }, now)
       if (debouncedQuery.trim()) evts = evts.filter(e => matchesSearch(debouncedQuery, e, venueMap.get(e.venue_id)))
       if (forYouActive) evts = evts.filter(e => isForYou(e, favorites))
-      if (isNewActive) evts = evts.filter(e => isNew(e, now))
+      if (isNewActive) evts = evts.filter(e => isNew(e, now, venueMap.get(e.venue_id)))
       if (evts.some(e => matchesFilter(e, venueMap.get(e.venue_id), filter))) return d
     }
     return null
@@ -584,7 +584,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
                 now={now}
                 eager={idx < 6}
                 forYou={isForYou(event, favorites)}
-                isNew={isNew(event, now)}
+                isNew={isNew(event, now, venueMap.get(event.venue_id))}
                 animIn={animKey > 0 && idx < 8}
                 onClick={() => onEventOpen(event.id)}
               />

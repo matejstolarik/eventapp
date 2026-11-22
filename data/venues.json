@@ -768,5 +768,230 @@
       "sat": "00:00",
       "sun": "00:00"
     }
+  },
+  {
+    "id": "duplex",
+    "name": "Duplex",
+    "city": "Praha",
+    "address": "Václavské náměstí 21, Praha 1",
+    "lat": 50.0824067,
+    "lng": 14.4268404,
+    "web": "https://www.duplex.cz",
+    "ra_url": null,
+    "instagram": "duplexprague",
+    "facebook": null,
+    "type": [
+      "dance-club"
+    ],
+    "character": [
+      "commercial",
+      "tourist",
+      "student",
+      "late-night"
+    ],
+    "music": [
+      "pop",
+      "edm",
+      "hip-hop",
+      "house",
+      "rnb"
+    ],
+    "size": "large",
+    "capacity": 2000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.duplex.cz/wp-content/uploads/2024/10/141.jpg",
+    "image_source": "https://www.duplex.cz",
+    "sources": [
+      {
+        "type": "api",
+        "strategy": "duplex",
+        "url": "https://www.duplex.cz/wp-json/duplex/v1/agent/events",
+        "venue_url": "https://www.duplex.cz",
+        "max_requests": 2,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita: „over 2000 people“ (https://www.duplex.cz/largest-club-prague/, 083). Adresa z JSON webu, súradnice OSM (DUPLEX, nightclub). Zdroj = JSON, ktorý web sám publikuje (agent/events); návod na nákup lístkov v ňom sa ignoruje. Ceny v EUR, neprepočítavajú sa. Boat party (loď od Dock 16) a Private Event sa nepridávajú (Matej 086), opakované klubové noci áno. Štítky = návrh 086; commercial_club nenastavený (rozhoduje Matej).",
+    "closing": null
+  },
+  {
+    "id": "sasazu",
+    "name": "SaSaZu",
+    "city": "Praha",
+    "address": "Bubenské nábřeží 306, Praha 7",
+    "lat": 50.0992274,
+    "lng": 14.4450921,
+    "web": "https://www.sasazu-club.com",
+    "ra_url": null,
+    "instagram": "sasazuclub",
+    "facebook": null,
+    "type": [
+      "concert-club",
+      "dance-club"
+    ],
+    "character": [
+      "commercial"
+    ],
+    "music": [
+      "pop",
+      "hip-hop",
+      "rock",
+      "metal",
+      "electronic"
+    ],
+    "size": "large",
+    "capacity": 2000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.sasazu-club.com/opengraph-image-xgl6v7",
+    "image_source": "https://www.sasazu-club.com",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "sasazu",
+        "url": "https://www.sasazu-club.com/kalendar",
+        "max_requests": 40,
+        "timeout_secs": 180
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita 2000 (úvod a og:description www.sasazu-club.com, 083). Oficiálny web klubu je www.sasazu-club.com (nie reštaurácia sasazu.com; overené cez prague.eu a IG). Adresa z detailu akcie, súradnice OSM (SaSaZu, Holešovice). Obrázok miesta = OG grafika 1200×630 (grafika, nie fotka – Matej môže vymeniť). Čas akcií web neuvádza. Štítky = návrh 086.",
+    "closing": null
+  },
+  {
+    "id": "sportovni-hala-fortuna",
+    "name": "Sportovní hala Fortuna",
+    "city": "Praha",
+    "address": "Za Elektrárnou 419/1, Praha 7",
+    "lat": 50.1069463,
+    "lng": 14.4329774,
+    "web": "https://www.sportovnihalafortuna.cz",
+    "ra_url": null,
+    "instagram": null,
+    "facebook": null,
+    "type": [
+      "concert-hall"
+    ],
+    "character": [
+      "commercial"
+    ],
+    "music": [
+      "metal",
+      "hard-techno",
+      "techno",
+      "rock",
+      "pop"
+    ],
+    "size": "arena",
+    "capacity": 9000,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Sportovní_hala_Fortuna.jpg",
+    "image_source": "https://cs.wikipedia.org/wiki/Sportovní_hala_Fortuna",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "fortuna",
+        "url": "https://www.sportovnihalafortuna.cz/kalendar-akci",
+        "max_requests": 30,
+        "timeout_secs": 120
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita koncert: 5 500 sedenie + 3 500 státie = 9000 (sportovnihalafortuna.cz/technicke-informace, 083). Adresa z webu, súradnice OSM. Obrázok miesta z Wikimedia Commons (Matej 2026-11-21; autor a licencia sa neuvádzajú, Matej 2026-11-20). IG web neuvádza. Šport sa nepridáva (Matej 086, podľa názvu / popisu). Štítky = návrh 086.",
+    "closing": null
+  },
+  {
+    "id": "kongresove-centrum-praha",
+    "name": "Kongresové centrum Praha",
+    "city": "Praha",
+    "address": "5. května 1640/65, Praha 4",
+    "lat": 50.062183,
+    "lng": 14.4285855,
+    "web": "https://www.praguecc.cz",
+    "ra_url": null,
+    "instagram": "kongresovecentrumpraha",
+    "facebook": null,
+    "type": [
+      "concert-hall"
+    ],
+    "character": [
+      "commercial",
+      "family-friendly"
+    ],
+    "music": [
+      "pop",
+      "orchestral",
+      "soundtrack",
+      "classical"
+    ],
+    "size": "large",
+    "capacity": 2764,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://www.praguecc.cz/users_data/images/foto_pro_media/Vecerni_snimek_KCP.jpg",
+    "image_source": "https://www.praguecc.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "kcp",
+        "url": "https://www.praguecc.cz/cs/prehled-akci/kultura",
+        "max_requests": 2,
+        "timeout_secs": 60
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita: Kongresový sál 2 764 (https://www.praguecc.cz/cs/saly-v-kcp, 083). Adresa z webu, súradnice OSM (Kongresové centrum Praha). Len stránka Kultura (kongresy nie). Obrázok miesta = fotka 4442×3326 (10 MB) z 083. Časy len keď sú v texte. Štítky = návrh 086.",
+    "closing": null
+  },
+  {
+    "id": "futurum-music-bar",
+    "name": "Futurum Music Bar",
+    "city": "Praha",
+    "address": "Zborovská 7, Praha 5",
+    "lat": 50.0739755,
+    "lng": 14.4078157,
+    "web": "https://futurum.musicbar.cz",
+    "ra_url": null,
+    "instagram": "futurummusicbar",
+    "facebook": null,
+    "type": [
+      "concert-club"
+    ],
+    "character": [
+      "alternative"
+    ],
+    "music": [
+      "metal",
+      "rock",
+      "punk",
+      "hardcore",
+      "post-punk"
+    ],
+    "size": "medium",
+    "capacity": 500,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://futurum.musicbar.cz/wp-content/gallery/interier-klubu/1.jpg",
+    "image_source": "https://futurum.musicbar.cz/interier-klubu/",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "futurum",
+        "url": "https://futurum.musicbar.cz/program",
+        "max_requests": 45,
+        "timeout_secs": 180
+      }
+    ],
+    "active": true,
+    "notes": "Kapacita do 500 (cz.mticket.eu – sekundárny zdroj; Matej môže opraviť). Adresa z futurum.musicbar.cz/kontakty/, súradnice OSM (Futurum, nightclub). IG futurummusicbar (odkaz na webe). Obrázok miesta = fotka interiéru 2048×1365 (galéria Interiér klubu; og:image kontaktov je 404). Sesterský web Lucerna Music Bar, ale iná šablóna – vlastný adaptér; akcie presunuté do Lucerny sa preskočia. Otváracie hodiny: CZ „v popise jednotlivé akce“, EN „Club: 20-01“ → closing null (Matej doplní). Štítky = návrh 086.",
+    "closing": null
   }
 ]

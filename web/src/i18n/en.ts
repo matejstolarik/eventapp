@@ -12,7 +12,7 @@ export const en = {
     types: { concert: 'Concert', party: 'Party', dj: 'DJ', culture: 'Culture' },
     typeHelpLabel: 'What the event types mean',
     typeHelpClose: 'Close',
-    typeHelp: { concert: 'An artist or band plays their own music live.', dj: 'A DJ plays and mixes tracks. This includes raves, techno, drum and bass nights, sound systems and similar.', party: 'A big club party: theme nights, 80s and 90s hits, student and Erasmus parties.', culture: 'Film, theatre, dance, stand-up, talks and readings, workshops, exhibition openings and quizzes.' },
+    typeHelp: { concert: 'An artist or band plays their own music live.', dj: 'Nights built around DJ sets: raves, techno and drum and bass nights, sound systems and similar.', party: 'A big club party: theme nights, 80s and 90s hits, student and Erasmus parties.', culture: 'Film, theatre, dance, stand-up, talks and readings, workshops, exhibition openings and quizzes.' },
     typeHelpNote: 'Events that combine several types (for example a concert followed by a DJ) are listed by their main focus.',
     sizes: { small: 'Small', medium: 'Medium', large: 'Large' },
     free: 'free',

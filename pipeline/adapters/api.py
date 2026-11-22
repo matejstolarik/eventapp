@@ -38,8 +38,137 @@ def fetch(venue: dict, source_config: dict) -> list:
     strategy = source_config.get("strategy")
     if strategy == "strapi":
         return _fetch_strapi(venue, source_config)
+    if strategy == "duplex":
+        return _fetch_duplex(venue, source_config)
     log.warning("%s [api]: unknown strategy '%s'", venue["id"], strategy)
     return []
+
+
+# ── Duplex agent JSON (task 086) ───────────────────────────────────────────────
+#
+# www.duplex.cz/wp-json/duplex/v1/agent/events – the JSON the venue publishes
+# itself (<link rel="alternate"> "Events and tickets (JSON)"), ~50 events,
+# about a month ahead.  Per event: title ("FRIDAY MADNESS – 20.11.2026"),
+# url, starts_at / ends_at ISO with the Prague offset (+01:00), image,
+# categories, description, tickets [{price, currency, availability}].
+# The buying guide in the same JSON is ignored (content, not instructions).
+#
+# - Time: the offset is Europe/Prague's own, so the local part of the ISO
+#   string is the Prague time (no UTC conversion).
+# - Price: min–max of the ticket prices as given, with the currency (EUR,
+#   not converted).
+# - Boat parties (boarding at Dock 16, outside the club; Matej 086) and
+#   "Private Event" are skipped and logged.  Recurring club nights stay.
+# - The date suffix " – 20.11.2026" is dropped from the title when it is the
+#   event's own date (the date is a separate field).
+
+_DUPLEX_SKIP = (
+    (re.compile(r"boat\s*party", re.I), "boat party (outside the club)"),
+    (re.compile(r"^\s*private\s+event\b", re.I), "private event"),
+)
+_DUPLEX_TITLE_DATE = re.compile(r"\s*[–-]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})\s*$")
+_ISO_LOCAL = re.compile(r"^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})")
+
+
+def _fetch_duplex(venue: dict, source_config: dict) -> list:
+    fetcher = make_fetcher(source_config)
+    try:
+        raw = fetcher.get(source_config["url"])
+    except LimitExceeded as exc:
+        log.warning("%s [api/duplex]: %s", venue["id"], exc)
+        return []
+    except Exception as exc:
+        log.error("%s [api/duplex]: fetch failed: %s", venue["id"], exc)
+        return []
+    return parse_duplex(venue, source_config, raw)
+
+
+def parse_duplex(venue: dict, source_config: dict, json_text: str,
+                 today: "datetime.date | None" = None) -> list:
+    """Parse the Duplex agent JSON (no HTTP; used in tests)."""
+    import json as _json
+
+    today = today or datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    cutoff = today + datetime.timedelta(days=180)
+    try:
+        data = _json.loads(json_text)
+    except ValueError as exc:
+        log.error("%s [api/duplex]: JSON parse error: %s", venue["id"], exc)
+        return []
+    out, skipped = [], []
+    for item in data.get("events") or []:
+        title = re.sub(r"\s+", " ", (item.get("title") or "")).strip()
+        m = _ISO_LOCAL.match(item.get("starts_at") or "")
+        if not title or not m:
+            continue
+        reason = next((r for rx, r in _DUPLEX_SKIP if rx.search(title)), None)
+        if reason:
+            skipped.append(f"{title} ({reason})")
+            continue
+        date_str = m.group(1)
+        try:
+            d = datetime.date.fromisoformat(date_str)
+        except ValueError:
+            continue
+        if d < yesterday or d > cutoff:
+            continue
+        td = _DUPLEX_TITLE_DATE.search(title)
+        if td:
+            try:
+                if datetime.date(int(td.group(3)), int(td.group(2)), int(td.group(1))) == d:
+                    title = title[:td.start()].strip()
+            except ValueError:
+                pass
+        end = _ISO_LOCAL.match(item.get("ends_at") or "")
+        tickets = [t for t in (item.get("tickets") or []) if isinstance(t, dict)]
+        prices = sorted({t["price"] for t in tickets
+                         if isinstance(t.get("price"), (int, float)) and t["price"] > 0})
+        currency = (data.get("currency") or "").strip() or None
+        cur = {(t.get("currency") or currency) for t in tickets if t.get("price")}
+        if len(cur) == 1:
+            currency = cur.pop()
+        price_text = None
+        if prices and currency:
+            lo, hi = _num_str(prices[0]), _num_str(prices[-1])
+            price_text = f"{lo} {currency}" if lo == hi else f"{lo}–{hi} {currency}"
+        sold_out = None
+        if tickets and all(t.get("availability") == "sold_out" for t in tickets):
+            sold_out = True
+        description = _clean_description(item.get("description"))
+        url = (item.get("url") or "").strip() or source_config.get("venue_url")
+        out.append(RawEvent(
+            venue_id=venue["id"],
+            title=title,
+            date=date_str,
+            start_time=f"{m.group(2)}:{m.group(3)}",
+            end_time=f"{end.group(2)}:{end.group(3)}" if end else None,
+            doors_time=None,
+            formats=[],
+            genres=[],
+            character=list(venue.get("character") or []),
+            artists=[],
+            price_text=price_text,
+            free=None,
+            sold_out=sold_out,
+            room=None,
+            ticket_url=url,
+            image_url=(item.get("image") or "").strip() or None,
+            description=description,
+            description_source="source" if description else None,
+            source={"type": "api", "url": url, "external_id": item.get("id"),
+                    "section": ", ".join(item.get("categories") or []) or None},
+            flags=[],
+            status="scheduled",
+        ))
+    if skipped:
+        log.info("%s [api/duplex]: %d events skipped: %s",
+                 venue["id"], len(skipped), "; ".join(skipped))
+    return out
+
+
+def _num_str(x) -> str:
+    return str(int(x)) if float(x).is_integer() else str(x)
 
 
 # ── Strapi v5 REST API ─────────────────────────────────────────────────────────

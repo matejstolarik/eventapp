@@ -187,6 +187,22 @@ describe('isNew', () => {
   it('much older is not new', () => {
     expect(isNew(makeEvent({ first_seen: '2026-10-01' }), SUN)).toBe(false)
   })
+
+  // task 086: events of the venue's first load are not new
+  it('event from the venue first load is not new', () => {
+    const venue = { first_loaded: '2026-11-14' }
+    expect(isNew(makeEvent({ first_seen: '2026-11-14' }), SUN, venue)).toBe(false)
+    expect(isNew(makeEvent({ first_seen: '2026-11-13' }), SUN, venue)).toBe(false)
+  })
+
+  it('event added after the venue first load is new', () => {
+    expect(isNew(makeEvent({ first_seen: '2026-11-15' }), SUN, { first_loaded: '2026-11-14' })).toBe(true)
+  })
+
+  it('venue without first_loaded (loaded before the rule) keeps the 7-day rule', () => {
+    expect(isNew(makeEvent({ first_seen: '2026-11-14' }), SUN, { first_loaded: null })).toBe(true)
+    expect(isNew(makeEvent({ first_seen: '2026-11-14' }), SUN, null)).toBe(true)
+  })
 })
 
 describe('isSingleDayPeriod', () => {

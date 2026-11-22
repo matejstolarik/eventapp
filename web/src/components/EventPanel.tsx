@@ -63,7 +63,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const tags = eventTags(event.formats, event.genres, event.primary_format)
   const tagText = EVENT_TYPE_TAG_TEXT[getEventType(event.formats, event.primary_format)]
   const now = new Date()
-  const newFlag = isNew(event, now)
+  const newFlag = isNew(event, now, venue && venue.id === event.venue_id ? venue : null)
   const forYouFlag = isForYou(event, forYouPrefs)
   const pill: React.CSSProperties = {
     height: 32, padding: '0 14px', borderRadius: 16, fontSize: 14, fontWeight: 600,

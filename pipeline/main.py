@@ -7,6 +7,7 @@ import urllib.error
 import urllib.request
 from zoneinfo import ZoneInfo
 
+from pipeline import first_load
 from pipeline.adapters import rss as rss_adapter
 from pipeline.adapters import jsonld as jsonld_adapter
 from pipeline.adapters import html as html_adapter
@@ -283,9 +284,12 @@ def main():
     # Venue images: image_thumb, and (task 082) image_card / image_detail /
     # image_detail_size, which the app shows when an event has no image
     venue_image_map = generate_venue_images(venues)
+    # task 086: events of a venue's first load are not "new" in the app
+    first_loaded = first_load.update(state, events, previous, today)
     venues_out = []
     for v in venues:
         ve = dict(v)
+        ve["first_loaded"] = first_loaded.get(v.get("id"))
         ve.update(venue_image_map.get(v.get("id", ""), {}) or {
             "image_thumb": None, "image_card": None, "image_detail": None,
             "image_detail_size": None})
