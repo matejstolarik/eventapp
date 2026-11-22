@@ -10,7 +10,8 @@ events (083).  Each card (the block around `.hp-datum-akce`) has:
 One GET a day; the event page is not fetched.
 
 Time and price only when the text states them (nothing is guessed):
-  "Začátek 21:00" / "Start: 21:00" / "od 21:00"  -> start_time
+  "Začátek 21:00" / "Start: 21:00"               -> start_time
+  (not "od 17:00": the texts use it for happy hours and opening hours)
   "Vstup 150Kč" / "Vstupné ..." line with an amount -> price_text
   "Vstup zdarma"                                  -> price_text, free=True
 The whole month is on the monthly poster (source type `poster`, task 090).
@@ -31,7 +32,7 @@ MONTHS_CS = {"leden": 1, "unor": 2, "brezen": 3, "duben": 4, "kveten": 5, "cerve
              "cervenec": 7, "srpen": 8, "zari": 9, "rijen": 10, "listopad": 11, "prosinec": 12}
 _FOLD = str.maketrans("áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ", "acdeeinorstuuyzACDEEINORSTUUYZ")
 _T = r"([01]?\d|2[0-3])[:.]([0-5]\d)"
-_START_RE = re.compile(rf"(?:začátek|start|\bod)\s*:?\s*{_T}\b", re.I)
+_START_RE = re.compile(rf"(?:začátek|\bstart)\s*:?\s*{_T}\b", re.I)
 _PRICE_RE = re.compile(r"^.*\b(?:vstup(?:né)?|vstupenk[ay]|cena)\b.*$", re.I | re.M)
 _AMOUNT_RE = re.compile(r"\d[\d .]*\s*(?:Kč|CZK|,-)", re.I)
 _FREE_RE = re.compile(r"\bvstup(?:né)?\s+(?:je\s+)?zdarma\b", re.I)

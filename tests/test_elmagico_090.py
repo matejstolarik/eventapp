@@ -266,3 +266,9 @@ def test_merge_live_page_two_html_events_for_one_poster_row():
     assert day25 == [("Darts Battle", "el-magico-2026-11-25-darts-battle"),
                      ("Rumový PROJECT X – STUDENT TAKEOVER",
                       "el-magico-2026-11-25-darts-battle-rumovy-project-x-student-takeover")]
+
+
+def test_html_no_time_from_happy_hour():
+    html = (FIX / "elmagico" / "program_2026-11-22.html").read_text(encoding="utf-8")
+    evs = html_elmagico.parse(VENUE, {}, html)
+    assert "od 17:00" in evs[0].description and evs[0].start_time is None
