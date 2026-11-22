@@ -57,4 +57,3 @@ Spoľahlivosť: **oficiálny** = web podniku, prevádzkovateľa, provozní řád
 | Café V Lese | 200 | Matej 2026-11-22 |
 | OX Club Prague | 1200 | Matej 2026-11-22 (tretie strany 1000/1200) |
 | Kampus Hybernská | 150 | Matej 2026-11-22 |
-| Karlovy Lázně | 1000 | Matej 2026-11-20 |
