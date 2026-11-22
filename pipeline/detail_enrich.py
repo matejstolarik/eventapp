@@ -124,7 +124,8 @@ def enrich_missing_details(
         venue_id = ev.get("venue_id", "")
         ev_id = ev.get("id", "")
         sources = ev.get("sources", [])
-        detail_url = sources[0].get("url") if sources else None
+        # task 090: a monthly poster image is not an event page
+        detail_url = sources[0].get("url") if sources and sources[0].get("type") != "poster"             else None
 
         # task 066: placeholders, logos and site-wide images are not event images
         if images.is_rejected(venue_id, ev.get("image_url")):

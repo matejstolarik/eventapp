@@ -1,0 +1,561 @@
+{
+ "model": "deepseek-flash",
+ "read": {
+  "raw": {
+   "month_label": "LISTOPAD 2026",
+   "month": 11,
+   "year": 2026,
+   "events": [
+    {
+     "day": 3,
+     "weekday": "ÚT",
+     "title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+     "performers": "EL MÁGICO DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 4,
+     "weekday": "ST",
+     "title": "VŠCHT HALLOWEEN 4 STUDENTS",
+     "performers": "EL MÁGICO DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 5,
+     "weekday": "ČT",
+     "title": "TURNAJ VE STOLNÍM FOTBÁLKU + CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 6,
+     "weekday": "PÁ",
+     "title": "FRIDAY KÝBLMANIA",
+     "performers": "DJ PARTYBOY",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 7,
+     "weekday": "SO",
+     "title": "RAP NIGHT CZ/SK BY LET'S RAVE IT UP",
+     "performers": "LET'S RAVE IT UP DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 10,
+     "weekday": "ÚT",
+     "title": "BEER, CHILL & GAMES & CUBA LIBRE ZA 59 KČ /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 11,
+     "weekday": "ST",
+     "title": "ALKOBITVA KOLEJÍ NA JÍZÁKU - O 5 XXL KÝBLŮ AMU SKINNY /VSTUP DO 22:00 ZDARMA/",
+     "performers": "DJ ABSOLUTH",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 12,
+     "weekday": "ČT",
+     "title": "Z-QUIZ & AFTERPARTY /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 13,
+     "weekday": "PÁ",
+     "title": "AMUNDSEN TWIST NIGHT",
+     "performers": "DJ DAJI SCREW",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 14,
+     "weekday": "SO",
+     "title": "STAR WARS NIGHT S JAMESONEM",
+     "performers": "DJ LUCKY D",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 16,
+     "weekday": "PO",
+     "title": "NEJVĚTŠÍ STUDENTSKÁ AKCE: SEMAFOR BY LET'S RAVE IT UP",
+     "performers": "LET'S RAVE IT UP DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 17,
+     "weekday": "ÚT",
+     "title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+     "performers": "EL MÁGICO DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 18,
+     "weekday": "ST",
+     "title": "SEZNAMOVÁK NF VŠE VOL. 2",
+     "performers": "DJ ABE",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 19,
+     "weekday": "ČT",
+     "title": "TURNAJ VE STOLNÍM FOTBÁLKU & WILD PRICE CRASH /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 20,
+     "weekday": "PÁ",
+     "title": "MISS TANGA 2026 VOL. 2 O 10.000 KČ",
+     "performers": "DJ ABSOLUTH",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 21,
+     "weekday": "SO",
+     "title": "GLOW IN THE DARK BY LET'S RAVE IT UP",
+     "performers": "LET'S RAVE IT UP DJ'S",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 24,
+     "weekday": "ÚT",
+     "title": "BEER, CHILL & GAMES & CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 25,
+     "weekday": "ST",
+     "title": "DARTS BATTLE & RUMOVÝ PROJECT X - STUDENT TAKEOVER /VSTUP DO 22:00 ZDARMA/",
+     "performers": "DJ FANDA MAREK",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 26,
+     "weekday": "ČT",
+     "title": "BEER, CHILL & GAMES & GIN & TONIC WHISKOVKA ZA 59KČ /VSTUP ZDARMA/",
+     "performers": null,
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 27,
+     "weekday": "PÁ",
+     "title": "BLACK FRIDAY – PRICE MASSACRE",
+     "performers": "DJ ABE",
+     "time": null,
+     "uncertain": false
+    },
+    {
+     "day": 28,
+     "weekday": "SO",
+     "title": "BUMBU LATIN FIESTA",
+     "performers": "DJ MARIO",
+     "time": null,
+     "uncertain": false
+    }
+   ]
+  },
+  "usage": {
+   "input_tokens": 1269,
+   "cached_tokens": 0,
+   "output_tokens": 1296,
+   "peak": false,
+   "detail": true,
+   "json_mode": true
+  },
+  "cost_usd": 0.000968,
+  "error": null,
+  "text": "{\"month_label\": \"LISTOPAD 2026\", \"month\": 11, \"year\": 2026, \"events\": [{\"day\": 3, \"weekday\": \"ÚT\", \"title\": \"BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/\", \"performers\": \"EL MÁGICO DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 4, \"weekday\": \"ST\", \"title\": \"VŠCHT HALLOWEEN 4 STUDENTS\", \"performers\": \"EL MÁGICO DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 5, \"weekday\": \"ČT\", \"title\": \"TURNAJ VE STOLNÍM FOTBÁLKU + CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 6, \"weekday\": \"PÁ\", \"title\": \"FRIDAY KÝBLMANIA\", \"performers\": \"DJ PARTYBOY\", \"time\": null, \"uncertain\": false}, {\"day\": 7, \"weekday\": \"SO\", \"title\": \"RAP NIGHT CZ/SK BY LET'S RAVE IT UP\", \"performers\": \"LET'S RAVE IT UP DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 10, \"weekday\": \"ÚT\", \"title\": \"BEER, CHILL & GAMES & CUBA LIBRE ZA 59 KČ /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 11, \"weekday\": \"ST\", \"title\": \"ALKOBITVA KOLEJÍ NA JÍZÁKU - O 5 XXL KÝBLŮ AMU SKINNY /VSTUP DO 22:00 ZDARMA/\", \"performers\": \"DJ ABSOLUTH\", \"time\": null, \"uncertain\": false}, {\"day\": 12, \"weekday\": \"ČT\", \"title\": \"Z-QUIZ & AFTERPARTY /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 13, \"weekday\": \"PÁ\", \"title\": \"AMUNDSEN TWIST NIGHT\", \"performers\": \"DJ DAJI SCREW\", \"time\": null, \"uncertain\": false}, {\"day\": 14, \"weekday\": \"SO\", \"title\": \"STAR WARS NIGHT S JAMESONEM\", \"performers\": \"DJ LUCKY D\", \"time\": null, \"uncertain\": false}, {\"day\": 16, \"weekday\": \"PO\", \"title\": \"NEJVĚTŠÍ STUDENTSKÁ AKCE: SEMAFOR BY LET'S RAVE IT UP\", \"performers\": \"LET'S RAVE IT UP DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 17, \"weekday\": \"ÚT\", \"title\": \"BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/\", \"performers\": \"EL MÁGICO DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 18, \"weekday\": \"ST\", \"title\": \"SEZNAMOVÁK NF VŠE VOL. 2\", \"performers\": \"DJ ABE\", \"time\": null, \"uncertain\": false}, {\"day\": 19, \"weekday\": \"ČT\", \"title\": \"TURNAJ VE STOLNÍM FOTBÁLKU & WILD PRICE CRASH /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 20, \"weekday\": \"PÁ\", \"title\": \"MISS TANGA 2026 VOL. 2 O 10.000 KČ\", \"performers\": \"DJ ABSOLUTH\", \"time\": null, \"uncertain\": false}, {\"day\": 21, \"weekday\": \"SO\", \"title\": \"GLOW IN THE DARK BY LET'S RAVE IT UP\", \"performers\": \"LET'S RAVE IT UP DJ'S\", \"time\": null, \"uncertain\": false}, {\"day\": 24, \"weekday\": \"ÚT\", \"title\": \"BEER, CHILL & GAMES & CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 25, \"weekday\": \"ST\", \"title\": \"DARTS BATTLE & RUMOVÝ PROJECT X - STUDENT TAKEOVER /VSTUP DO 22:00 ZDARMA/\", \"performers\": \"DJ FANDA MAREK\", \"time\": null, \"uncertain\": false}, {\"day\": 26, \"weekday\": \"ČT\", \"title\": \"BEER, CHILL & GAMES & GIN & TONIC WHISKOVKA ZA 59KČ /VSTUP ZDARMA/\", \"performers\": null, \"time\": null, \"uncertain\": false}, {\"day\": 27, \"weekday\": \"PÁ\", \"title\": \"BLACK FRIDAY – PRICE MASSACRE\", \"performers\": \"DJ ABE\", \"time\": null, \"uncertain\": false}, {\"day\": 28, \"weekday\": \"SO\", \"title\": \"BUMBU LATIN FIESTA\", \"performers\": \"DJ MARIO\", \"time\": null, \"uncertain\": false}]}"
+ },
+ "rows": [
+  {
+   "date": "2026-11-03",
+   "weekday": "ÚT",
+   "title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+   "performers": "EL MÁGICO DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-04",
+   "weekday": "ST",
+   "title": "VŠCHT HALLOWEEN 4 STUDENTS",
+   "performers": "EL MÁGICO DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-05",
+   "weekday": "ČT",
+   "title": "TURNAJ VE STOLNÍM FOTBÁLKU + CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-06",
+   "weekday": "PÁ",
+   "title": "FRIDAY KÝBLMANIA",
+   "performers": "DJ PARTYBOY",
+   "time": null
+  },
+  {
+   "date": "2026-11-07",
+   "weekday": "SO",
+   "title": "RAP NIGHT CZ/SK BY LET'S RAVE IT UP",
+   "performers": "LET'S RAVE IT UP DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-10",
+   "weekday": "ÚT",
+   "title": "BEER, CHILL & GAMES & CUBA LIBRE ZA 59 KČ /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-11",
+   "weekday": "ST",
+   "title": "ALKOBITVA KOLEJÍ NA JÍZÁKU - O 5 XXL KÝBLŮ AMU SKINNY /VSTUP DO 22:00 ZDARMA/",
+   "performers": "DJ ABSOLUTH",
+   "time": null
+  },
+  {
+   "date": "2026-11-12",
+   "weekday": "ČT",
+   "title": "Z-QUIZ & AFTERPARTY /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-13",
+   "weekday": "PÁ",
+   "title": "AMUNDSEN TWIST NIGHT",
+   "performers": "DJ DAJI SCREW",
+   "time": null
+  },
+  {
+   "date": "2026-11-14",
+   "weekday": "SO",
+   "title": "STAR WARS NIGHT S JAMESONEM",
+   "performers": "DJ LUCKY D",
+   "time": null
+  },
+  {
+   "date": "2026-11-16",
+   "weekday": "PO",
+   "title": "NEJVĚTŠÍ STUDENTSKÁ AKCE: SEMAFOR BY LET'S RAVE IT UP",
+   "performers": "LET'S RAVE IT UP DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-17",
+   "weekday": "ÚT",
+   "title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+   "performers": "EL MÁGICO DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-18",
+   "weekday": "ST",
+   "title": "SEZNAMOVÁK NF VŠE VOL. 2",
+   "performers": "DJ ABE",
+   "time": null
+  },
+  {
+   "date": "2026-11-19",
+   "weekday": "ČT",
+   "title": "TURNAJ VE STOLNÍM FOTBÁLKU & WILD PRICE CRASH /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-20",
+   "weekday": "PÁ",
+   "title": "MISS TANGA 2026 VOL. 2 O 10.000 KČ",
+   "performers": "DJ ABSOLUTH",
+   "time": null
+  },
+  {
+   "date": "2026-11-21",
+   "weekday": "SO",
+   "title": "GLOW IN THE DARK BY LET'S RAVE IT UP",
+   "performers": "LET'S RAVE IT UP DJ'S",
+   "time": null
+  },
+  {
+   "date": "2026-11-24",
+   "weekday": "ÚT",
+   "title": "BEER, CHILL & GAMES & CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-25",
+   "weekday": "ST",
+   "title": "DARTS BATTLE & RUMOVÝ PROJECT X - STUDENT TAKEOVER /VSTUP DO 22:00 ZDARMA/",
+   "performers": "DJ FANDA MAREK",
+   "time": null
+  },
+  {
+   "date": "2026-11-26",
+   "weekday": "ČT",
+   "title": "BEER, CHILL & GAMES & GIN & TONIC WHISKOVKA ZA 59KČ /VSTUP ZDARMA/",
+   "performers": null,
+   "time": null
+  },
+  {
+   "date": "2026-11-27",
+   "weekday": "PÁ",
+   "title": "BLACK FRIDAY – PRICE MASSACRE",
+   "performers": "DJ ABE",
+   "time": null
+  },
+  {
+   "date": "2026-11-28",
+   "weekday": "SO",
+   "title": "BUMBU LATIN FIESTA",
+   "performers": "DJ MARIO",
+   "time": null
+  }
+ ],
+ "dropped": [],
+ "compare": {
+  "reference": 21,
+  "read": 21,
+  "dates_ok": 21,
+  "titles_exact": 21,
+  "titles_close": 21,
+  "extra": [],
+  "table": [
+   {
+    "day": 3,
+    "ref_title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+    "read_title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "EL MÁGICO DJ'S",
+    "read_performers": "EL MÁGICO DJ'S"
+   },
+   {
+    "day": 4,
+    "ref_title": "VŠCHT HALLOWEEN 4 STUDENTS",
+    "read_title": "VŠCHT HALLOWEEN 4 STUDENTS",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "EL MÁGICO DJ'S",
+    "read_performers": "EL MÁGICO DJ'S"
+   },
+   {
+    "day": 5,
+    "ref_title": "TURNAJ VE STOLNÍM FOTBÁLKU + CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+    "read_title": "TURNAJ VE STOLNÍM FOTBÁLKU + CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 6,
+    "ref_title": "FRIDAY KÝBLMANIA",
+    "read_title": "FRIDAY KÝBLMANIA",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ PARTYBOY",
+    "read_performers": "DJ PARTYBOY"
+   },
+   {
+    "day": 7,
+    "ref_title": "RAP NIGHT CZ/SK BY LET'S RAVE IT UP",
+    "read_title": "RAP NIGHT CZ/SK BY LET'S RAVE IT UP",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "LET'S RAVE IT UP DJ'S",
+    "read_performers": "LET'S RAVE IT UP DJ'S"
+   },
+   {
+    "day": 10,
+    "ref_title": "BEER, CHILL & GAMES & CUBA LIBRE ZA 59 KČ /VSTUP ZDARMA/",
+    "read_title": "BEER, CHILL & GAMES & CUBA LIBRE ZA 59 KČ /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 11,
+    "ref_title": "ALKOBITVA KOLEJÍ NA JIŽÁKU - O 5 XXL KÝBLŮ AMU SKINNY /VSTUP DO 22:00 ZDARMA/",
+    "read_title": "ALKOBITVA KOLEJÍ NA JÍZÁKU - O 5 XXL KÝBLŮ AMU SKINNY /VSTUP DO 22:00 ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ ABSOLUTH",
+    "read_performers": "DJ ABSOLUTH"
+   },
+   {
+    "day": 12,
+    "ref_title": "Z-QUIZ & AFTERPARTY /VSTUP ZDARMA/",
+    "read_title": "Z-QUIZ & AFTERPARTY /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 13,
+    "ref_title": "AMUNDSEN TWIST NIGHT",
+    "read_title": "AMUNDSEN TWIST NIGHT",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ DAJI SCREW",
+    "read_performers": "DJ DAJI SCREW"
+   },
+   {
+    "day": 14,
+    "ref_title": "STAR WARS NIGHT S JAMESONEM",
+    "read_title": "STAR WARS NIGHT S JAMESONEM",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ LUCKY D",
+    "read_performers": "DJ LUCKY D"
+   },
+   {
+    "day": 16,
+    "ref_title": "NEJVĚTŠÍ STUDENTSKÁ AKCE: SEMAFOR BY LET'S RAVE IT UP",
+    "read_title": "NEJVĚTŠÍ STUDENTSKÁ AKCE: SEMAFOR BY LET'S RAVE IT UP",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "LET'S RAVE IT UP DJ'S",
+    "read_performers": "LET'S RAVE IT UP DJ'S"
+   },
+   {
+    "day": 17,
+    "ref_title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+    "read_title": "BEER PONG CHAMPIONSHIP & AFTERPARTY /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "EL MÁGICO DJ'S",
+    "read_performers": "EL MÁGICO DJ'S"
+   },
+   {
+    "day": 18,
+    "ref_title": "SEZNAMOVÁK NF VŠE VOL. 2",
+    "read_title": "SEZNAMOVÁK NF VŠE VOL. 2",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ ABE",
+    "read_performers": "DJ ABE"
+   },
+   {
+    "day": 19,
+    "ref_title": "TURNAJ VE STOLNÍM FOTBÁLKU & WILD PRICE CRASH /VSTUP ZDARMA/",
+    "read_title": "TURNAJ VE STOLNÍM FOTBÁLKU & WILD PRICE CRASH /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 20,
+    "ref_title": "MISS TANGA 2026 VOL. 2 O 10.000 KČ",
+    "read_title": "MISS TANGA 2026 VOL. 2 O 10.000 KČ",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ ABSOLUTH",
+    "read_performers": "DJ ABSOLUTH"
+   },
+   {
+    "day": 21,
+    "ref_title": "GLOW IN THE DARK BY LET'S RAVE IT UP",
+    "read_title": "GLOW IN THE DARK BY LET'S RAVE IT UP",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "LET'S RAVE IT UP DJ'S",
+    "read_performers": "LET'S RAVE IT UP DJ'S"
+   },
+   {
+    "day": 24,
+    "ref_title": "BEER, CHILL & GAMES & CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+    "read_title": "BEER, CHILL & GAMES & CHUPITO 1 + 1 ZDARMA /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 25,
+    "ref_title": "DARTS BATTLE & RUMOVÝ PROJECT X - STUDENT TAKEOVER /VSTUP DO 22:00 ZDARMA/",
+    "read_title": "DARTS BATTLE & RUMOVÝ PROJECT X - STUDENT TAKEOVER /VSTUP DO 22:00 ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ FANDA MAREK",
+    "read_performers": "DJ FANDA MAREK"
+   },
+   {
+    "day": 26,
+    "ref_title": "BEER, CHILL & GAMES & GIN & TONIC WHISKOVKA ZA 59KČ /VSTUP ZDARMA/",
+    "read_title": "BEER, CHILL & GAMES & GIN & TONIC WHISKOVKA ZA 59KČ /VSTUP ZDARMA/",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": null,
+    "read_performers": null
+   },
+   {
+    "day": 27,
+    "ref_title": "BLACK FRIDAY – PRICE MASSACRE",
+    "read_title": "BLACK FRIDAY – PRICE MASSACRE",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ ABE",
+    "read_performers": "DJ ABE"
+   },
+   {
+    "day": 28,
+    "ref_title": "BUMBU LATIN FIESTA",
+    "read_title": "BUMBU LATIN FIESTA",
+    "date_ok": true,
+    "title_exact": true,
+    "similarity": 1.0,
+    "ref_performers": "DJ MARIO",
+    "read_performers": "DJ MARIO"
+   }
+  ]
+ }
+}

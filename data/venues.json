@@ -1249,5 +1249,64 @@
     "active": true,
     "notes": "Kultúrne centrum UK, ~40 priestorov (budovy A–E) – jeden podnik, miestnosť ako room. Kapacita nezistená → null; size small = návrh (akcie väčšinou v menších sálach). Adresa z /kontakt, súradnice OSM (Kampus Hybernská). Všetky akcie bez filtra kategórií (Matej 2026-11-22); Druh akce → sources[].section. Program ~1 mesiac dopredu, stránkovanie ?9857990c_page=N. Obrázok miesta = og:image 2400×1260 (grafika hyb4 – Matej môže vymeniť). closing null (akcie majú vlastný čas konca). Štítky = návrh 089.",
     "closing": null
+  },
+  {
+    "id": "el-magico",
+    "name": "El Mágico",
+    "city": "Praha",
+    "address": "Chemická 953, Praha 4 – Chodov",
+    "lat": 50.0195872,
+    "lng": 14.496105,
+    "web": "https://elmagico.cz",
+    "ra_url": null,
+    "instagram": "elmagico_club",
+    "facebook": null,
+    "type": [
+      "dance-club",
+      "bar"
+    ],
+    "character": [
+      "student",
+      "commercial",
+      "late-night"
+    ],
+    "music": [
+      "pop",
+      "hip-hop",
+      "latin",
+      "edm"
+    ],
+    "size": "small",
+    "capacity": 300,
+    "features": [],
+    "description": null,
+    "description_url": null,
+    "image_url": "https://elmagico.cz/wp-content/uploads/2025/12/elmagico-1.jpg",
+    "image_source": "https://elmagico.cz",
+    "sources": [
+      {
+        "type": "html",
+        "strategy": "elmagico",
+        "url": "https://elmagico.cz/program/",
+        "max_requests": 3,
+        "timeout_secs": 60
+      },
+      {
+        "type": "poster",
+        "strategy": "elmagico",
+        "media_url": "https://elmagico.cz/wp-json/wp/v2/media?search=program&per_page=20&_fields=id,date,modified,source_url",
+        "max_requests": 4,
+        "timeout_secs": 240
+      }
+    ],
+    "active": true,
+    "notes": "Task 090. Kapacita 300 (Matej). Adresa z elmagico.cz (kolej Vltava), súradnice OSM (El Mágico, nightclub). Otváracie hodiny z pätičky webu (Út 17–2:30, St 17–3:30, Čt 17–2:30, Pá–So 17–5). HTML = 2 najbližšie akcie; celý mesiac z mesačného plagátu (zdroj poster, čítanie DeepSeek). Obrázok miesta = fotka 1000×667 z galérie úvodu (083). Štítky = návrh 090.",
+    "closing": {
+      "tue": "02:30",
+      "wed": "03:30",
+      "thu": "02:30",
+      "fri": "05:00",
+      "sat": "05:00"
+    }
   }
 ]

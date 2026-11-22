@@ -42,7 +42,10 @@ dj cannot be decided (last resort).
 7. A performer who presents himself primarily as a live act or a band (live \
 electronic act, instruments, vocals; e.g. Tinlicker) -> primary concert even when the \
 venue writes "DJ set"; dj secondary. What the performer IS decides, not the venue's \
-headline."""
+headline.
+8. Bar games and contests: a tournament (table football, darts, beer pong, "darts \
+battle") and beer pong -> primary party; a quiz (pub quiz, "Z-Quiz") -> primary quiz \
+(culture), even with an afterparty after it. Applies to every venue."""
 
 # Matej's labels (docs/tasks/056/labels-matej.csv) used as examples; the
 # measurement marks these events as "in prompt".

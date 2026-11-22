@@ -12,6 +12,8 @@ from pipeline.adapters import rss as rss_adapter
 from pipeline.adapters import jsonld as jsonld_adapter
 from pipeline.adapters import html as html_adapter
 from pipeline.adapters import api as api_adapter
+from pipeline.adapters import poster as poster_adapter
+from pipeline import poster_merge
 from pipeline.normalize import normalize_event
 from pipeline.dedup import dedup_events
 from pipeline.checks import run_checks
@@ -42,7 +44,7 @@ class _WarningCapture(logging.Handler):
         self.messages.append(self.format(record))
 
 ADAPTERS = {"rss": rss_adapter, "jsonld": jsonld_adapter, "html": html_adapter,
-            "api": api_adapter}
+            "api": api_adapter, "poster": poster_adapter}
 VENUES_PATH = pathlib.Path("data/venues.json")
 OVERRIDES_PATH = pathlib.Path("data/overrides.json")
 EVENTS_OUT = pathlib.Path("site/events.json")
@@ -212,6 +214,11 @@ def main():
     previous_list = list(previous.values())
     events = [e for e in (normalize_event(r, previous) for r in all_raw) if e is not None]
     events = dedup_events(events)
+    # task 090: an HTML event replaces the same event from a monthly poster
+    events, poster_stats = poster_merge.merge(events, previous)
+    if poster_stats["poster"] or poster_stats["replaced"]:
+        log.info("poster events: %d, replaced by HTML: %d", poster_stats["poster"],
+                 poster_stats["replaced"])
     events = classify_events(events, venues, overrides)
     manual = manual_mod.load()          # task 060: data/manual.json
     events, _ = manual_mod.apply_manual(events, manual, today)
@@ -222,6 +229,7 @@ def main():
             and loaded_state is not None:
         from pipeline.deepseek import daily_budget
         ai_budget = daily_budget(state, today)
+        ai_budget.add(poster_adapter.take_spend())     # task 090: poster readings this run
         log.info("DeepSeek budget this run: $%.4f (month spent before $%.4f)",
                  ai_budget.limit, ai_budget.month_spent_before)
     keep_genres = venue_genre_ids(events)  # task 063: before the AI changes the type

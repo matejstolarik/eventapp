@@ -2,7 +2,7 @@
 
 import logging
 
-from pipeline.adapters import (html_akropolis, html_archa, html_epic, html_fortuna,
+from pipeline.adapters import (html_akropolis, html_archa, html_elmagico, html_epic, html_fortuna,
                                html_forum_karlin, html_futurum, html_jazzrepublic, html_kampus,
                                html_karlovylazne, html_kcp, html_lucerna, html_o2, html_oxclub,
                                html_roxy, html_sasazu)
@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 _STRATEGIES = {
     "akropolis": html_akropolis,
     "archa": html_archa,
+    "elmagico": html_elmagico,
     "epic": html_epic,
     "fortuna": html_fortuna,
     "forum_karlin": html_forum_karlin,

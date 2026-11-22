@@ -210,8 +210,15 @@ def needs_recheck(ev: dict, c: dict | None, today: str) -> bool:
 # Prompt
 # ---------------------------------------------------------------------------
 
+def event_page_url(ev: dict) -> str | None:
+    """URL of the event page: the first source URL that is not a monthly
+    poster image (task 090: source type `poster`)."""
+    return next((s.get("url") for s in ev.get("sources", [])
+                 if s.get("url") and s.get("type") != "poster"), None)
+
+
 def build_prompt(ev: dict, venue: dict, page_text: str | None) -> str:
-    src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+    src = event_page_url(ev)
     orig = ev.get("description") if ev.get("description_source") != "ai" else None
     lines = [
         "EVENT DATA",
@@ -833,7 +840,7 @@ class _Gemini2:
                        if not p.get("thought")), cand
 
     def research(self, ev: dict, venue: dict) -> dict:
-        src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+        src = event_page_url(ev)
         user = "\n".join([
             f"Event: {ev.get('title')}",
             f"Venue: {venue.get('name', ev['venue_id'])}, Prague"
@@ -956,7 +963,7 @@ class _Gemini2:
             else:
                 raw["descriptions"] = None
                 raw["no_info_empty"] = True
-        src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+        src = event_page_url(ev)
         allowed = {s["url"] for s in r["sources"]} | ({src} if src else set())
         return _sum_usage({
             # task 062: genres and price need support in the facts / venue page

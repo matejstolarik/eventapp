@@ -36,7 +36,7 @@ import urllib.request
 
 from pipeline.ai_rules import DECIDE_PROMPT, TRANSLATE_PROMPT
 from pipeline.enrich_ai import (ProviderStop, _DECIDE_SCHEMA, _Gemini2, _sum_usage, blocked,
-                                build_prompt, canon_url)
+                                build_prompt, canon_url, event_page_url)
 from pipeline.fetch import USER_AGENT
 
 log = logging.getLogger(__name__)
@@ -359,7 +359,7 @@ class _DeepSeek(_Gemini2):
     # -- steps --------------------------------------------------------------
 
     def research(self, ev: dict, venue: dict) -> dict:
-        src = next((s.get("url") for s in ev.get("sources", []) if s.get("url")), None)
+        src = event_page_url(ev)          # task 090: not a poster image
         user = "\n".join([
             f"Event: {ev.get('title')}",
             f"Venue: {venue.get('name', ev['venue_id'])}, Prague"

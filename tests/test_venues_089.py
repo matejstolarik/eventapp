@@ -33,8 +33,8 @@ def test_venues_json_entries():
         assert v["sources"][0]["strategy"] == strategy
     assert venues["karlovy-lazne"]["capacity"] == 1000
     assert venues["klub-007-strahov"]["capacity"] == 180
-    assert venues["klub-007-strahov"]["instagram"] is None
-    assert venues["cafe-v-lese"]["capacity"] is None
+    assert venues["klub-007-strahov"]["instagram"] == "klub007strahov"   # Matej 2026-11-22 (82f3108)
+    assert venues["cafe-v-lese"]["capacity"] == 200   # Matej 2026-11-22 (82f3108)
 
 
 # ── Karlovy Lázně ─────────────────────────────────────────────────────────────
