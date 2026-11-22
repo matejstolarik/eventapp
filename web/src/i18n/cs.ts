@@ -107,6 +107,7 @@ export const cs = {
     sortTime: 'čas',
     sortDistance: 'vzdálenost',
     sortSize: 'velikost',
+    sortMatch: 'nejlepší shoda',
     eventCountSg: 'akce',
     eventCountFw: 'akce',
     eventCountPl: 'akcí',

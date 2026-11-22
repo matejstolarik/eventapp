@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import type { EventsData, Language } from '../core/types'
 import { getDict } from '../i18n'
 import { usePullToRefresh } from '../core/usePullToRefresh'
-import { getEventsForPeriod, sortEvents, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
+import { getEventsForPeriod, sortEvents, sortAfterForYouToggle, formatPeriodShortLabel, formatPeriodRangeText, isSingleDayPeriod, type Period, type SortMode } from '../core/period'
 import { getStoredPeriod, setStoredPeriod, getLastKnownLocation, setLastKnownLocation, getStoredEventsFilters, setStoredEventsFilters } from '../core/store'
-import { matchesSearch, isForYou, isNew, hasAnyPrefs } from '../core/search'
+import { matchesSearch, isForYou, isNew, hasAnyPrefs, forYouScore, forYouTier } from '../core/search'
 import { useForYouPrefs } from '../core/useForYouPrefs'
 import { ForYouSetupCard } from '../components/ForYouSetupCard'
 import { forYouNeedsSetup } from '../core/preferences'
@@ -122,7 +122,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     if (!night && stored.type === 'night') return { type: 'today' }
     return stored
   })
-  const [sort, setSort] = useState<SortMode>('date')
+  // Task 087: Pre teba on (also restored from storage) → Best match; the sort before is remembered
+  const [sort, setSort] = useState<SortMode>(() => getStoredEventsFilters().forYou ? 'match' : 'date')
+  const sortBeforeForYouRef = useRef<SortMode>('date')
   const [showPeriodSheet, setShowPeriodSheet] = useState(false)
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [sortMenuPos, setSortMenuPos] = useState({ top: 0, right: 0 })
@@ -195,8 +197,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const filterActive = !isDefaultFilter(filter)
   const events = useMemo(() => {
     const evts = filterActive ? chipEvents.filter(e => matchesFilter(e, venueMap.get(e.venue_id), filter)) : chipEvents
-    return sortEvents(evts, venueLocations, sort, userLocationState, venueCapacities)
-  }, [chipEvents, filterActive, filter, venueMap, venueLocations, sort, userLocationState, venueCapacities])
+    return sortEvents(evts, venueLocations, sort, userLocationState, venueCapacities, e => forYouScore(e, favorites))
+  }, [chipEvents, filterActive, filter, venueMap, venueLocations, sort, userLocationState, venueCapacities, favorites])
 
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const filterItems: FilterItem[] = useMemo(
@@ -307,6 +309,9 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
   const forYouBadgesPendingRef = useRef(false)
   function toggleForYou() {
     forYouBadgesPendingRef.current = !forYouActive && MOTION.forYouBadges
+    const next = sortAfterForYouToggle(!forYouActive, sort, sortBeforeForYouRef.current, isSingleDayPeriod(period))
+    sortBeforeForYouRef.current = next.remembered
+    setSort(next.sort)
     setForYouActive(v => !v)
   }
   useEffect(() => {
@@ -366,7 +371,8 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
     { id: 'date', label: sortDateLabel, selected: sort === 'date' },
     ...(isSingleDay ? [{ id: 'distance', label: dict.events.sortDistance, selected: sort === 'distance' }] : []),
     { id: 'size', label: dict.events.sortSize, selected: sort === 'size' },
-  ], [sort, sortDateLabel, isSingleDay, dict.events.sortDistance, dict.events.sortSize]) // eslint-disable-line react-hooks/exhaustive-deps
+    ...(forYouActive ? [{ id: 'match', label: dict.events.sortMatch, selected: sort === 'match' }] : []),
+  ], [sort, sortDateLabel, isSingleDay, forYouActive, dict.events.sortDistance, dict.events.sortSize, dict.events.sortMatch]) // eslint-disable-line react-hooks/exhaustive-deps
   const isFilterActive = forYouActive || isNewActive || debouncedQuery.trim() !== '' || filterActive
   const isEmpty = events.length === 0
 
@@ -526,7 +532,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8E8AA6', marginTop: 2, position: 'relative' }}>
           <SlideText text={countRowText()} />
           <button ref={sortBtnRef} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: '#8E8AA6', padding: 0, fontFamily: "'Outfit', sans-serif" }} onClick={openSortMenu}>
-            {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : sort === 'size' ? dict.events.sortSize : dict.events.sortDistance}</b>
+            {dict.events.sort}: <b style={{ color: '#F4F2FF', fontWeight: 600 }}>{sort === 'date' ? sortDateLabel : sort === 'size' ? dict.events.sortSize : sort === 'match' ? dict.events.sortMatch : dict.events.sortDistance}</b>
             <ChevronDown size={14} />
           </button>
         </div>
@@ -562,7 +568,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
               : dict.events.emptyOther}
           </p>
           {isFilterActive ? (
-            <button style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { setForYouActive(false); setIsNewActive(false); onFilterChange?.(DEFAULT_FILTER); if (searchOpen) closeSearch() }}>
+            <button style={{ height: 44, padding: '0 20px', borderRadius: 22, border: 0, background: '#F4F2FF', color: '#111118', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }} onClick={() => { if (forYouActive) toggleForYou(); setIsNewActive(false); onFilterChange?.(DEFAULT_FILTER); if (searchOpen) closeSearch() }}>
               {dict.events.clearFilters}
             </button>
           ) : (
@@ -583,7 +589,7 @@ export function EventsPage({ data, lang, isVisible, onEventOpen, registerScrollT
                 lang={lang}
                 now={now}
                 eager={idx < 6}
-                forYou={isForYou(event, favorites)}
+                forYou={forYouTier(forYouScore(event, favorites))}
                 isNew={isNew(event, now, venueMap.get(event.venue_id))}
                 animIn={animKey > 0 && idx < 8}
                 onClick={() => onEventOpen(event.id)}

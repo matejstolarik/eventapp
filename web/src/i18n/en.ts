@@ -107,6 +107,7 @@ export const en = {
     sortTime: 'time',
     sortDistance: 'distance',
     sortSize: 'size',
+    sortMatch: 'best match',
     eventCountSg: 'event',
     eventCountFw: 'events',
     eventCountPl: 'events',

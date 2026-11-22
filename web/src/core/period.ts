@@ -92,7 +92,20 @@ export function getEventsForPeriod(events: Event[], period: Period, now: Date): 
   })
 }
 
-export type SortMode = 'date' | 'distance' | 'size'
+/** 'match' = Best match (task 087): offered only while Pre teba is on. */
+export type SortMode = 'date' | 'distance' | 'size' | 'match'
+
+/** Sort after the Pre teba chip is toggled (task 087): on → Best match, the current
+ * sort is remembered; off → back to the remembered sort if the sort is still Best match,
+ * otherwise the user's manual choice stays. Distance falls back to date on multi-day periods. */
+export function sortAfterForYouToggle(
+  turningOn: boolean, sort: SortMode, remembered: SortMode, singleDay: boolean,
+): { sort: SortMode; remembered: SortMode } {
+  if (turningOn) return { sort: 'match', remembered: sort === 'match' ? remembered : sort }
+  if (sort !== 'match') return { sort, remembered }
+  const back = remembered === 'match' || (remembered === 'distance' && !singleDay) ? 'date' : remembered
+  return { sort: back, remembered }
+}
 
 function compareDatetime(a: Event, b: Event): number {
   if (a.date !== b.date) return a.date.localeCompare(b.date)
@@ -106,10 +119,15 @@ export function sortEvents(
   venueLocations: Map<string, { lat: number; lng: number }>,
   sort: SortMode,
   userLocation: { lat: number; lng: number } | null,
-  venueCapacities?: Map<string, number | null | undefined>
+  venueCapacities?: Map<string, number | null | undefined>,
+  scoreOf?: (e: Event) => number,
 ): Event[] {
   const sorted = [...events]
-  if (sort === 'size') {
+  if (sort === 'match' && scoreOf) {
+    // Score descending, ties by start (task 087)
+    const scores = new Map(sorted.map(e => [e.id, scoreOf(e)]))
+    sorted.sort((a, b) => (scores.get(b.id)! - scores.get(a.id)!) || compareDatetime(a, b))
+  } else if (sort === 'size') {
     // Venue capacity descending, ties by start; venues without capacity last
     sorted.sort((a, b) => {
       const aCap = venueCapacities?.get(a.venue_id) ?? null

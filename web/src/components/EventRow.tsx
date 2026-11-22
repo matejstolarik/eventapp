@@ -8,6 +8,7 @@ import { thumbCandidates, pickImage } from '../core/eventImage'
 import type { EventIconKey } from '../core/eventType'
 import { getEventType, EVENT_TYPE_COLOR, EVENT_TYPE_DARK, EVENT_TYPE_TAG_TEXT, eventTags, eventIconKey } from '../core/eventType'
 import { joinDot } from '../core/dot'
+import type { ForYouTier } from '../core/search'
 import { typeIconSvg } from '../map/markers'
 import { formatDayLabel, tagLabel } from '../i18n'
 
@@ -40,9 +41,10 @@ export function TypeIcon({ iconKey, color, size, bg }: { iconKey: EventIconKey; 
  * Task 069: no type ring; optional "new" badge top-right.
  * Task 070: optional "for you" sparkles top-left (no background, black outline).
  * Task 082: without event image (or when it fails to load) the venue image_card. */
-export function EventImage43({ event, venue, width, height, radius = 12, eager = false, isNew = false, forYou = false, lang = 'sk' }: {
+export function EventImage43({ event, venue, width, height, radius = 12, eager = false, isNew = false, forYou = 0, lang = 'sk' }: {
   event: Event; venue?: Venue | null; width: number | string; height?: number; radius?: number; eager?: boolean; isNew?: boolean
-  forYou?: boolean; lang?: Language
+  /** Task 087: 0 = no badge, 1 = ✦, 2 = ✦✦ (two sparkles side by side, same style and place). */
+  forYou?: ForYouTier; lang?: Language
 }) {
   const { src, onError } = useImageFallback(thumbCandidates(event, venue))
   const type = getEventType(event.formats, event.primary_format)
@@ -62,10 +64,11 @@ export function EventImage43({ event, venue, width, height, radius = 12, eager =
       ) : (
         <TypeIcon iconKey={eventIconKey(event.formats, event.primary_format)} color={EVENT_TYPE_COLOR[type]} size={40} bg={EVENT_TYPE_DARK[type]} />
       )}
-      {forYou && (
-        <span data-foryou-badge style={{ position: 'absolute', top: 5, left: 5, zIndex: 2, display: 'flex', lineHeight: 0 }}
+      {forYou > 0 && (
+        <span data-foryou-badge data-foryou-tier={forYou} style={{ position: 'absolute', top: 5, left: 5, zIndex: 2, display: 'flex', lineHeight: 0 }}
           role="img" aria-label={FOR_YOU_LABEL[lang]} title={FOR_YOU_LABEL[lang]}>
           <OutlinedSparkleIcon size={18} color="#FF4D8D" />
+          {forYou === 2 && <OutlinedSparkleIcon size={18} color="#FF4D8D" />}
         </span>
       )}
       {isNew && (
@@ -170,7 +173,7 @@ interface EventRowProps {
   lang: Language
   now: Date
   isNew: boolean
-  forYou: boolean
+  forYou: ForYouTier
   eager?: boolean
   animIn?: boolean
   onClick: () => void

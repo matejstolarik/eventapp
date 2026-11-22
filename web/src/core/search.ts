@@ -37,24 +37,65 @@ export function hasAnyPrefs(p: ForYouPrefs): boolean {
   return p.favorites.size > 0 || p.types.length > 0 || p.subtypes.length > 0 || p.genres.length > 0
 }
 
-/** Is this event "for you"? (design.md 4, block 2026-11-19, task 079)
- * - selected types exist and the event's type is not among them → no;
- * - music (concert, DJ, party) → favourite venue or an umbrella genre among the liked genres;
- * - culture → its subtype among the selected subtypes; culture without subtypes → culture in a favourite venue;
- * - no types selected → favourite venue or genre match, any type;
- * - no preferences at all → nothing. */
-export function isForYou(event: Event, p: ForYouPrefs): boolean {
+/** Music genres of an event that the score counts: genres with at least one
+ * umbrella offered as a genre chip (culture-only genres like `horror` are left out). */
+function scoredGenres(event: Event): string[] {
+  return event.genres.filter(g => eventUmbrellas({ genres: [g] }).length > 0)
+}
+
+/** Match score 0–100 (task 087, design.md 4 block 2026-11-21; replaces yes/no of 079).
+ * - no preferences at all → 0;
+ * - selected types and the event's type not among them → 0 (gate);
+ * - culture (culture selected): subtype among selected subtypes → 80, not among → 0,
+ *   culture selected without subtypes → 40;
+ * - genres (model D, order not used): at least one event genre whose umbrella is liked
+ *   → 50 + 30 × matched / all event genres; none matched → 0;
+ *   event without genres or user without liked genres → neutral 40, but only when the
+ *   type matched positively (selected types) or, without selected types, the venue is a favourite;
+ * - favourite venue +20; capped at 100. */
+export function forYouScore(event: Event, p: ForYouPrefs): number {
+  if (!hasAnyPrefs(p)) return 0
   const fav = p.favorites.has(event.venue_id)
-  const genreMatch = () => p.genres.length > 0 && eventUmbrellas(event).some(u => p.genres.includes(u))
-  if (p.types.length === 0) return fav || genreMatch()
-  const type = filterTypeOf(event)
-  if (!p.types.includes(type)) return false
-  if (type === 'culture') {
-    if (p.subtypes.length === 0) return fav
-    const sub = cultureSubtype(event.formats, event.primary_format)
-    return sub !== null && p.subtypes.includes(sub)
+  const bonus = fav ? 20 : 0
+  let base: number
+  if (p.types.length > 0) {
+    const type = filterTypeOf(event)
+    if (!p.types.includes(type)) return 0
+    if (type === 'culture') {
+      if (p.subtypes.length === 0) base = 40
+      else {
+        const sub = cultureSubtype(event.formats, event.primary_format)
+        if (sub === null || !p.subtypes.includes(sub)) return 0
+        base = 80
+      }
+      return Math.min(100, base + bonus)
+    }
+    base = genrePoints(event, p, true)
+  } else {
+    base = genrePoints(event, p, fav)
   }
-  return fav || genreMatch()
+  return Math.min(100, base + bonus)
+}
+
+function genrePoints(event: Event, p: ForYouPrefs, neutralAllowed: boolean): number {
+  const genres = scoredGenres(event)
+  if (p.genres.length === 0 || genres.length === 0) return neutralAllowed ? 40 : 0
+  const matched = genres.filter(g => eventUmbrellas({ genres: [g] }).some(u => p.genres.includes(u))).length
+  if (matched === 0) return 0
+  return Math.round(50 + 30 * matched / genres.length)
+}
+
+/** Two tiers (task 087): 2 = ✦✦ "Presne pre teba" (≥ 75), 1 = ✦ "Mohlo by ťa baviť" (40–74), 0 = nothing. */
+export type ForYouTier = 0 | 1 | 2
+export function forYouTier(score: number): ForYouTier {
+  return score >= 75 ? 2 : score >= 40 ? 1 : 0
+}
+/** Internal tier names (not shown in the UI). */
+export const FOR_YOU_TIER_NAME: Record<ForYouTier, string> = { 0: '', 1: 'Mohlo by ťa baviť', 2: 'Presne pre teba' }
+
+/** Is this event "for you"? = score ≥ 40 (✦ or ✦✦). */
+export function isForYou(event: Event, p: ForYouPrefs): boolean {
+  return forYouScore(event, p) >= 40
 }
 
 /** Is this event "new"? = first_seen within last 7 days (inclusive today).

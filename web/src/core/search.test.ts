@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeText, matchesSearch, isForYou, isNew, hasAnyPrefs, type ForYouPrefs } from './search'
-import { isSingleDayPeriod } from './period'
+import { normalizeText, matchesSearch, isForYou, isNew, hasAnyPrefs, forYouScore, forYouTier, FOR_YOU_TIER_NAME, type ForYouPrefs } from './search'
+import { isSingleDayPeriod, sortAfterForYouToggle, sortEvents } from './period'
 import type { Event, Venue } from './types'
 
 const SUN = new Date('2026-11-15T18:00:00')
@@ -90,77 +90,131 @@ describe('matchesSearch', () => {
   })
 })
 
-describe('isForYou (task 079)', () => {
+describe('forYouScore (task 087, model D)', () => {
   const P = (o: Partial<ForYouPrefs> = {}): ForYouPrefs => ({ favorites: new Set(), types: [], subtypes: [], genres: [], ...o })
   const dj = (o: Partial<Event> = {}) => makeEvent({ formats: ['dj'], genres: [], ...o })
   const concert = (o: Partial<Event> = {}) => makeEvent({ formats: ['concert'], genres: [], ...o })
   const culture = (fmt: string, o: Partial<Event> = {}) => makeEvent({ formats: [fmt], genres: [], ...o })
+  const music = P({ types: ['concert', 'dj'] })
+  const DIVO = ['blues', 'rock', 'techno', 'post-punk', 'shoegaze', 'experimental']
 
-  it('no preferences at all → nothing', () => {
-    expect(isForYou(dj({ venue_id: 'cross-club', genres: ['techno'] }), P())).toBe(false)
+  it('examples from the task: genres without order', () => {
+    expect(forYouScore(concert({ genres: ['rock'] }), { ...music, genres: ['rock'] })).toBe(80)
+    expect(forYouScore(concert({ genres: ['rock', 'hip-hop'] }), { ...music, genres: ['hip-hop'] })).toBe(65)
+    expect(forYouScore(concert({ genres: ['hip-hop', 'rock'] }), { ...music, genres: ['hip-hop'] })).toBe(65)
+    expect(forYouScore(concert({ genres: ['rock', 'hip-hop'] }), { ...music, genres: ['rock', 'hip-hop'] })).toBe(80)
+  })
+
+  it('Divo Institute example, with and without favourite Palác Akropolis', () => {
+    const e = concert({ venue_id: 'palac-akropolis', genres: DIVO })
+    const fav = new Set(['palac-akropolis'])
+    expect(forYouScore(e, { ...music, genres: ['alternative', 'punk'] })).toBe(60)
+    expect(forYouScore(e, { ...music, genres: ['alternative', 'punk', 'rock'] })).toBe(65)
+    expect(forYouScore(e, { ...music, genres: ['punk'] })).toBe(55)
+    expect(forYouScore(e, { ...music, favorites: fav, genres: ['alternative', 'punk'] })).toBe(80)
+    expect(forYouScore(e, { ...music, favorites: fav, genres: ['alternative', 'punk', 'rock'] })).toBe(85)
+    expect(forYouScore(e, { ...music, favorites: fav, genres: ['punk'] })).toBe(75)
+  })
+
+  it('type is a gate, even in a favourite venue', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj'], genres: ['techno'] })
+    expect(forYouScore(concert({ venue_id: 'cross-club', genres: ['techno'] }), p)).toBe(0)
+    expect(forYouScore(culture('workshop', { venue_id: 'cross-club' }), p)).toBe(0)
+  })
+
+  it('no genre matched: only venue points', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj'], genres: ['techno'] })
+    expect(forYouScore(dj({ venue_id: 'archa', genres: ['house'] }), p)).toBe(0)
+    expect(forYouScore(dj({ venue_id: 'cross-club', genres: ['house'] }), p)).toBe(20)
+  })
+
+  it('event without genres: 40 (+20 in a favourite venue)', () => {
+    const p = P({ favorites: new Set(['cross-club']), types: ['dj'], genres: ['techno'] })
+    expect(forYouScore(dj({ venue_id: 'archa' }), p)).toBe(40)
+    expect(forYouScore(dj({ venue_id: 'cross-club' }), p)).toBe(60)
+  })
+
+  it('user without liked genres: 40 with a matching type', () => {
+    expect(forYouScore(dj({ genres: ['techno'] }), P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(40)
+    expect(forYouScore(dj({ venue_id: 'x', genres: ['techno'] }), P({ types: ['dj'], favorites: new Set(['x']) }))).toBe(60)
+  })
+
+  it('only types (no venues, no genres): matching type 40', () => {
+    const p = P({ types: ['concert', 'dj', 'party'] })
+    expect(forYouScore(dj({ genres: ['techno'] }), p)).toBe(40)
+    expect(forYouScore(concert({ genres: ['rock'] }), p)).toBe(40)
+    expect(forYouScore(culture('film'), p)).toBe(0)
+  })
+
+  it('no preferences at all: 0', () => {
+    expect(forYouScore(dj({ venue_id: 'cross-club', genres: ['techno'] }), P())).toBe(0)
     expect(hasAnyPrefs(P())).toBe(false)
   })
 
-  it('no types (skipped): favourite venue, any type (old behaviour)', () => {
-    const p = P({ favorites: new Set(['cross-club']) })
-    expect(isForYou(dj({ venue_id: 'cross-club' }), p)).toBe(true)
-    expect(isForYou(culture('workshop', { venue_id: 'cross-club' }), p)).toBe(true)
-    expect(isForYou(dj({ venue_id: 'archa' }), p)).toBe(false)
-  })
-
-  it('no types: genre match counts too, any type', () => {
-    const p = P({ genres: ['punk'] })
-    expect(isForYou(concert({ venue_id: 'archa', genres: ['post-punk'] }), p)).toBe(true)
-    expect(isForYou(concert({ venue_id: 'archa', genres: ['jazz'] }), p)).toBe(false)
-  })
-
-  it('type not selected → no, even in a favourite venue', () => {
-    const p = P({ favorites: new Set(['cross-club']), types: ['dj'] })
-    expect(isForYou(concert({ venue_id: 'cross-club' }), p)).toBe(false)
-  })
-
-  it('workshop in a favourite venue without culture selected → no', () => {
-    const p = P({ favorites: new Set(['cross-club']), types: ['dj', 'concert'] })
-    expect(isForYou(culture('workshop', { venue_id: 'cross-club' }), p)).toBe(false)
-  })
-
-  it('DJ + techno in a non-favourite venue → yes', () => {
-    const p = P({ favorites: new Set(['cross-club']), types: ['dj'], genres: ['techno'] })
-    expect(isForYou(dj({ venue_id: 'archa', genres: ['techno'] }), p)).toBe(true)
-    expect(isForYou(dj({ venue_id: 'archa', genres: ['house'] }), p)).toBe(false)
-  })
-
-  it('music in a favourite venue without genre match → yes', () => {
-    const p = P({ favorites: new Set(['cross-club']), types: ['party'] })
-    expect(isForYou(makeEvent({ formats: ['party'], venue_id: 'cross-club' }), p)).toBe(true)
-  })
-
-  it('genre matched via umbrella (post-punk → punk)', () => {
-    const p = P({ types: ['concert'], genres: ['punk'] })
-    expect(isForYou(concert({ genres: ['post-punk'] }), p)).toBe(true)
-  })
-
-  it('only types, no venues and no genres → nothing from music', () => {
-    const p = P({ types: ['concert', 'dj', 'party'] })
-    expect(isForYou(dj({ genres: ['techno'] }), p)).toBe(false)
-    expect(isForYou(concert({ genres: ['rock'] }), p)).toBe(false)
-  })
-
-  it('culture with subtypes → subtype must match, venue does not matter', () => {
+  it('culture: subtype 80, culture without subtypes 40, other subtype 0', () => {
     const p = P({ favorites: new Set(['cross-club']), types: ['culture'], subtypes: ['film', 'talk'] })
-    expect(isForYou(culture('film', { venue_id: 'archa' }), p)).toBe(true)
-    expect(isForYou(culture('theatre', { venue_id: 'cross-club' }), p)).toBe(false)
+    expect(forYouScore(culture('film', { venue_id: 'archa' }), p)).toBe(80)
+    expect(forYouScore(culture('film', { venue_id: 'cross-club' }), p)).toBe(100)
+    expect(forYouScore(culture('theatre', { venue_id: 'cross-club' }), p)).toBe(0)
+    const q = P({ favorites: new Set(['cross-club']), types: ['culture'], genres: ['techno'] })
+    expect(forYouScore(culture('film', { venue_id: 'archa', genres: ['techno'] }), q)).toBe(40)
+    expect(forYouScore(culture('film', { venue_id: 'cross-club' }), q)).toBe(60)
   })
 
-  it('culture without subtypes → culture in a favourite venue only', () => {
-    const p = P({ favorites: new Set(['cross-club']), types: ['culture'] })
-    expect(isForYou(culture('film', { venue_id: 'cross-club' }), p)).toBe(true)
-    expect(isForYou(culture('film', { venue_id: 'archa' }), p)).toBe(false)
+  it('no types selected: no gate, genres + venue; neutral 40 only in a favourite venue', () => {
+    const p = P({ favorites: new Set(['cross-club']), genres: ['punk'] })
+    expect(forYouScore(concert({ venue_id: 'archa', genres: ['post-punk'] }), p)).toBe(80)
+    expect(forYouScore(culture('film', { venue_id: 'archa', genres: ['post-punk'] }), p)).toBe(80)
+    expect(forYouScore(concert({ venue_id: 'archa', genres: ['jazz'] }), p)).toBe(0)
+    expect(forYouScore(concert({ venue_id: 'archa' }), p)).toBe(0)
+    expect(forYouScore(concert({ venue_id: 'cross-club' }), p)).toBe(60)
+    expect(forYouScore(concert({ venue_id: 'cross-club', genres: ['jazz'] }), p)).toBe(20)
+    // only favourites (old behaviour): favourite venue = one sparkle
+    const f = P({ favorites: new Set(['cross-club']) })
+    expect(forYouScore(culture('workshop', { venue_id: 'cross-club' }), f)).toBe(60)
+    expect(forYouScore(dj({ venue_id: 'archa' }), f)).toBe(0)
   })
 
-  it('culture genre in prefs does not pull in music genres for culture', () => {
-    const p = P({ types: ['culture'], genres: ['techno'] })
-    expect(isForYou(culture('film', { genres: ['techno'] }), p)).toBe(false)
+  it('capped at 100', () => {
+    const p = P({ favorites: new Set(['x']), types: ['concert'], genres: ['rock'] })
+    expect(forYouScore(concert({ venue_id: 'x', genres: ['rock'] }), p)).toBe(100)
+  })
+
+  it('tiers: two sparkles >= 75, one 40-74, nothing below; isForYou = either', () => {
+    expect(forYouTier(100)).toBe(2)
+    expect(forYouTier(75)).toBe(2)
+    expect(forYouTier(74)).toBe(1)
+    expect(forYouTier(40)).toBe(1)
+    expect(forYouTier(39)).toBe(0)
+    expect(forYouTier(0)).toBe(0)
+    expect(FOR_YOU_TIER_NAME[2]).toBe('Presne pre teba')
+    expect(FOR_YOU_TIER_NAME[1]).toBe('Mohlo by ťa baviť')
+    const p = P({ types: ['dj'], genres: ['techno'] })
+    expect(isForYou(dj({ genres: ['techno'] }), p)).toBe(true)
+    expect(isForYou(dj({ genres: ['house'] }), p)).toBe(false)
+  })
+})
+
+describe('Best match sort and the Pre teba chip (task 087)', () => {
+  it('turning the chip on switches to Best match and remembers the sort', () => {
+    expect(sortAfterForYouToggle(true, 'size', 'date', true)).toEqual({ sort: 'match', remembered: 'size' })
+  })
+  it('turning it off restores the remembered sort', () => {
+    expect(sortAfterForYouToggle(false, 'match', 'size', true)).toEqual({ sort: 'size', remembered: 'size' })
+  })
+  it('a manual change while on stays after turning off', () => {
+    expect(sortAfterForYouToggle(false, 'date', 'size', true)).toEqual({ sort: 'date', remembered: 'size' })
+  })
+  it('distance falls back to date on a multi-day period', () => {
+    expect(sortAfterForYouToggle(false, 'match', 'distance', false).sort).toBe('date')
+    expect(sortAfterForYouToggle(false, 'match', 'distance', true).sort).toBe('distance')
+  })
+  it('sortEvents by score descending, ties by date/time', () => {
+    const a = makeEvent({ id: 'a', date: '2026-11-16', start_time: '20:00' })
+    const b = makeEvent({ id: 'b', date: '2026-11-15', start_time: '21:00' })
+    const c = makeEvent({ id: 'c', date: '2026-11-15', start_time: '19:00' })
+    const score: Record<string, number> = { a: 80, b: 40, c: 40 }
+    expect(sortEvents([b, c, a], new Map(), 'match', null, undefined, e => score[e.id]!).map(e => e.id)).toEqual(['a', 'c', 'b'])
   })
 })
 

@@ -5,7 +5,7 @@ import { eventTags, getEventType, EVENT_TYPE_TAG_TEXT } from '../core/eventType'
 import { joinDot, DOT_SEP } from '../core/dot'
 import { haversine, formatDistance } from '../core/distance'
 import { EventImage43, TypeIconPill } from './EventRow'
-import { isNew, isForYou } from '../core/search'
+import { isNew, forYouScore, forYouTier } from '../core/search'
 import { useForYouPrefs } from '../core/useForYouPrefs'
 import { tagLabel } from '../i18n'
 import { priceLabel } from '../core/eventText'
@@ -64,7 +64,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   const tagText = EVENT_TYPE_TAG_TEXT[getEventType(event.formats, event.primary_format)]
   const now = new Date()
   const newFlag = isNew(event, now, venue && venue.id === event.venue_id ? venue : null)
-  const forYouFlag = isForYou(event, forYouPrefs)
+  const forYouFlag = forYouTier(forYouScore(event, forYouPrefs))
   const pill: React.CSSProperties = {
     height: 32, padding: '0 14px', borderRadius: 16, fontSize: 14, fontWeight: 600,
     display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', flexShrink: 0,

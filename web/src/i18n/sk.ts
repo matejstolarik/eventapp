@@ -107,6 +107,7 @@ export const sk = {
     sortTime: 'čas',
     sortDistance: 'vzdialenosť',
     sortSize: 'veľkosť',
+    sortMatch: 'najlepšia zhoda',
     eventCountSg: 'akcia',
     eventCountFw: 'akcie',
     eventCountPl: 'akcií',
