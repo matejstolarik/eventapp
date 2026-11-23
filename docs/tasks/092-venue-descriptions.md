@@ -1,8 +1,8 @@
-# 092: Popisy podnikov (vlastný text, CZ/SK/EN) + oprava kultúry v Pre teba
+# 092: Popisy podnikov (vlastný text, CZ/SK/EN), oprava kultúry v Pre teba, akcie pri výpadku zdroja
 
 ## Zadanie
 
-**Schválené Matejom 2026-11-23 11:59 a 12:36** (zmena dátového modelu podniku: áno). Mení dáta aj appku → na konci **jeden beh pipeline** a over `deploy-app`. Čo nie je jasné, spýtaj sa.
+**Schválené Matejom 2026-11-23 11:59, 12:36 a 12:47** (zmena dátového modelu podniku aj ponechanie akcií pri výpadku: áno). Mení dáta aj appku → na konci **jeden beh pipeline** a over `deploy-app`. Čo nie je jasné, spýtaj sa.
 
 **Čítaj:** `docs/data-model.md` (podnik: `description`, `description_url`), `docs/tasks/092/venue-descriptions.json`, `web/src/pages/VenuePage.tsx` (popis podniku, okolo r. 198), `web/src/core/search.ts` (`forYouScore`, kultúrna časť), `docs/design.md` 1 a sekcia profilu podniku. V pipeline najprv `grep -rn "description_url\|venue.*description" pipeline/ web/src` – zisti, kade ide popis podniku do appky.
 
@@ -31,6 +31,15 @@ Prenes **doslova** texty a zdroje z `docs/tasks/092/venue-descriptions.json` (k�
 
 ### 4. Oprava Pre teba – kultúra (Matej 2026-11-22 16:27, otvorený bod z 091)
 V `forYouScore`: typ **kultúra bez vybratých podtypov** dáva kultúrnej časti **20** (dnes 40), rovnako ako hudba bez obľúbených žánrov. Dôvod: s obľúbeným miestom mala inak ✦ každá kultúrna akcia. Podtyp kultúry (80) bez zmeny. Doplň test a blok do `docs/design.md` 7c.
+
+### 5. Výpadok zdroja – nechať posledné známe akcie (Matej 2026-11-23 12:47, zmena schválená)
+**Problém:** Klub 007 vracia od 22. 11. (beh 090) GitHubu `403` → 0 akcií → podnik je v appke prázdny, hoci akcie z predchádzajúceho behu máme (alert #8).
+- Keď zdroj **zlyhá** (chyba sťahovania alebo 0 akcií, hoci v predchádzajúcom behu akcie mal), pipeline nechá v `events.json` **budúce akcie tohto zdroja z predchádzajúceho behu** (z `previous_events`), bez zmeny obsahu. **Bez časového limitu** – akcie odpadávajú samy, keď prebehnú. Nič nedomýšľaj (ani nové akcie, ani opravy).
+- Pri ponechanej akcii zaznamenaj, kedy bol zdroj naposledy úspešný (napr. `stale_since` / `last_ok`; názov a umiestnenie navrhni podľa `data-model.md` a zapíš tam). **V appke bez značky.**
+- Keď zlyhávajúcemu zdroju už **nezostane žiadna budúca akcia**, podnik sa v appke **nezobrazuje** (zoznam Miesta, mapa, výber obľúbených v preferenciách ho môže ponechať – ak by skrytie rozbilo uložené obľúbené, spýtaj sa). Platí len pre podnik so zlyhávajúcim zdrojom, nie pre podnik, ktorý len nemá program. Keď zdroj znova funguje, všetko sa vráti samo.
+- Alert (`source:<venue>/<label>`) ostáva ako dnes; v súhrne behu počet ponechaných akcií na zdroj.
+- Over na fixture: zdroj s chybou → akcie z predchádzajúceho behu ostanú; minulé odpadnú; zdroj bez akcií a bez budúcich → podnik skrytý. Riadok do `docs/decisions.md`.
+- Ak 007 v behu na konci úlohy stále vracia 403, v reporte uveď, koľko jeho akcií sa takto zachovalo. **Spôsob sťahovania 007 nemeň** (pravidlo `CLAUDE.md`).
 
 ## Overenie a report
 - Testy (`pytest -q`, `npm test -- --reporter=dot`), `npm run build`.
