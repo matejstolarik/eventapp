@@ -30,8 +30,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://www.crossclub.cz/files/2019/cervenec/cross.jpg",
-    "image_source": "https://www.crossclub.cz/cs/novinky/1356-co-pro-vas-chystame-na-prodlouzeny-vikend/",
+    "image_url": "https://cdn.praguecitytourism.city/2024/07/23122824/433696016_885903950245522_1445240149215791503_n.jpg",
+    "image_source": "https://prague.eu/cs/objevujte/cross-club/",
     "sources": [
       {
         "type": "rss",
@@ -83,8 +83,8 @@
     "features": null,
     "description": "MeetFactory je neziskové mezinárodní centrum současného umění založené v roce 2001 umělcem Davidem Černým. V důsledku povodní v roce 2002 bylo nutné opustit původní prostory v Praze - Holešovicích a projekt byl vzkříšen o tři roky později v průmyslové budově v pražské čtvrti Smíchov. Program byl spuštěn po rozsáhlé rekonstrukci prostor v roce 2007.",
     "description_url": "https://www.meetfactory.cz/cs/o-nas",
-    "image_url": "https://www.meetfactory.cz/media/images/rescaled/Barak_MeetFactory_2026_Karolina_Mala_fullsize-7-320x426.jpg",
-    "image_source": "https://www.meetfactory.cz/cs/o-nas",
+    "image_url": "https://cdn.praguecitytourism.city/2024/03/13103428/241973688-4766589550027472-6986523892640535379-n-1.jpg",
+    "image_source": "https://prague.eu/cs/objevujte/meetfactory/",
     "sources": [
       {
         "type": "jsonld",
@@ -136,8 +136,8 @@
     ],
     "description": "Kasárny Karlín jsou kulturní centrum v areálu bývalých vojenských kasáren, které se veřejnosti otevřelo v roce 2017. Jedná se o vnitroblok, který skrývá rozlehlé nádvoří s útulnými bary a kavárnou, posezením pod korunami stromů a prostorem pro pohyb, kulturu i dětské skotačení.",
     "description_url": "https://kasarnakarlin.cz/en/page/44",
-    "image_url": "https://kasarnakarlin.cz/sites/default/public_files/media/image/2022/12/21/10/06/53/kreslena-mapa-kasaren-karlin.jpeg",
-    "image_source": "https://kasarnakarlin.cz",
+    "image_url": "https://www.kasarnakarlin.cz/sites/default/public_files/media/image/2022/11/28/16/24/58/exteriery-namesti-kasarne-karlin.jpg",
+    "image_source": "https://www.kasarnakarlin.cz/cs",
     "sources": [
       {
         "type": "jsonld",
@@ -418,8 +418,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://archa-plus.cz/layout/logo-social.png",
-    "image_source": "https://archa-plus.cz",
+    "image_url": "https://www.archa-plus.cz/cz/image-manipulation/resize?filename=%2Fimages%2Farcha-prostory-7.3-1.jpeg&width=1920&height=1080",
+    "image_source": "https://www.archa-plus.cz/en/space-and-technology.html",
     "sources": [
       {
         "type": "html",
@@ -462,8 +462,8 @@
     "features": [],
     "description": "Forum Karlín se stalo synonymem pro špičkové kulturní a společenské akce v Praze. Tento moderní multifunkční prostor představuje unikátní koncept, který v hlavním městě nemá obdoby. Díky své impozantní kapacitě pro tisíce návštěvníků je Forum Karlín ideálním místem pro velkolepé koncerty, konference, televizní přenosy i gala večery.",
     "description_url": "https://www.forumkarlin.cz/o-nas/",
-    "image_url": "https://www.forumkarlin.cz/wp-content/themes/forum/assets/images/facebook.jpg",
-    "image_source": "https://www.forumkarlin.cz",
+    "image_url": "https://storage.googleapis.com/goout-wordpress-uploads/coloursselectioncz/2019/03/Forum-Karlin-1.jpg",
+    "image_source": "https://selection.cz/cs/venues/forum-karlin-2/",
     "sources": [
       {
         "type": "html",
@@ -746,8 +746,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://www.jazzrepublic.cz/pict/content_cz/main/jazz_republic_001.jpg",
-    "image_source": "https://www.jazzrepublic.cz",
+    "image_url": "https://www.jazzrepublic.cz/pict/product/main/7.jpg",
+    "image_source": "https://www.jazzrepublic.cz/cz/program/2017-12-25-live-together-feat-roman-pokorny",
     "sources": [
       {
         "type": "html",
@@ -847,8 +847,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://www.sasazu-club.com/opengraph-image-xgl6v7",
-    "image_source": "https://www.sasazu-club.com",
+    "image_url": "https://images.squarespace-cdn.com/content/v1/661e03c5c650590c2c83dc5f/87a95567-b6cf-41a1-bd52-5a9c3b45d242/1.jpg",
+    "image_source": "https://www.sasazu.com",
     "sources": [
       {
         "type": "html",
@@ -1075,7 +1075,7 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://cafevlese.cz/wp-content/uploads/2022/05/1.jpg",
+    "image_url": "https://cafevlese.cz/wp-content/uploads/2022/03/bg2b.jpg",
     "image_source": "https://cafevlese.cz",
     "sources": [
       {
@@ -1134,8 +1134,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://klub007strahov.cz/wp-content/uploads/2020/04/fb.jpg",
-    "image_source": "https://klub007strahov.cz",
+    "image_url": "https://klub007strahov.cz/wp-content/uploads/2020/04/007-gal004.jpg",
+    "image_source": "https://klub007strahov.cz/informace/",
     "sources": [
       {
         "type": "jsonld",
@@ -1234,8 +1234,8 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://cdn.prod.website-files.com/652963b377af103c54ec4b67/69e8a6734c099def7765338e_hyb4-thumbnail-01.png",
-    "image_source": "https://www.kampushybernska.cz",
+    "image_url": "https://cdn.prod.website-files.com/652963b377af103c54ec4b67/6590768464761a9ccc2f27e0_Kampus_Hybernska_9.webp",
+    "image_source": "https://www.kampushybernska.cz/o-nas",
     "sources": [
       {
         "type": "html",
@@ -1282,7 +1282,7 @@
     "features": [],
     "description": null,
     "description_url": null,
-    "image_url": "https://elmagico.cz/wp-content/uploads/2025/12/elmagico-1.jpg",
+    "image_url": "https://elmagico.cz/wp-content/uploads/2025/12/elmagico-6.jpg",
     "image_source": "https://elmagico.cz",
     "sources": [
       {
