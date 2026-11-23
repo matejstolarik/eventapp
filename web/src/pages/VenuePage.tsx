@@ -111,6 +111,8 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
   const [showCount, setShowCount] = useState(20)
 
   const venue: Venue | undefined = data.venues.find(v => v.id === venueId)
+  // task 092: own description in the app language, Czech as fallback
+  const venueDescription = venue?.descriptions?.[lang] || venue?.descriptions?.cs || null
 
   if (!venue) {
     return (
@@ -195,7 +197,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
         </p>
 
         {/* Description */}
-        {venue.description && (
+        {venueDescription && (
           <div style={{ marginBottom: 12 }}>
             <p style={{
               fontSize: 14, color: '#E4E2EE', lineHeight: 1.5, margin: '0 0 4px',
@@ -204,7 +206,7 @@ export function VenuePage({ venueId, data, lang, userLocation, onBack, onEventOp
               WebkitBoxOrient: 'vertical',
               overflow: descExpanded ? 'visible' : 'hidden'
             } as React.CSSProperties}>
-              {venue.description}
+              {venueDescription}
             </p>
             <button onClick={() => setDescExpanded(e => !e)} style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: 0,

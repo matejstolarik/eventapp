@@ -20,7 +20,7 @@ function ev(id: string, o: Partial<Event> = {}): Event {
 function venue(id: string, o: Partial<Venue> = {}): Venue {
   return {
     id, name: id, city: 'Praha', address: '', lat: 50, lng: 14, web: '', ra_url: null, instagram: null,
-    type: [], character: [], music: [], size: 'medium', description: null, description_url: null,
+    type: [], character: [], music: [], size: 'medium',
     image_url: null, image_source: null, image_thumb: null, closing: null, sources: [], active: true, ...o,
   }
 }

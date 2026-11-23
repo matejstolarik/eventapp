@@ -94,6 +94,7 @@ export function EventPanel({ events, venue, lang, userLocation, className, onClo
   return (
     <section
       className={className}
+      data-testid="event-panel"
       style={{
         position: 'absolute', left: 12, right: 12, bottom: 112,
         borderRadius: 28, background: '#1C1C27',

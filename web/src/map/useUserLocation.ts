@@ -152,5 +152,10 @@ export function useUserLocation({
     }).catch(() => {})
   }, [isVisible]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch }
+  // Task 092: the map was created again (lost WebGL context) -> move the dot to it
+  function reattachUserMarker(map: maplibregl.Map) {
+    userMarkerRef.current?.addTo(map)
+  }
+
+  return { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch, reattachUserMarker }
 }

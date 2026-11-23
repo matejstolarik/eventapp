@@ -81,12 +81,14 @@ def build(events: list[dict], previous: dict, source_results: list[tuple], today
           generated_at: str, ai_stats: dict | None = None, web_stats: dict | None = None,
           proposals: list | None = None, warnings: list[str] | None = None,
           simulate_zero: str | None = None,
-          venue_images_missing: list | None = None) -> dict:
+          venue_images_missing: list | None = None,
+          kept: dict | None = None) -> dict:
     """Summary dict of one run.  previous = {id: event} of the previous run.
 
     simulate_zero (env ALERT_SIMULATE_ZERO, test switch): the sources of this
     venue are recorded with 0 events and warning zero_events.  Only the
-    summary changes, events.json is not touched."""
+    summary changes, events.json is not touched.
+    kept (task 092): {"venue/label": events kept from the previous run} for failing sources."""
     web_stats = web_stats or {}
     ai_stats = ai_stats or {}
     today_d = datetime.date.fromisoformat(today)
@@ -102,7 +104,10 @@ def build(events: list[dict], previous: dict, source_results: list[tuple], today
     for vid, label, count, warning in source_results:
         if simulate_zero and vid == simulate_zero:
             count, warning = 0, "zero_events"
-        v(vid)["sources"].append({"label": label, "events": count, "warning": warning})
+        entry = {"label": label, "events": count, "warning": warning}
+        if kept and f"{vid}/{label}" in kept:
+            entry["kept"] = kept[f"{vid}/{label}"]
+        v(vid)["sources"].append(entry)
 
     new_ids, gone = [], []
     for e in events:

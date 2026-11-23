@@ -52,7 +52,8 @@ function scoredGenres(event: Event): string[] {
  * - no preferences at all → 0;
  * - selected types and the event's type not among them → 0 (gate);
  * - culture (culture selected): subtype among selected subtypes → 80, not among → 0,
- *   culture selected without subtypes → 40;
+ *   culture selected without subtypes → 20 (task 092, like music without liked genres:
+ *   otherwise every culture event at a favourite venue got ✦);
  * - genres (model D, order not used): at least one event genre whose umbrella is liked
  *   → 50 + 30 × matched / all event genres; none matched → 0;
  *   event without genres or user without liked genres → neutral 40, but only when the
@@ -70,7 +71,7 @@ export function forYouScore(event: Event, p: ForYouPrefs): number {
     const type = filterTypeOf(event)
     if (!p.types.includes(type)) return 0
     if (type === 'culture') {
-      if (p.subtypes.length === 0) base = 40
+      if (p.subtypes.length === 0) base = 20
       else {
         const sub = cultureSubtype(event.formats, event.primary_format)
         if (sub === null || !p.subtypes.includes(sub)) return 0

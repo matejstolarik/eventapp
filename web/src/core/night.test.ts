@@ -23,7 +23,6 @@ function makeVenue(overrides: Partial<Venue> = {}): Venue {
     address: 'Test 1', lat: 50.08, lng: 14.44,
     web: 'https://test.cz', ra_url: null, instagram: null,
     type: ['dance-club'], character: [], music: [], size: 'small',
-    description: null, description_url: null,
     image_url: null, image_source: null, image_thumb: null,
     closing: null, sources: [], active: true,
     ...overrides

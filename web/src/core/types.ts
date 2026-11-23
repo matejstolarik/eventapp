@@ -15,8 +15,10 @@ export interface Venue {
   size: string
   capacity?: number | null
   features?: string[] | null
-  description: string | null
-  description_url: string | null
+  /** own venue description (task 092): cs main, sk/en translations */
+  descriptions?: Partial<Record<Language, string>> | null
+  /** pages the description facts come from (not shown in the app) */
+  description_sources?: string[] | null
   image_url: string | null
   image_source: string | null
   image_thumb: string | null
@@ -29,6 +31,8 @@ export interface Venue {
   closing: Record<string, string> | null
   /** day of the venue's first programme load; its events from that day are not "new" (task 086) */
   first_loaded?: string | null
+  /** a source of the venue is failing; hidden when it has no future event (task 092) */
+  source_failing?: boolean
   sources: VenueSource[]
   active: boolean
   notes?: string | null

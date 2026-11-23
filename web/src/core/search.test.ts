@@ -25,7 +25,7 @@ function makeVenue(overrides: Partial<Venue> = {}): Venue {
     id: 'v1', name: 'Cross Club', city: 'Prague', address: 'Plynárni 23',
     lat: 50.1, lng: 14.4, web: '', ra_url: null, instagram: null,
     type: [], character: [], music: [], size: 'medium',
-    capacity: null, features: null, description: null, description_url: null,
+    capacity: null, features: null,
     image_url: null, image_source: null, image_thumb: null,
     closing: null, sources: [], active: true, notes: null,
     ...overrides,
@@ -169,14 +169,22 @@ describe('forYouScore (task 087, model D)', () => {
     expect(hasAnyPrefs(P())).toBe(false)
   })
 
-  it('culture: subtype 80, culture without subtypes 40, other subtype 0', () => {
+  it('culture without subtypes: 20, ✦ only at a favourite venue (task 092)', () => {
+    const p = P({ favorites: new Set(['cross-club', 'archa']), types: ['culture'] })
+    expect(forYouScore(culture('film', { venue_id: 'meetfactory' }), p)).toBe(20)
+    expect(forYouTier(forYouScore(culture('film', { venue_id: 'meetfactory' }), p))).toBe(0)
+    expect(forYouScore(culture('film', { venue_id: 'cross-club' }), p)).toBe(40)
+    expect(forYouTier(forYouScore(culture('theatre', { venue_id: 'archa' }), p))).toBe(1)
+  })
+
+  it('culture: subtype 80, culture without subtypes 20, other subtype 0', () => {
     const p = P({ favorites: new Set(['cross-club']), types: ['culture'], subtypes: ['film', 'talk'] })
     expect(forYouScore(culture('film', { venue_id: 'archa' }), p)).toBe(80)
     expect(forYouScore(culture('film', { venue_id: 'cross-club' }), p)).toBe(100)
     expect(forYouScore(culture('theatre', { venue_id: 'cross-club' }), p)).toBe(0)
     const q = P({ favorites: new Set(['cross-club']), types: ['culture'], genres: ['techno'] })
-    expect(forYouScore(culture('film', { venue_id: 'archa', genres: ['techno'] }), q)).toBe(40)
-    expect(forYouScore(culture('film', { venue_id: 'cross-club' }), q)).toBe(60)
+    expect(forYouScore(culture('film', { venue_id: 'archa', genres: ['techno'] }), q)).toBe(20)
+    expect(forYouScore(culture('film', { venue_id: 'cross-club' }), q)).toBe(40)
   })
 
   it('no types selected: no gate, genres + venue; neutral 40 only in a favourite venue', () => {

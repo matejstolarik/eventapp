@@ -80,7 +80,9 @@ def source_alerts(latest: dict, history: list[dict], ignore: set[str]) -> list[d
                 out.append(_alert(f"source:{key}", f"⚠ Zdroj {key}: {why}",
                                   f"Zdroj `{key}` vrátil v behu {latest['date']} **0 akcií**"
                                   f" ({why}; {med_txt}). Pravdepodobne sa zmenil web alebo"
-                                  " zdroj nefunguje."))
+                                  " zdroj nefunguje."
+                                  + (f" Ponechaných akcií z predchádzajúceho behu: {src['kept']}."
+                                     if "kept" in src else "")))
             elif med and n < DROP_RATIO * med:
                 out.append(_alert(f"source:{key}", f"⚠ Zdroj {key}: pokles na {n} akcií",
                                   f"Zdroj `{key}` vrátil v behu {latest['date']} **{n} akcií**,"

@@ -29,7 +29,7 @@ def test_venues_json_entries():
                           ("klub-007-strahov", "eventon"), ("ox-club", "oxclub"),
                           ("kampus-hybernska", "kampus")):
         v = venues[vid]
-        assert v["active"] and v["image_url"] and v["description"] is None
+        assert v["active"] and v["image_url"] and v["descriptions"]["cs"]   # task 092
         assert v["sources"][0]["strategy"] == strategy
     assert venues["karlovy-lazne"]["capacity"] == 1000
     assert venues["klub-007-strahov"]["capacity"] == 180

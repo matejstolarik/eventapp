@@ -9,6 +9,8 @@ import { EVENT_TYPE_COLOR, EVENT_TYPE_DARK } from '../core/eventType'
 import type { EventIconKey } from '../core/eventType'
 import { AllFavsToggle } from '../components/AllFavsToggle'
 import { heartPop, pressClass } from '../core/motion'
+import { isVenueHidden } from '../core/hiddenVenue'
+import { getToday } from '../core/day'
 
 interface Props {
   data: EventsData
@@ -95,8 +97,9 @@ export function PlacesPage({ data, lang, onVenueOpen, showFavoritesInit = false,
 
   const q = normalize(query.trim())
 
+  const today = getToday()
   const sorted = [...data.venues]
-    .filter(v => v.active)
+    .filter(v => v.active && !isVenueHidden(v, data.events, today))
     .sort((a, b) => a.name.localeCompare(b.name, 'cs'))
 
   const filtered = sorted.filter(v => {

@@ -2,7 +2,7 @@
 
 Hodnoty v JSON príkladoch sú ilustračné (čas, cena a odkazy nie sú overené údaje).
 Stav: návrh, väčšina rozhodnutí odsúhlasená 2026-10-29. Zdroj pravdy pre dátové štruktúry. Zmeny najprv navrhnúť, potom upraviť tento súbor.
-Posledná aktualizácia: 2026-11-09
+Posledná aktualizácia: 2026-11-23
 
 ## Prehľad
 
@@ -38,8 +38,8 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
   "sources": [
     { "type": "rss", "url": "https://www.crossclub.cz/cs/rss/program/" }
   ],
-  "description": "Kultový underground klub a komunitné centrum v industriálnom komplexe. Multifunkčný priestor s barom, záhradou a štúdiami.",
-  "description_url": "https://www.crossclub.cz/cs/o-nas/",
+  "descriptions": { "cs": "Klub v Holešovicích …", "sk": "Klub v Holešoviciach …", "en": "A club in Holešovice …" },
+  "description_sources": ["https://www.crossclub.cz/en", "https://en.wikipedia.org/wiki/Cross_Club"],
   "active": true,
   "notes": null
 }
@@ -50,8 +50,16 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `capacity`: nepovinné, len overené číslo.
 - `commercial_club`: nepovinné, `true` = komerčný klub; **každá** hudobná akcia (`concert`/`dj`/`music`) v ňom je `party` s `primary_format = "party"` (pravidlo pipeline `apply_commercial_clubs`, bez AI; task 053). Chýba = `false`. Nastavuje Matej ručne.
 - `lat`, `lng`: súradnice pre zobrazenie na mape. **Povinné** — podnik bez súradníc sa na mape nezobrazí. Zdroj: OSM Nominatim alebo mapa na webe podniku; vždy overiť adresou. Nový podnik bez súradníc sa do `venues.json` nepridá.
-- `description`: krátky popis podniku (2–4 vety, čistý text, bez prekladu, z webu podniku). `null` ak podnik nemá stránku „O nás" / „About" alebo tam popis nie je.
-- `description_url`: URL stránky, z ktorej popis pochádza. `null` ak `description` je `null`.
+- `descriptions` (task 092, schválené Matejom 2026-11-23): vlastný popis podniku `{ "cs", "sk", "en" }`, 3–4 vety, čistý text; `cs` je hlavný, `sk` a `en` sú preklady. Chýba = podnik popis nemá. Appka zobrazí `descriptions[jazyk appky]`, inak `descriptions.cs`. Píše ho hlavný chat s Matejom (nie pipeline ani AI) podľa pravidiel nižšie.
+- `description_sources` (task 092): zoznam URL stránok, z ktorých pochádzajú fakty popisu (podklad na kontrolu, v appke sa nezobrazuje).
+- Zrušené v task 092: `description` a `description_url` (text doslova skopírovaný z webu podniku – len česky a právne rizikový).
+- **Pravidlá písania popisu podniku** (task 092):
+  - vlastnými slovami, len fakty zo zdrojov (aj z recenzií, ak sa zhodujú), nikdy vety zo zdroja;
+  - žiadne názory a dojmy („pôsobí ako opustená chata“, „bludisko“), žiadne nepodložené superlatívy;
+  - podnik neznevažovať („menšie / menej známe kapely“ → „kapely z nezávislej scény“);
+  - žiadne interné detaily, ktoré návštevníkovi nič nepovedia (názvy miestností, domáci poriadok, štatistiky, technika sály);
+  - žiadne odhady publika („chodia sem hlavne…“), žiadne promo a prázdne záverečné vety („nenáročné miesto“, „oplatí sa rezervovať“);
+  - vymenovanie nekončí slabšou položkou; bez otváracích hodín, cien a adresy (sú inde v profile).
 - `image_url`: URL fotky podniku (`og:image` domovskej stránky alebo stránky „O nás"), len URL, nekopírovať. `null` ak sa vhodný obrázok nenašiel. Nastavuje Matej ručne alebo podľa reportu.
 - `image_source`: URL stránky, z ktorej `image_url` pochádza. `null` ak `image_url` je `null`.
 - `image_thumb`: relatívna cesta k náhľadu (`img/venues/<id>.jpg`, 160×160 JPEG) generovaného pipeline z `image_url`. `null` ak `image_url` je `null` alebo stiahnutie zlyhalo. Generuje pipeline automaticky; Matej ho nenastavuje ručne.
@@ -59,6 +67,7 @@ venues.json (ručne, v repe)  ->  adaptéry zdrojov  ->  normalizácia  ->  kate
 - `image_detail`: relatívna cesta k zmenšenej kópii bez orezu (`img/venues/detail/<id>.jpg`, JPEG, dlhšia strana najviac 1200 px, menší sa nezväčšuje). `null` v tých istých prípadoch ako `image_card`. Stránka akcie bez obrázka ho ukáže ako hlavný obrázok (task 082).
 - `image_detail_size`: rozmery súboru `image_detail` ako `[šírka, výška]`, alebo `null`, keď `image_detail` je `null` (task 082).
 - `first_loaded` (len v `events.json`, generuje pipeline, task 086): deň (`YYYY-MM-DD`) prvého úspešného načítania programu miesta (prvý beh, v ktorom zdroj vrátil akcie; miesto, ktorého prvé behy zlyhali, sa počíta od prvého úspechu). `null` = miesto načítané pred zavedením pravidla (bez obmedzenia). Akcia je v appke „nová“ (odznak, prepínač Nové, počet) len keď `first_seen` je za posledných 7 dní **a** `first_seen > first_loaded` – akcie z prvého načítania miesta nové nie sú. Stav medzi behmi: `pipeline_state.json` → `venue_first_loaded`; miesta z 085 (Lucerna Music Bar, O2 arena, O2 universum, Jazz Republic) majú spätne 2026-11-21.
+- `source_failing` (len v `events.json`, generuje pipeline, task 092): `true`, keď niektorý zdroj podniku v tomto behu zlyhal (chyba sťahovania, alebo 0 akcií, hoci predtým akcie mal alebo už zlyhával). Appka takýto podnik skryje (zoznam Miesta; na mape nemá pin, lebo nemá akcie), keď mu nezostala žiadna budúca akcia. Podnik, ktorý len nemá program, sa neskrýva. Stav medzi behmi: `pipeline_state.json` → `failing_sources` (`{"<venue>/<label>": deň začiatku výpadku}`); keď zdroj znova vráti akcie, záznam zmizne.
 - `closing`: nepovinné. Čas zatvorenia podľa dňa v týždni: `{"fri": "05:00", "sat": "07:00", "mon": "02:00"}`. Deň = deň, keď akcia **začala**. Chýbajúci deň alebo celé pole `null` = neznáme (použije sa 3:00). Ak je `closing` ≥ `start_time` akcie, zatvára sa v ten istý deň; inak nasledujúci deň ráno (`"00:00"` = polnoc po dni začiatku). Akcia bez `start_time`: `closing` < 12:00 → nasledujúci deň, inak ten istý deň. Hodnoty nastavuje Matej ručne. (Matej 2026-11-16)
 - `ra_url`: nepovinné. Odkaz na profil podniku na Resident Advisor (napr. `https://ra.co/clubs/13354`). Len na zobrazenie v appke, nie na fetchovanie dát.
 - Typy zdrojov v1: `rss`, `jsonld`, `html`. Nový typ zdroja = nový samostatný adaptér. Od úlohy 090 aj `poster`: mesačný plagát (obrázok) čítaný modelom DeepSeek s obrázkovým vstupom; konfigurácia `strategy` (`elmagico`) a `media_url` (WP media search). Akcia z plagátu má `sources[0] = {"type": "poster", "url": <URL obrázka plagátu>}`; keď ju nahradí rovnaká akcia z HTML, ponechá si jej `id` a `first_seen` a `sources` = HTML zdroj + `poster` (pozri `docs/decisions.md`, 2026-11-22). (RA sa nepoužíva; `instagram` nie je zdroj dát — pozri `docs/decisions.md`.)
@@ -173,6 +182,7 @@ Polia:
   - Cache: AI ide len na akcie v najbližších 180 dňoch (task 085; predtým 60), ktoré sú nové alebo majú zmenený názov (porovnáva sa s predchádzajúcim `events.json`, akcia s `enrichment.run.checked_at` a rovnakým názvom sa neposiela znova). Výnimka (task 085): akcia doplnená viac ako 60 dní pred dátumom, ktorej chýba cena, žánre (hudobná akcia) alebo čas (začiatok aj otvorenie), ide do AI **raz** znova, keď je do 60 dní; nový záznam má `run.rechecked_from` = `checked_at` pôvodného doplnenia a znova sa už neopakuje.
 - `classification`: ako sa určili formát a žánre (`source`, `keyword`, `manual`, `llm`, `llm+web` – `llm+web` = AI s hľadaním a webovým zdrojom, task 054) a s akou istotou. Nepovinné `reason`: krátky text od AI, prečo je akcia `party` (task 053; len pri `method = "llm"` a formáte `party`). `null` ak pipeline formát ani žánre neurčila (napr. čistý RSS bez kategorizácie).
 - `status`: `scheduled` | `cancelled` (zdroj výslovne uvádza zrušenie) | `postponed` (akcia odložená bez nového dátumu; prefix odstránený z názvu) | `gone` (akcia zmizla zo všetkých zdrojov pred dátumom konania).
+- `source_last_ok` (task 092): len pri akcii ponechanej z predchádzajúceho behu, lebo jej zdroj zlyhal – deň (`YYYY-MM-DD`), keď zdroj akciu naposledy vrátil (jej `last_seen`; akcia ponechaná už skôr si hodnotu nechá). Pri výpadku zdroja ostanú v `events.json` všetky jeho budúce akcie z predchádzajúceho `events.json` bez zmeny obsahu, bez časového limitu (odpadnú, keď prebehnú). V appke sa neoznačuje. Pri bežnej akcii pole chýba.
 - `flags`: problémy, ktoré pipeline zachytila, napr. `date_conflict`, `time_conflict`, `date_suspicious`.
 
 ### Dátum bez roka

@@ -8,6 +8,7 @@ import urllib.request
 from zoneinfo import ZoneInfo
 
 from pipeline import first_load
+from pipeline import source_outage
 from pipeline.adapters import rss as rss_adapter
 from pipeline.adapters import jsonld as jsonld_adapter
 from pipeline.adapters import html as html_adapter
@@ -193,7 +194,7 @@ def main():
                 log.warning("No adapter for source type '%s' (venue %s)", source["type"], venue["id"])
                 source_results.append((venue["id"], source.get("type", "?"), 0, "error"))
                 continue
-            label = source.get("section") or source.get("strategy") or source["type"]
+            label = source_outage.source_label(source)
             try:
                 # task 085: parsed detail pages kept between runs per venue
                 cache = state.setdefault("adapter_detail", {}).setdefault(venue["id"], {})
@@ -286,6 +287,12 @@ def main():
         if ev["price"] and ev.get("free") is None and ev["price"]["kind"] in ("free", "free_reservation"):
             ev["free"] = True
     events = run_checks(events, previous)
+    # task 092: a failing source keeps its last known future events
+    kept_events, kept_stats, failing_venues = source_outage.keep_failing(
+        venues, source_results, events, previous, state, today)
+    if kept_stats:
+        log.info("Failing sources, kept events: %s", kept_stats)
+    events = events + kept_events
 
     EVENTS_OUT.parent.mkdir(parents=True, exist_ok=True)
 
@@ -298,6 +305,7 @@ def main():
     for v in venues:
         ve = dict(v)
         ve["first_loaded"] = first_loaded.get(v.get("id"))
+        ve["source_failing"] = v.get("id") in failing_venues     # task 092
         ve.update(venue_image_map.get(v.get("id", ""), {}) or {
             "image_thumb": None, "image_card": None, "image_detail": None,
             "image_detail_size": None})
@@ -354,6 +362,7 @@ def main():
                                     ai_stats=ai_stats, web_stats=web_stats, proposals=proposals,
                                     warnings=capture.messages,
                                     venue_images_missing=venue_images_missing,
+                                    kept=kept_stats,
                                     simulate_zero=run_summary.simulate_zero_venue())
         log.info("Run summary written to %s", run_summary.save(summary))
     except Exception as exc:   # never stop the daily run

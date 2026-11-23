@@ -76,11 +76,14 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   const pairsRef = useRef<Map<string, string>>(new Map())
   const combinedLabelRef = useRef<HTMLElement | null>(null)
   const combinedMarkerRef = useRef<maplibregl.Marker | null>(null)
+  // Task 092: true from the map's 'load' event.  map.loaded() is false while tiles
+  // load (e.g. right after the hidden map is shown), which skipped pin updates.
+  const mapReadyRef = useRef(false)
 
   useEffect(() => { selectedVenueIdRef.current = selectedVenueId }, [selectedVenueId])
   // Sync pin visual state whenever selection changes (e.g. deselect on back/map-click)
   useEffect(() => {
-    if (mapRef.current?.loaded()) updateMarkersRef.current()
+    if (mapReadyRef.current) updateMarkersRef.current()
   }, [selectedVenueId])
   useEffect(() => { dataRef.current = data }, [data])
   useEffect(() => { selectedDayRef.current = selectedDay }, [selectedDay])
@@ -98,10 +101,20 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   // Night mode hook
   const showNight = useNightMode({ data, selectedDayRef, pendingPanelOpenRef, setSelectedDay })
 
+  // Resize map when it becomes visible again; also process any pending panel open.
+  // Task 092: runs before the "Na mape" effect below, so the map has its real size
+  // before it is centred on the venue.
+  useEffect(() => {
+    if (isVisible && mapRef.current && mapReadyRef.current) {
+      mapRef.current.resize()
+      updateMarkersRef.current(true) // map opened: pins drop (task 081)
+    }
+  }, [isVisible])
+
   // Handle external "Na mape" selection
   const forcePendingUpdateRef = useRef(() => {})
   forcePendingUpdateRef.current = () => {
-    if (mapRef.current?.loaded() && isVisibleRef.current) updateMarkersRef.current()
+    if (mapReadyRef.current && isVisibleRef.current) updateMarkersRef.current()
   }
   usePendingSelect(pendingSelect, data, pendingPanelOpenRef, setSelectedDay, onPendingSelectHandled,
     () => forcePendingUpdateRef.current())
@@ -115,14 +128,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
-
-  // Resize map when it becomes visible again; also process any pending panel open
-  useEffect(() => {
-    if (isVisible && mapRef.current?.loaded()) {
-      mapRef.current.resize()
-      updateMarkersRef.current(true) // map opened: pins drop (task 081)
-    }
-  }, [isVisible])
 
   openPanelRef.current = (venueId: string) => {
     const isNew = venueId !== selectedVenueIdRef.current
@@ -241,7 +246,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
   }, [])
 
   // User location hook
-  const { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch } =
+  const { userLocation, locationLoading, handleLocationClick, tryInitialLocation, stopWatch, reattachUserMarker } =
     useUserLocation({ mapRef, dataRef, selectedDayRef, showFavoritesRef, isVisibleRef, isVisible, eventFilterRef })
 
   // Init map
@@ -249,7 +254,29 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     if (!mapContainerRef.current || mapRef.current) return
     let mounted = true
 
-    async function initMap() {
+    let removeVisListener = () => {}
+
+    // Task 092: a mobile browser may drop the WebGL context of a map left in the
+    // background for long.  MapLibre then draws only black (tiles, glyphs and images
+    // were GPU objects of the lost context), the HTML pins stay.  The map is created
+    // again with the same view; pins, day, filter and the open panel are kept
+    // (React state; the pins are moved to the new map).
+    let recreating = false
+    function recreateMap() {
+      const old = mapRef.current
+      if (!old || recreating || !mounted) return
+      recreating = true
+      const view = { center: old.getCenter(), zoom: old.getZoom(), bearing: old.getBearing(), pitch: old.getPitch() }
+      removeVisListener()
+      mapReadyRef.current = false
+      for (const l of leavingMarkersRef.current.values()) { clearTimeout(l.timerId); l.marker.remove() }
+      leavingMarkersRef.current.clear()
+      old.remove()
+      mapRef.current = null
+      void initMap(view).finally(() => { recreating = false })
+    }
+
+    async function initMap(view?: { center: maplibregl.LngLat; zoom: number; bearing: number; pitch: number }) {
       try {
         initPinShadows()
         const style = await loadMapStyle()
@@ -258,13 +285,22 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
         const map = new maplibregl.Map({
           container: mapContainerRef.current,
           style: style as maplibregl.StyleSpecification,
-          center: PRAGUE_CENTER,
-          zoom: 12,
+          center: view?.center ?? PRAGUE_CENTER,
+          zoom: view?.zoom ?? 12,
+          bearing: view?.bearing ?? 0,
+          pitch: view?.pitch ?? 0,
           minZoom: MAP_MIN_ZOOM,
           maxBounds: PRAGUE_BOUNDS,
           attributionControl: false,
         })
         mapRef.current = map
+        // dev only: Playwright tests read the map state (task 092)
+        if (import.meta.env.DEV) (window as unknown as { __map?: maplibregl.Map }).__map = map
+        if (view) {
+          // recreated map: keep the existing pins (no new appear animation)
+          for (const { marker } of markersRef.current.values()) marker.addTo(map)
+          reattachUserMarker(map)
+        }
 
         const combinedLabelEl = document.createElement('div')
         combinedLabelEl.className = 'pin-combined-name'
@@ -280,10 +316,21 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
         const canvas = map.getCanvas()
         canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault() })
-        canvas.addEventListener('webglcontextrestored', () => { map.triggerRepaint() })
+        // a restored context has none of the map's textures -> new map (task 092)
+        canvas.addEventListener('webglcontextrestored', () => recreateMap())
+        let lostTimer: ReturnType<typeof setTimeout> | undefined
+        const contextLost = () => (map.painter as unknown as { context?: { gl?: WebGLRenderingContext } } | undefined)
+          ?.context?.gl?.isContextLost() ?? false
 
         function handleVisChange() {
           if (document.visibilityState === 'visible') {
+            // context still lost on return: wait briefly for the browser to restore it
+            // ('webglcontextrestored' recreates the map), otherwise create it again
+            if (contextLost()) {
+              clearTimeout(lostTimer)
+              lostTimer = setTimeout(() => { if (mapRef.current === map && contextLost()) recreateMap() }, 600)
+              return
+            }
             map.triggerRepaint()
             if (isVisibleRef.current) {
               map.resize()
@@ -292,6 +339,10 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
           }
         }
         document.addEventListener('visibilitychange', handleVisChange)
+        removeVisListener = () => {
+          clearTimeout(lostTimer)
+          document.removeEventListener('visibilitychange', handleVisChange)
+        }
 
         map.on('click', (e) => {
           if ((e.originalEvent.target as HTMLElement).classList.contains('maplibregl-canvas')) {
@@ -301,10 +352,11 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
         map.on('load', () => {
           if (!mounted) return
+          mapReadyRef.current = true
           const container = mapContainerRef.current
           if (container) container.classList.toggle('map-zoom-13', map.getZoom() >= 13)
-          updateMarkers()
-          tryInitialLocation(map)
+          updateMarkersRef.current()
+          if (!view) tryInitialLocation(map)
         })
 
         map.on('zoom', () => {
@@ -339,7 +391,6 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
 
         map.on('rotate', () => setBearing(map.getBearing()))
 
-        return () => { document.removeEventListener('visibilitychange', handleVisChange) }
       } catch (err) {
         console.error('Map init failed', err)
       }
@@ -348,6 +399,7 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     void initMap()
     return () => {
       mounted = false
+      removeVisListener()
       stopWatch()
       if (mapRef.current && !mapRef.current.loaded()) {
         mapRef.current.remove()
@@ -366,13 +418,13 @@ export function MapPage({ data, lang, isVisible = true, onEventOpen, pendingSele
     const key = `${selectedDay}|${showFavorites}|${JSON.stringify(eventFilter)}`
     const drop = dropKeyRef.current !== '' && dropKeyRef.current !== key
     dropKeyRef.current = key
-    if (mapRef.current?.loaded()) updateMarkers(drop)
+    if (mapReadyRef.current) updateMarkers(drop)
   }, [updateMarkers]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Refresh every 60s when map is visible
   useEffect(() => {
     const interval = setInterval(() => {
-      if (mapRef.current?.loaded() && isVisibleRef.current) updateMarkersRef.current()
+      if (mapReadyRef.current && isVisibleRef.current) updateMarkersRef.current()
     }, 60000)
     return () => clearInterval(interval)
   }, [])
