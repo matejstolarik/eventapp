@@ -49,7 +49,7 @@ V `forYouScore`: typ **kultúra bez vybratých podtypov** dáva kultúrnej čast
 - Test (Playwright): stratený a obnovený kontext → canvas mapy nie je čierny (napr. vzorka pixelov), piny a panel ostanú.
 
 ### 7. „Na mape“ z detailu akcie nevycentruje mapu (Matej 2026-11-23, chyba)
-**Správanie:** ťuk na „Na mape“ v detaile akcie prepne na Mapu, ale **mapa sa nevycentruje** na podnik. Má to fungovať rovnako ako ťuk na pin: vybraný pin, otvorený panel podniku, mapa posunutá na podnik (`easeTo` s rovnakým paddingom ako pri pine).
+**Správanie:** ťuk na „Na mape“ v detaile akcie prepne na Mapu, ale **mapa sa nevycentruje** na podnik. Výsledok ako po ťuku na pin (vybraný pin, otvorený panel podniku), ale **mapa sa vycentruje na podnik vždy** (`easeTo` s paddingom ako pri pine), lebo prichádzame z detailu akcie a mapa môže byť kdekoľvek. **Ťuk na pin ostáva bez zmeny** – ten posúva mapu len vtedy, keď je pin zakrytý alebo pri okraji (Matej: tak je to správne).
 **Kód:** `EventPage.tsx` `handleGoToMap` → `usePendingSelect` (`MapPage.tsx` ~r. 101) → `markerSync.ts` „Handle external Na mape navigation“ (~r. 194, `easeTo`). Príčinu nepoznám – hypotézy na overenie: `easeTo` beží, kým je mapa ešte skrytá alebo pred `resize()` v efekte `isVisible` (posun sa stratí); pin podniku v tej chvíli ešte neexistuje (iný vybraný deň), takže sa vetva nespustí; alebo `easeTo` prebije animácia pádu pinov (081). Najprv reprodukuj (Playwright: detail akcie → Na mape → stred mapy vs. súradnice podniku), príčinu napíš do reportu, potom oprav.
 - Test: po „Na mape“ je podnik v strede viditeľnej časti mapy (nad panelom) aj vtedy, keď bola mapa predtým posunutá inam a keď je akcia v inom dni než vybratý deň.
 
