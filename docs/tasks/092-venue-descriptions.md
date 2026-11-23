@@ -1,4 +1,4 @@
-# 092: Popisy podnikov (vlastný text, CZ/SK/EN), oprava kultúry v Pre teba, akcie pri výpadku zdroja
+# 092: Popisy podnikov (CZ/SK/EN), kultúra v Pre teba, akcie pri výpadku zdroja, čierna mapa, „Na mape“
 
 ## Zadanie
 
@@ -40,6 +40,18 @@ V `forYouScore`: typ **kultúra bez vybratých podtypov** dáva kultúrnej čast
 - Alert (`source:<venue>/<label>`) ostáva ako dnes; v súhrne behu počet ponechaných akcií na zdroj.
 - Over na fixture: zdroj s chybou → akcie z predchádzajúceho behu ostanú; minulé odpadnú; zdroj bez akcií a bez budúcich → podnik skrytý. Riadok do `docs/decisions.md`.
 - Ak 007 v behu na konci úlohy stále vracia 403, v reporte uveď, koľko jeho akcií sa takto zachovalo. **Spôsob sťahovania 007 nemeň** (pravidlo `CLAUDE.md`).
+
+### 6. Čierna mapa po návrate do appky (Matej 2026-11-23, chyba)
+**Správanie:** appka ostane otvorená na Mape, Matej sa prepne do inej appky (appku nezavrie) a vráti sa napr. po 2 hodinách → **mapa je úplne čierna, piny sú na mieste**. Nesmie sa to stávať.
+**Hypotéza (neoverená):** mobilný prehliadač pri dlhom pobyte na pozadí zahodí WebGL kontext mapy (`webglcontextlost`) a MapLibre ho po návrate neobnoví; piny sú HTML značky, preto ostanú. V `web/src/` dnes nie je žiadna obsluha `webglcontextlost` / `webglcontextrestored` (grep), `MapPage.tsx` pri návrate volá len `resize()`.
+- Najprv **over príčinu** (dá sa vyvolať stratu kontextu cez rozšírenie `WEBGL_lose_context` v Playwright/Chromium) a napíš ju do reportu.
+- Oprava: po návrate (`visibilitychange` → visible) a pri `webglcontextrestored` mapa musí byť znova vykreslená; ak sa kontext neobnoví, mapu znovu vytvor so zachovaním stredu, zoomu, vybraného dňa, filtra a otvoreného panelu. Bez viditeľného blikania navyše a bez zmeny dizajnu.
+- Test (Playwright): stratený a obnovený kontext → canvas mapy nie je čierny (napr. vzorka pixelov), piny a panel ostanú.
+
+### 7. „Na mape“ z detailu akcie nevycentruje mapu (Matej 2026-11-23, chyba)
+**Správanie:** ťuk na „Na mape“ v detaile akcie prepne na Mapu, ale **mapa sa nevycentruje** na podnik. Má to fungovať rovnako ako ťuk na pin: vybraný pin, otvorený panel podniku, mapa posunutá na podnik (`easeTo` s rovnakým paddingom ako pri pine).
+**Kód:** `EventPage.tsx` `handleGoToMap` → `usePendingSelect` (`MapPage.tsx` ~r. 101) → `markerSync.ts` „Handle external Na mape navigation“ (~r. 194, `easeTo`). Príčinu nepoznám – hypotézy na overenie: `easeTo` beží, kým je mapa ešte skrytá alebo pred `resize()` v efekte `isVisible` (posun sa stratí); pin podniku v tej chvíli ešte neexistuje (iný vybraný deň), takže sa vetva nespustí; alebo `easeTo` prebije animácia pádu pinov (081). Najprv reprodukuj (Playwright: detail akcie → Na mape → stred mapy vs. súradnice podniku), príčinu napíš do reportu, potom oprav.
+- Test: po „Na mape“ je podnik v strede viditeľnej časti mapy (nad panelom) aj vtedy, keď bola mapa predtým posunutá inam a keď je akcia v inom dni než vybratý deň.
 
 ## Overenie a report
 - Testy (`pytest -q`, `npm test -- --reporter=dot`), `npm run build`.
